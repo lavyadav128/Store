@@ -28,7 +28,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3001',                    // Local frontend
-    'https://notess-ei6q.onrender.com',         // Deployed frontend
+    'https://store-3kwo.onrender.com',         // Deployed frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],    // Allowed HTTP methods
   credentials: true,                            // Allow credentials (cookies, headers)
