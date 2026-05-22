@@ -1,0 +1,15 @@
+node_modules/
+dist/
+build/
+.next/
+.env
+
+# ❌ DO NOT TRACK CONTENT FILES
+dash/public/images/completenotes/
+dash/public/images/pyq/
+dash/public/images/shortnotes/
+
+*.pdf
+*.mp3
+*.mp4
+*.zip
