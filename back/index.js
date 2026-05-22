@@ -27,7 +27,8 @@ const app = express();
 // CORS configuration to allow requests from specific origins
 app.use(cors({
   origin: [
-    'http://localhost:3001',                    // Local frontend
+    'http://localhost:3001',
+    'http://localhost:30265',                    // Local frontend
     'https://store-3kwo.onrender.com',         // Deployed frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],    // Allowed HTTP methods
