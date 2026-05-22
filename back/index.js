@@ -29,7 +29,7 @@ app.use(cors({
   origin: [
     'http://localhost:3001',
     'http://localhost:30265',                    // Local frontend
-    'https://store-3kwo.onrender.com',         // Deployed frontend
+    'https://storef.onrender.com',         // Deployed frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],    // Allowed HTTP methods
   credentials: true,                            // Allow credentials (cookies, headers)
