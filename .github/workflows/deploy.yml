@@ -1,53 +1,53 @@
-# name: CI/CD Pipeline (Backend + Frontend)
+name: CI/CD Pipeline (Backend + Frontend)
 
-# on:
-#   push:
-#     branches:
-#       - main   # or whichever branch you deploy from
+on:
+  push:
+    branches:
+      - main   # or whichever branch you deploy from
 
-# jobs:
-#   backend:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v3
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-#       - name: Install Backend Dependencies
-#         run: npm install
-#         working-directory: back
+      - name: Install Backend Dependencies
+        run: npm install
+        working-directory: back
 
-#       - name: Run Backend Tests
-#         run: npm test
-#         working-directory: back
+      - name: Run Backend Tests
+        run: npm test
+        working-directory: back
 
-#       - name: Deploy Backend to Render
-#         if: success()
-#         run: |
-#           curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_ID }}/deploys" \
-#           -H "Accept: application/json" \
-#           -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+      - name: Deploy Backend to Render
+        if: success()
+        run: |
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_BACKEND_ID }}/deploys" \
+          -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
 
-#   frontend:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Checkout Code
-#         uses: actions/checkout@v3
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-#       - name: Install Frontend Dependencies
-#         run: npm install
-#         working-directory: dash
+      - name: Install Frontend Dependencies
+        run: npm install
+        working-directory: dash
 
-#       - name: Run Frontend Tests
-#         run: npm test
-#         working-directory: dash
+      - name: Run Frontend Tests
+        run: npm test
+        working-directory: dash
 
-#       - name: Build Frontend
-#         run: CI=false npm run build
-#         working-directory: dash
+      - name: Build Frontend
+        run: CI=false npm run build
+        working-directory: dash
 
-#       - name: Deploy Frontend to Render
-#         if: success()
-#         run: |
-#           curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_ID }}/deploys" \
-#           -H "Accept: application/json" \
-#           -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
+      - name: Deploy Frontend to Render
+        if: success()
+        run: |
+          curl -X POST "https://api.render.com/v1/services/${{ secrets.RENDER_FRONTEND_ID }}/deploys" \
+          -H "Accept: application/json" \
+          -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}"
