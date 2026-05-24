@@ -13,28 +13,11 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 const topics = [
-  { id: "html-basics", name: "HTML Basics" },
-  { id: "css-basics", name: "CSS Basics" },
-  { id: "js-basics", name: "JavaScript Basics" },
-  { id: "github", name: "GitHub" },
-  { id: "backend", name: "Backend" },
-  { id: "mongodb", name: "Mongodb" },
-  { id: "react-basics", name: "React Basics" },
-  { id: "sql-basics", name: "SQL Basics" },
-  { id: "redux", name: "Redux" },
-  { id: "networking-basics", name: "Networking Basics" },
-  { id: "oops-principles", name: "OOP Principles" },
-  { id: "dbms-basics", name: "DBMS Basics" },
-  { id: "os-basics", name: "OS Basics" },
-  { id: "cicd", name: "CI/CD" },
-  { id: "docker", name: "Docker" },
-  { id: "kubernetes", name: "Kubernetes" },
-  { id: "aws", name: "AWS" },
-  { id: "authentication", name: "Authentication" },
-  { id: "interview", name: "Interview" },
-
-
-
+    { id: "analytics", name: "Analytics" },
+    { id: "analyses-python", name: "Analyses-python" },
+    { id: "finance", name: "Finance" },
+    { id: "quant", name: "Quant" },
+    { id: "interviewdata", name: "Interviewdata" },
 ];
 
 const TopicPage = () => {
@@ -106,7 +89,7 @@ const TopicPage = () => {
               }}
             >
               <CardActionArea
-                onClick={() => navigate(`/wpractice/${topic.id}`)}
+                onClick={() => navigate(`/apractice/${topic.id}`)}
               >
                 <CardContent
                   sx={{

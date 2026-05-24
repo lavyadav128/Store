@@ -15,9 +15,23 @@ import Revision from './components/Revision/concept'; // Revision Page Component
 import College from './components/College/Top'; // College Page Component
 
 
+
+
 import Web from './components/Developments/Web';
 import WtopicPage from './components/Developments/wtopic'; // Practice Page Component
 import WpractisePage from './components/Developments/wpractise';
+
+
+
+import Data from './components/Analyses/data';
+import AtopicPage from './components/Analyses/atopic'; // Practice Page Component
+import ApractisePage from './components/Analyses/apractise';
+
+
+
+import Prac from './components/Aptitude/Prac';
+import PtopicPage from './components/Aptitude/ptopic'; // Practice Page Component
+import PpractisePage from './components/Aptitude/ppractise';
 
 
 
@@ -70,6 +84,16 @@ root.render(
             <Route path="/wpractice/:topicId" element={<WpractisePage />} />
 
 
+               {/* Analysis Details */}
+            <Route path="/data-analysis" element={<Data />} />
+            <Route path="/atopic" element={<AtopicPage />} />
+            <Route path="/apractice/:topicId" element={<ApractisePage />} />
+
+
+               {/* Aptitude Details */}
+            <Route path="/aptitude" element={<Prac />} />
+            <Route path="/ptopic" element={<PtopicPage />} />
+            <Route path="/ppractice/:topicId" element={<PpractisePage />} />
 
 
 

@@ -24,28 +24,12 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 
 const topics = [
-  { name: "GitHub", slug: "github", subtopics: [] },
-  { name: "SQL", slug: "sql", subtopics: [] },
-  {
-    name: "Frontend",
-    slug: "frontend",
-    subtopics: ["html", "css", "Javascript", "react"],
-  },
-  {
-    name: "Backend",
-    slug: "backend",
-    subtopics: ["Node.js", "Express", "Authentication"],
-  },
-  {
-    name: "theory",
-    slug: "theory",
-    subtopics: [
-      "computer-networking",
-      "object-oriented-programming",
-      "dbms",
-      "operating-system",
-    ],
-  },
+
+  { name: "Python", slug: "python", subtopics: [] },
+  { name: "Finance", slug: "finance", subtopics: [] },
+  { name: "Analytics", slug: "analytics", subtopics: [] },
+
+
 
 ];
 
@@ -311,7 +295,7 @@ const WebDevTopics = () => {
             px={isMobile ? 0 : 2}
           >
             <Card
-              onClick={() => navigate("/wtopic")}
+              onClick={() => navigate("/atopic")}
               sx={{
                 p: isMobile ? 2 : 4,
                 borderRadius: 4,

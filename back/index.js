@@ -29,7 +29,7 @@ app.use(cors({
   origin: [
     'http://localhost:3001',
     'https://note-vevp.onrender.com',          // Deployed frontend
-    'http://localhost:30265',                    // Local frontend
+    // 'http://localhost:30265',                    // Local frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],    // Allowed HTTP methods
   credentials: true,                            // Allow credentials (cookies, headers)
@@ -120,7 +120,7 @@ const PORT = process.env.PORT || 3000;
 
 // Connect to DB first, then start the server
 connectDB().then(() => {
-  app.listen(PORT, "0.0.0.0", () => {
+  app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
 });
