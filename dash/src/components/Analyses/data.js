@@ -279,7 +279,7 @@ const WebDevTopics = () => {
               },
             }}
           >
-            <Tab label="Web Development" />
+            <Tab label="Data Analysis" />
             <Tab label="Practice Sheet" />
           </Tabs>
         </Box>

@@ -24,10 +24,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
 
 const topics = [
-
-  { name: "Python", slug: "python", subtopics: [] },
-  { name: "Finance", slug: "finance", subtopics: [] },
-  { name: "Analytics", slug: "analytics", subtopics: [] },
+  { name: "One-shot", slug: "one-shot", subtopics: [] },
 
 
 
@@ -279,7 +276,7 @@ const WebDevTopics = () => {
               },
             }}
           >
-            <Tab label="Web Development" />
+            <Tab label="Aptitude" />
             <Tab label="Practice Sheet" />
           </Tabs>
         </Box>

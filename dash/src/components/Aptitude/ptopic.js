@@ -13,9 +13,29 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 const topics = [
-  { id: "html-basics", name: "HTML Basics" },
-  { id: "css-basics", name: "CSS Basics" },
-  { id: "js-basics", name: "JavaScript Basics" },
+  { id: "multiplications", name: "Multiplications" },
+  { id: "squaring", name: "Squaring" },
+  { id: "squareroot", name: "Squareroot" },
+  { id: "percentage", name: "Percentage" },
+  { id: "pass-fail", name: "Pass-fail" },
+  { id: "consumption", name: "Consumption" },
+  { id: "simple-intrest", name: "Simple-intrest" },
+  { id: "compound-intrest", name: "Compound-intrest" },
+  
+  { id: "ratio", name: "Ratio" },
+  { id: "profit-and-loss", name: "Profit-and-loss" },
+  { id: "discount", name: "Discount" },
+  { id: "average", name: "Average" },
+  { id: "cyclicity", name: "Cyclicity" },
+  { id: "number-series", name: "Number-series" },
+  { id: "letter-series", name: "Letter-series" },
+  { id: "coding-decoding", name: "Coding-decoding" },
+  { id: "directions", name: "Directions" },
+  { id: "syllogism", name: "Syllogism" },
+  { id: "calendar", name: "Calendar" },
+  { id: "cubes-and-dice", name: "Cubes-and-dice" },
+  { id: "calendar", name: "Calendar" },
+  { id: "games-and-tournament", name: "Games-and-tournament" },
 
 ];
 
