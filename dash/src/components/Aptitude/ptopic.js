@@ -81,7 +81,7 @@ const TopicPage = () => {
         gutterBottom
         sx={{ color: "#333" }}
       >
-        Explore Development Topics
+        Explore Aptitude Topics
       </Typography>
 
       <Typography

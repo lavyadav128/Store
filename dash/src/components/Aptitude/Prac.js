@@ -311,7 +311,7 @@ const WebDevTopics = () => {
                 Start Practice
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                Dive into curated Web Dev problems
+                Dive into curated Aptitude problems
               </Typography>
             </Card>
           </Box>
