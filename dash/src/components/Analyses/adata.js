@@ -1471,6 +1471,116 @@ const questionsData = {
     }
   ],
 
+
+  "consulting": [
+    {
+      "title": "Give me your introduction.",
+      "answer": "I am Lav Kumar Yadav, a Civil Engineering student at IIT (ISM) Dhanbad with a strong interest in consulting, data analytics, and business problem solving. I have worked on projects like retail customer behavior analysis, financial dashboards, and e-commerce analytics using Python, SQL, Power BI, and Excel. I enjoy breaking complex business problems into structured steps, analyzing data, and presenting insights that help in decision-making. I also have strong problem-solving skills with 300+ DSA problems solved."
+    },
+    {
+      "title": "Why consulting?",
+      "answer": "I like solving structured business problems, working on real-world decision-making scenarios, and combining data with business logic. Consulting allows me to analyze problems, communicate insights, and recommend actionable solutions which aligns with my analytical and problem-solving strengths."
+    },
+    {
+      "title": "What does a consultant do?",
+      "answer": "A consultant helps businesses solve problems by analyzing data, identifying issues, structuring solutions, and giving actionable recommendations. They work on areas like cost reduction, revenue growth, process optimization, and strategy improvement."
+    },
+    {
+      "title": "What is your approach to solving a business problem?",
+      "answer": "I follow a structured approach: understand the problem clearly, break it into smaller parts, identify key drivers, analyze data or assumptions, generate insights, and finally suggest practical recommendations."
+    },
+    {
+      "title": "How would you approach a declining sales problem?",
+      "answer": "First, I would break it into possible causes like demand drop, pricing issues, competition, or marketing failure. Then I would analyze sales data, customer behavior, and product performance to identify root causes and suggest targeted solutions like pricing adjustments, marketing changes, or product improvements."
+    },
+    {
+      "title": "What is structured problem solving?",
+      "answer": "It is a method of breaking a complex problem into smaller logical parts, analyzing each part separately, and then combining insights to form a clear solution."
+    },
+    {
+      "title": "Explain MECE principle.",
+      "answer": "MECE means Mutually Exclusive and Collectively Exhaustive. It ensures that all problem parts are separate and cover the entire problem without overlap or missing areas."
+    },
+    {
+      "title": "What is a case interview?",
+      "answer": "A case interview is a consulting interview format where you are given a business problem and expected to analyze it logically, structure it, and provide a solution."
+    },
+    {
+      "title": "How do you analyze a market entry problem?",
+      "answer": "I would analyze market size, competition, customer demand, entry barriers, cost structure, and profitability before suggesting whether to enter or not."
+    },
+    {
+      "title": "What if a company is making losses?",
+      "answer": "I would analyze revenue vs cost structure, identify whether the issue is low revenue, high costs, or inefficiency, and then suggest solutions like cost cutting, pricing strategy, or operational improvement."
+    },
+    {
+      "title": "What skills are important for consulting?",
+      "answer": "Problem solving, structured thinking, communication, data analysis, business understanding, and presentation skills are key consulting skills."
+    },
+    {
+      "title": "How do you handle ambiguous problems?",
+      "answer": "I first clarify assumptions, define the problem clearly, break it into smaller parts, and then analyze each part step by step."
+    },
+    {
+      "title": "What is profitability analysis?",
+      "answer": "It is the process of analyzing revenue and costs to determine whether a business or product is making profit or loss."
+    },
+    {
+      "title": "What is revenue growth strategy?",
+      "answer": "It includes increasing sales volume, improving pricing strategy, expanding customer base, or launching new products."
+    },
+    {
+      "title": "What is cost optimization?",
+      "answer": "Cost optimization means reducing unnecessary expenses while maintaining or improving performance and output."
+    },
+    {
+      "title": "How do you structure a case interview answer?",
+      "answer": "Step 1: Clarify problem. Step 2: Define structure (framework). Step 3: Analyze key drivers. Step 4: Do calculations or reasoning. Step 5: Give final recommendation."
+    },
+    {
+      "title": "What is break-even analysis?",
+      "answer": "It is the point where total revenue equals total cost, meaning no profit and no loss."
+    },
+    {
+      "title": "How do you approach pricing problems?",
+      "answer": "I consider costs, competitor pricing, customer willingness to pay, and market demand before suggesting an optimal price."
+    },
+    {
+      "title": "What is a hypothesis in consulting?",
+      "answer": "A hypothesis is an initial assumption about a problem that is tested using data and analysis."
+    },
+    {
+      "title": "What is data-driven decision making?",
+      "answer": "It is making business decisions based on data analysis, facts, and evidence rather than intuition."
+    },
+    {
+      "title": "What tools do consultants use?",
+      "answer": "Excel, PowerPoint, SQL, Power BI, Tableau, Python (for analysis), and presentation tools are commonly used."
+    },
+    {
+      "title": "Why is communication important in consulting?",
+      "answer": "Because consultants must clearly explain complex insights and recommendations to clients and stakeholders in a simple and structured way."
+    },
+    {
+      "title": "What is your strength in consulting roles?",
+      "answer": "Structured thinking, analytical ability, problem decomposition, data analysis, and strong problem-solving mindset."
+    },
+    {
+      "title": "What is your weakness?",
+      "answer": "Sometimes I focus too much on detailed analysis, but I am improving by prioritizing insights and decision impact over perfection."
+    },
+    {
+      "title": "Why should we hire you?",
+      "answer": "Because I combine strong analytical skills, consulting mindset, data analysis experience, and structured problem-solving ability which helps in turning complex business problems into actionable insights."
+    },
+    {
+      "title": "Where do you see yourself in consulting?",
+      "answer": "I see myself growing into a business consultant or strategy analyst role, working on high-impact business problems and helping organizations make better decisions using data and structured thinking."
+    }
+  ],
+
+
+
     "interviewdata":[
   {
     title: "Give me your introduction.",

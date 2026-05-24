@@ -17,6 +17,7 @@ const topics = [
     { id: "analyses-python", name: "Analyses-python" },
     { id: "finance", name: "Finance" },
     { id: "quant", name: "Quant" },
+    { id: "consulting", name: "Consulting" },
     { id: "interviewdata", name: "Interviewdata" },
 ];
 
