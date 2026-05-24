@@ -16,4 +16,4 @@ spec:
         - name: backend
           image: lavyadav182/notenove-backend:v1
           ports:
-            - containerPort: 5000
+            - containerPort: 3000

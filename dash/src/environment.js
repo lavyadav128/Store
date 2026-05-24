@@ -10,3 +10,7 @@ const server = IS_PROD ?
 
   
 export default server;
+
+
+// const server = "http://backend-service:30080";
+// export default server;

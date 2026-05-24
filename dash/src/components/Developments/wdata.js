@@ -4293,6 +4293,301 @@ const questionsData = {
   }
 ],
 
+"kubernetes":[
+  {
+    "title": "What problem existed before Docker?",
+    "answer": "Before Docker, developers used to say: 'It works on my machine but not on the server.' Applications worked differently on different computers because operating systems, software versions, libraries, and configurations were different. Deploying apps became painful and time-consuming."
+  },
+  {
+    "title": "Why was Docker created?",
+    "answer": "Docker was created to solve environment and deployment problems. It packages the application along with all dependencies, libraries, and configurations into a container so it works the same everywhere."
+  },
+  {
+    "title": "What is Docker in simple words?",
+    "answer": "Docker is a platform that allows developers to package applications into containers. A container includes code, dependencies, runtime, libraries, and settings needed to run the app."
+  },
+  {
+    "title": "What is a container?",
+    "answer": "A container is a lightweight isolated environment that runs an application with everything it needs. It is faster and smaller than a virtual machine."
+  },
+  {
+    "title": "Why are containers important?",
+    "answer": "Containers make applications portable, fast, scalable, and consistent. The same container works on a laptop, server, cloud, or production environment."
+  },
+  {
+    "title": "What is the difference between Virtual Machine and Docker Container?",
+    "answer": "Virtual Machines include a full operating system and consume more RAM and storage. Docker containers share the host OS kernel and are lightweight, faster, and use fewer resources."
+  },
+  {
+    "title": "What is Docker Desktop?",
+    "answer": "Docker Desktop is software used to run Docker on Windows and macOS. It includes Docker Engine, Docker CLI, Docker Compose, and Kubernetes support."
+  },
+  {
+    "title": "How to install Docker on Windows?",
+    "answer": "1. Install WSL2\n2. Download Docker Desktop\n3. Install Docker Desktop\n4. Restart system\n5. Open Docker Desktop\n6. Ensure Docker Engine is running"
+  },
+  {
+    "title": "How to install WSL2 on Windows?",
+    "answer": "Open PowerShell as Administrator and run:\n\nwsl --install\n\nThen restart the computer."
+  },
+  {
+    "title": "How to check whether Docker is installed properly?",
+    "answer": "Run:\n\ndocker --version\n\ndocker compose version\n\nIf versions appear, Docker is installed successfully."
+  },
+  {
+    "title": "How to open Docker in VS Code?",
+    "answer": "1. Open VS Code\n2. Install Docker Extension\n3. Open terminal inside VS Code\n4. Run Docker commands directly from terminal"
+  },
+  {
+    "title": "How to check whether Docker is running?",
+    "answer": "Run:\n\ndocker ps\n\nIf no error appears, Docker Engine is running properly."
+  },
+  {
+    "title": "What is a Docker Image?",
+    "answer": "A Docker image is a blueprint/template used to create containers. It contains application code, libraries, runtime, and dependencies."
+  },
+  {
+    "title": "What is a Docker Container?",
+    "answer": "A Docker container is a running instance of a Docker image."
+  },
+  {
+    "title": "How to download a Docker image?",
+    "answer": "Use:\n\ndocker pull nginx\n\nThis downloads the nginx image from Docker Hub."
+  },
+  {
+    "title": "What is Docker Hub?",
+    "answer": "Docker Hub is an online registry where Docker images are stored and shared."
+  },
+  {
+    "title": "How to see downloaded Docker images?",
+    "answer": "Run:\n\ndocker images"
+  },
+  {
+    "title": "How to run a Docker container?",
+    "answer": "Run:\n\ndocker run nginx"
+  },
+  {
+    "title": "How to run container in background mode?",
+    "answer": "Run:\n\ndocker run -d nginx\n\n-d means detached/background mode."
+  },
+  {
+    "title": "How to map ports in Docker?",
+    "answer": "Run:\n\ndocker run -d -p 8080:80 nginx\n\n8080 = local machine port\n80 = container port"
+  },
+  {
+    "title": "How to access Docker app in browser?",
+    "answer": "Open:\n\nhttp://localhost:8080"
+  },
+  {
+    "title": "How to see running containers?",
+    "answer": "Run:\n\ndocker ps"
+  },
+  {
+    "title": "How to stop a container?",
+    "answer": "Run:\n\ndocker stop <container_id>"
+  },
+  {
+    "title": "How to remove a container?",
+    "answer": "Run:\n\ndocker rm <container_id>"
+  },
+  {
+    "title": "How to remove Docker image?",
+    "answer": "Run:\n\ndocker rmi <image_id>"
+  },
+  {
+    "title": "What is a Dockerfile?",
+    "answer": "A Dockerfile is a text file containing instructions to build a Docker image automatically."
+  },
+  {
+    "title": "Simple Dockerfile Example",
+    "answer": "FROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nEXPOSE 3000\nCMD [\"npm\", \"start\"]"
+  },
+  {
+    "title": "How to build Docker image from Dockerfile?",
+    "answer": "Run:\n\ndocker build -t myapp ."
+  },
+  {
+    "title": "How to run your own app container?",
+    "answer": "Run:\n\ndocker run -d -p 3000:3000 myapp"
+  },
+  {
+    "title": "What is Docker Compose?",
+    "answer": "Docker Compose is used to run multiple containers together like frontend, backend, database, Redis, etc."
+  },
+  {
+    "title": "Why Docker Compose is needed?",
+    "answer": "Without Docker Compose, multiple containers must be started manually one by one. Compose automates this process."
+  },
+  {
+    "title": "Example of docker-compose.yml",
+    "answer": "version: '3'\nservices:\n  frontend:\n    build: ./frontend\n    ports:\n      - \"3000:3000\"\n\n  backend:\n    build: ./backend\n    ports:\n      - \"5000:5000\""
+  },
+  {
+    "title": "How to start Docker Compose?",
+    "answer": "Run:\n\ndocker compose up"
+  },
+  {
+    "title": "How to rebuild containers using Docker Compose?",
+    "answer": "Run:\n\ndocker compose up --build"
+  },
+  {
+    "title": "How to stop Docker Compose?",
+    "answer": "Run:\n\ndocker compose down"
+  },
+  {
+    "title": "What happens when traffic increases heavily?",
+    "answer": "One container may not handle all users. The app can crash or become slow. Managing many containers manually becomes difficult."
+  },
+  {
+    "title": "Why Kubernetes was created?",
+    "answer": "Kubernetes was created to automatically manage multiple containers across many servers."
+  },
+  {
+    "title": "What is Kubernetes?",
+    "answer": "Kubernetes is a container orchestration platform used to deploy, manage, scale, and monitor Docker containers automatically."
+  },
+  {
+    "title": "What problems does Kubernetes solve?",
+    "answer": "Kubernetes solves scaling, load balancing, auto-healing, deployment, monitoring, and container management problems."
+  },
+  {
+    "title": "Does Kubernetes replace Docker?",
+    "answer": "No. Docker creates containers while Kubernetes manages containers at large scale."
+  },
+  {
+    "title": "What is a Kubernetes Cluster?",
+    "answer": "A Kubernetes cluster is a group of machines/nodes working together to run applications."
+  },
+  {
+    "title": "What is a Node in Kubernetes?",
+    "answer": "A node is a machine/server inside a Kubernetes cluster."
+  },
+  {
+    "title": "What is a Pod?",
+    "answer": "A Pod is the smallest deployable unit in Kubernetes. It contains one or more containers."
+  },
+  {
+    "title": "What is Deployment in Kubernetes?",
+    "answer": "Deployment manages pods and ensures the desired number of pods are always running."
+  },
+  {
+    "title": "What is Service in Kubernetes?",
+    "answer": "A Service exposes pods so users can access the application."
+  },
+  {
+    "title": "What is scaling in Kubernetes?",
+    "answer": "Scaling means increasing or decreasing the number of running pods based on traffic."
+  },
+  {
+    "title": "What is auto-healing in Kubernetes?",
+    "answer": "If a container crashes, Kubernetes automatically creates a new one."
+  },
+  {
+    "title": "How to enable Kubernetes in Docker Desktop?",
+    "answer": "1. Open Docker Desktop\n2. Go to Settings\n3. Select Kubernetes\n4. Click Enable Kubernetes\n5. Restart Docker Desktop"
+  },
+  {
+    "title": "How to check Kubernetes installation?",
+    "answer": "Run:\n\nkubectl version"
+  },
+  {
+    "title": "What is kubectl?",
+    "answer": "kubectl is the command-line tool used to communicate with Kubernetes clusters."
+  },
+  {
+    "title": "How to check Kubernetes nodes?",
+    "answer": "Run:\n\nkubectl get nodes"
+  },
+  {
+    "title": "How to create deployment in Kubernetes?",
+    "answer": "Run:\n\nkubectl create deployment myapp --image=nginx"
+  },
+  {
+    "title": "How to check pods?",
+    "answer": "Run:\n\nkubectl get pods"
+  },
+  {
+    "title": "How to expose deployment?",
+    "answer": "Run:\n\nkubectl expose deployment myapp --type=LoadBalancer --port=80"
+  },
+  {
+    "title": "How to check services?",
+    "answer": "Run:\n\nkubectl get services"
+  },
+  {
+    "title": "How to scale application?",
+    "answer": "Run:\n\nkubectl scale deployment myapp --replicas=5"
+  },
+  {
+    "title": "What happens after scaling?",
+    "answer": "Kubernetes creates multiple pods to handle more users and traffic."
+  },
+  {
+    "title": "How to delete deployment?",
+    "answer": "Run:\n\nkubectl delete deployment myapp"
+  },
+  {
+    "title": "How to delete service?",
+    "answer": "Run:\n\nkubectl delete service myapp"
+  },
+  {
+    "title": "What is YAML in Kubernetes?",
+    "answer": "YAML files are configuration files used to define Kubernetes resources like Pods, Services, and Deployments."
+  },
+  {
+    "title": "Simple Kubernetes Deployment YAML",
+    "answer": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: myapp\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: myapp\n  template:\n    metadata:\n      labels:\n        app: myapp\n    spec:\n      containers:\n      - name: myapp\n        image: nginx\n        ports:\n        - containerPort: 80"
+  },
+  {
+    "title": "How to apply YAML file?",
+    "answer": "Run:\n\nkubectl apply -f deployment.yaml"
+  },
+  {
+    "title": "How to see all Kubernetes resources?",
+    "answer": "Run:\n\nkubectl get all"
+  },
+  {
+    "title": "How does Kubernetes deploy applications?",
+    "answer": "Kubernetes takes Docker container images and runs them inside pods across cluster nodes."
+  },
+  {
+    "title": "What is rolling update?",
+    "answer": "Rolling update means updating applications without downtime by gradually replacing old pods with new ones."
+  },
+  {
+    "title": "What is Minikube?",
+    "answer": "Minikube is a tool used to run a local Kubernetes cluster on a laptop for learning and testing."
+  },
+  {
+    "title": "What is the difference between Docker Compose and Kubernetes?",
+    "answer": "Docker Compose is mainly for local development and small projects, while Kubernetes is for large-scale production systems."
+  },
+  {
+    "title": "Can Kubernetes run without Docker?",
+    "answer": "Yes. Kubernetes can use other container runtimes like containerd and CRI-O."
+  },
+  {
+    "title": "Real-world flow of Docker and Kubernetes",
+    "answer": "Developer writes code → Docker packages app into image → Image pushed to Docker Hub → Kubernetes pulls image → Kubernetes creates pods → Users access app through services."
+  },
+  {
+    "title": "Complete beginner workflow for Docker",
+    "answer": "1. Install Docker\n2. Create app\n3. Write Dockerfile\n4. Build image\n5. Run container\n6. Open app in browser\n7. Push image to Docker Hub"
+  },
+  {
+    "title": "Complete beginner workflow for Kubernetes",
+    "answer": "1. Install Docker Desktop\n2. Enable Kubernetes\n3. Create Docker image\n4. Create deployment\n5. Expose service\n6. Scale pods\n7. Monitor application"
+  },
+  {
+    "title": "How Docker and Kubernetes help in companies?",
+    "answer": "Companies use Docker and Kubernetes to deploy applications faster, scale automatically, reduce downtime, and manage cloud infrastructure efficiently."
+  },
+  {
+    "title": "What skills should be learned after Docker and Kubernetes?",
+    "answer": "After Docker and Kubernetes, learn CI/CD, Jenkins, GitHub Actions, Helm, Terraform, AWS, monitoring, and cloud deployment."
+  }
+]
+
 };
 
 export default questionsData;
