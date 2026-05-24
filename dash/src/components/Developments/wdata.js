@@ -1797,148 +1797,177 @@ const questionsData = {
     },
   ],
 
-  "docker": [
-    {
-      title: "How to list all local Docker images?",
-      answer: "docker images"
-    },
-    {
-      title: "How to delete a Docker image?",
-      answer: "docker rmi <image-name>"
-    },
-    {
-      title: "How to remove all unused Docker images?",
-      answer: "docker image prune"
-    },
-    {
-      title: "How to build a Docker image from a Dockerfile?",
-      answer: "docker build -t <image-name>:<version> ."
-    },
-    {
-      title: "How to list all Docker containers (running and stopped)?",
-      answer: "docker ps -a"
-    },
-    {
-      title: "How to list only running Docker containers?",
-      answer: "docker ps"
-    },
-    {
-      title: "How to create and run a new Docker container?",
-      answer: "docker run <image-name>"
-    },
-    {
-      title: "How to run a Docker container in the background?",
-      answer: "docker run -d <image-name>"
-    },
-    {
-      title: "How to run a Docker container with a custom name?",
-      answer: "docker run --name <container-name> <image-name>"
-    },
-    {
-      title: "How to stop a Docker container?",
-      answer: "docker stop <container-name>"
-    },
-    {
-      title: "How to start a Docker container?",
-      answer: "docker start <container-name>"
-    },
-    {
-      title: "How to restart a Docker container?",
-      answer: "docker restart <container-name>"
-    },
-    {
-      title: "How to remove a Docker container?",
-      answer: "docker rm <container-name>"
-    },
-    {
-      title: "How to inspect details of a container?",
-      answer: "docker inspect <container-name>"
-    },
-    {
-      title: "How to fetch logs of a container?",
-      answer: "docker logs <container-name>"
-    },
-    {
-      title: "How to run a shell inside a running container?",
-      answer: "docker exec -it <container-name> /bin/bash"
-    },
-    {
-      title: "How to set environment variables in a Docker container?",
-      answer: "docker run -e <key>=<value> <image-name>"
-    },
-    {
-      title: "How to map a host port to a container port?",
-      answer: "docker run -p <host-port>:<container-port> <image-name>"
-    },
-    {
-      title: "How to remove an image?",
-      answer: "docker rmi <image-name>"
-    },
-    {
-      title: "How to push an image to DockerHub?",
-      answer: "docker push <username>/<image-name>"
-    },
-    {
-      title: "How to login to DockerHub?",
-      answer: "docker login"
-    },
-    {
-      title: "How to logout from DockerHub?",
-      answer: "docker logout"
-    },
-    {
-      title: "How to search for an image on DockerHub?",
-      answer: "docker search <image-name>"
-    },
-    {
-      title: "How to list all Docker networks?",
-      answer: "docker network ls"
-    },
-    {
-      title: "How to create a Docker network?",
-      answer: "docker network create <network-name>"
-    },
-    {
-      title: "How to inspect a Docker network?",
-      answer: "docker network inspect <network-name>"
-    },
-    {
-      title: "How to remove a Docker network?",
-      answer: "docker network rm <network-name>"
-    },
-    {
-      title: "How to prune all unused Docker networks?",
-      answer: "docker network prune"
-    },
-    {
-      title: "How to list all Docker volumes?",
-      answer: "docker volume ls"
-    },
-    {
-      title: "How to create a named Docker volume?",
-      answer: "docker volume create <volume-name>"
-    },
-    {
-      title: "How to inspect a Docker volume?",
-      answer: "docker volume inspect <volume-name>"
-    },
-    {
-      title: "How to remove a Docker volume?",
-      answer: "docker volume rm <volume-name>"
-    },
-    {
-      title: "How to remove all unused Docker volumes?",
-      answer: "docker volume prune"
-    },
-    {
-      title: "How to create a bind mount volume?",
-      answer: "docker run -v <host-path>:<container-path> <image-name>"
-    },
-    {
-      title: "How to create a named volume mount?",
-      answer: "docker run -v <volume-name>:<container-path> <image-name>"
-    },
-  ],
+"docker": [
+  {
+    "title": "How to list all local Docker images?",
+    "answer": "The 'docker images' command displays all Docker images stored on your local machine.\n\nSyntax:\ndocker images\n\nExample:\ndocker images\n\nSample Output:\nREPOSITORY   TAG   IMAGE ID   CREATED   SIZE\nnode         20    abc123     2 days ago   1.1GB\n\nExplanation:\n- REPOSITORY → Name of the image\n- TAG → Version of image\n- IMAGE ID → Unique image identifier\n- CREATED → When image was created\n- SIZE → Image size on disk\n\nConcept:\nDocker images are templates used to create containers."
+  },
+
+  {
+    "title": "How to delete a Docker image?",
+    "answer": "The 'docker rmi' command removes a Docker image from your local system.\n\nSyntax:\ndocker rmi <image-name>\n\nExample:\ndocker rmi nginx\n\nYou can also remove using image ID:\ndocker rmi abc123\n\nImportant:\nDocker will not remove an image if a container is using it."
+  },
+
+  {
+    "title": "How to remove all unused Docker images?",
+    "answer": "The 'docker image prune' command removes unused or dangling images to free storage.\n\nSyntax:\ndocker image prune\n\nExample:\ndocker image prune -a\n\nExplanation:\n-a removes all unused images, not just dangling images."
+  },
+
+  {
+    "title": "How to build a Docker image from a Dockerfile?",
+    "answer": "The 'docker build' command creates a Docker image using instructions inside a Dockerfile.\n\nSyntax:\ndocker build -t <image-name>:<version> .\n\nExample:\ndocker build -t myapp:v1 .\n\nExplanation:\n-t → tags the image\nmyapp → image name\nv1 → version tag\n. → current folder containing Dockerfile\n\nConcept:\nDocker reads the Dockerfile step-by-step and creates an image."
+  },
+
+  {
+    "title": "How to list all Docker containers (running and stopped)?",
+    "answer": "The 'docker ps -a' command displays all containers including running, stopped, and exited ones.\n\nSyntax:\ndocker ps -a\n\nExample:\ndocker ps -a"
+  },
+
+  {
+    "title": "How to list only running Docker containers?",
+    "answer": "The 'docker ps' command shows only active/running containers.\n\nSyntax:\ndocker ps\n\nExample:\ndocker ps"
+  },
+
+  {
+    "title": "How to create and run a new Docker container?",
+    "answer": "The 'docker run' command creates and starts a new container from an image.\n\nSyntax:\ndocker run <image-name>\n\nExample:\ndocker run nginx\n\nConcept:\nIf the image does not exist locally, Docker automatically downloads it from DockerHub."
+  },
+
+  {
+    "title": "How to run a Docker container in the background?",
+    "answer": "The '-d' flag runs the container in detached/background mode.\n\nSyntax:\ndocker run -d <image-name>\n\nExample:\ndocker run -d nginx\n\nConcept:\nDetached mode keeps container running without blocking terminal."
+  },
+
+  {
+    "title": "How to run a Docker container with a custom name?",
+    "answer": "The '--name' option assigns a custom readable name to a container.\n\nSyntax:\ndocker run --name <container-name> <image-name>\n\nExample:\ndocker run --name my-nginx nginx"
+  },
+
+  {
+    "title": "How to stop a Docker container?",
+    "answer": "The 'docker stop' command gracefully stops a running container.\n\nSyntax:\ndocker stop <container-name>\n\nExample:\ndocker stop my-nginx"
+  },
+
+  {
+    "title": "How to start a Docker container?",
+    "answer": "The 'docker start' command starts an existing stopped container.\n\nSyntax:\ndocker start <container-name>\n\nExample:\ndocker start my-nginx"
+  },
+
+  {
+    "title": "How to restart a Docker container?",
+    "answer": "The 'docker restart' command stops and starts a container again.\n\nSyntax:\ndocker restart <container-name>\n\nExample:\ndocker restart my-nginx"
+  },
+
+  {
+    "title": "How to remove a Docker container?",
+    "answer": "The 'docker rm' command deletes a stopped container permanently.\n\nSyntax:\ndocker rm <container-name>\n\nExample:\ndocker rm my-nginx\n\nImportant:\nContainer must be stopped before removing."
+  },
+
+  {
+    "title": "How to inspect details of a container?",
+    "answer": "The 'docker inspect' command provides detailed JSON information about a container.\n\nSyntax:\ndocker inspect <container-name>\n\nExample:\ndocker inspect my-nginx\n\nDetails include:\n- IP Address\n- Network settings\n- Mounts\n- Environment variables\n- Container configuration"
+  },
+
+  {
+    "title": "How to fetch logs of a container?",
+    "answer": "The 'docker logs' command displays logs/output generated by a container.\n\nSyntax:\ndocker logs <container-name>\n\nExample:\ndocker logs my-nginx\n\nLive Logs:\ndocker logs -f my-nginx\n\nConcept:\nUseful for debugging applications running inside containers."
+  },
+
+  {
+    "title": "How to run a shell inside a running container?",
+    "answer": "The 'docker exec -it' command opens an interactive terminal inside a running container.\n\nSyntax:\ndocker exec -it <container-name> /bin/bash\n\nExample:\ndocker exec -it my-nginx /bin/bash\n\nExplanation:\n-i → interactive mode\n-t → terminal mode\n\nNote:\nSome containers use '/bin/sh' instead of '/bin/bash'."
+  },
+
+  {
+    "title": "How to set environment variables in a Docker container?",
+    "answer": "The '-e' flag sets environment variables inside a container.\n\nSyntax:\ndocker run -e <key>=<value> <image-name>\n\nExample:\ndocker run -e NODE_ENV=production node\n\nConcept:\nEnvironment variables are commonly used for API keys, database URLs, and configs."
+  },
+
+  {
+    "title": "How to map a host port to a container port?",
+    "answer": "The '-p' flag maps a host machine port to a container port.\n\nSyntax:\ndocker run -p <host-port>:<container-port> <image-name>\n\nExample:\ndocker run -p 3000:80 nginx\n\nExplanation:\n3000 → host machine port\n80 → container port\n\nConcept:\nAllows users to access containerized apps from browser."
+  },
+
+  {
+    "title": "How to push an image to DockerHub?",
+    "answer": "The 'docker push' command uploads your Docker image to DockerHub.\n\nSyntax:\ndocker push <username>/<image-name>\n\nExample:\ndocker push lavkumar/myapp\n\nConcept:\nUseful for sharing images and deployment."
+  },
+
+  {
+    "title": "How to login to DockerHub?",
+    "answer": "The 'docker login' command authenticates your DockerHub account.\n\nSyntax:\ndocker login\n\nExample:\ndocker login\n\nAfter running command:\n- Enter username\n- Enter password"
+  },
+
+  {
+    "title": "How to logout from DockerHub?",
+    "answer": "The 'docker logout' command removes DockerHub authentication from your machine.\n\nSyntax:\ndocker logout\n\nExample:\ndocker logout"
+  },
+
+  {
+    "title": "How to search for an image on DockerHub?",
+    "answer": "The 'docker search' command searches DockerHub for available images.\n\nSyntax:\ndocker search <image-name>\n\nExample:\ndocker search redis"
+  },
+
+  {
+    "title": "How to list all Docker networks?",
+    "answer": "The 'docker network ls' command displays all Docker networks.\n\nSyntax:\ndocker network ls\n\nExample:\ndocker network ls"
+  },
+
+  {
+    "title": "How to create a Docker network?",
+    "answer": "The 'docker network create' command creates a custom Docker network.\n\nSyntax:\ndocker network create <network-name>\n\nExample:\ndocker network create my-network\n\nConcept:\nContainers inside same network can communicate directly."
+  },
+
+  {
+    "title": "How to inspect a Docker network?",
+    "answer": "The 'docker network inspect' command shows detailed network information.\n\nSyntax:\ndocker network inspect <network-name>\n\nExample:\ndocker network inspect my-network"
+  },
+
+  {
+    "title": "How to remove a Docker network?",
+    "answer": "The 'docker network rm' command removes a Docker network.\n\nSyntax:\ndocker network rm <network-name>\n\nExample:\ndocker network rm my-network"
+  },
+
+  {
+    "title": "How to prune all unused Docker networks?",
+    "answer": "The 'docker network prune' command removes all unused Docker networks.\n\nSyntax:\ndocker network prune\n\nExample:\ndocker network prune"
+  },
+
+  {
+    "title": "How to list all Docker volumes?",
+    "answer": "The 'docker volume ls' command lists all Docker volumes.\n\nSyntax:\ndocker volume ls\n\nExample:\ndocker volume ls"
+  },
+
+  {
+    "title": "How to create a named Docker volume?",
+    "answer": "The 'docker volume create' command creates a persistent Docker volume.\n\nSyntax:\ndocker volume create <volume-name>\n\nExample:\ndocker volume create my-volume\n\nConcept:\nVolumes store data permanently even if container is deleted."
+  },
+
+  {
+    "title": "How to inspect a Docker volume?",
+    "answer": "The 'docker volume inspect' command displays detailed information about a volume.\n\nSyntax:\ndocker volume inspect <volume-name>\n\nExample:\ndocker volume inspect my-volume"
+  },
+
+  {
+    "title": "How to remove a Docker volume?",
+    "answer": "The 'docker volume rm' command deletes a Docker volume.\n\nSyntax:\ndocker volume rm <volume-name>\n\nExample:\ndocker volume rm my-volume"
+  },
+
+  {
+    "title": "How to remove all unused Docker volumes?",
+    "answer": "The 'docker volume prune' command removes unused Docker volumes.\n\nSyntax:\ndocker volume prune\n\nExample:\ndocker volume prune"
+  },
+
+  {
+    "title": "How to create a bind mount volume?",
+    "answer": "Bind mounts connect a local folder directly to a container folder.\n\nSyntax:\ndocker run -v <host-path>:<container-path> <image-name>\n\nExample:\ndocker run -v C:/projects:/app node\n\nConcept:\nChanges in local folder instantly reflect inside container."
+  },
+
+  {
+    "title": "How to create a named volume mount?",
+    "answer": "Named volumes store persistent data managed by Docker.\n\nSyntax:\ndocker run -v <volume-name>:<container-path> <image-name>\n\nExample:\ndocker run -v my-volume:/data mysql\n\nConcept:\nUseful for databases and persistent storage."
+  }
+],
 
 
 
