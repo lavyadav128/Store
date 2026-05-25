@@ -267,43 +267,83 @@ const questionsData = {
     "pass-fail": [
       {
         "title": "What are pass-fail questions in percentage?",
-        "answer": "Pass-fail questions are percentage-based problems where we compare a student's scored marks with passing marks. These problems usually involve finding total marks, passing marks, or the difference between them using percentage logic."
+        "answer": "Pass-fail questions are percentage-based aptitude problems where we compare obtained marks with passing marks. Usually we are asked to find total marks, passing marks, obtained marks, or passing/failing margin."
       },
       {
-        "title": "What is the basic approach to solve pass-fail questions?",
-        "answer": "Step 1: Assume total marks as 100 if not given. Step 2: Convert pass percentage and obtained percentage into marks. Step 3: Find the difference between pass marks and obtained marks. Step 4: Use this difference to calculate total marks."
+        "title": "What is the core idea behind pass-fail questions?",
+        "answer": "The main idea is that the difference in percentage represents the actual difference in marks. Once we match percentage difference with mark difference, we can easily calculate total marks."
       },
       {
-        "title": "Why do we assume total marks as 100?",
-        "answer": "Because percentage is always based on 100. Assuming 100 simplifies calculations and helps convert percentages directly into marks without fractions."
+        "title": "What is the standard approach to solve pass-fail problems?",
+        "answer": "Step 1: Identify pass percentage and obtained percentage. Step 2: Find percentage difference. Step 3: Match this percentage difference with actual mark difference. Step 4: Calculate total marks using proportion."
       },
       {
-        "title": "How do we solve pass-fail problems using difference method?",
-        "answer": "We find the percentage difference between passing percentage and obtained percentage. Then we equate that difference in percentage to the given marks difference and calculate total marks."
+        "title": "Why do we compare percentage difference?",
+        "answer": "Because the difference between pass marks and obtained marks always represents a fixed percentage of total marks. This helps us directly calculate the total."
       },
       {
-        "title": "A student needs 35% to pass and gets 25%, failing by 40 marks. Find total marks.",
-        "answer": "Pass percentage = 35%, obtained = 25%, so difference = 10%. This 10% equals 40 marks. So 100% = (40 ÷ 10) × 100 = 400 marks. Final answer: total marks = 400."
+        "title": "How do we solve: A student needs 35% to pass and gets 25%, failing by 40 marks?",
+        "answer": "Step 1: Passing percentage = 35%. Obtained percentage = 25%. Step 2: Difference = 35 - 25 = 10%. Step 3: This 10% corresponds to 40 marks. Step 4: Therefore 1% = 40 ÷ 10 = 4 marks. Step 5: 100% = 4 × 100 = 400 marks. Final Answer = 400 marks."
       },
       {
-        "title": "If passing marks are 40% and student gets 30%, failing by 20 marks, find total marks.",
-        "answer": "Difference = 10%. If 10% = 20 marks, then 100% = (20 ÷ 10) × 100 = 200 marks. Final answer: total marks = 200."
+        "title": "Shortcut method for: A student needs 35% to pass and gets 25%, failing by 40 marks.",
+        "answer": "Difference = 10%. If 10% = 40 marks, then 100% = (40 × 100) ÷ 10 = 400 marks."
       },
       {
-        "title": "What is the key idea behind pass-fail shortcut?",
-        "answer": "The key idea is that percentage difference directly represents a fraction of total marks. We use this proportion to quickly find total marks without forming full equations."
+        "title": "How do we solve: Passing marks are 40% and a student gets 30%, failing by 20 marks?",
+        "answer": "Step 1: Pass percentage = 40%. Obtained percentage = 30%. Step 2: Difference = 10%. Step 3: 10% corresponds to 20 marks. Step 4: Therefore 1% = 2 marks. Step 5: 100% = 2 × 100 = 200 marks. Final Answer = 200 marks."
       },
       {
-        "title": "How do signs matter in pass-fail problems?",
-        "answer": "If obtained marks are less than passing marks, it is failure (negative difference). If obtained marks are more, it indicates passing margin (positive difference)."
+        "title": "Shortcut method for: Passing marks are 40% and student gets 30%, failing by 20 marks.",
+        "answer": "Difference = 10%. If 10% = 20 marks, then total marks = (20 × 100) ÷ 10 = 200 marks."
       },
       {
-        "title": "What mistakes should be avoided in pass-fail questions?",
-        "answer": "Do not mix up pass percentage and obtained percentage. Always calculate the difference correctly and ensure you convert percentage difference into actual marks properly."
+        "title": "How do we solve questions when student passes instead of fails?",
+        "answer": "If obtained percentage is more than passing percentage, then the extra percentage represents passing margin."
       },
       {
-        "title": "Where are pass-fail questions commonly used?",
-        "answer": "They are commonly asked in aptitude tests, SSC, banking exams, and reasoning sections where quick percentage and ratio thinking is required."
+        "title": "Solve: Passing marks are 45%. A student gets 55% and passes by 50 marks.",
+        "answer": "Step 1: Obtained percentage = 55%, passing percentage = 45%. Step 2: Difference = 10%. Step 3: This 10% equals 50 marks. Step 4: 1% = 50 ÷ 10 = 5 marks. Step 5: 100% = 5 × 100 = 500 marks. Final Answer = 500 marks."
+      },
+      {
+        "title": "Shortcut for: Passing marks are 45%. Student gets 55% and passes by 50 marks.",
+        "answer": "Difference = 10%. If 10% = 50 marks, then 100% = (50 × 100) ÷ 10 = 500 marks."
+      },
+      {
+        "title": "How do we find passing marks after finding total marks?",
+        "answer": "Multiply total marks by passing percentage. Example: If total marks = 400 and passing percentage = 35%, then passing marks = (35 × 400) ÷ 100 = 140 marks."
+      },
+      {
+        "title": "How do we find obtained marks?",
+        "answer": "Multiply total marks by obtained percentage. Example: If total marks = 400 and obtained percentage = 25%, then obtained marks = (25 × 400) ÷ 100 = 100 marks."
+      },
+      {
+        "title": "Complete verification of first example.",
+        "answer": "Total marks = 400. Passing marks = 35% of 400 = 140. Obtained marks = 25% of 400 = 100. Difference = 140 - 100 = 40 marks. Hence answer is correct."
+      },
+      {
+        "title": "What is the fastest shortcut for pass-fail problems?",
+        "answer": "Total Marks = (Difference in marks × 100) ÷ Difference in percentage."
+      },
+      {
+        "title": "Important shortcut formula for pass-fail questions.",
+        "answer": "Total Marks = (Actual Difference × 100) / Percentage Difference."
+      },
+      {
+        "title": "How do we identify percentage difference correctly?",
+        "answer": "Always subtract smaller percentage from larger percentage. Example: 45% and 30% → difference = 15%."
+      },
+      {
+        "title": "What common mistakes should be avoided?",
+        "answer": "Do not confuse obtained percentage with passing percentage. Do not directly subtract marks from percentages. Always compare percentage difference first."
+      },
+      {
+        "title": "Why are pass-fail questions considered easy aptitude questions?",
+        "answer": "Because most questions can be solved using a single shortcut formula without lengthy equations once percentage difference is understood properly."
+      },
+      {
+        "title": "What is the most important concept to remember in pass-fail questions?",
+        "answer": "Percentage difference always represents the actual difference in marks. This single concept solves almost every pass-fail aptitude problem quickly."
       }
     ],
 
@@ -311,104 +351,196 @@ const questionsData = {
 
     "consumption": [
       {
-        "title": "What is the concept of consumption in percentage problems?",
-        "answer": "In consumption-based percentage questions, we study how quantity consumed changes when price changes while expenditure (total money spent) is assumed constant. If price increases, consumption decreases, and if price decreases, consumption increases."
+        "title": "What is the basic concept of consumption problems?",
+        "answer": "Consumption problems are based on the idea that total expenditure remains constant. If price increases, consumption must decrease. If price decreases, consumption must increase. The main relationship is: Price × Consumption = Constant."
       },
       {
-        "title": "Why does consumption change when price changes?",
-        "answer": "Because expenditure is fixed in most problems. Since Expenditure = Price × Consumption, if price goes up, consumption must go down to keep expenditure constant, and vice versa."
+        "title": "Why are price and consumption inversely proportional?",
+        "answer": "Because money spent remains fixed. If one item becomes more expensive, fewer items can be purchased. If the item becomes cheaper, more quantity can be purchased."
       },
       {
-        "title": "What is the relationship between price and consumption?",
-        "answer": "Price and consumption are inversely proportional when expenditure is constant. This means if price increases by x%, consumption decreases, and if price decreases by x%, consumption increases."
+        "title": "What is the most important formula in consumption problems?",
+        "answer": "Price × Consumption = Constant Expenditure. This single formula is the foundation of the entire topic."
       },
       {
-        "title": "What is formula for reduction in consumption?",
-        "answer": "If price increases by x%, then reduction in consumption = (100x) / (100 + x)%. This formula comes from inverse proportionality between price and consumption."
+        "title": "What happens when price increases?",
+        "answer": "When price increases, consumption decreases so that expenditure remains unchanged."
       },
       {
-        "title": "What is formula for increase in consumption?",
-        "answer": "If price decreases by x%, then increase in consumption = (100x) / (100 - x)%. This helps find how much more quantity can be purchased when price drops."
+        "title": "What happens when price decreases?",
+        "answer": "When price decreases, consumption increases because the same money can buy more quantity."
       },
       {
-        "title": "If price increases by 25%, how much does consumption reduce?",
-        "answer": "Using formula: Reduction = (100 × 25) / (100 + 25) = 2500 / 125 = 20%. So consumption decreases by 20%."
+        "title": "What is the formula for reduction in consumption?",
+        "answer": "If price increases by x%, then reduction in consumption = (100x) / (100 + x)%."
       },
       {
-        "title": "If price decreases by 20%, how much does consumption increase?",
-        "answer": "Using formula: Increase = (100 × 20) / (100 - 20) = 2000 / 80 = 25%. So consumption increases by 25%."
+        "title": "What is the formula for increase in consumption?",
+        "answer": "If price decreases by x%, then increase in consumption = (100x) / (100 - x)%."
       },
       {
-        "title": "What is the key formula behind consumption problems?",
-        "answer": "The main relationship is Price × Consumption = Constant (Expenditure). This is the foundation of all consumption-based percentage questions."
+        "title": "Why do we not directly use same percentage for consumption?",
+        "answer": "Because consumption changes inversely with price, not directly. A 20% increase in price does not mean 20% decrease in consumption."
       },
       {
-        "title": "Why is consumption inversely proportional to price?",
-        "answer": "Because when expenditure is fixed, if price increases, fewer units can be bought, and if price decreases, more units can be bought, creating an inverse relationship."
+        "title": "How do we solve: Price increases by 25%. Find reduction in consumption.",
+        "answer": "Step 1: Price increase = 25%. Step 2: Use formula Reduction = (100 × x) / (100 + x). Step 3: Substitute x = 25. Reduction = (100 × 25) / (100 + 25) = 2500 / 125 = 20%. Final Answer = Consumption must reduce by 20%."
       },
       {
-        "title": "What mistakes should be avoided in consumption questions?",
-        "answer": "Do not directly apply simple percentage change on consumption. Always use inverse proportion formulas because consumption does not change in the same direction as price."
+        "title": "Shortcut method for: Price increases by 25%.",
+        "answer": "Reduction = (100 × 25) / 125 = 20%."
+      },
+      {
+        "title": "Complete conceptual explanation of 25% increase example.",
+        "answer": "Suppose initially price = ₹100 per kg and expenditure = ₹1000. Consumption = 1000 ÷ 100 = 10 kg. After 25% increase, new price = ₹125 per kg. New consumption = 1000 ÷ 125 = 8 kg. Reduction = 10 - 8 = 2 kg. Percentage reduction = (2/10) × 100 = 20%."
+      },
+      {
+        "title": "How do we solve: Price decreases by 20%. Find increase in consumption.",
+        "answer": "Step 1: Price decrease = 20%. Step 2: Use formula Increase = (100 × x) / (100 - x). Step 3: Substitute x = 20. Increase = (100 × 20) / (100 - 20) = 2000 / 80 = 25%. Final Answer = Consumption increases by 25%."
+      },
+      {
+        "title": "Shortcut method for: Price decreases by 20%.",
+        "answer": "Increase = (100 × 20) / 80 = 25%."
+      },
+      {
+        "title": "Complete conceptual explanation of 20% decrease example.",
+        "answer": "Suppose initial price = ₹100 per kg and expenditure = ₹1000. Consumption = 10 kg. After 20% decrease, new price = ₹80 per kg. New consumption = 1000 ÷ 80 = 12.5 kg. Increase = 12.5 - 10 = 2.5 kg. Percentage increase = (2.5/10) × 100 = 25%."
+      },
+      {
+        "title": "How do we solve: Price increases by 40%. Find reduction in consumption.",
+        "answer": "Step 1: Use reduction formula. Step 2: Reduction = (100 × 40) / (100 + 40) = 4000 / 140 = 28.57%. Final Answer = Consumption reduces by 28.57%."
+      },
+      {
+        "title": "Shortcut for: Price increases by 40%.",
+        "answer": "Reduction = 4000 / 140 = 28.57%."
+      },
+      {
+        "title": "How do we solve: Price decreases by 50%. Find increase in consumption.",
+        "answer": "Step 1: Use increase formula. Step 2: Increase = (100 × 50) / (100 - 50) = 5000 / 50 = 100%. Final Answer = Consumption doubles."
+      },
+      {
+        "title": "Why does 50% decrease in price double consumption?",
+        "answer": "Suppose price changes from ₹100 to ₹50 while expenditure remains same. Earlier ₹1000 bought 10 units. Now ₹1000 buys 20 units. Hence consumption becomes double, meaning 100% increase."
+      },
+      {
+        "title": "What is the fastest shortcut formula for consumption problems?",
+        "answer": "If price increases by x%, use Reduction = (100x)/(100+x). If price decreases by x%, use Increase = (100x)/(100-x)."
+      },
+      {
+        "title": "What common mistakes should be avoided?",
+        "answer": "Do not directly subtract percentages. Always remember price and consumption are inversely proportional. Use the proper formulas instead of guessing."
+      },
+      {
+        "title": "What is the biggest concept to remember in consumption problems?",
+        "answer": "Expenditure always remains constant. Because of this, price and consumption always move in opposite directions."
       }
     ],
 
 
     "simple-intrest": [
       {
-        "title": "What is Simple Interest (SI)?",
-        "answer": "Simple Interest is the extra money earned or paid on a principal amount over time at a fixed rate. It is called 'simple' because interest is always calculated only on the original principal, not on accumulated interest."
+        "title": "What is Simple Interest?",
+        "answer": "Simple Interest (SI) is the extra money earned or paid only on the original principal amount. Interest does not get added back to the principal. Because of this, interest increases uniformly every year."
       },
       {
-        "title": "What is Simple Interest formula?",
-        "answer": "Simple Interest = (P × R × T) / 100, where P is Principal, R is Rate of interest per year, and T is Time in years."
+        "title": "Why is it called Simple Interest?",
+        "answer": "Because interest is always calculated only on the original principal amount, not on previously earned interest. So growth remains simple and linear."
       },
       {
-        "title": "What is amount in Simple Interest?",
-        "answer": "Amount is the total money after interest is added. It is calculated as: Amount = Principal + Simple Interest."
+        "title": "What is the most important SI formula?",
+        "answer": "Simple Interest (SI) = (P × R × T) / 100"
       },
       {
-        "title": "What do P, R, and T represent in SI?",
-        "answer": "P = Principal (initial money invested or borrowed), R = Rate of interest (percentage per year), T = Time (duration in years)."
+        "title": "What is the formula for Amount?",
+        "answer": "Amount = Principal + Simple Interest = P + SI"
       },
       {
-        "title": "Why is Simple Interest called linear interest?",
-        "answer": "Because it increases in a straight-line manner over time. Interest grows uniformly since it is always calculated on the same principal amount."
+        "title": "What do P, R, and T mean?",
+        "answer": "P = Principal (original money), R = Rate of interest per year, T = Time in years."
       },
       {
-        "title": "How do we solve SI step by step?",
-        "answer": "Step 1: Identify P, R, and T. Step 2: Substitute into SI formula (P × R × T) / 100. Step 3: Calculate interest. Step 4: Add to principal if amount is required."
+        "title": "What is the basic logic behind Simple Interest?",
+        "answer": "Interest earned every year remains same because the principal never changes. Example: If ₹1000 earns 10% SI, then every year interest will be ₹100 only."
       },
       {
-        "title": "Find SI on ₹500 at 5% for 1 year.",
-        "answer": "Using formula SI = (P × R × T) / 100 = (500 × 5 × 1) / 100 = 25. So Simple Interest = ₹25."
+        "title": "How do we solve Simple Interest problems step by step?",
+        "answer": "Step 1: Identify Principal (P), Rate (R), and Time (T). Step 2: Substitute into SI formula. Step 3: Calculate SI. Step 4: Add SI to Principal if Amount is asked."
       },
       {
-        "title": "Find amount on ₹500 at 5% for 1 year.",
-        "answer": "SI = ₹25. Amount = Principal + SI = 500 + 25 = ₹525."
+        "title": "Solve: Find SI on ₹500 at 5% for 1 year.",
+        "answer": "Step 1: P = 500, R = 5%, T = 1 year. Step 2: Apply formula.  Step 3: SI = 25. Final Answer = ₹25."
       },
       {
-        "title": "A sum doubles in 20 years at Simple Interest. Find rate.",
-        "answer": "If sum doubles, interest = 100% of principal in 20 years. So rate per year = 100 / 20 = 5% per annum."
+        "title": "Shortcut method for: Find SI on ₹500 at 5% for 1 year.",
+        "answer": "5% of 500 = 25. Since time is 1 year, SI = ₹25 directly."
       },
       {
-        "title": "A sum becomes four times in 30 years at Simple Interest. Find rate.",
-        "answer": "Four times means total increase = 300% (since principal becomes 400%, interest is 300%). So rate per year = 300 / 30 = 10% per annum."
+        "title": "Solve: Find Amount on ₹500 at 5% for 1 year.",
+        "answer": "Step 1: SI = ₹25. Step 2: Amount = Principal + SI = 500 + 25 = ₹525. Final Answer = ₹525."
       },
       {
-        "title": "Why do we convert doubling or tripling into percentage?",
-        "answer": "Because Simple Interest is directly proportional to percentage growth. Converting into percentage makes it easy to find yearly rate using division over time."
+        "title": "Complete conceptual explanation of first example.",
+        "answer": "5% means ₹5 interest on every ₹100 for 1 year. So on ₹500, interest = ₹25. Since SI does not change yearly, interest remains fixed."
       },
       {
-        "title": "What is the shortcut idea behind SI problems?",
-        "answer": "Instead of repeatedly using formula, we use the idea: Total Interest % = Rate × Time. This helps quickly find missing values."
+        "title": "Solve: Find SI on ₹2000 at 10% for 3 years.",
+        "answer": "Step 1: P = 2000, R = 10%, T = 3 years. Step 2: Apply formula.  Step 3: SI = 600. Final Answer = ₹600."
       },
       {
-        "title": "What are common mistakes in Simple Interest problems?",
-        "answer": "Mixing up amount and interest, forgetting to convert time into years, and incorrectly handling percentage conversions for doubling or tripling cases."
+        "title": "Shortcut method for: ₹2000 at 10% for 3 years.",
+        "answer": "10% of 2000 = ₹200 per year. For 3 years: 200 × 3 = ₹600."
       },
       {
-        "title": "Where is Simple Interest used in real life?",
-        "answer": "It is used in bank loans, fixed deposits (basic understanding), borrowing money, and exam aptitude questions where interest is calculated on a fixed principal."
+        "title": "How do we solve doubling questions in SI?",
+        "answer": "When a sum doubles, interest becomes equal to principal. That means total interest earned = 100% of principal."
+      },
+      {
+        "title": "Solve: A sum doubles in 20 years at SI. Find rate.",
+        "answer": "Step 1: Doubling means interest = 100% of principal. Step 2: Time = 20 years. Step 3: Rate per year = 100 ÷ 20 = 5%. Final Answer = 5% per annum."
+      },
+      {
+        "title": "Shortcut for doubling question.",
+        "answer": "If money doubles in T years under SI, then Rate = 100/T."
+      },
+      {
+        "title": "Solve: A sum becomes three times in 20 years at SI.",
+        "answer": "Three times means final amount = 300% of principal. Therefore interest = 200%. Time = 20 years. Rate = 200 ÷ 20 = 10%. Final Answer = 10%."
+      },
+      {
+        "title": "Solve: A sum becomes four times in 30 years at SI.",
+        "answer": "Step 1: Four times means amount = 400% of principal. Step 2: Interest = 400% - 100% = 300%. Step 3: Time = 30 years. Step 4: Rate = 300 ÷ 30 = 10%. Final Answer = 10% per annum."
+      },
+      {
+        "title": "Shortcut for multiplication questions in SI.",
+        "answer": "If amount becomes n times in T years, then Rate = ((n-1) × 100) / T."
+      },
+      {
+        "title": "How do we solve reverse SI questions?",
+        "answer": "Use formula transformations. Example: If SI, Rate, and Time are given, then Principal = (SI × 100)/(R × T)."
+      },
+      {
+        "title": "Solve: SI is ₹240, Rate = 8%, Time = 3 years. Find Principal.",
+        "answer": "Step 1: Use reverse formula.  Step 2: Substitute values. Principal = (240 × 100)/(8 × 3) = 24000/24 = ₹1000. Final Answer = ₹1000."
+      },
+      {
+        "title": "Shortcut for reverse SI problems.",
+        "answer": "Principal = (SI × 100)/(Rate × Time)."
+      },
+      {
+        "title": "Why is SI called linear growth?",
+        "answer": "Because equal interest is added every year. Growth happens in a straight-line pattern instead of increasing faster over time."
+      },
+      {
+        "title": "What are the most important shortcuts in SI?",
+        "answer": "1. SI = (P × R × T)/100. 2. Amount = P + SI. 3. Doubling in T years → Rate = 100/T. 4. n-times in T years → Rate = ((n-1) × 100)/T."
+      },
+      {
+        "title": "What mistakes should be avoided in SI?",
+        "answer": "Do not confuse Amount with SI. Do not forget to convert months into years. Do not apply Compound Interest logic in SI questions."
+      },
+      {
+        "title": "What is the biggest concept to remember in Simple Interest?",
+        "answer": "Interest is always calculated only on the original principal. That is the entire foundation of Simple Interest."
       }
     ],
 
@@ -416,60 +548,104 @@ const questionsData = {
 
     "compound-intrest": [
       {
-        "title": "What is Compound Interest (CI)?",
-        "answer": "Compound Interest is the interest calculated on both the principal and the previously accumulated interest. This means every new interest calculation is done on an increased amount, not just the original principal."
-      },
-      {
-        "title": "Why is Compound Interest more powerful than Simple Interest?",
-        "answer": "Because in Compound Interest, interest itself earns interest over time. This leads to exponential growth, whereas Simple Interest grows linearly."
-      },
-      {
-        "title": "What is the formula for Compound Interest amount?",
-        "answer": "Amount A = P(1 + R/100)^n, where P is principal, R is rate of interest per year, and n is time in years."
-      },
-      {
         "title": "What is Compound Interest?",
-        "answer": "Compound Interest = Amount - Principal = A - P."
+        "answer": "Compound Interest (CI) is interest calculated on both the original principal and the previously earned interest. This means every year the interest amount increases because the base amount keeps increasing."
       },
       {
-        "title": "What is the difference between Simple Interest and Compound Interest?",
-        "answer": "Simple Interest is calculated only on the original principal every time. Compound Interest is calculated on principal plus accumulated interest, making it higher than Simple Interest over time."
+        "title": "Why is it called interest on interest?",
+        "answer": "Because after every time period, earned interest is added back to the principal. In the next period, interest is calculated on this new increased amount."
       },
       {
-        "title": "How do we solve CI step by step?",
-        "answer": "Step 1: Identify P, R, and n. Step 2: Apply formula A = P(1 + R/100)^n. Step 3: Calculate amount. Step 4: Subtract principal to get CI."
+        "title": "Why does Compound Interest grow faster than Simple Interest?",
+        "answer": "In Simple Interest, interest is always calculated on the original principal only. But in Compound Interest, interest gets added to principal every year, causing exponential growth."
       },
       {
-        "title": "Find amount on ₹1000 at 10% CI for 2 years.",
-        "answer": "Using formula A = P(1 + R/100)^n = 1000(1.1)^2 = 1000 × 1.21 = ₹1210."
+        "title": "What is the most important formula of Compound Interest?",
+        "answer": "Amount (A) = P(1 + R/100)^n"
       },
       {
-        "title": "Find Compound Interest on ₹1000 at 10% for 2 years.",
-        "answer": "Amount = ₹1210. CI = Amount - Principal = 1210 - 1000 = ₹210."
+        "title": "What is the formula for Compound Interest?",
+        "answer": "Compound Interest (CI) = Amount - Principal = A - P"
       },
       {
-        "title": "What is shortcut formula for 2-year Compound Interest?",
-        "answer": "For 2 years: CI% = x + x + (x²/100), where x is the rate of interest per year."
+        "title": "What do P, R, and n mean in CI?",
+        "answer": "P = Principal amount, R = Rate of interest per year, n = Number of years or compounding periods."
       },
       {
-        "title": "What is compound increase for 10% for 2 years?",
-        "answer": "Using shortcut: 10 + 10 + (10×10)/100 = 20 + 1 = 21% increase. This shows compound growth effect."
+        "title": "What is the complete logic behind Compound Interest?",
+        "answer": "At the end of every year, interest is added to the principal. Therefore next year's interest is calculated on a bigger amount. This repeated growth creates compounding."
       },
       {
-        "title": "Why does CI grow faster than SI?",
-        "answer": "Because each year the interest is added to the principal, increasing the base for next year's calculation, leading to exponential growth."
+        "title": "How do we solve Compound Interest problems step by step?",
+        "answer": "Step 1: Identify Principal (P), Rate (R), and Time (n). Step 2: Apply amount formula A = P(1 + R/100)^n. Step 3: Calculate amount. Step 4: Subtract principal from amount to get CI."
       },
       {
-        "title": "What is compound interest effect in real life?",
-        "answer": "It is used in bank savings, investments, loans, inflation, and population growth where values increase exponentially over time."
+        "title": "Solve: Find amount on ₹1000 at 10% CI for 2 years.",
+        "answer": "Step 1: P = 1000, R = 10%, n = 2 years. Step 2: Apply formula.  Step 3: A = 1000(1.1)^2 = 1000 × 1.21 = ₹1210. Final Answer = ₹1210."
       },
       {
-        "title": "What is the key idea behind compound interest problems?",
-        "answer": "The key idea is 'interest on interest', meaning every period the base amount increases, so calculations must account for compounding rather than simple addition."
+        "title": "Solve: Find Compound Interest on ₹1000 at 10% for 2 years.",
+        "answer": "Step 1: Amount = ₹1210. Step 2: CI = Amount - Principal = 1210 - 1000 = ₹210. Final Answer = ₹210."
+      },
+      {
+        "title": "Complete conceptual explanation of ₹1000 at 10% for 2 years.",
+        "answer": "Year 1: Interest = 10% of 1000 = ₹100. New amount = ₹1100. Year 2: Interest = 10% of 1100 = ₹110. Final amount = 1100 + 110 = ₹1210. Total CI = 100 + 110 = ₹210."
+      },
+      {
+        "title": "What is the shortcut formula for 2-year CI?",
+        "answer": "For 2 years: Net Percentage Increase = x + x + (x²/100), where x is the annual interest rate."
+      },
+      {
+        "title": "Solve 10% compound increase for 2 years using shortcut.",
+        "answer": "10 + 10 + (10×10)/100 = 20 + 1 = 21%. Therefore total increase = 21%. On ₹1000, increase = 21% of 1000 = ₹210."
+      },
+      {
+        "title": "Why does the extra 1% appear in 10% compound increase?",
+        "answer": "Because second year's interest is calculated not only on the principal but also on the first year's interest. This creates the extra growth term."
+      },
+      {
+        "title": "Solve: Find amount on ₹5000 at 20% CI for 2 years.",
+        "answer": "Step 1: Use shortcut increase percentage. 20 + 20 + (20×20)/100 = 40 + 4 = 44%. Step 2: Increase amount = 44% of 5000 = ₹2200. Step 3: Final Amount = 5000 + 2200 = ₹7200."
+      },
+      {
+        "title": "Full conceptual explanation of ₹5000 at 20% for 2 years.",
+        "answer": "Year 1: 20% of 5000 = ₹1000. New amount = ₹6000. Year 2: 20% of 6000 = ₹1200. Final amount = 6000 + 1200 = ₹7200. Total CI = ₹2200."
+      },
+      {
+        "title": "How do we solve CI for 3 years quickly?",
+        "answer": "Use repeated multiplication or compound growth logic. Example: 10% for 3 years → multiply by 1.1 three times."
+      },
+      {
+        "title": "Solve: ₹2000 at 10% CI for 3 years.",
+        "answer": "Step 1: Apply formula.  Step 2: 1.1³ = 1.331. Step 3: Amount = 2000 × 1.331 = ₹2662. Step 4: CI = 2662 - 2000 = ₹662."
+      },
+      {
+        "title": "Shortcut thinking for 10% CI for 3 years.",
+        "answer": "After 1 year → ×1.1, after 2 years → ×1.21, after 3 years → ×1.331. So overall increase = 33.1%."
+      },
+      {
+        "title": "What is the difference between SI and CI using one example?",
+        "answer": "Suppose ₹1000 at 10% for 2 years. In SI: Interest every year = ₹100, so total SI = ₹200. In CI: Year 1 interest = ₹100, Year 2 interest = ₹110, so total CI = ₹210. CI is larger because of compounding."
+      },
+      {
+        "title": "How do we solve half-yearly or quarterly CI?",
+        "answer": "Convert rate and time according to compounding periods. Example: In half-yearly compounding, divide rate by 2 and multiply time by 2."
+      },
+      {
+        "title": "Solve: ₹1000 at 10% compounded half-yearly for 1 year.",
+        "answer": "Step 1: Rate per half-year = 10/2 = 5%. Step 2: Number of periods = 2. Step 3: Apply formula.  Step 4: Amount = 1000 × 1.1025 = ₹1102.5. CI = ₹102.5."
+      },
+      {
+        "title": "What are the most important shortcuts in Compound Interest?",
+        "answer": "1. Amount = P(1 + R/100)^n. 2. CI = Amount - Principal. 3. For 2 years: x + x + x²/100. 4. Repeated percentage growth can be solved using multipliers like 1.1, 1.2, etc."
       },
       {
         "title": "What common mistakes should be avoided in CI?",
-        "answer": "Students often forget to use exponent power for time, confuse SI with CI, or directly apply simple percentage addition instead of compound formula."
+        "answer": "Do not confuse CI with SI. Do not forget exponent power. Do not directly multiply rate and time like SI. Always remember compounding increases the base every year."
+      },
+      {
+        "title": "What is the biggest concept to remember in Compound Interest?",
+        "answer": "Interest is added back to the principal after every period, so future interest is calculated on an ever-growing amount. This is the heart of Compound Interest."
       }
     ],
 
@@ -558,86 +734,154 @@ const questionsData = {
     }
   ],
 
-  "profit-and-loss":[
+  "profit-and-loss": [
     {
-      "title": "What is Cost Price?",
-      "answer": "The price at which an item is bought."
+      "title": "What is Profit and Loss?",
+      "answer": "Profit and Loss is a topic based on buying and selling of goods. If an item is sold for more than its cost price, there is profit. If sold for less, there is loss."
     },
     {
-      "title": "What is Selling Price?",
-      "answer": "The price at which an item is sold."
+      "title": "What is Cost Price (CP)?",
+      "answer": "Cost Price is the price at which an article is purchased."
+    },
+    {
+      "title": "What is Selling Price (SP)?",
+      "answer": "Selling Price is the price at which an article is sold."
     },
     {
       "title": "When do we get profit?",
-      "answer": "When Selling Price is greater than Cost Price."
+      "answer": "Profit occurs when Selling Price is greater than Cost Price."
     },
     {
       "title": "When do we get loss?",
-      "answer": "When Cost Price is greater than Selling Price."
+      "answer": "Loss occurs when Cost Price is greater than Selling Price."
     },
     {
-      "title": "Formula of Profit",
-      "answer": "Profit = SP - CP"
+      "title": "What is the formula for Profit?",
+      "answer": "Profit = Selling Price - Cost Price = SP - CP"
     },
     {
-      "title": "Formula of Loss",
-      "answer": "Loss = CP - SP"
+      "title": "What is the formula for Loss?",
+      "answer": "Loss = Cost Price - Selling Price = CP - SP"
     },
     {
-      "title": "Formula of Profit Percentage",
-      "answer": "Profit% = (Profit/CP) × 100"
+      "title": "What is the formula for Profit Percentage?",
+      "answer": "Profit% = (Profit / CP) × 100"
     },
     {
-      "title": "Formula of Loss Percentage",
-      "answer": "Loss% = (Loss/CP) × 100"
+      "title": "What is the formula for Loss Percentage?",
+      "answer": "Loss% = (Loss / CP) × 100"
     },
     {
-      "title": "An item bought for Rs 1000 is sold for Rs 1200. Find profit.",
-      "answer": "Profit = 1200 - 1000 = Rs 200."
+      "title": "Why is Cost Price used in denominator?",
+      "answer": "Because profit or loss is always measured relative to the original investment (Cost Price)."
     },
     {
-      "title": "Find profit percentage if CP = 500 and SP = 650.",
-      "answer": "Profit = 150. Profit% = (150/500)×100 = 30%."
+      "title": "How do we solve Profit and Loss questions step by step?",
+      "answer": "Step 1: Identify CP and SP. Step 2: Check whether SP > CP or SP < CP. Step 3: Find Profit or Loss. Step 4: Calculate percentage if required."
     },
     {
-      "title": "Find loss percentage if CP = 800 and SP = 720.",
-      "answer": "Loss = 80. Loss% = (80/800)×100 = 10%."
+      "title": "Solve: An item bought for ₹1000 is sold for ₹1200. Find profit.",
+      "answer": "Step 1: CP = 1000, SP = 1200. Step 2: Since SP > CP, there is profit. Step 3: Profit = 1200 - 1000 = ₹200. Final Answer = ₹200 profit."
     },
     {
-      "title": "A shopkeeper sells an article at 25% profit. If CP is 400, find SP.",
-      "answer": "SP = 400 + 25% of 400 = 500."
+      "title": "Shortcut method for: CP = 1000, SP = 1200.",
+      "answer": "Direct subtraction: Profit = SP - CP = 200."
     },
     {
-      "title": "An article is sold at 20% loss for Rs 800. Find CP.",
-      "answer": "80% of CP = 800. CP = 1000."
+      "title": "Solve: Find profit percentage if CP = 500 and SP = 650.",
+      "answer": "Step 1: Profit = 650 - 500 = ₹150. Step 2: Apply formula.  Step 3: Profit% = 30%. Final Answer = 30% profit."
     },
     {
-      "title": "Find SP if CP is 1000 and profit is 15%.",
-      "answer": "SP = 1000 + 150 = 1150."
+      "title": "Shortcut method for: CP = 500 and SP = 650.",
+      "answer": "Profit = 150. Since 150 is 30% of 500, Profit% = 30%."
     },
     {
-      "title": "Find CP if SP is 900 and loss is 10%.",
-      "answer": "90% of CP = 900 => CP = 1000."
+      "title": "Solve: Find loss percentage if CP = 800 and SP = 720.",
+      "answer": "Step 1: Loss = 800 - 720 = ₹80. Step 2: Apply formula.  Step 3: Loss% = 10%. Final Answer = 10% loss."
     },
     {
-      "title": "A seller gains Rs 50 on selling an item for Rs 450. Find CP.",
-      "answer": "CP = 450 - 50 = 400."
+      "title": "Shortcut method for: CP = 800 and SP = 720.",
+      "answer": "Loss = 80. Since 80 is 10% of 800, Loss% = 10%."
     },
     {
-      "title": "If an item is sold at double the CP, find profit percentage.",
-      "answer": "Profit = 100%."
+      "title": "How do we find Selling Price when profit percentage is given?",
+      "answer": "Add profit percentage to Cost Price."
     },
     {
-      "title": "If SP = CP, what is profit or loss?",
-      "answer": "No profit and no loss."
+      "title": "Solve: A shopkeeper sells an article at 25% profit. If CP is ₹400, find SP.",
+      "answer": "Step 1: Profit = 25% of 400 = ₹100. Step 2: SP = CP + Profit = 400 + 100 = ₹500. Final Answer = ₹500."
     },
     {
-      "title": "A shopkeeper buys 10 apples for Rs 100 and sells each for Rs 15. Find profit.",
-      "answer": "CP = 100, SP = 150, Profit = 50."
+      "title": "Shortcut for: 25% profit on ₹400.",
+      "answer": "SP = 125% of 400 = (125/100) × 400 = ₹500."
     },
     {
-      "title": "Why is CP used in denominator in profit percentage?",
-      "answer": "Because profit and loss are always calculated on cost price."
+      "title": "How do we find Cost Price when loss percentage is given?",
+      "answer": "Use remaining percentage after loss. Example: 20% loss means SP = 80% of CP."
+    },
+    {
+      "title": "Solve: An article is sold at 20% loss for ₹800. Find CP.",
+      "answer": "Step 1: 20% loss means SP = 80% of CP. Step 2: 80% of CP = 800. Step 3: CP = (800 × 100)/80 = ₹1000. Final Answer = ₹1000."
+    },
+    {
+      "title": "Shortcut for: Sold at 20% loss for ₹800.",
+      "answer": "CP = 800 × (100/80) = ₹1000."
+    },
+    {
+      "title": "Solve: Find SP if CP is ₹1000 and profit is 15%.",
+      "answer": "Step 1: Profit = 15% of 1000 = ₹150. Step 2: SP = 1000 + 150 = ₹1150. Final Answer = ₹1150."
+    },
+    {
+      "title": "Shortcut for: CP = ₹1000 and profit = 15%.",
+      "answer": "SP = 115% of 1000 = ₹1150."
+    },
+    {
+      "title": "Solve: Find CP if SP is ₹900 and loss is 10%.",
+      "answer": "Step 1: 10% loss means SP = 90% of CP. Step 2: 90% of CP = 900. Step 3: CP = (900 × 100)/90 = ₹1000. Final Answer = ₹1000."
+    },
+    {
+      "title": "Shortcut for: SP = ₹900 and loss = 10%.",
+      "answer": "CP = 900 × (100/90) = ₹1000."
+    },
+    {
+      "title": "Solve: A seller gains ₹50 on selling an item for ₹450. Find CP.",
+      "answer": "Step 1: SP = ₹450, Profit = ₹50. Step 2: CP = SP - Profit = 450 - 50 = ₹400. Final Answer = ₹400."
+    },
+    {
+      "title": "Shortcut for: Gain ₹50 on selling price ₹450.",
+      "answer": "CP = 450 - 50 = ₹400."
+    },
+    {
+      "title": "Solve: If an item is sold at double the CP, find profit percentage.",
+      "answer": "Suppose CP = ₹100. Then SP = ₹200. Profit = 200 - 100 = ₹100. Profit% = (100/100) × 100 = 100%. Final Answer = 100% profit."
+    },
+    {
+      "title": "Shortcut for: Item sold at double CP.",
+      "answer": "Double CP means SP = 200% of CP. Therefore profit = 100%."
+    },
+    {
+      "title": "What happens when SP = CP?",
+      "answer": "There is neither profit nor loss because selling price and cost price are equal."
+    },
+    {
+      "title": "Solve: A shopkeeper buys 10 apples for ₹100 and sells each for ₹15. Find profit.",
+      "answer": "Step 1: CP of 10 apples = ₹100. Step 2: SP of 10 apples = 10 × 15 = ₹150. Step 3: Profit = 150 - 100 = ₹50. Final Answer = ₹50 profit."
+    },
+    {
+      "title": "Shortcut for apple question.",
+      "answer": "10 apples sold at ₹15 each means total SP = ₹150. Profit = 150 - 100 = ₹50."
+    },
+    {
+      "title": "What are the fastest shortcut formulas in Profit and Loss?",
+      "answer": "1. Profit = SP - CP. 2. Loss = CP - SP. 3. Profit% = (Profit/CP) × 100. 4. Loss% = (Loss/CP) × 100. 5. SP = CP × (100 + Profit%)/100. 6. CP = SP × 100/(100 - Loss%)."
+    },
+    {
+      "title": "What common mistakes should be avoided?",
+      "answer": "Do not use SP in denominator for percentage calculations. Always use CP. Also carefully identify whether question is about profit or loss."
+    },
+    {
+      "title": "What is the biggest concept to remember in Profit and Loss?",
+      "answer": "Everything revolves around Cost Price because profit and loss percentages are always calculated on CP."
     }
   ],
 
@@ -762,6 +1006,10 @@ const questionsData = {
     {
       "title": "What is cyclicity?",
       "answer": "Repeating pattern of unit digits in powers."
+    },
+    {
+      "title": "What are cyclicity patterns of unit digits from 1 to 9?",
+      "answer": "1 → 1 (cyclicity = 1)\n2 → 2,4,8,6 (cyclicity = 4)\n3 → 3,9,7,1 (cyclicity = 4)\n4 → 4,6 (cyclicity = 2)\n5 → 5 (cyclicity = 1)\n6 → 6 (cyclicity = 1)\n7 → 7,9,3,1 (cyclicity = 4)\n8 → 8,4,2,6 (cyclicity = 4)\n9 → 9,1 (cyclicity = 2)"
     },
     {
       "title": "Find unit digit of 2^1, 2^2, 2^3, 2^4.",
@@ -1156,67 +1404,175 @@ const questionsData = {
 
 
 "calendar": [
-    {
-      "title": "How many days are in an ordinary year?",
-      "answer": "365 days."
-    },
-    {
-      "title": "How many days are in a leap year?",
-      "answer": "366 days."
-    },
-    {
-      "title": "How many odd days are in an ordinary year?",
-      "answer": "1 odd day."
-    },
-    {
-      "title": "How many odd days are in a leap year?",
-      "answer": "2 odd days."
-    },
-    {
-      "title": "What is a leap year?",
-      "answer": "A year divisible by 4."
-    },
-    {
-      "title": "What is century leap year rule?",
-      "answer": "Century year must be divisible by 400."
-    },
-    {
-      "title": "Is 1900 a leap year?",
-      "answer": "No, because not divisible by 400."
-    },
-    {
-      "title": "Is 2000 a leap year?",
-      "answer": "Yes, because divisible by 400."
-    },
-    {
-      "title": "How many odd days are in 52 weeks?",
-      "answer": "0 odd days."
-    },
-    {
-      "title": "What day comes after Tuesday?",
-      "answer": "Wednesday."
-    },
-    {
-      "title": "What day was on 1 Jan 2023?",
-      "answer": "Sunday."
-    },
-    {
-      "title": "If today is Monday, what day after 10 days?",
-      "answer": "Thursday."
-    },
-    {
-      "title": "What is odd day?",
-      "answer": "Remaining days after complete weeks."
-    },
-    {
-      "title": "Why are odd days important?",
-      "answer": "They help determine day of week."
-    },
-    {
-      "title": "How many odd days in 100 years?",
-      "answer": "5 odd days."
-    }
-  ],
+  {
+    "title": "What is calendar aptitude?",
+    "answer": "Calendar aptitude is a topic used to find days, dates, leap years, odd days, and weekday calculations. The entire topic is based on counting total odd days because weekdays repeat after every 7 days."
+  },
+  {
+    "title": "What is a week?",
+    "answer": "1 week = 7 days. Since weekdays repeat after every 7 days, multiples of 7 create complete cycles."
+  },
+  {
+    "title": "What are odd days?",
+    "answer": "Odd days are the remaining days after removing complete weeks. Example: 9 days = 7 + 2, so odd days = 2."
+  },
+  {
+    "title": "Why are odd days important?",
+    "answer": "Odd days help determine the day of the week because every extra odd day shifts the weekday forward by one."
+  },
+  {
+    "title": "How many days are in an ordinary year?",
+    "answer": "Ordinary year = 365 days."
+  },
+  {
+    "title": "How many odd days are in an ordinary year?",
+    "answer": "365 = 52 weeks + 1 day. Therefore ordinary year has 1 odd day."
+  },
+  {
+    "title": "How many days are in a leap year?",
+    "answer": "Leap year = 366 days."
+  },
+  {
+    "title": "How many odd days are in a leap year?",
+    "answer": "366 = 52 weeks + 2 days. Therefore leap year has 2 odd days."
+  },
+  {
+    "title": "What is a leap year?",
+    "answer": "A leap year has 366 days instead of 365 days. February contains 29 days in a leap year."
+  },
+  {
+    "title": "What is the leap year rule?",
+    "answer": "A year divisible by 4 is generally a leap year."
+  },
+  {
+    "title": "What is the century leap year rule?",
+    "answer": "Century years must be divisible by 400 to become leap years."
+  },
+  {
+    "title": "Why is 1900 not a leap year?",
+    "answer": "1900 is divisible by 100 but not divisible by 400, so it is not a leap year."
+  },
+  {
+    "title": "Why is 2000 a leap year?",
+    "answer": "2000 is divisible by 400, so it is a leap year."
+  },
+  {
+    "title": "How many odd days are in 52 weeks?",
+    "answer": "52 weeks = 52 × 7 = 364 days. Therefore odd days = 0."
+  },
+  {
+    "title": "How do weekdays move because of odd days?",
+    "answer": "1 odd day shifts weekday by 1. 2 odd days shift by 2. Example: Monday + 2 odd days = Wednesday."
+  },
+  {
+    "title": "Day sequence in calendar.",
+    "answer": "Sunday → Monday → Tuesday → Wednesday → Thursday → Friday → Saturday → Sunday."
+  },
+  {
+    "title": "What day comes after Tuesday?",
+    "answer": "Wednesday."
+  },
+  {
+    "title": "What day comes before Monday?",
+    "answer": "Sunday."
+  },
+  {
+    "title": "If today is Monday, what day after 10 days?",
+    "answer": "Step 1: Divide 10 by 7. Step 2: Remainder = 3. Step 3: Move 3 days after Monday → Tuesday, Wednesday, Thursday. Final Answer = Thursday."
+  },
+  {
+    "title": "Shortcut for day after many days.",
+    "answer": "Divide total days by 7 and use remainder only because complete weeks do not affect weekday."
+  },
+  {
+    "title": "If today is Friday, what day after 100 days?",
+    "answer": "100 mod 7 = 2. Move 2 days after Friday → Saturday, Sunday. Final Answer = Sunday."
+  },
+  {
+    "title": "If today is Sunday, what day after 200 days?",
+    "answer": "200 mod 7 = 4. Move 4 days after Sunday → Monday, Tuesday, Wednesday, Thursday. Final Answer = Thursday."
+  },
+  {
+    "title": "How many odd days are in 100 years?",
+    "answer": "In 100 years: 76 ordinary years and 24 leap years. Odd days = (76 × 1) + (24 × 2) = 124 odd days. 124 mod 7 = 5. Final Answer = 5 odd days."
+  },
+  {
+    "title": "How many odd days are in 200 years?",
+    "answer": "Every 100 years contribute 5 odd days. Therefore 200 years = 5 + 5 = 10 odd days. 10 mod 7 = 3 odd days."
+  },
+  {
+    "title": "How many odd days are in 300 years?",
+    "answer": "300 years = 5 + 5 + 5 = 15 odd days. 15 mod 7 = 1 odd day."
+  },
+  {
+    "title": "How many odd days are in 400 years?",
+    "answer": "400 years contain exactly 0 odd days because total odd days become divisible by 7. Hence calendar repeats every 400 years."
+  },
+  {
+    "title": "Why does calendar repeat after 400 years?",
+    "answer": "Because total odd days in 400 years become a complete multiple of 7, causing weekdays and dates to repeat."
+  },
+  {
+    "title": "Month codes based on odd days in ordinary year.",
+    "answer": "January = 3, February = 0, March = 3, April = 2, May = 3, June = 2, July = 3, August = 3, September = 2, October = 3, November = 2, December = 3."
+  },
+  {
+    "title": "How many odd days are in January?",
+    "answer": "January has 31 days = 28 + 3. Therefore odd days = 3."
+  },
+  {
+    "title": "How many odd days are in February in ordinary year?",
+    "answer": "February has 28 days = 4 complete weeks. Therefore odd days = 0."
+  },
+  {
+    "title": "How many odd days are in February in leap year?",
+    "answer": "February has 29 days = 28 + 1. Therefore odd days = 1."
+  },
+  {
+    "title": "How do we find day on a given date?",
+    "answer": "Step 1: Count odd days from years. Step 2: Add odd days from months. Step 3: Add odd days from dates. Step 4: Divide total by 7 and use remainder to determine weekday."
+  },
+  {
+    "title": "What day was on 1 Jan 2023?",
+    "answer": "1 January 2023 was Sunday."
+  },
+  {
+    "title": "Find day on 1 Jan 2024.",
+    "answer": "2023 was ordinary year with 1 odd day. 1 Jan 2023 = Sunday. Adding 1 odd day gives Monday. Final Answer = Monday."
+  },
+  {
+    "title": "Find day on 1 Jan 2025.",
+    "answer": "2024 is leap year with 2 odd days. 1 Jan 2024 = Monday. Add 2 odd days → Wednesday. Final Answer = Wednesday."
+  },
+  {
+    "title": "Find day on 15 August 1947.",
+    "answer": "15 August 1947 was Friday."
+  },
+  {
+    "title": "How do we solve backward day problems?",
+    "answer": "Instead of moving forward, move backward using subtraction. Example: Monday - 2 days = Saturday."
+  },
+  {
+    "title": "If today is Wednesday, what day was 20 days ago?",
+    "answer": "20 mod 7 = 6. Move 6 days backward from Wednesday → Tuesday, Monday, Sunday, Saturday, Friday, Thursday. Final Answer = Thursday."
+  },
+  {
+    "title": "What is the biggest shortcut in calendar problems?",
+    "answer": "Always reduce days using modulo 7 because only remainder affects weekdays."
+  },
+  {
+    "title": "Most important odd day shortcuts.",
+    "answer": "1 ordinary year = 1 odd day. 1 leap year = 2 odd days. 100 years = 5 odd days. 200 years = 3 odd days. 300 years = 1 odd day. 400 years = 0 odd days."
+  },
+  {
+    "title": "What common mistakes should be avoided in calendar problems?",
+    "answer": "Do not forget leap year conditions. Do not count complete weeks. Always use remainder after division by 7. Carefully handle century years like 1700, 1800, 1900."
+  },
+  {
+    "title": "What is the most important concept in calendar aptitude?",
+    "answer": "Weekdays repeat every 7 days. Therefore only odd days matter in every calendar calculation."
+  }
+],
 
 
 

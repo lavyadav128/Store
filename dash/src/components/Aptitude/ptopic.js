@@ -34,7 +34,6 @@ const topics = [
   { id: "syllogism", name: "Syllogism" },
   { id: "calendar", name: "Calendar" },
   { id: "cubes-and-dice", name: "Cubes-and-dice" },
-  { id: "calendar", name: "Calendar" },
   { id: "games-and-tournament", name: "Games-and-tournament" },
 
 ];
