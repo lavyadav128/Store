@@ -28,6 +28,7 @@ const topics = [
   { id: "os-basics", name: "OS Basics" },
   { id: "cicd", name: "CI/CD" },
   { id: "docker", name: "Docker" },
+  { id: "dockersetup", name: "Dockersetup" },
   { id: "kubernetes", name: "Kubernetes" },
   { id: "aws", name: "AWS" },
   { id: "authentication", name: "Authentication" },

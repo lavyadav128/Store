@@ -1797,177 +1797,396 @@ const questionsData = {
     },
   ],
 
-"docker": [
-  {
-    "title": "How to list all local Docker images?",
-    "answer": "The 'docker images' command displays all Docker images stored on your local machine.\n\nSyntax:\ndocker images\n\nExample:\ndocker images\n\nSample Output:\nREPOSITORY   TAG   IMAGE ID   CREATED   SIZE\nnode         20    abc123     2 days ago   1.1GB\n\nExplanation:\n- REPOSITORY → Name of the image\n- TAG → Version of image\n- IMAGE ID → Unique image identifier\n- CREATED → When image was created\n- SIZE → Image size on disk\n\nConcept:\nDocker images are templates used to create containers."
-  },
 
-  {
-    "title": "How to delete a Docker image?",
-    "answer": "The 'docker rmi' command removes a Docker image from your local system.\n\nSyntax:\ndocker rmi <image-name>\n\nExample:\ndocker rmi nginx\n\nYou can also remove using image ID:\ndocker rmi abc123\n\nImportant:\nDocker will not remove an image if a container is using it."
-  },
+  "dockersetup":[
+    {
+      title: "Complete End-to-End Docker Workflow Explained",
+      answer: "Full Docker lifecycle:\n\nCode\n→ Dockerfile\n→ Build Image\n→ Run Container\n→ Push to Docker Hub\n→ Pull Anywhere\n→ Run Anywhere\n\nDetailed Explanation:\n\n1. Write Application Code\nFirst you create your actual application.\n\nExample:\n- React frontend\n- Node.js backend\n- Express APIs\n- MongoDB connection\n- Routes, controllers, components, etc.\n\nAt this stage application runs normally on your local machine.\n\n--------------------------------------------------\n\n2. Create Dockerfile\nA Dockerfile tells Docker how to package your application.\n\nExample Backend Dockerfile:\n\nFROM node:20\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install\nCOPY . .\nEXPOSE 3000\nCMD [\"node\", \"index.js\"]\n\nDockerfile contains:\n- Base operating environment\n- Dependencies installation\n- File copying\n- Ports\n- Start commands\n\n--------------------------------------------------\n\n3. Build Docker Image\nCommand:\n\ndocker build -t my-backend .\n\nOR using Docker Compose:\n\ndocker compose build\n\nWhat Docker does internally:\n\nStep 1:\nPulls base image (example node:20)\n\nStep 2:\nCreates temporary layers\n\nStep 3:\nCopies package.json\n\nStep 4:\nRuns npm install\n\nStep 5:\nCopies complete source code\n\nStep 6:\nSaves final packaged application as Docker Image\n\nResult:\nA portable image is created.\n\nThis image contains:\n- Node.js\n- Dependencies\n- Source code\n- Configurations\n- Runtime\n\nImage is NOT running yet.\n\n--------------------------------------------------\n\n4. Run Docker Container\nCommand:\n\ndocker run -p 3000:3000 my-backend\n\nOR:\n\ndocker compose up\n\nWhat happens:\n\n1. Docker creates isolated environment\n2. Container starts from image\n3. Application launches\n4. Ports become accessible\n\nNow application becomes live.\n\nExample:\n\nlocalhost:3000\n\nopens backend running inside container.\n\n--------------------------------------------------\n\n5. Push Image to Docker Hub\nFirst login:\n\ndocker login\n\nTag image:\n\ndocker tag my-backend username/my-backend:v1\n\nPush image:\n\ndocker push username/my-backend:v1\n\nWhat happens:\n\n1. Docker uploads image layers to Docker Hub cloud registry\n2. Image becomes globally accessible\n3. Anyone with permission can pull image\n\nDocker Hub works like GitHub but for Docker Images.\n\n--------------------------------------------------\n\n6. Pull Image Anywhere\nAnother user on:\n- Windows\n- Mac\n- Linux\n- Cloud VPS\n- AWS\n- Azure\n- DigitalOcean\n\ncan download image using:\n\ndocker pull username/my-backend:v1\n\nDocker downloads all layers automatically.\n\n--------------------------------------------------\n\n7. Run Anywhere\nAfter pulling image:\n\ndocker run -p 3000:3000 username/my-backend:v1\n\nApplication runs exactly same everywhere.\n\nThis solves:\n- Dependency mismatch\n- Node version mismatch\n- Operating system differences\n- Missing libraries\n- Environment inconsistencies\n\n--------------------------------------------------\n\nReal World Example:\n\nDeveloper Machine:\nWindows + VS Code\n      ↓\nCreate Docker Image\n      ↓\nPush to Docker Hub\n      ↓\nClient pulls image on Mac\n      ↓\nCompany deploys same image on Linux server\n      ↓\nCloud deploys same image on Kubernetes\n\nSame image works everywhere.\n\n--------------------------------------------------\n\nMain Benefit of Docker:\n\n'Build Once, Run Anywhere'\n\nDocker guarantees application consistency across all systems."
+    },
+    {
+      title: "What is Docker?",
+      answer: "Docker is a containerization platform that allows developers to package applications along with all dependencies, libraries, runtime, and configurations into lightweight containers.\n\nThese containers run consistently on every machine like Windows, Mac, Linux, cloud servers, and VPS.\n\nMain Goal:\n'Build once, run anywhere.'"
+    },
+    
+    {
+      title: "What is a Dockerfile?",
+      answer: "A Dockerfile is a text file that contains instructions for Docker to create an image.\n\nIt defines:\n1. Which base image to use\n2. Which dependencies to install\n3. Which files to copy\n4. Which port to expose\n5. Which command to run when container starts\n\nDocker reads Dockerfile step-by-step and creates a Docker image."
+    },
+    
+    {
+      title: "What is a Docker Image?",
+      answer: "A Docker Image is a blueprint/template used to create containers.\n\nIt contains:\n- Application code\n- Node.js/Python/Java runtime\n- Dependencies\n- Environment variables\n- Libraries\n- Configuration files\n\nImage is NOT running.\nIt is only a packaged application."
+    },
+    
+    {
+      title: "What is a Docker Container?",
+      answer: "A Docker Container is a running instance of a Docker Image.\n\nAnalogy:\nDockerfile = Recipe\nImage = Frozen prepared food\nContainer = Running cooked food\n\nContainers are isolated environments that run independently from your actual operating system."
+    },
+    
+    {
+      title: "Project Structure for Backend + Frontend Docker Setup",
+      answer: "Example project structure:\n\nproject-folder/\n│\n├── back/\n│   ├── Dockerfile\n│   ├── package.json\n│   ├── package-lock.json\n│   └── index.js\n│\n├── dash/\n│   ├── Dockerfile\n│   ├── package.json\n│   ├── package-lock.json\n│   └── src/\n│\n└── docker-compose.yml\n\nback = backend folder\n\ndash = frontend React folder"
+    },
+    
+    {
+      title: "Backend Dockerfile Explanation",
+      answer: "Backend Dockerfile:\n\nFROM node:20\n\nWORKDIR /app\n\nCOPY package*.json ./\n\nRUN npm install\n\nCOPY . .\n\nEXPOSE 3000\n\nCMD [\"node\", \"index.js\"]\n\nExplanation:\n\n1. FROM node:20\nUses official Node.js version 20 image from Docker Hub.\nThis image already contains Node.js installed.\n\n2. WORKDIR /app\nCreates and enters /app folder inside container.\nAll commands run inside this folder.\n\n3. COPY package*.json ./\nCopies package.json and package-lock.json from your PC into container.\n\n4. RUN npm install\nInstalls all backend dependencies inside container.\n\n5. COPY . .\nCopies complete backend source code into container.\n\n6. EXPOSE 3000\nTells Docker that backend application uses port 3000.\n\n7. CMD [\"node\", \"index.js\"]\nStarts backend server when container runs."
+    },
+    
+    {
+      title: "Frontend Dockerfile Explanation",
+      answer: "Frontend Dockerfile:\n\nFROM node:20\n\nWORKDIR /app\n\nCOPY package*.json ./\n\nRUN npm install\n\nCOPY . .\n\nEXPOSE 3001\n\nCMD [\"npm\", \"start\"]\n\nExplanation:\n\n1. FROM node:20\nUses official Node.js image.\n\n2. WORKDIR /app\nCreates working directory inside container.\n\n3. COPY package*.json ./\nCopies React package files.\n\n4. RUN npm install\nInstalls frontend dependencies.\n\n5. COPY . .\nCopies complete React project.\n\n6. EXPOSE 3001\nFrontend uses port 3001.\n\n7. CMD [\"npm\", \"start\"]\nRuns React development server."
+    },
+    
+    {
+      title: "What is docker-compose.yml?",
+      answer: "docker-compose.yml is a file used to manage multiple containers together.\n\nInstead of running backend and frontend separately using many commands, Docker Compose starts everything together using one command."
+    },
+    
+    {
+      title: "docker-compose.yml Explanation",
+      answer: "Example:\n\nservices:\n  backend:\n    build: ./back\n    container_name: backend_container\n    ports:\n      - \"3000:3000\"\n\n  frontend:\n    build: ./dash\n    container_name: frontend_container\n    ports:\n      - \"3001:3001\"\n\nExplanation:\n\n1. services\nDefines multiple containers.\n\n2. backend\nBackend service name.\n\n3. build: ./back\nDocker builds image using back/Dockerfile.\n\n4. container_name\nCustom container name.\n\n5. ports\nMaps your PC port to container port.\n\n3000:3000 means:\nlocalhost:3000 -> container port 3000"
+    },
+    
+    {
+      title: "How to Build Docker Images?",
+      answer: "Open VS Code terminal in main project folder where docker-compose.yml exists.\n\nRun:\n\ndocker compose build\n\nDocker will:\n1. Read Dockerfiles\n2. Execute commands line-by-line\n3. Install dependencies\n4. Copy code\n5. Create Docker images"
+    },
+    
+    {
+      title: "How to Run Containers?",
+      answer: "Run:\n\ndocker compose up\n\nOR background mode:\n\ndocker compose up -d\n\nDocker will:\n1. Create containers\n2. Start backend\n3. Start frontend\n4. Create Docker network automatically"
+    },
+    
+    {
+      title: "How to Check Running Containers?",
+      answer: "Run:\n\ndocker ps\n\nThis shows:\n- Container ID\n- Image name\n- Ports\n- Status\n- Container names"
+    },
+    
+    {
+      title: "How to Access Applications?",
+      answer: "Frontend:\nhttp://localhost:3001\n\nBackend:\nhttp://localhost:3000\n\nlocalhost means your own computer."
+    },
+    
+    {
+      title: "How to See Docker Images?",
+      answer: "Run:\n\ndocker images\n\nThis displays all Docker images available on your machine."
+    },
+    
+    {
+      title: "How to Stop Containers?",
+      answer: "Run:\n\ndocker compose down\n\nThis stops and removes containers created by docker-compose."
+    },
+    
+    {
+      title: "How to Rebuild Containers After Code Changes?",
+      answer: "Run:\n\ndocker compose up --build\n\nDocker rebuilds images using updated code and starts new containers."
+    },
+    
+    {
+      title: "How to Create Docker Hub Account?",
+      answer: "Create account on Docker Hub:\n\nhttps://hub.docker.com/\n\nDocker Hub is an online cloud registry used to store Docker images."
+    },
+    
+    {
+      title: "How to Login to Docker Hub?",
+      answer: "Run:\n\ndocker login\n\nEnter:\n- Docker Hub username\n- Password or access token"
+    },
+    
+    {
+      title: "How to Tag Docker Images?",
+      answer: "Docker images must be tagged before pushing.\n\nSyntax:\n\ndocker tag local-image dockerhub-username/image-name:tag\n\nExample backend:\n\ndocker tag notenove-backend lavyadav182/notenove-backend:v1\n\nExample frontend:\n\ndocker tag notenove-frontend lavyadav182/notenove-frontend:v1"
+    },
+    
+    {
+      title: "How to Push Backend Image to Docker Hub?",
+      answer: "Run:\n\ndocker push lavyadav182/notenove-backend:v1\n\nDocker uploads backend image to Docker Hub cloud registry."
+    },
+    
+    {
+      title: "How to Push Frontend Image to Docker Hub?",
+      answer: "Run:\n\ndocker push lavyadav182/notenove-frontend:v1\n\nFrontend image becomes accessible globally."
+    },
+    
+    {
+      title: "Are Docker Images Public or Private?",
+      answer: "Docker repositories can be:\n\n1. Public\nAnyone can pull and run your image.\n\n2. Private\nOnly you or authorized users can access image.\n\nVisibility is controlled from Docker Hub settings."
+    },
+    
+    {
+      title: "How Another User Can Access Your Docker Images?",
+      answer: "Another user on Mac, Windows, or Linux only needs Docker installed.\n\nThey can pull image using:\n\ndocker pull lavyadav182/notenove-frontend:v1\n\ndocker pull lavyadav182/notenove-backend:v1"
+    },
+    
+    {
+      title: "How Another User Can Run Your Backend Container?",
+      answer: "Run:\n\ndocker run -p 3000:3000 lavyadav182/notenove-backend:v1\n\nThis starts backend container on their machine."
+    },
+    
+    {
+      title: "How Another User Can Run Your Frontend Container?",
+      answer: "Run:\n\ndocker run -p 3001:3001 lavyadav182/notenove-frontend:v1\n\nThis starts frontend container on their machine."
+    },
+    
+    {
+      title: "How Another User Can Access Source Code from Docker Image?",
+      answer: "Docker images normally contain packaged applications, not editable Git repositories.\n\nBut files can still be extracted.\n\nSteps:\n\n1. Create container:\n\ndocker create --name tempcontainer image-name\n\n2. Copy files:\n\ndocker cp tempcontainer:/app .\n\n3. Open in VS Code:\n\ncode ."
+    },
+    
+    {
+      title: "Difference Between GitHub and Docker Hub",
+      answer: "GitHub:\n- Stores source code\n- Used for development\n- Editable code repository\n\nDocker Hub:\n- Stores packaged Docker images\n- Used for deployment and execution\n- Mainly for running applications"
+    },
+    
+    {
+      title: "How Docker Networking Works?",
+      answer: "Docker Compose automatically creates a private network between containers.\n\nBackend and frontend communicate using service names.\n\nExample frontend API URL inside Docker:\n\nhttp://backend:3000\n\nNOT localhost:3000\n\nbecause localhost inside container means the container itself."
+    },
+    
+    {
+      title: "What is Port Mapping?",
+      answer: "Example:\n\nports:\n  - \"3000:3000\"\n\nMeaning:\n\nLeft side = your computer port\nRight side = container internal port\n\nlocalhost:3000 -> container:3000"
+    },
+    
+    {
+      title: "What Happens Internally During Docker Build?",
+      answer: "Docker executes Dockerfile step-by-step:\n\n1. Pull base image\n2. Create container layer\n3. Copy package files\n4. Install dependencies\n5. Copy source code\n6. Save image layer\n7. Final image created\n\nDocker uses caching to speed up future builds."
+    },
+    
+    {
+      title: "What Happens Internally During docker compose up?",
+      answer: "Docker Compose:\n\n1. Creates network\n2. Creates containers\n3. Attaches volumes\n4. Maps ports\n5. Starts applications\n6. Maintains communication between services"
+    },
+    
+    {
+      title: "How to Remove All Containers?",
+      answer: "Windows PowerShell:\n\ndocker ps -aq | % { docker rm -f $_ }\n\nThis forcefully stops and removes all containers."
+    },
+    
+    {
+      title: "How to Remove All Docker Images?",
+      answer: "Windows PowerShell:\n\ndocker images -aq | % { docker rmi -f $_ }\n\nThis removes all Docker images."
+    },
+    
+    {
+      title: "How to Clean Entire Docker System?",
+      answer: "Run:\n\ndocker system prune -a --volumes -f\n\nThis removes:\n- Containers\n- Images\n- Networks\n- Build cache\n- Volumes"
+    },
+    
+    {
+      title: "Full Docker Lifecycle",
+      answer: "Complete Docker workflow:\n\n1. Write application code\n2. Create Dockerfile\n3. Build Docker image\n4. Run container\n5. Test application\n6. Push image to Docker Hub\n7. Pull image anywhere\n8. Run application on any OS/cloud/server"
+    }
 
-  {
-    "title": "How to remove all unused Docker images?",
-    "answer": "The 'docker image prune' command removes unused or dangling images to free storage.\n\nSyntax:\ndocker image prune\n\nExample:\ndocker image prune -a\n\nExplanation:\n-a removes all unused images, not just dangling images."
-  },
+  ],
 
-  {
-    "title": "How to build a Docker image from a Dockerfile?",
-    "answer": "The 'docker build' command creates a Docker image using instructions inside a Dockerfile.\n\nSyntax:\ndocker build -t <image-name>:<version> .\n\nExample:\ndocker build -t myapp:v1 .\n\nExplanation:\n-t → tags the image\nmyapp → image name\nv1 → version tag\n. → current folder containing Dockerfile\n\nConcept:\nDocker reads the Dockerfile step-by-step and creates an image."
-  },
 
-  {
-    "title": "How to list all Docker containers (running and stopped)?",
-    "answer": "The 'docker ps -a' command displays all containers including running, stopped, and exited ones.\n\nSyntax:\ndocker ps -a\n\nExample:\ndocker ps -a"
-  },
-
-  {
-    "title": "How to list only running Docker containers?",
-    "answer": "The 'docker ps' command shows only active/running containers.\n\nSyntax:\ndocker ps\n\nExample:\ndocker ps"
-  },
-
-  {
-    "title": "How to create and run a new Docker container?",
-    "answer": "The 'docker run' command creates and starts a new container from an image.\n\nSyntax:\ndocker run <image-name>\n\nExample:\ndocker run nginx\n\nConcept:\nIf the image does not exist locally, Docker automatically downloads it from DockerHub."
-  },
-
-  {
-    "title": "How to run a Docker container in the background?",
-    "answer": "The '-d' flag runs the container in detached/background mode.\n\nSyntax:\ndocker run -d <image-name>\n\nExample:\ndocker run -d nginx\n\nConcept:\nDetached mode keeps container running without blocking terminal."
-  },
-
-  {
-    "title": "How to run a Docker container with a custom name?",
-    "answer": "The '--name' option assigns a custom readable name to a container.\n\nSyntax:\ndocker run --name <container-name> <image-name>\n\nExample:\ndocker run --name my-nginx nginx"
-  },
-
-  {
-    "title": "How to stop a Docker container?",
-    "answer": "The 'docker stop' command gracefully stops a running container.\n\nSyntax:\ndocker stop <container-name>\n\nExample:\ndocker stop my-nginx"
-  },
-
-  {
-    "title": "How to start a Docker container?",
-    "answer": "The 'docker start' command starts an existing stopped container.\n\nSyntax:\ndocker start <container-name>\n\nExample:\ndocker start my-nginx"
-  },
-
-  {
-    "title": "How to restart a Docker container?",
-    "answer": "The 'docker restart' command stops and starts a container again.\n\nSyntax:\ndocker restart <container-name>\n\nExample:\ndocker restart my-nginx"
-  },
-
-  {
-    "title": "How to remove a Docker container?",
-    "answer": "The 'docker rm' command deletes a stopped container permanently.\n\nSyntax:\ndocker rm <container-name>\n\nExample:\ndocker rm my-nginx\n\nImportant:\nContainer must be stopped before removing."
-  },
-
-  {
-    "title": "How to inspect details of a container?",
-    "answer": "The 'docker inspect' command provides detailed JSON information about a container.\n\nSyntax:\ndocker inspect <container-name>\n\nExample:\ndocker inspect my-nginx\n\nDetails include:\n- IP Address\n- Network settings\n- Mounts\n- Environment variables\n- Container configuration"
-  },
-
-  {
-    "title": "How to fetch logs of a container?",
-    "answer": "The 'docker logs' command displays logs/output generated by a container.\n\nSyntax:\ndocker logs <container-name>\n\nExample:\ndocker logs my-nginx\n\nLive Logs:\ndocker logs -f my-nginx\n\nConcept:\nUseful for debugging applications running inside containers."
-  },
-
-  {
-    "title": "How to run a shell inside a running container?",
-    "answer": "The 'docker exec -it' command opens an interactive terminal inside a running container.\n\nSyntax:\ndocker exec -it <container-name> /bin/bash\n\nExample:\ndocker exec -it my-nginx /bin/bash\n\nExplanation:\n-i → interactive mode\n-t → terminal mode\n\nNote:\nSome containers use '/bin/sh' instead of '/bin/bash'."
-  },
-
-  {
-    "title": "How to set environment variables in a Docker container?",
-    "answer": "The '-e' flag sets environment variables inside a container.\n\nSyntax:\ndocker run -e <key>=<value> <image-name>\n\nExample:\ndocker run -e NODE_ENV=production node\n\nConcept:\nEnvironment variables are commonly used for API keys, database URLs, and configs."
-  },
-
-  {
-    "title": "How to map a host port to a container port?",
-    "answer": "The '-p' flag maps a host machine port to a container port.\n\nSyntax:\ndocker run -p <host-port>:<container-port> <image-name>\n\nExample:\ndocker run -p 3000:80 nginx\n\nExplanation:\n3000 → host machine port\n80 → container port\n\nConcept:\nAllows users to access containerized apps from browser."
-  },
-
-  {
-    "title": "How to push an image to DockerHub?",
-    "answer": "The 'docker push' command uploads your Docker image to DockerHub.\n\nSyntax:\ndocker push <username>/<image-name>\n\nExample:\ndocker push lavkumar/myapp\n\nConcept:\nUseful for sharing images and deployment."
-  },
-
-  {
-    "title": "How to login to DockerHub?",
-    "answer": "The 'docker login' command authenticates your DockerHub account.\n\nSyntax:\ndocker login\n\nExample:\ndocker login\n\nAfter running command:\n- Enter username\n- Enter password"
-  },
-
-  {
-    "title": "How to logout from DockerHub?",
-    "answer": "The 'docker logout' command removes DockerHub authentication from your machine.\n\nSyntax:\ndocker logout\n\nExample:\ndocker logout"
-  },
-
-  {
-    "title": "How to search for an image on DockerHub?",
-    "answer": "The 'docker search' command searches DockerHub for available images.\n\nSyntax:\ndocker search <image-name>\n\nExample:\ndocker search redis"
-  },
-
-  {
-    "title": "How to list all Docker networks?",
-    "answer": "The 'docker network ls' command displays all Docker networks.\n\nSyntax:\ndocker network ls\n\nExample:\ndocker network ls"
-  },
-
-  {
-    "title": "How to create a Docker network?",
-    "answer": "The 'docker network create' command creates a custom Docker network.\n\nSyntax:\ndocker network create <network-name>\n\nExample:\ndocker network create my-network\n\nConcept:\nContainers inside same network can communicate directly."
-  },
-
-  {
-    "title": "How to inspect a Docker network?",
-    "answer": "The 'docker network inspect' command shows detailed network information.\n\nSyntax:\ndocker network inspect <network-name>\n\nExample:\ndocker network inspect my-network"
-  },
-
-  {
-    "title": "How to remove a Docker network?",
-    "answer": "The 'docker network rm' command removes a Docker network.\n\nSyntax:\ndocker network rm <network-name>\n\nExample:\ndocker network rm my-network"
-  },
-
-  {
-    "title": "How to prune all unused Docker networks?",
-    "answer": "The 'docker network prune' command removes all unused Docker networks.\n\nSyntax:\ndocker network prune\n\nExample:\ndocker network prune"
-  },
-
-  {
-    "title": "How to list all Docker volumes?",
-    "answer": "The 'docker volume ls' command lists all Docker volumes.\n\nSyntax:\ndocker volume ls\n\nExample:\ndocker volume ls"
-  },
-
-  {
-    "title": "How to create a named Docker volume?",
-    "answer": "The 'docker volume create' command creates a persistent Docker volume.\n\nSyntax:\ndocker volume create <volume-name>\n\nExample:\ndocker volume create my-volume\n\nConcept:\nVolumes store data permanently even if container is deleted."
-  },
-
-  {
-    "title": "How to inspect a Docker volume?",
-    "answer": "The 'docker volume inspect' command displays detailed information about a volume.\n\nSyntax:\ndocker volume inspect <volume-name>\n\nExample:\ndocker volume inspect my-volume"
-  },
-
-  {
-    "title": "How to remove a Docker volume?",
-    "answer": "The 'docker volume rm' command deletes a Docker volume.\n\nSyntax:\ndocker volume rm <volume-name>\n\nExample:\ndocker volume rm my-volume"
-  },
-
-  {
-    "title": "How to remove all unused Docker volumes?",
-    "answer": "The 'docker volume prune' command removes unused Docker volumes.\n\nSyntax:\ndocker volume prune\n\nExample:\ndocker volume prune"
-  },
-
-  {
-    "title": "How to create a bind mount volume?",
-    "answer": "Bind mounts connect a local folder directly to a container folder.\n\nSyntax:\ndocker run -v <host-path>:<container-path> <image-name>\n\nExample:\ndocker run -v C:/projects:/app node\n\nConcept:\nChanges in local folder instantly reflect inside container."
-  },
-
-  {
-    "title": "How to create a named volume mount?",
-    "answer": "Named volumes store persistent data managed by Docker.\n\nSyntax:\ndocker run -v <volume-name>:<container-path> <image-name>\n\nExample:\ndocker run -v my-volume:/data mysql\n\nConcept:\nUseful for databases and persistent storage."
-  }
-],
+    "docker": [
+      {
+        "title": "What is Docker?",
+        "answer": "Docker is a containerization platform used to package applications along with all dependencies, libraries, runtime, environment variables, and configurations into lightweight portable containers.\n\nBefore Docker, developers faced the famous problem:\n'It works on my machine but not on server.'\n\nDocker solves this by creating the exact same environment everywhere.\n\nSuppose you build a React + Node.js application:\n- Your laptop may use Node 20\n- Server may use Node 18\n- Another developer may use Node 16\n\nThis causes dependency conflicts and errors.\n\nDocker packages everything together:\n- Application code\n- Node version\n- Dependencies\n- OS libraries\n- Runtime\n- Configurations\n\nSo application runs identically everywhere.\n\nMain Advantages:\n1. Portability\n2. Fast deployment\n3. Environment consistency\n4. Lightweight compared to virtual machines\n5. Easy scaling\n6. Works perfectly with CI/CD and Kubernetes\n\nReal-world Example:\nCompanies like Netflix, Amazon, PayPal, Swiggy, Zomato, and Uber use containers heavily for scalable deployments."
+      },
+  
+      {
+        "title": "What is the difference between Virtual Machine and Docker?",
+        "answer": "Virtual Machines virtualize complete operating systems, while Docker virtualizes applications.\n\nVirtual Machine contains:\n- Full Operating System\n- Kernel\n- Drivers\n- Libraries\n- Application\n\nDocker Container contains only:\n- Application\n- Dependencies\n- Runtime\n\nBecause Docker shares host OS kernel:\n- Containers start in seconds\n- Consume less RAM\n- Use less storage\n- Run faster\n\nExample:\nA VM may consume 5GB storage.\nDocker container may consume only 200MB.\n\nThis makes Docker highly efficient."
+      },
+  
+      {
+        "title": "What is a Docker Image?",
+        "answer": "A Docker Image is a read-only blueprint/template used to create containers.\n\nImage contains:\n- Application code\n- Dependencies\n- Libraries\n- Runtime\n- Environment variables\n- Configurations\n\nAn image itself does NOT run.\nIt only becomes active when converted into a container.\n\nThink of it like:\n- Image = Class blueprint\n- Container = Actual object\n\nExample:\nnginx image contains:\n- Nginx server\n- Linux dependencies\n- Configurations\n\nWhen you run:\n\ndocker run nginx\n\nDocker creates a running container from nginx image.\n\nImportant:\n- Images are immutable\n- Images are layered\n- Layers improve caching and speed"
+      },
+  
+      {
+        "title": "What is a Docker Container?",
+        "answer": "A Docker Container is a running instance of a Docker Image.\n\nContainer is:\n- Lightweight\n- Isolated\n- Portable\n- Executable\n\nContainers can:\n- Run applications\n- Stop\n- Restart\n- Communicate with other containers\n- Be deleted easily\n\nExample:\n\ndocker run nginx\n\nWhat happens internally:\nStep 1: Docker checks nginx image locally\nStep 2: Downloads if missing\nStep 3: Creates isolated container\nStep 4: Starts nginx server\n\nNow nginx runs inside isolated environment.\n\nContainer Lifecycle:\n1. Created\n2. Running\n3. Stopped\n4. Removed"
+      },
+  
+      {
+        "title": "What is Docker Hub?",
+        "answer": "Docker Hub is an online cloud registry where Docker images are stored and shared.\n\nIt is similar to:\n- GitHub for source code\n- Docker Hub for container images\n\nYou can:\n- Upload images\n- Download images\n- Share images publicly\n- Store private images\n\nExample:\n\ndocker pull nginx\n\nDocker downloads nginx image from Docker Hub.\n\nPopular images:\n- node\n- mysql\n- postgres\n- nginx\n- redis\n- mongo\n- python\n- ubuntu"
+      },
+  
+      {
+        "title": "How do we list all local Docker images?",
+        "answer": "Command:\n\ndocker images\n\nOR\n\ndocker image ls\n\nPurpose:\nDisplays all Docker images stored locally.\n\nExample:\n\ndocker images\n\nSample Output:\nREPOSITORY   TAG     IMAGE ID       CREATED       SIZE\nnode         latest  a1b2c3d4       2 days ago    1.1GB\nnginx        latest  x9y8z7w6       5 days ago    190MB\n\nMeaning of columns:\n- Repository = Image name\n- Tag = Version\n- Image ID = Unique image identifier\n- Created = Creation time\n- Size = Storage used\n\nWhy important?\n- Check downloaded images\n- Verify image versions\n- Manage storage\n- Avoid duplicate downloads"
+      },
+  
+      {
+        "title": "How do we build Docker image from Dockerfile?",
+        "answer": "Command:\n\ndocker build -t myapp:v1 .\n\nExplanation:\n- build = create image\n- -t = tag image\n- myapp = image name\n- v1 = version/tag\n- . = current folder contains Dockerfile\n\nWhat happens internally?\nStep 1: Docker reads Dockerfile\nStep 2: Executes instructions line by line\nStep 3: Creates image layers\nStep 4: Stores final image locally\n\nExample Dockerfile:\n\nFROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nCMD [\"npm\", \"start\"]\n\nBuild command:\n\ndocker build -t notesapp:v1 .\n\nNow image 'notesapp:v1' is ready."
+      },
+  
+      {
+        "title": "How does Docker build cache work?",
+        "answer": "Docker stores intermediate layers during builds.\n\nSuppose Dockerfile:\n\nFROM node:20\nCOPY package.json .\nRUN npm install\nCOPY . .\n\nIf only source code changes:\n- npm install layer gets reused\n- Build becomes very fast\n\nThis is called Docker cache.\n\nBenefit:\n- Faster builds\n- Reduced computation\n- Better CI/CD performance"
+      },
+  
+      {
+        "title": "How do we build Docker image without cache?",
+        "answer": "Command:\n\ndocker build -t myapp:v2 . --no-cache\n\nExplanation:\nDocker ignores all cached layers and rebuilds everything from scratch.\n\nUseful when:\n- Dependencies updated\n- Cache causing issues\n- Clean rebuild required"
+      },
+  
+      {
+        "title": "How do we create and run Docker container?",
+        "answer": "Command:\n\ndocker run nginx\n\nInternal Process:\nStep 1: Search image locally\nStep 2: Pull image if missing\nStep 3: Create container\nStep 4: Allocate filesystem\nStep 5: Start container\n\nContainer starts automatically.\n\nThis is one of the most important Docker commands."
+      },
+  
+      {
+        "title": "How do we run container in detached mode?",
+        "answer": "Command:\n\ndocker run -d nginx\n\nExplanation:\n- -d means detached mode\n- Container runs in background\n- Terminal remains free\n\nWithout -d:\nContainer occupies terminal.\n\nWith -d:\nServer runs continuously in background.\n\nMostly used for:\n- Backend servers\n- Databases\n- APIs\n- Production applications"
+      },
+  
+      {
+        "title": "How do we run container with custom name?",
+        "answer": "Command:\n\ndocker run --name mynginx nginx\n\nExplanation:\nDocker normally generates random names.\n\nExample random names:\n- focused_turing\n- clever_einstein\n\nCustom names help:\n- Easier management\n- Easier debugging\n- Easier networking"
+      },
+  
+      {
+        "title": "What is port mapping in Docker?",
+        "answer": "Containers run in isolated environments.\n\nSuppose nginx runs on port 80 INSIDE container.\nYour laptop cannot directly access it.\n\nPort mapping connects:\n- Host machine port\nWITH\n- Container port\n\nSyntax:\n\n-p hostPort:containerPort\n\nExample:\n\ndocker run -p 8080:80 nginx\n\nMeaning:\n- Laptop port = 8080\n- Container nginx port = 80\n\nAccess application:\nhttp://localhost:8080\n\nVery important concept in Docker."
+      },
+  
+      {
+        "title": "How do we list running containers?",
+        "answer": "Command:\n\ndocker ps\n\nPurpose:\nShows only active running containers.\n\nUseful Information:\n- Container ID\n- Image name\n- Status\n- Ports\n- Names\n\nExample:\n\ndocker ps"
+      },
+  
+      {
+        "title": "How do we list all containers including stopped ones?",
+        "answer": "Command:\n\ndocker ps -a\n\nExplanation:\nShows:\n- Running containers\n- Exited containers\n- Stopped containers\n- Failed containers\n\nVery useful for debugging."
+      },
+  
+      {
+        "title": "How do we stop a Docker container?",
+        "answer": "Command:\n\ndocker stop mycontainer\n\nExplanation:\nGracefully shuts down container.\n\nWhat happens internally?\n- Docker sends SIGTERM signal\n- Application gets time to close safely\n- Prevents data corruption"
+      },
+  
+      {
+        "title": "How do we force kill a container?",
+        "answer": "Command:\n\ndocker kill mycontainer\n\nDifference:\n- stop = graceful shutdown\n- kill = immediate termination\n\nUse kill only when container is unresponsive."
+      },
+  
+      {
+        "title": "How do we restart a Docker container?",
+        "answer": "Command:\n\ndocker restart mycontainer\n\nExplanation:\nStops and starts container again.\n\nUseful after:\n- Config changes\n- Environment updates\n- Temporary failures"
+      },
+  
+      {
+        "title": "How do we remove Docker container?",
+        "answer": "Command:\n\ndocker rm mycontainer\n\nImportant:\nContainer must be stopped first.\n\nIf container is running:\n\ndocker rm -f mycontainer\n\n-f forcefully removes container."
+      },
+  
+      {
+        "title": "How do we inspect Docker container deeply?",
+        "answer": "Command:\n\ndocker inspect mycontainer\n\nThis command returns complete JSON configuration.\n\nContains:\n- IP address\n- Network settings\n- Mounts\n- Environment variables\n- Ports\n- Container metadata\n- Runtime configs\n\nUseful for:\n- Networking\n- Debugging\n- Advanced configuration analysis"
+      },
+  
+      {
+        "title": "How do we see container logs?",
+        "answer": "Command:\n\ndocker logs mycontainer\n\nPurpose:\nShows output generated by application.\n\nUseful for:\n- Error debugging\n- Server startup logs\n- API failures\n- Runtime crashes\n\nLive logs:\n\ndocker logs -f mycontainer\n\n-f means follow logs continuously."
+      },
+  
+      {
+        "title": "How do we open terminal inside running container?",
+        "answer": "Command:\n\ndocker exec -it mycontainer /bin/bash\n\nExplanation:\n- exec = run command inside container\n- -i = interactive mode\n- -t = terminal mode\n\nOpens shell inside container.\n\nUseful for:\n- Debugging\n- Manual inspection\n- Running Linux commands\n- Checking files\n\nSome containers don't have bash.\nThen use:\n\ndocker exec -it alpine sh"
+      },
+  
+      {
+        "title": "What are Docker Volumes?",
+        "answer": "Docker volumes provide persistent storage.\n\nContainers are temporary.\nIf container is deleted, data inside container is lost.\n\nVolumes solve this problem.\n\nExample:\nDatabase container without volume:\n- Delete container\n- All database data lost\n\nDatabase container WITH volume:\n- Delete container\n- Data remains محفوظ safely\n\nThis makes volumes extremely important."
+      },
+  
+      {
+        "title": "How do we create Docker volume?",
+        "answer": "Command:\n\ndocker volume create mydata\n\nExplanation:\nCreates named persistent storage.\n\nUseful for:\n- Databases\n- Uploaded files\n- Logs\n- User data"
+      },
+  
+      {
+        "title": "How do we attach volume to container?",
+        "answer": "Command:\n\ndocker run -v mydata:/app/data nginx\n\nMeaning:\n- mydata = Docker volume\n- /app/data = folder inside container\n\nAll files stored in /app/data become persistent."
+      },
+  
+      {
+        "title": "What is Bind Mount in Docker?",
+        "answer": "Bind mount directly connects host machine folder with container folder.\n\nExample:\n\ndocker run -v C:/projects:/app nginx\n\nMeaning:\n- Local laptop folder C:/projects\n- Connected to /app inside container\n\nBenefits:\n- Live code updates\n- Real-time synchronization\n- Best for development\n\nWhen local files change, container files automatically change."
+      },
+  
+      {
+        "title": "What are Docker Networks?",
+        "answer": "Docker networks allow containers to communicate with each other.\n\nSuppose project contains:\n- React frontend\n- Node backend\n- MongoDB database\n\nAll run in separate containers.\n\nNetworks help them communicate internally securely."
+      },
+  
+      {
+        "title": "How do we create Docker network?",
+        "answer": "Command:\n\ndocker network create mynetwork\n\nExplanation:\nCreates isolated communication network for containers."
+      },
+  
+      {
+        "title": "How do we connect containers using Docker network?",
+        "answer": "Example:\n\ndocker run -d --name mongodb --network mynetwork mongo\n\n\ndocker run -d --name backend --network mynetwork mybackend\n\nNow backend container can access database using:\n\nmongodb:27017\n\nThis is because both containers are on same network."
+      },
+  
+      {
+        "title": "How do we pull images from Docker Hub?",
+        "answer": "Command:\n\ndocker pull nginx\n\nPurpose:\nDownloads image from Docker Hub.\n\nUseful when:\n- Starting new projects\n- Using databases\n- Using official runtime images"
+      },
+  
+      {
+        "title": "How do we push images to Docker Hub?",
+        "answer": "Step 1:\nLogin\n\ndocker login\n\nStep 2:\nTag image\n\ndocker tag myapp lavkumar/myapp:v1\n\nStep 3:\nPush image\n\ndocker push lavkumar/myapp:v1\n\nNow image becomes available online."
+      },
+  
+      {
+        "title": "What is Dockerfile?",
+        "answer": "Dockerfile is a text file containing instructions to build Docker image automatically.\n\nCommon Instructions:\n- FROM\n- WORKDIR\n- COPY\n- RUN\n- CMD\n- EXPOSE\n- ENV\n\nExample:\n\nFROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nEXPOSE 3000\nCMD [\"npm\", \"start\"]"
+      },
+  
+      {
+        "title": "What does FROM command do in Dockerfile?",
+        "answer": "FROM defines base image.\n\nExample:\n\nFROM node:20\n\nMeaning:\nStart image using Node.js version 20 environment."
+      },
+  
+      {
+        "title": "What does WORKDIR command do?",
+        "answer": "WORKDIR sets working directory inside container.\n\nExample:\n\nWORKDIR /app\n\nNow all future commands execute inside /app folder."
+      },
+  
+      {
+        "title": "What does COPY command do?",
+        "answer": "COPY transfers files from local system into container.\n\nExample:\n\nCOPY . .\n\nMeaning:\nCopy all files from current folder into current container directory."
+      },
+  
+      {
+        "title": "What does RUN command do?",
+        "answer": "RUN executes commands during image build.\n\nExample:\n\nRUN npm install\n\nThis installs dependencies during image creation."
+      },
+  
+      {
+        "title": "What does CMD command do?",
+        "answer": "CMD defines default startup command.\n\nExample:\n\nCMD [\"npm\", \"start\"]\n\nWhen container starts, application automatically starts."
+      },
+  
+      {
+        "title": "What does EXPOSE command do?",
+        "answer": "EXPOSE documents which port application uses.\n\nExample:\n\nEXPOSE 3000\n\nIndicates application runs on port 3000."
+      },
+  
+      {
+        "title": "What does ENV command do?",
+        "answer": "ENV sets environment variables.\n\nExample:\n\nENV PORT=3000\n\nApplication can access PORT variable."
+      },
+  
+      {
+        "title": "What is the complete Docker workflow for full-stack projects?",
+        "answer": "Step 1: Write Dockerfile\nStep 2: Build frontend image\nStep 3: Build backend image\nStep 4: Create Docker network\nStep 5: Run database container\nStep 6: Run backend container\nStep 7: Run frontend container\nStep 8: Connect everything together\nStep 9: Push images to Docker Hub\nStep 10: Deploy using Kubernetes or cloud services"
+      },
+  
+      {
+        "title": "Why is Docker extremely important in DevOps?",
+        "answer": "Docker is foundation of modern DevOps because:\n- Consistent deployments\n- Faster CI/CD pipelines\n- Easy scaling\n- Microservices architecture\n- Cloud-native deployments\n- Kubernetes integration\n- Faster testing\n- Infrastructure portability\n\nToday Docker is almost mandatory for backend, cloud, and DevOps engineering."
+      }
+    ],
 
 
 
