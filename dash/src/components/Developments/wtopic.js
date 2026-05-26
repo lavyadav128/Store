@@ -31,6 +31,7 @@ const topics = [
   { id: "kubernetes-setup", name: "Kubernetes-setup" },
   { id: "aws", name: "AWS" },
   { id: "authentication", name: "Authentication" },
+  { id: "full-stack", name: "Full-stack" },
   { id: "interview", name: "Interview" },
 
 
