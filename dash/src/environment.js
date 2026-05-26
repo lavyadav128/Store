@@ -1,7 +1,3 @@
-// const server ="http://localhost:3000"
-
-// export default server;
-
 
 let IS_PROD = true;
 const server = IS_PROD ?
@@ -12,5 +8,5 @@ const server = IS_PROD ?
 export default server;
 
 
-// const server = "http://backend-service:30080";
+// const server = "http://localhost:5000";
 // export default server;

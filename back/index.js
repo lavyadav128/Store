@@ -8,7 +8,7 @@ import Razorpay from 'razorpay';                // Razorpay SDK for handling pay
 // Import route handlers
 import userRoutes from './routes/users.routes.js';
 import purchaseRoutes from './routes/purchase.js';
-import chatbotRoutes from './routes/chatbot.js';
+import chatbotRoutes from './ai/chatbot.js';
 import adminRoutes from "./routes/admin.routes.js";
 import doubtRoutes from "./routes/doubt.routes.js";
 import notificationsRoutes from "./routes/notifications.routes.js";
@@ -37,7 +37,8 @@ app.use(cors({
 }));
 
 // Middleware to parse incoming JSON requests
-app.use(express.json());
+app.use(express.json({ limit: "20mb" }));
+app.use(express.urlencoded({ extended: true, limit: "20mb" }));  // add this too
 
 // ----------------- ROUTES -----------------
 
@@ -120,9 +121,8 @@ const PORT = process.env.PORT || 3000;
 
 // Connect to DB first, then start the server
 connectDB().then(() => {
-  app.listen(PORT, () => {
+  app.listen(PORT,"0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
   });
 });
-
 
