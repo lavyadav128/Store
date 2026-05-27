@@ -23,8 +23,10 @@ const Menu = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   useEffect(() => {
-    const storedName = localStorage.getItem("username");
-    if (storedName) setUserName(storedName);
+    const storedName = localStorage.getItem("fullName");
+    if (storedName) {
+      setUserName(storedName);
+    }
   }, []);
 
   useEffect(() => {

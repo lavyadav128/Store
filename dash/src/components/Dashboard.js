@@ -273,15 +273,25 @@ const Dashboard = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(`${server}/api/user/profile`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
-        const name = res.data?.fullName || res.data?.name || res.data?.username || localStorage.getItem("username") || "Student";
+  
+        const name =
+          res.data?.fullName ||
+          res.data?.name ||
+          localStorage.getItem("fullName") ||
+          "Student";
+  
         setUserName(name);
-        localStorage.setItem("username", name);
+        localStorage.setItem("fullName", name);
+  
       } catch {
-        setUserName(localStorage.getItem("username") || "Student");
+        setUserName(localStorage.getItem("fullName") || "Student");
       }
     };
+  
     fetchUser();
   }, []);
 
