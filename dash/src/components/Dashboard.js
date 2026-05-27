@@ -354,7 +354,7 @@ const Dashboard = () => {
     localStorage.clear();       // wipe ALL localStorage (token, username, everything)
     sessionStorage.clear();     // wipe session storage too
     setMobileDrawer(false);
-    window.location.replace("/"); // hard full-page redirect, clears all React state, no back history
+    window.location.replace("/auth"); // hard full-page redirect, clears all React state, no back history
   };
 
   /* ─────────── ADMIN SIDEBAR (DESKTOP) ─────────── */
@@ -445,6 +445,28 @@ const Dashboard = () => {
             </Box>
           );
         })}
+
+        {/* ── LOGOUT — admin desktop sidebar ── */}
+        <Box sx={{ mx: -0.5, my: 1, height: "1px", background: "#f0f0f5" }} />
+        <Box onClick={handleLogout}
+          sx={{
+            display: "flex", alignItems: "center", gap: 1.5,
+            px: 1.5, py: 1.2, borderRadius: "14px", cursor: "pointer",
+            background: "#fff5f5", border: "1.5px solid #fde8e8",
+            transition: "all 0.18s ease",
+            "&:hover": { background: "#ffe0e0", transform: "translateX(4px)" },
+          }}>
+          <Box sx={{
+            width: 34, height: 34, borderRadius: "11px", background: "#fff0f0",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <LogoutIcon sx={{ fontSize: 16, color: "#e05050" }} />
+          </Box>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+            fontWeight: 700, color: "#e05050",
+          }}>Logout</Typography>
+        </Box>
       </Box>
     </Box>
   );
