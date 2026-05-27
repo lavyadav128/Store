@@ -253,7 +253,7 @@ const Dashboard = () => {
 
   const isAdminRef = useRef(location.pathname === "/admin-dashboard");
   if (location.pathname === "/admin-dashboard") isAdminRef.current = true;
-  const isAdminRoute = isAdminRef.current;
+  const isAdminRoute = location.pathname === "/admin-dashboard" || isAdminRef.current;
 
   const [activeView,   setActiveView]   = useState(isAdminRoute ? VIEW_ADMIN : VIEW_HOME);
   const [purchases,    setPurchases]    = useState([]);
@@ -354,7 +354,7 @@ const Dashboard = () => {
     localStorage.clear();       // wipe ALL localStorage (token, username, everything)
     sessionStorage.clear();     // wipe session storage too
     setMobileDrawer(false);
-    window.location.replace("/auth"); // hard full-page redirect, clears all React state, no back history
+    window.location.replace("/"); // hard full-page redirect, clears all React state, no back history
   };
 
   /* ─────────── ADMIN SIDEBAR (DESKTOP) ─────────── */
@@ -807,9 +807,8 @@ const Dashboard = () => {
           })}
 
           {/* ── LOGOUT BUTTON — mobile drawer only ── */}
-          {!isAdminRoute && (
-            <Box
-              onClick={handleLogout} // ← uses the centralized complete logout handler
+          <Box
+              onClick={handleLogout}
               className="drawer-item-in"
               style={{ animationDelay: "0.45s" }}
               sx={{
@@ -834,7 +833,6 @@ const Dashboard = () => {
                 fontWeight: 700, color: "#e05050", flex: 1,
               }}>Logout</Typography>
             </Box>
-          )}
         </Box>
 
         {!isAdminRoute && (
