@@ -351,10 +351,7 @@ const Dashboard = () => {
 
   /* ─────────── COMPLETE LOGOUT HANDLER ─────────── */
   const handleLogout = () => {
-    localStorage.clear();       // wipe ALL localStorage (token, username, everything)
-    sessionStorage.clear();     // wipe session storage too
-    setMobileDrawer(false);
-    window.location.replace("/auth"); // hard full-page redirect, clears all React state, no back history
+    window.location.replace("/");
   };
 
   /* ─────────── ADMIN SIDEBAR (DESKTOP) ─────────── */
