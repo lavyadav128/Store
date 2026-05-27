@@ -69,7 +69,6 @@ const QUICK_COURSES = [
   { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
 ];
 
-// Admin extra nav items
 const ADMIN_NAV = [
   { icon: DashboardIcon,     title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: SchoolIcon,        title: "My Batches",      view: VIEW_MYBATCHES },
@@ -81,7 +80,7 @@ const ADMIN_NAV = [
 const SIDEBAR_W = 248;
 
 /* ─────────────────────────────────────────────────────────────────────
-   SEARCH BAR
+   SEARCH BAR  (desktop unchanged, mobile gets full-width treatment)
 ───────────────────────────────────────────────────────────────────── */
 const CourseSearchBar = ({ onNavigate, displayName }) => {
   const [searchQuery,   setSearchQuery]   = useState("");
@@ -218,9 +217,6 @@ const Dashboard = () => {
   const muiTheme  = useTheme();
   const isMobile  = useMediaQuery(muiTheme.breakpoints.down("md"));
 
-  // Persist admin status in a ref so it survives course-route changes.
-  // Once the user enters /admin-dashboard, isAdmin stays true for the
-  // lifetime of this component (i.e. the whole session).
   const isAdminRef = useRef(location.pathname === "/admin-dashboard");
   if (location.pathname === "/admin-dashboard") isAdminRef.current = true;
   const isAdminRoute = isAdminRef.current;
@@ -290,7 +286,6 @@ const Dashboard = () => {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
-  // Block back button on admin dashboard
   useEffect(() => {
     if (isAdminRoute) {
       window.history.pushState(null, "", window.location.href);
@@ -304,6 +299,9 @@ const Dashboard = () => {
     ? userName.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : userName;
 
+  const hour = new Date().getHours();
+  const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   const goView  = (view)  => { setActiveView(view); setMobileDrawer(false); };
   const goRoute = useCallback((route) => { navigate(route); setMobileDrawer(false); }, [navigate]);
   const goBackToDashboard = () => {
@@ -316,7 +314,7 @@ const Dashboard = () => {
     }
   };
 
-  /* ─────────── ADMIN SIDEBAR ─────────── */
+  /* ─────────── ADMIN SIDEBAR (DESKTOP — UNCHANGED) ─────────── */
   const AdminSidebarContent = () => (
     <Box sx={{
       width: SIDEBAR_W, height: "100%",
@@ -325,7 +323,6 @@ const Dashboard = () => {
       borderRight: "1.5px solid #f0f0f5",
       py: 0, overflow: "hidden",
     }}>
-      {/* Logo / brand */}
       <Box sx={{ px: 3, pt: 3, pb: 2, borderBottom: "1px solid #f0f0f5" }}>
         <Typography sx={{
           fontFamily: "'Playfair Display', serif", fontWeight: 800,
@@ -337,7 +334,6 @@ const Dashboard = () => {
         }}>Admin Panel</Typography>
       </Box>
 
-      {/* My Courses section */}
       <Box sx={{ px: 3, mt: 2, mb: 1 }}>
         <Typography sx={{
           fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
@@ -371,7 +367,6 @@ const Dashboard = () => {
 
       <Box sx={{ mx: 2, my: 1, height: "1px", background: "#f0f0f5" }} />
 
-      {/* Admin Nav section */}
       <Box sx={{ px: 3, mb: 1 }}>
         <Typography sx={{
           fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
@@ -411,7 +406,7 @@ const Dashboard = () => {
     </Box>
   );
 
-  /* ─────────── REGULAR SIDEBAR ─────────── */
+  /* ─────────── REGULAR SIDEBAR (DESKTOP — UNCHANGED) ─────────── */
   const SidebarContent = () => (
     <Box sx={{
       width: SIDEBAR_W, height: "100%",
@@ -470,36 +465,106 @@ const Dashboard = () => {
     </Box>
   );
 
-  /* ─────────── HOME VIEW ─────────── */
+  /* ─────────── HOME VIEW (DESKTOP UNCHANGED, MOBILE ENHANCED) ─────────── */
   const HomeView = () => (
     <Fade in timeout={600}>
       <Box>
         <CourseSearchBar onNavigate={goRoute} displayName={displayName} />
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
-          {SECTIONS.map(({ icon: Icon, title, desc, view, accent, tag }) => (
-            <Box key={title} className="card-hover" onClick={() => goView(view)}
+        {/* DESKTOP: original 2-col grid — untouched */}
+        {/* MOBILE: beautiful stacked cards with enhanced styling */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 1.5, sm: 2 } }}>
+          {SECTIONS.map(({ icon: Icon, title, desc, view, accent, tag }, i) => (
+            <Box key={title}
+              className="card-hover mobile-section-card"
+              onClick={() => goView(view)}
+              style={{ animationDelay: `${i * 0.07}s` }}
               sx={{
-                background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: 3, cursor: "pointer",
-                display: "flex", flexDirection: "column", gap: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                background: "#fff",
+                border: { xs: "none", sm: "1px solid #f0f0f0" },
+                borderRadius: { xs: "20px", sm: "20px" },
+                p: { xs: "18px 20px", sm: 3 },
+                cursor: "pointer",
+                display: "flex",
+                flexDirection: { xs: "row", sm: "column" },
+                alignItems: { xs: "center", sm: "flex-start" },
+                gap: { xs: 2, sm: 2 },
+                boxShadow: { xs: "0 4px 20px rgba(0,0,0,0.07)", sm: "0 2px 8px rgba(0,0,0,0.04)" },
                 position: "relative", overflow: "hidden",
               }}>
-              <Box sx={{ position: "absolute", top: 18, right: 18, px: 1.2, py: 0.3, borderRadius: "8px", background: "#f4f4f6", fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase" }}>{tag}</Box>
-              <Box sx={{ width: 46, height: 46, borderRadius: "14px", background: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <Icon sx={{ color: "#fff", fontSize: 22 }} />
+
+              {/* Tag badge */}
+              <Box sx={{
+                position: "absolute", top: { xs: 14, sm: 18 }, right: { xs: 16, sm: 18 },
+                px: 1.2, py: 0.3, borderRadius: "8px",
+                background: { xs: `${accent}12`, sm: "#f4f4f6" },
+                fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+                color: { xs: accent, sm: "#aaa" },
+                letterSpacing: "0.8px", textTransform: "uppercase",
+              }}>{tag}</Box>
+
+              {/* Icon box */}
+              <Box sx={{
+                width: { xs: 48, sm: 46 }, height: { xs: 48, sm: 46 },
+                minWidth: { xs: 48, sm: 46 },
+                borderRadius: { xs: "16px", sm: "14px" },
+                background: { xs: `linear-gradient(135deg, ${accent} 0%, ${accent}cc 100%)`, sm: accent },
+                display: "flex", alignItems: "center", justifyContent: "center",
+                boxShadow: { xs: `0 6px 18px ${accent}40`, sm: "none" },
+                flexShrink: 0,
+              }}>
+                <Icon sx={{ color: "#fff", fontSize: { xs: 24, sm: 22 } }} />
               </Box>
-              <Box>
-                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 17, color: "#1a1a2e", mb: 0.5, letterSpacing: "-0.3px" }}>{title}</Typography>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#aaa", lineHeight: 1.6 }}>{desc}</Typography>
+
+              {/* Text */}
+              <Box sx={{ flex: 1, minWidth: 0 }}>
+                <Typography sx={{
+                  fontFamily: "'Playfair Display', serif", fontWeight: 700,
+                  fontSize: { xs: 16, sm: 17 }, color: "#1a1a2e",
+                  mb: { xs: 0.3, sm: 0.5 }, letterSpacing: "-0.3px",
+                }}>{title}</Typography>
+                <Typography sx={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: { xs: 12.5, sm: 13 }, color: "#aaa", lineHeight: 1.6,
+                  display: { xs: "-webkit-box", sm: "block" },
+                  WebkitLineClamp: { xs: 1, sm: "unset" },
+                  WebkitBoxOrient: "vertical",
+                  overflow: { xs: "hidden", sm: "visible" },
+                }}>{desc}</Typography>
               </Box>
-              <Box sx={{ display: "inline-flex", alignItems: "center", fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: accent, letterSpacing: "0.3px" }}>Open →</Box>
+
+              {/* Mobile: Arrow indicator */}
+              <Box sx={{
+                display: { xs: "flex", sm: "none" },
+                alignItems: "center", justifyContent: "center",
+                width: 32, height: 32, borderRadius: "10px",
+                background: `${accent}10`,
+                flexShrink: 0,
+              }}>
+                <ArrowBackIosNewIcon sx={{ fontSize: 11, color: accent, transform: "rotate(180deg)" }} />
+              </Box>
+
+              {/* Desktop: Open arrow text */}
+              <Box sx={{
+                display: { xs: "none", sm: "inline-flex" },
+                alignItems: "center", fontSize: 12,
+                fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+                color: accent, letterSpacing: "0.3px",
+              }}>Open →</Box>
             </Box>
           ))}
         </Box>
 
-        <Box sx={{ mt: 4 }}>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 11, color: "#c0c0c8", letterSpacing: "1.5px", textTransform: "uppercase", mb: 2 }}>Quick Access — Courses</Typography>
-          <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+        {/* Quick Access Courses */}
+        <Box sx={{ mt: { xs: 3, sm: 4 } }}>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+            fontSize: 11, color: "#c0c0c8", letterSpacing: "1.5px",
+            textTransform: "uppercase", mb: { xs: 1.5, sm: 2 },
+          }}>Quick Access — Courses</Typography>
+
+          {/* DESKTOP: pill chips (unchanged) */}
+          <Box sx={{ display: { xs: "none", sm: "flex" }, gap: 1.5, flexWrap: "wrap" }}>
             {QUICK_COURSES.map(({ label, route, icon: Icon, iconBg }) => (
               <Box key={label} onClick={() => goRoute(route)}
                 sx={{
@@ -512,6 +577,83 @@ const Dashboard = () => {
                   <Icon sx={{ fontSize: 13, color: "#fff" }} />
                 </Box>
                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "inherit" }}>{label}</Typography>
+              </Box>
+            ))}
+          </Box>
+
+          {/* MOBILE: horizontal scroll cards */}
+          <Box sx={{
+            display: { xs: "flex", sm: "none" },
+            gap: 1.2,
+            overflowX: "auto",
+            pb: 1,
+            mx: -2,
+            px: 2,
+            scrollbarWidth: "none",
+            "&::-webkit-scrollbar": { display: "none" },
+          }}>
+            {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg, emoji }) => (
+              <Box key={label} onClick={() => goRoute(route)}
+                className="mobile-course-chip"
+                sx={{
+                  display: "flex", flexDirection: "column", alignItems: "center",
+                  gap: 1, px: 2, py: 1.8,
+                  borderRadius: "18px",
+                  background: "#fff",
+                  border: "1.5px solid #f0f0f4",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.06)",
+                  cursor: "pointer",
+                  flexShrink: 0,
+                  minWidth: 90,
+                  transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                  "&:active": { transform: "scale(0.94)", boxShadow: "0 2px 8px rgba(0,0,0,0.08)" },
+                }}>
+                <Box sx={{
+                  width: 44, height: 44, borderRadius: "14px",
+                  background: iconBg,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+                  fontSize: 20,
+                }}>
+                  <Icon sx={{ fontSize: 20, color: "#fff" }} />
+                </Box>
+                <Typography sx={{
+                  fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+                  fontSize: 11.5, color: "#1a1a2e", textAlign: "center",
+                  whiteSpace: "nowrap",
+                }}>{label}</Typography>
+                <Typography sx={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 9.5, color: "#bbb",
+                  textAlign: "center", lineHeight: 1.2,
+                  whiteSpace: "nowrap",
+                }}>{sublabel}</Typography>
+              </Box>
+            ))}
+          </Box>
+        </Box>
+
+        {/* MOBILE ONLY: Social Connect strip */}
+        <Box sx={{
+          display: { xs: "block", sm: "none" },
+          mt: 3,
+        }}>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
+            color: "#c0c0cc", letterSpacing: "1.4px", textTransform: "uppercase", mb: 1.5,
+          }}>Connect With Us</Typography>
+          <Box sx={{ display: "flex", gap: 1.2 }}>
+            {SOCIAL.map(({ Icon, color, href, label }) => (
+              <Box key={href} component="a" href={href} target="_blank" rel="noopener" aria-label={label}
+                sx={{
+                  flex: 1, height: 46, borderRadius: "14px",
+                  border: `1.5px solid ${color}22`,
+                  color,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  background: `${color}0a`,
+                  transition: "all 0.2s ease",
+                  "&:active": { background: color, color: "#fff", transform: "scale(0.95)" },
+                }}>
+                <Icon sx={{ fontSize: 20 }} />
               </Box>
             ))}
           </Box>
@@ -531,6 +673,266 @@ const Dashboard = () => {
     </Box>
   );
 
+  /* ─────────── MOBILE TOP BAR (REDESIGNED) ─────────── */
+  const MobileTopBar = () => (
+    <Box sx={{
+      height: 60,
+      background: "#fff",
+      borderBottom: "1px solid #f0f0f4",
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      px: 2.5, flexShrink: 0,
+      boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+    }}>
+      {/* Left: menu button + brand */}
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <IconButton
+          onClick={() => setMobileDrawer(true)}
+          className="mobile-menu-btn"
+          sx={{
+            background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
+            color: "#fff",
+            width: 38, height: 38,
+            borderRadius: "12px",
+            boxShadow: "0 4px 12px rgba(26,26,46,0.3)",
+            "&:hover": { background: "linear-gradient(135deg, #2d2d5e 0%, #1a1a2e 100%)" },
+            transition: "all 0.2s ease",
+          }}
+        >
+          <MenuIcon sx={{ fontSize: 19 }} />
+        </IconButton>
+        <Box>
+          <Typography sx={{
+            fontFamily: "'Playfair Display', serif", fontWeight: 800,
+            fontSize: 16, color: "#1a1a2e", lineHeight: 1,
+          }}>
+            {isAdminRoute ? "Admin Panel" : "EduPortal"}
+          </Typography>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 9.5,
+            color: "#ccc", letterSpacing: "1px", textTransform: "uppercase",
+          }}>
+            {isAdminRoute ? "Management" : "Learning Platform"}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Right: greeting chip */}
+      <Box sx={{
+        display: "flex", alignItems: "center", gap: 0.8,
+        px: 1.4, py: 0.7, borderRadius: "20px",
+        background: "#f5f5f8", border: "1.5px solid #ededf2",
+      }}>
+        <Box sx={{
+          width: 26, height: 26, borderRadius: "50%",
+          background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 9.5, fontWeight: 800, color: "#fff",
+          fontFamily: "'DM Sans', sans-serif",
+          flexShrink: 0,
+        }}>
+          {displayName ? displayName.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() : "U"}
+        </Box>
+        <Box sx={{
+          width: 6, height: 6, borderRadius: "50%",
+          background: "#2ecc71",
+          boxShadow: "0 0 4px #2ecc71",
+        }} />
+      </Box>
+    </Box>
+  );
+
+  /* ─────────── MOBILE DRAWER SIDEBAR (REDESIGNED) ─────────── */
+  const MobileDrawerContent = () => (
+    <Box sx={{
+      width: 290, height: "100%",
+      display: "flex", flexDirection: "column",
+      background: "#fafafa",
+      overflow: "hidden",
+    }}>
+      {/* Hero header */}
+      <Box sx={{
+        background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 60%, #0f3460 100%)",
+        px: 3, py: 3.5,
+        position: "relative", overflow: "hidden",
+      }}>
+        {/* Background shimmer */}
+        <Box sx={{
+          position: "absolute", inset: 0,
+          background: "linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%)",
+          backgroundSize: "300% 300%",
+          animation: "drawerShimmer 4s linear infinite",
+        }} />
+
+        <Box sx={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
+          <Box>
+            {/* Avatar */}
+            <Box sx={{
+              width: 52, height: 52, borderRadius: "16px",
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(10px)",
+              border: "1.5px solid rgba(255,255,255,0.18)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18, fontWeight: 800, color: "#fff",
+              fontFamily: "'DM Sans', sans-serif",
+              mb: 1.5,
+              boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+              animation: "mobileAvatarPulse 3s ease-in-out infinite",
+            }}>
+              {displayName ? displayName.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() : "U"}
+            </Box>
+            <Typography sx={{
+              fontFamily: "'Playfair Display', serif", fontWeight: 700,
+              fontSize: 17, color: "#fff", lineHeight: 1.2,
+            }}>{displayName || "Student"}</Typography>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, mt: 0.5 }}>
+              <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "#2ecc71", boxShadow: "0 0 6px #2ecc71" }} />
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "rgba(255,255,255,0.5)" }}>
+                Online · EduPortal Member
+              </Typography>
+            </Box>
+            <Typography sx={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 10, color: "rgba(255,255,255,0.3)",
+              mt: 0.4, letterSpacing: "0.3px",
+            }}>{timeGreeting} ✦</Typography>
+          </Box>
+
+          <IconButton onClick={() => setMobileDrawer(false)}
+            sx={{
+              background: "rgba(255,255,255,0.1)", color: "rgba(255,255,255,0.6)",
+              width: 30, height: 30, borderRadius: "9px",
+              border: "1px solid rgba(255,255,255,0.12)",
+              "&:hover": { background: "rgba(255,255,255,0.18)", color: "#fff" },
+            }}>
+            <CloseIcon sx={{ fontSize: 14 }} />
+          </IconButton>
+        </Box>
+      </Box>
+
+      {/* Thin gradient bar */}
+      <Box sx={{ height: 2, background: "linear-gradient(90deg, #1a1a2e, #4a4a8e44, #1a1a2e)", opacity: 0.2 }} />
+
+      {/* Scrollable nav content */}
+      <Box sx={{ flex: 1, overflowY: "auto", pb: 3, "&::-webkit-scrollbar": { display: "none" } }}>
+
+        {/* My Courses section */}
+        <Box sx={{ px: 3, pt: 2.5, pb: 1 }}>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
+            color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
+          }}>My Courses</Typography>
+        </Box>
+        <Box sx={{ px: 1.5 }}>
+          {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }, i) => (
+            <Box key={route} onClick={() => goRoute(route)}
+              className="drawer-item-in"
+              style={{ animationDelay: `${0.05 + i * 0.04}s` }}
+              sx={{
+                display: "flex", alignItems: "center", gap: 1.5,
+                px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mb: 0.4,
+                background: "#fff",
+                border: "1.5px solid #f0f0f4",
+                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                "&:active": { transform: "scale(0.97)", background: "#f7f7fb" },
+              }}>
+              <Box sx={{
+                width: 36, height: 36, borderRadius: "11px", background: iconBg,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
+              }}>
+                <Icon sx={{ fontSize: 17, color: "#fff" }} />
+              </Box>
+              <Box sx={{ overflow: "hidden", flex: 1 }}>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#bbb" }}>{sublabel}</Typography>
+              </Box>
+              <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ddd", transform: "rotate(180deg)", flexShrink: 0 }} />
+            </Box>
+          ))}
+        </Box>
+
+        {/* Management section (admin) or Account section (user) */}
+        <Box sx={{ mx: 2, my: 2, height: "1px", background: "#f0f0f4" }} />
+        <Box sx={{ px: 3, mb: 1 }}>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
+            color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
+          }}>{isAdminRoute ? "Management" : "Account"}</Typography>
+        </Box>
+        <Box sx={{ px: 1.5 }}>
+          {(isAdminRoute ? ADMIN_NAV : SECTIONS.map(s => ({ icon: s.icon, title: s.title, view: s.view }))).map(({ icon: Icon, title, view }, i) => {
+            const isActive = activeView === view;
+            return (
+              <Box key={view} onClick={() => goView(view)}
+                className="drawer-item-in"
+                style={{ animationDelay: `${0.25 + i * 0.04}s` }}
+                sx={{
+                  display: "flex", alignItems: "center", gap: 1.5,
+                  px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mb: 0.4,
+                  background: isActive
+                    ? "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)"
+                    : "#fff",
+                  border: isActive ? "none" : "1.5px solid #f0f0f4",
+                  boxShadow: isActive ? "0 6px 20px rgba(26,26,46,0.25)" : "0 2px 8px rgba(0,0,0,0.04)",
+                  transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                  "&:active": { transform: "scale(0.97)" },
+                }}>
+                <Box sx={{
+                  width: 36, height: 36, borderRadius: "11px",
+                  background: isActive ? "rgba(255,255,255,0.15)" : "#f5f5f8",
+                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+                }}>
+                  <Icon sx={{ fontSize: 17, color: isActive ? "#fff" : "#555" }} />
+                </Box>
+                <Typography sx={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+                  fontWeight: 700, color: isActive ? "#fff" : "#1a1a2e", flex: 1,
+                }}>{title}</Typography>
+                {isActive && <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.7)", flexShrink: 0 }} />}
+              </Box>
+            );
+          })}
+        </Box>
+
+        {/* Social links in drawer - mobile */}
+        {!isAdminRoute && (
+          <>
+            <Box sx={{ mx: 2, my: 2, height: "1px", background: "#f0f0f4" }} />
+            <Box sx={{ px: 3, mb: 1.2 }}>
+              <Typography sx={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
+                color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
+              }}>Connect</Typography>
+            </Box>
+            <Box sx={{ px: 2, display: "flex", gap: 1 }}>
+              {SOCIAL.map(({ Icon, color, href, label }) => (
+                <Box key={href} component="a" href={href} target="_blank" rel="noopener" aria-label={label}
+                  sx={{
+                    flex: 1, height: 40, borderRadius: "12px",
+                    border: `1.5px solid ${color}22`,
+                    color, display: "flex", alignItems: "center", justifyContent: "center",
+                    background: `${color}0a`,
+                    "&:active": { background: color, color: "#fff" },
+                    transition: "all 0.2s ease",
+                  }}>
+                  <Icon sx={{ fontSize: 18 }} />
+                </Box>
+              ))}
+            </Box>
+          </>
+        )}
+      </Box>
+
+      {/* Footer */}
+      <Box sx={{ px: 3, py: 2, borderTop: "1px solid #f0f0f4", background: "#fafafa" }}>
+        <Typography sx={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: 9.5, color: "#ccc",
+          textAlign: "center", letterSpacing: "1px", textTransform: "uppercase",
+        }}>EduPortal · Learning Platform</Typography>
+      </Box>
+    </Box>
+  );
+
   /* ─────────── RENDER ─────────── */
   return (
     <>
@@ -543,6 +945,44 @@ const Dashboard = () => {
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
         input::placeholder { color: #bbb; font-weight: 400; }
+
+        /* ═══════════ MOBILE ANIMATIONS ═══════════ */
+        @keyframes drawerShimmer {
+          0%   { background-position: -300% center; }
+          100% { background-position:  300% center; }
+        }
+        @keyframes mobileAvatarPulse {
+          0%, 100% { box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+          50%       { box-shadow: 0 8px 32px rgba(0,0,0,0.45), 0 0 0 6px rgba(255,255,255,0.05); }
+        }
+        @keyframes fadeSlideUp {
+          from { opacity: 0; transform: translateY(16px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeSlideIn {
+          from { opacity: 0; transform: translateX(14px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        .mobile-section-card {
+          animation: fadeSlideUp 0.45s cubic-bezier(0.22,1,0.36,1) both;
+        }
+        .drawer-item-in {
+          opacity: 0;
+          animation: fadeSlideIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards;
+        }
+        .mobile-course-chip {
+          -webkit-tap-highlight-color: transparent;
+        }
+        .mobile-menu-btn:active {
+          transform: scale(0.92) !important;
+        }
+
+        /* Backdrop blur on mobile drawer overlay */
+        .MuiBackdrop-root {
+          backdrop-filter: blur(5px) !important;
+          -webkit-backdrop-filter: blur(5px) !important;
+          background: rgba(10,10,20,0.4) !important;
+        }
       `}</style>
 
       <ThemeProvider theme={theme}>
@@ -553,14 +993,27 @@ const Dashboard = () => {
           {/* ── SIDEBAR ── */}
           {!isCourseRoute && (
             <>
+              {/* DESKTOP: original sidebar — untouched */}
               {!isMobile ? (
                 <Box sx={{ width: SIDEBAR_W, flexShrink: 0, height: "100vh" }}>
                   {isAdminRoute ? <AdminSidebarContent /> : <SidebarContent />}
                 </Box>
               ) : (
-                <Drawer anchor="left" open={mobileDrawer} onClose={() => setMobileDrawer(false)}
-                  PaperProps={{ sx: { width: SIDEBAR_W, border: "none" } }}>
-                  {isAdminRoute ? <AdminSidebarContent /> : <SidebarContent />}
+                /* MOBILE: beautiful redesigned drawer */
+                <Drawer
+                  anchor="left"
+                  open={mobileDrawer}
+                  onClose={() => setMobileDrawer(false)}
+                  PaperProps={{
+                    sx: {
+                      width: 290, border: "none",
+                      borderRadius: "0 20px 20px 0",
+                      boxShadow: "8px 0 60px rgba(0,0,0,0.18)",
+                      overflow: "hidden",
+                    },
+                  }}
+                >
+                  <MobileDrawerContent />
                 </Drawer>
               )}
             </>
@@ -569,17 +1022,8 @@ const Dashboard = () => {
           {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
-            {/* Mobile top bar */}
-            {!isCourseRoute && isMobile && (
-              <Box sx={{ height: 52, background: "#fff", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", px: 2, flexShrink: 0 }}>
-                <IconButton onClick={() => setMobileDrawer(true)} sx={{ color: "#333" }}>
-                  <MenuIcon sx={{ fontSize: 22 }} />
-                </IconButton>
-                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", ml: 1 }}>
-                  {isAdminRoute ? "Admin Panel" : "EduPortal"}
-                </Typography>
-              </Box>
-            )}
+            {/* MOBILE top bar — redesigned */}
+            {!isCourseRoute && isMobile && <MobileTopBar />}
 
             {/* Course route back button */}
             {isCourseRoute && (
