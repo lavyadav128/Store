@@ -86,18 +86,56 @@ const S = {
     color: "#fff", fontSize: 22, transition: "background 0.15s",
   }),
   panel: (open) => ({
-    position: "fixed", bottom: 88, right: 24, zIndex: 9998,
-    width: 380, height: 580,
-    display: "flex", flexDirection: "column",
-    background: "#fff", border: "0.5px solid rgba(0,0,0,0.12)",
-    borderRadius: 16, overflow: "hidden",
-    boxShadow: "0 8px 40px rgba(0,0,0,0.12)",
+    position: "fixed",
+    zIndex: 9998,
+  
+    // DESKTOP (unchanged)
+    bottom: window.innerWidth <= 768 ? "auto" : 88,
+    right: window.innerWidth <= 768 ? "50%" : 24,
+  
+    // MOBILE FRIENDLY CENTERED POPUP
+    top: window.innerWidth <= 768 ? "7%" : "auto",
+    left: window.innerWidth <= 768 ? "50%" : "auto",
+    transform:
+      window.innerWidth <= 768
+        ? open
+          ? "translate(-50%, 0) scale(1)"
+          : "translate(-50%, 20px) scale(0.96)"
+        : open
+        ? "translateY(0) scale(1)"
+        : "translateY(12px) scale(0.97)",
+  
+    // MOBILE SIZE
+    width: window.innerWidth <= 768 ? "94vw" : 380,
+    height: window.innerWidth <= 768 ? "86vh" : 580,
+  
+    display: "flex",
+    flexDirection: "column",
+  
+    background: "#fff",
+    border: "0.5px solid rgba(0,0,0,0.12)",
+  
+    // MORE BEAUTIFUL MOBILE RADIUS
+    borderRadius: window.innerWidth <= 768 ? 22 : 16,
+  
+    overflow: "hidden",
+  
+    // Better floating look on mobile
+    boxShadow:
+      window.innerWidth <= 768
+        ? "0 18px 60px rgba(0,0,0,0.22)"
+        : "0 8px 40px rgba(0,0,0,0.12)",
+  
     fontFamily: "'DM Sans', system-ui, sans-serif",
+  
     transition: "opacity 0.18s, transform 0.18s",
+  
     opacity: open ? 1 : 0,
-    transform: open ? "translateY(0) scale(1)" : "translateY(12px) scale(0.97)",
+  
     pointerEvents: open ? "all" : "none",
   }),
+
+  
   header: {
     padding: "12px 16px", borderBottom: "0.5px solid rgba(0,0,0,0.08)",
     display: "flex", alignItems: "center", gap: 10, flexShrink: 0,
