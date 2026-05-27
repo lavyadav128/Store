@@ -126,15 +126,20 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       gap: 3, mb: 4, flexWrap: { xs: "wrap", sm: "nowrap" },
     }}>
-      {/* Greeting row: on mobile = menu icon left + text block right; on desktop = text only */}
+      {/*
+        ── GREETING ROW ──
+        Mobile:  flex row-reverse → greeting text on LEFT, menu button on RIGHT
+        Desktop: normal block layout
+      */}
       <Box sx={{
         display: { xs: "flex", sm: "block" },
         alignItems: "flex-start",
         justifyContent: "space-between",
+        flexDirection: { xs: "row-reverse", sm: "row" }, // ← KEY CHANGE: swaps sides on mobile
         width: { xs: "100%", sm: "auto" },
         flexShrink: 0,
       }}>
-        {/* Mobile-only menu button — leftmost */}
+        {/* Mobile-only menu button — now on the RIGHT (row-reverse pushes it right) */}
         <Box sx={{ display: { xs: "flex", sm: "none" }, alignItems: "center", pt: 0.5, flexShrink: 0 }}>
           <IconButton
             onClick={() => onOpenDrawer()}
@@ -152,8 +157,8 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
           </IconButton>
         </Box>
 
-        {/* Greeting text — rightmost on mobile, normal on desktop */}
-        <Box sx={{ textAlign: { xs: "right", sm: "left" } }}>
+        {/* Greeting text — now on the LEFT on mobile (row-reverse puts this first visually) */}
+        <Box sx={{ textAlign: { xs: "left", sm: "left" } }}> {/* ← changed xs from "right" to "left" */}
           <Typography sx={{
             fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
             fontSize: { xs: 11, sm: 13 }, color: "#aaa",
@@ -344,6 +349,14 @@ const Dashboard = () => {
     }
   };
 
+  /* ─────────── COMPLETE LOGOUT HANDLER ─────────── */
+  const handleLogout = () => {
+    localStorage.clear();       // wipe ALL localStorage (token, username, everything)
+    sessionStorage.clear();     // wipe session storage too
+    setMobileDrawer(false);
+    window.location.replace("/auth"); // hard full-page redirect, clears all React state, no back history
+  };
+
   /* ─────────── ADMIN SIDEBAR (DESKTOP) ─────────── */
   const AdminSidebarContent = () => (
     <Box sx={{
@@ -511,7 +524,6 @@ const Dashboard = () => {
                 background: "#fff",
                 border: { xs: "none", sm: "1px solid #f0f0f0" },
                 borderRadius: { xs: "20px", sm: "20px" },
-                // ── MOBILE: taller cards ──
                 p: { xs: "24px 20px", sm: 3 },
                 minHeight: { xs: 110, sm: "auto" },
                 cursor: "pointer",
@@ -794,15 +806,10 @@ const Dashboard = () => {
             );
           })}
 
-          {/* Logout button — mobile drawer only, after Account items */}
+          {/* ── LOGOUT BUTTON — mobile drawer only ── */}
           {!isAdminRoute && (
             <Box
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("username");
-                setMobileDrawer(false);
-                navigate("/auth");
-              }}
+              onClick={handleLogout} // ← uses the centralized complete logout handler
               className="drawer-item-in"
               style={{ animationDelay: "0.45s" }}
               sx={{
