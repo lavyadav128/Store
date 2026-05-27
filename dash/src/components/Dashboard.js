@@ -126,10 +126,16 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       gap: 3, mb: 4, flexWrap: { xs: "wrap", sm: "nowrap" },
     }}>
-      {/* On mobile: menu button sits inline to the left of the greeting */}
-      <Box sx={{ display: "flex", alignItems: "flex-start", gap: { xs: 1.5, sm: 0 }, flexShrink: 0 }}>
-        {/* Mobile-only menu button */}
-        <Box sx={{ display: { xs: "flex", sm: "none" }, alignItems: "center", pt: 0.3 }}>
+      {/* Greeting row: on mobile = menu icon left + text block right; on desktop = text only */}
+      <Box sx={{
+        display: { xs: "flex", sm: "block" },
+        alignItems: "flex-start",
+        justifyContent: "space-between",
+        width: { xs: "100%", sm: "auto" },
+        flexShrink: 0,
+      }}>
+        {/* Mobile-only menu button — leftmost */}
+        <Box sx={{ display: { xs: "flex", sm: "none" }, alignItems: "center", pt: 0.5, flexShrink: 0 }}>
           <IconButton
             onClick={() => onOpenDrawer()}
             sx={{
@@ -146,7 +152,8 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
           </IconButton>
         </Box>
 
-        <Box>
+        {/* Greeting text — rightmost on mobile, normal on desktop */}
+        <Box sx={{ textAlign: { xs: "right", sm: "left" } }}>
           <Typography sx={{
             fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
             fontSize: { xs: 11, sm: 13 }, color: "#aaa",
@@ -604,13 +611,14 @@ const Dashboard = () => {
           </Box>
         </Box>
 
-        {/* MOBILE ONLY: Social Connect strip */}
-        <Box sx={{ display: { xs: "block", sm: "none" }, mt: 3 }}>
+        {/* MOBILE ONLY: Social Connect strip — centered at bottom */}
+        <Box sx={{ display: { xs: "flex", sm: "none" }, flexDirection: "column", alignItems: "center", mt: 4, mb: 2, px: 3 }}>
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
             color: "#c0c0cc", letterSpacing: "1.4px", textTransform: "uppercase", mb: 1.5,
+            textAlign: "center",
           }}>Connect With Us</Typography>
-          <Box sx={{ display: "flex", gap: 1.2 }}>
+          <Box sx={{ display: "flex", gap: 1.4 }}>
             {SOCIAL.map(({ Icon, color, href, label }) => (
               <Box key={href} component="a" href={href} target="_blank" rel="noopener" aria-label={label}
                 sx={{
@@ -785,6 +793,41 @@ const Dashboard = () => {
               </Box>
             );
           })}
+
+          {/* Logout button — mobile drawer only, after Account items */}
+          {!isAdminRoute && (
+            <Box
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("username");
+                setMobileDrawer(false);
+                navigate("/auth");
+              }}
+              className="drawer-item-in"
+              style={{ animationDelay: "0.45s" }}
+              sx={{
+                display: "flex", alignItems: "center", gap: 1.5,
+                px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mt: 0.8,
+                background: "#fff5f5",
+                border: "1.5px solid #fde8e8",
+                boxShadow: "0 2px 8px rgba(220,50,50,0.06)",
+                transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                "&:active": { transform: "scale(0.97)", background: "#ffe0e0" },
+              }}
+            >
+              <Box sx={{
+                width: 36, height: 36, borderRadius: "11px",
+                background: "#fff0f0",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                <LogoutIcon sx={{ fontSize: 17, color: "#e05050" }} />
+              </Box>
+              <Typography sx={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+                fontWeight: 700, color: "#e05050", flex: 1,
+              }}>Logout</Typography>
+            </Box>
+          )}
         </Box>
 
         {!isAdminRoute && (
