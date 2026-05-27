@@ -937,14 +937,14 @@ const Dashboard = () => {
                 </Box>
               ) : (
                 <Drawer
-                  anchor="left"
+                  anchor="right"
                   open={mobileDrawer}
                   onClose={() => setMobileDrawer(false)}
                   PaperProps={{
                     sx: {
                       width: 290, border: "none",
-                      borderRadius: "0 20px 20px 0",
-                      boxShadow: "8px 0 60px rgba(0,0,0,0.18)",
+                      borderRadius: "20px 0 0 20px",
+                      boxShadow: "-8px 0 60px rgba(0,0,0,0.18)",
                       overflow: "hidden",
                     },
                   }}
@@ -957,6 +957,41 @@ const Dashboard = () => {
 
           {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
+
+            {/* ── ADMIN MOBILE TOPBAR — sticky bar above scrollable content, mobile + admin only ── */}
+            {isAdminRoute && isMobile && !isCourseRoute && (
+              <Box sx={{
+                display: "flex", alignItems: "center", justifyContent: "space-between",
+                px: 2, py: 1.5,
+                background: "#fff",
+                borderBottom: "1.5px solid #f0f0f5",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.06)",
+                flexShrink: 0,
+                zIndex: 100,
+              }}>
+                {/* spacer to keep title centered */}
+                <Box sx={{ width: 38 }} />
+
+                <Typography sx={{
+                  fontFamily: "'Playfair Display', serif", fontWeight: 800,
+                  fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.5px",
+                }}>Admin Panel</Typography>
+
+                <IconButton
+                  onClick={() => setMobileDrawer(true)}
+                  sx={{
+                    background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
+                    color: "#fff",
+                    width: 38, height: 38,
+                    borderRadius: "12px",
+                    boxShadow: "0 4px 12px rgba(26,26,46,0.3)",
+                    "&:active": { transform: "scale(0.92)" },
+                  }}
+                >
+                  <MenuIcon sx={{ fontSize: 19 }} />
+                </IconButton>
+              </Box>
+            )}
 
             {/* Scrollable content */}
             <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>
