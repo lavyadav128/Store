@@ -37,6 +37,7 @@ import NotificationPage from "./notification";
 import DoubtPage from "./doubt";
 import PaymentsPage from "./payment";
 import AdminDashboard from "./AdminDashboard";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 const COURSE_ROUTES = ["/dsac", "/cou", "/pre", "/rev", "/col"];
 
@@ -144,7 +145,9 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
         <Box sx={{
           display: "flex", alignItems: "center", gap: 1.2,
           px: 2, height: 50, borderRadius: "16px",
-          border: searchFocused ? "2px solid #1a1a2e" : "2px solid #e4e4e4",
+          border: searchFocused
+          ? "2px solid #444"
+          : "2px solid #cfcfcf",
           background: searchFocused ? "#fff" : "#f5f5f7",
           boxShadow: searchFocused ? "0 8px 28px rgba(0,0,0,0.11)" : "0 2px 6px rgba(0,0,0,0.04)",
           transition: "border 0.2s, box-shadow 0.2s, background 0.2s",
@@ -304,6 +307,15 @@ const Dashboard = () => {
 
   const goView  = (view)  => { setActiveView(view); setMobileDrawer(false); };
   const goRoute = useCallback((route) => { navigate(route); setMobileDrawer(false); }, [navigate]);
+
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+  
+    navigate("/auth");
+  };
+  
   const goBackToDashboard = () => {
     if (isAdminRoute) {
       navigate("/admin-dashboard");
@@ -860,39 +872,133 @@ const Dashboard = () => {
           }}>{isAdminRoute ? "Management" : "Account"}</Typography>
         </Box>
         <Box sx={{ px: 1.5 }}>
-          {(isAdminRoute ? ADMIN_NAV : SECTIONS.map(s => ({ icon: s.icon, title: s.title, view: s.view }))).map(({ icon: Icon, title, view }, i) => {
-            const isActive = activeView === view;
-            return (
-              <Box key={view} onClick={() => goView(view)}
-                className="drawer-item-in"
-                style={{ animationDelay: `${0.25 + i * 0.04}s` }}
-                sx={{
-                  display: "flex", alignItems: "center", gap: 1.5,
-                  px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mb: 0.4,
-                  background: isActive
-                    ? "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)"
-                    : "#fff",
-                  border: isActive ? "none" : "1.5px solid #f0f0f4",
-                  boxShadow: isActive ? "0 6px 20px rgba(26,26,46,0.25)" : "0 2px 8px rgba(0,0,0,0.04)",
-                  transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-                  "&:active": { transform: "scale(0.97)" },
-                }}>
-                <Box sx={{
-                  width: 36, height: 36, borderRadius: "11px",
-                  background: isActive ? "rgba(255,255,255,0.15)" : "#f5f5f8",
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-                }}>
-                  <Icon sx={{ fontSize: 17, color: isActive ? "#fff" : "#555" }} />
-                </Box>
-                <Typography sx={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
-                  fontWeight: 700, color: isActive ? "#fff" : "#1a1a2e", flex: 1,
-                }}>{title}</Typography>
-                {isActive && <Box sx={{ width: 6, height: 6, borderRadius: "50%", background: "rgba(255,255,255,0.7)", flexShrink: 0 }} />}
-              </Box>
-            );
-          })}
+  {[
+    ...(isAdminRoute
+      ? ADMIN_NAV
+      : SECTIONS.map((s) => ({
+          icon: s.icon,
+          title: s.title,
+          view: s.view,
+        }))),
+
+    {
+      icon: LogoutIcon,
+      title: "Logout",
+      view: "logout",
+    },
+  ].map(({ icon: Icon, title, view }, i) => {
+
+    const isLogout = view === "logout";
+    const isActive = activeView === view;
+
+    return (
+      <Box
+        key={view}
+        onClick={() => {
+          if (isLogout) {
+            handleLogout();
+          } else {
+            goView(view);
+          }
+        }}
+        className="drawer-item-in"
+        style={{ animationDelay: `${0.25 + i * 0.04}s` }}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.5,
+          px: 1.5,
+          py: 1.3,
+          borderRadius: "14px",
+          cursor: "pointer",
+          mb: 0.4,
+
+          background: isLogout
+            ? "#fff5f5"
+            : isActive
+            ? "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)"
+            : "#fff",
+
+          border: isLogout
+            ? "1.5px solid #ffd6d6"
+            : isActive
+            ? "none"
+            : "1.5px solid #f0f0f4",
+
+          boxShadow: isActive
+            ? "0 6px 20px rgba(26,26,46,0.25)"
+            : "0 2px 8px rgba(0,0,0,0.04)",
+
+          transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+
+          "&:active": {
+            transform: "scale(0.97)",
+          },
+        }}
+      >
+
+        
+        <Box
+          sx={{
+            width: 36,
+            height: 36,
+            borderRadius: "11px",
+
+            background: isLogout
+              ? "#ffeaea"
+              : isActive
+              ? "rgba(255,255,255,0.15)"
+              : "#f5f5f8",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Icon
+            sx={{
+              fontSize: 17,
+              color: isLogout
+                ? "#e53935"
+                : isActive
+                ? "#fff"
+                : "#555",
+            }}
+          />
         </Box>
+
+        <Typography
+          sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 13.5,
+            fontWeight: 700,
+            color: isLogout
+              ? "#e53935"
+              : isActive
+              ? "#fff"
+              : "#1a1a2e",
+            flex: 1,
+          }}
+        >
+          {title}
+        </Typography>
+
+        {isActive && !isLogout && (
+          <Box
+            sx={{
+              width: 6,
+              height: 6,
+              borderRadius: "50%",
+              background: "rgba(255,255,255,0.7)",
+              flexShrink: 0,
+            }}
+          />
+        )}
+      </Box>
+    );
+  })}
+</Box>
 
         {/* Social links in drawer - mobile */}
         {!isAdminRoute && (
