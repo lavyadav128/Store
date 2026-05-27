@@ -167,7 +167,7 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
           <Typography sx={{
             fontFamily: "'Playfair Display', serif", fontWeight: 800,
             fontSize: { xs: 26, sm: 34 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px",
-          }}>{displayName} 👋</Typography>
+          }}>{displayName} </Typography>
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#aaa", mt: 0.8, fontWeight: 400,
           }}>Here's what's available for you today.</Typography>
@@ -273,25 +273,15 @@ const Dashboard = () => {
     const fetchUser = async () => {
       try {
         const res = await axios.get(`${server}/api/user/profile`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-  
-        const name =
-          res.data?.fullName ||
-          res.data?.name ||
-          localStorage.getItem("fullName") ||
-          "Student";
-  
+        const name = res.data?.fullName || res.data?.name || res.data?.username || localStorage.getItem("username") || "Student";
         setUserName(name);
-        localStorage.setItem("fullName", name);
-  
+        localStorage.setItem("username", name);
       } catch {
-        setUserName(localStorage.getItem("fullName") || "Student");
+        setUserName(localStorage.getItem("username") || "Student");
       }
     };
-  
     fetchUser();
   }, []);
 

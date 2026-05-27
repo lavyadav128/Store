@@ -94,7 +94,7 @@ const S = {
     right: window.innerWidth <= 768 ? "50%" : 24,
   
     // MOBILE FRIENDLY CENTERED POPUP
-    top: window.innerWidth <= 768 ? "7%" : "auto",
+    top: window.innerWidth <= 768 ? "10%" : "auto",
     left: window.innerWidth <= 768 ? "50%" : "auto",
     transform:
       window.innerWidth <= 768
@@ -106,8 +106,8 @@ const S = {
         : "translateY(12px) scale(0.97)",
   
     // MOBILE SIZE
-    width: window.innerWidth <= 768 ? "94vw" : 380,
-    height: window.innerWidth <= 768 ? "86vh" : 580,
+    width: window.innerWidth <= 768 ? "90vw" : 380,
+    height: window.innerWidth <= 768 ? "70vh" : 580,
   
     display: "flex",
     flexDirection: "column",

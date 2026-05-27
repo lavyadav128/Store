@@ -336,7 +336,7 @@ export default function Authentication() {
                     fontSize: '11px', fontWeight: 700, color: '#1a1a2e',
                     letterSpacing: '1.4px', textTransform: 'uppercase',
                     fontFamily: "'DM Sans', sans-serif",
-                  }}>Email Id</span>
+                  }}>Username</span>
                 </div>
                 <input
                   className="auth-input"
