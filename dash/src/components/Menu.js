@@ -417,285 +417,79 @@ const Menu = () => {
           </Box>
         )}
 
-        {/* ══════════════ MOBILE — Beautiful redesigned right side ══════════════ */}
-        {isMobile && (
-          <>
-            {/* Avatar pill — refined mobile version */}
-            {userName && (
-              <Box
-                className="mobile-avatar-pill"
-                sx={{
-                  display: "flex", alignItems: "center", gap: 0.8,
-                  px: 1, py: 0.5,
-                  borderRadius: "30px",
-                  border: "1.5px solid #e8e8f0",
-                  background: "linear-gradient(135deg, #fafafa 0%, #f5f5f8 100%)",
-                  mr: 1,
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
-                }}
-              >
-                {/* Avatar circle with gradient */}
-                <Box sx={{
-                  width: 28, height: 28, borderRadius: "50%",
-                  background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontSize: 10, fontWeight: 800, color: "#fff",
-                  fontFamily: "'DM Sans', sans-serif",
-                  flexShrink: 0,
-                  boxShadow: "0 3px 8px rgba(26,26,46,0.35)",
-                }}>
-                  {initials}
-                </Box>
-                {/* Online dot */}
-                <Box
-                  className="online-dot-bounce"
-                  sx={{
-                    width: 6, height: 6, borderRadius: "50%",
-                    background: "#2ecc71",
-                    flexShrink: 0,
-                    boxShadow: "0 0 0 2px #fff, 0 0 4px #2ecc71",
-                  }}
-                />
-              </Box>
-            )}
+{/* ══════════════ MOBILE — Beautiful redesigned right side ══════════════ */}
+{isMobile && (
+  <>
+    {/* Avatar pill — refined mobile version */}
+    {userName && (
+      <Box
+        className="mobile-avatar-pill"
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 0.8,
+          px: 1,
+          py: 0.5,
+          borderRadius: "30px",
+          border: "1.5px solid #e8e8f0",
+          background: "linear-gradient(135deg, #fafafa 0%, #f5f5f8 100%)",
+          mr: 1,
+          boxShadow: "0 2px 10px rgba(0,0,0,0.06)",
+        }}
+      >
+        {/* Avatar circle with gradient */}
+        <Box
+          sx={{
+            width: 28,
+            height: 28,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 10,
+            fontWeight: 800,
+            color: "#fff",
+            fontFamily: "'DM Sans', sans-serif",
+            flexShrink: 0,
+            boxShadow: "0 3px 8px rgba(26,26,46,0.35)",
+          }}
+        >
+          {initials}
+        </Box>
 
-            {/* Hamburger — polished mobile button */}
-            <IconButton
-              className="mobile-hamburger"
-              onClick={() => setDrawerOpen(true)}
-              sx={{
-                background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
-                color: "#fff",
-                width: 40, height: 40,
-                borderRadius: "13px",
-                boxShadow: "0 4px 14px rgba(26,26,46,0.35)",
-                "&:hover": {
-                  background: "linear-gradient(135deg, #2d2d5e 0%, #1a1a2e 100%)",
-                  boxShadow: "0 6px 20px rgba(26,26,46,0.45)",
-                },
-                transition: "all 0.2s ease",
-              }}
-            >
-              <MenuIcon sx={{ fontSize: 20 }} />
-            </IconButton>
+        {/* Username */}
+        <Typography
+          sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12,
+            fontWeight: 700,
+            color: "#1a1a2e",
+            maxWidth: 90,
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {displayName}
+        </Typography>
 
-            {/* ═══════════════════════════════════════
-                MOBILE DRAWER — Luxury redesign
-            ═══════════════════════════════════════ */}
-            <Drawer
-              anchor="right"
-              open={drawerOpen}
-              onClose={() => setDrawerOpen(false)}
-              PaperProps={{
-                sx: {
-                  width: 300,
-                  background: "#fafafa",
-                  border: "none",
-                  boxShadow: "-8px 0 60px rgba(0,0,0,0.18)",
-                  borderRadius: "20px 0 0 20px",
-                  overflow: "hidden",
-                },
-              }}
-            >
-
-              {/* ── Hero card at top ── */}
-              <Box
-                className="mobile-avatar-card"
-                sx={{
-                  px: 3, py: 3.5,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                  {/* Large glowing avatar */}
-                  <Box
-                    className="mobile-drawer-avatar"
-                    sx={{
-                      width: 52, height: 52, borderRadius: "18px",
-                      background: "rgba(255,255,255,0.12)",
-                      backdropFilter: "blur(10px)",
-                      border: "1.5px solid rgba(255,255,255,0.2)",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      fontSize: 18, fontWeight: 800, color: "#fff",
-                      fontFamily: "'DM Sans', sans-serif",
-                      flexShrink: 0,
-                      letterSpacing: "0.5px",
-                    }}
-                  >
-                    {initials}
-                  </Box>
-
-                  <Box>
-                    <Typography sx={{
-                      fontFamily: "'Playfair Display', serif",
-                      fontWeight: 700,
-                      fontSize: 17,
-                      color: "#fff",
-                      lineHeight: 1.2,
-                    }}>
-                      {displayName || "Student"}
-                    </Typography>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 0.7, mt: 0.5 }}>
-                      <Box
-                        className="online-dot-bounce"
-                        sx={{
-                          width: 6, height: 6, borderRadius: "50%",
-                          background: "#2ecc71",
-                          boxShadow: "0 0 6px #2ecc71",
-                        }}
-                      />
-                      <Typography sx={{
-                        fontFamily: "'DM Sans', sans-serif",
-                        fontSize: 11,
-                        color: "rgba(255,255,255,0.6)",
-                        letterSpacing: "0.3px",
-                      }}>
-                        Online · EduPortal Member
-                      </Typography>
-                    </Box>
-                    {/* Greeting under name */}
-                    <Typography sx={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 10.5,
-                      color: "rgba(255,255,255,0.4)",
-                      mt: 0.4,
-                      letterSpacing: "0.5px",
-                    }}>
-                      {timeLabel} ✦
-                    </Typography>
-                  </Box>
-                </Box>
-
-                {/* Close button */}
-                <IconButton
-                  onClick={() => setDrawerOpen(false)}
-                  sx={{
-                    background: "rgba(255,255,255,0.1)",
-                    color: "rgba(255,255,255,0.7)",
-                    width: 32, height: 32,
-                    borderRadius: "10px",
-                    border: "1px solid rgba(255,255,255,0.15)",
-                    alignSelf: "flex-start",
-                    "&:hover": {
-                      background: "rgba(255,255,255,0.18)",
-                      color: "#fff",
-                    },
-                    transition: "all 0.2s ease",
-                  }}
-                >
-                  <CloseIcon sx={{ fontSize: 15 }} />
-                </IconButton>
-              </Box>
-
-              {/* ── Decorative wave divider ── */}
-              <Box sx={{
-                height: 3,
-                background: "linear-gradient(90deg, #1a1a2e 0%, #4a4a8e 50%, #1a1a2e 100%)",
-                opacity: 0.15,
-              }} />
-
-              {/* ── Section label ── */}
-              <Box sx={{ px: 3, pt: 3, pb: 1.5 }}>
-                <Typography className="drawer-section-label">
-                  Account Settings
-                </Typography>
-              </Box>
-
-              {/* ── Nav items ── */}
-              <List sx={{ px: 2, pt: 0 }}>
-                {menuItems.map(({ to, label, idx, isLogout }) => (
-                  <ListItem
-                    key={idx}
-                    disablePadding
-                    component={Link}
-                    to={to}
-                    onClick={() => handleMenuClick(idx)}
-                    className="drawer-item-animate"
-                    sx={{ textDecoration: "none", mb: 1, display: "block" }}
-                  >
-                    {isLogout ? (
-                      <Button
-                        fullWidth
-                        className="mobile-logout-btn"
-                        startIcon={<LogoutIcon sx={{ fontSize: 16 }} />}
-                        sx={{
-                          background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
-                          color: "#fff",
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontWeight: 700,
-                          fontSize: 14,
-                          textTransform: "none",
-                          borderRadius: "16px",
-                          py: 1.6,
-                          border: "none",
-                          boxShadow: "0 6px 20px rgba(26,26,46,0.3)",
-                          letterSpacing: "0.3px",
-                          "&:hover": {
-                            background: "linear-gradient(135deg, #2d2d5e 0%, #1a1a2e 100%)",
-                            boxShadow: "0 8px 28px rgba(26,26,46,0.45)",
-                            transform: "translateY(-1px)",
-                          },
-                          transition: "all 0.25s ease",
-                        }}
-                      >
-                        Logout
-                      </Button>
-                    ) : (
-                      <Box
-                        className="drawer-nav-item"
-                        sx={{
-                          px: 2, py: 1.4, borderRadius: "14px",
-                          background: selectedMenu === idx
-                            ? "linear-gradient(135deg, #1a1a2e10 0%, #2d2d5e0a 100%)"
-                            : "#fff",
-                          border: selectedMenu === idx ? "1.5px solid #1a1a2e20" : "1.5px solid #f0f0f4",
-                          boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                          "&:hover": {
-                            background: "#f7f7fb",
-                            border: "1.5px solid #e0e0ec",
-                            transform: "translateX(-2px)",
-                          },
-                          transition: "all 0.2s ease",
-                        }}
-                      >
-                        <Typography sx={{
-                          fontFamily: "'DM Sans', sans-serif",
-                          fontSize: 14.5,
-                          fontWeight: selectedMenu === idx ? 700 : 500,
-                          color: selectedMenu === idx ? "#1a1a2e" : "#777",
-                        }}>
-                          {label}
-                        </Typography>
-                      </Box>
-                    )}
-                  </ListItem>
-                ))}
-              </List>
-
-              {/* ── Footer inside drawer ── */}
-              <Box sx={{
-                position: "absolute", bottom: 0, left: 0, right: 0,
-                px: 3, py: 2.5,
-                borderTop: "1px solid #f0f0f4",
-                background: "#fafafa",
-              }}>
-                <Typography sx={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 10,
-                  color: "#ccc",
-                  textAlign: "center",
-                  letterSpacing: "0.8px",
-                  textTransform: "uppercase",
-                }}>
-                  EduPortal · Learning Platform
-                </Typography>
-              </Box>
-
-            </Drawer>
-          </>
-        )}
+        {/* Online dot */}
+        <Box
+          className="online-dot-bounce"
+          sx={{
+            width: 6,
+            height: 6,
+            borderRadius: "50%",
+            background: "#2ecc71",
+            flexShrink: 0,
+            boxShadow: "0 0 0 2px #fff, 0 0 4px #2ecc71",
+          }}
+        />
+      </Box>
+    )}
+  </>
+)}
       </Box>
     </>
   );
