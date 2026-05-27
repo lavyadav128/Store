@@ -83,7 +83,7 @@ const SIDEBAR_W = 248;
 /* ─────────────────────────────────────────────────────────────────────
    SEARCH BAR
 ───────────────────────────────────────────────────────────────────── */
-const CourseSearchBar = ({ onNavigate, displayName }) => {
+const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
   const [searchQuery,   setSearchQuery]   = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const searchRef = useRef(null);
@@ -126,19 +126,40 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       gap: 3, mb: 4, flexWrap: { xs: "wrap", sm: "nowrap" },
     }}>
-      <Box sx={{ flexShrink: 0 }}>
-        <Typography sx={{
-          fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
-          fontSize: { xs: 11, sm: 13 }, color: "#aaa",
-          letterSpacing: "2px", textTransform: "uppercase", mb: 0.5,
-        }}>Good day</Typography>
-        <Typography sx={{
-          fontFamily: "'Playfair Display', serif", fontWeight: 800,
-          fontSize: { xs: 26, sm: 34 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px",
-        }}>{displayName} 👋</Typography>
-        <Typography sx={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#aaa", mt: 0.8, fontWeight: 400,
-        }}>Here's what's available for you today.</Typography>
+      {/* On mobile: menu button sits inline to the left of the greeting */}
+      <Box sx={{ display: "flex", alignItems: "flex-start", gap: { xs: 1.5, sm: 0 }, flexShrink: 0 }}>
+        {/* Mobile-only menu button */}
+        <Box sx={{ display: { xs: "flex", sm: "none" }, alignItems: "center", pt: 0.3 }}>
+          <IconButton
+            onClick={() => onOpenDrawer()}
+            sx={{
+              background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
+              color: "#fff",
+              width: 38, height: 38,
+              borderRadius: "12px",
+              boxShadow: "0 4px 12px rgba(26,26,46,0.3)",
+              flexShrink: 0,
+              "&:active": { transform: "scale(0.92)" },
+            }}
+          >
+            <MenuIcon sx={{ fontSize: 19 }} />
+          </IconButton>
+        </Box>
+
+        <Box>
+          <Typography sx={{
+            fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
+            fontSize: { xs: 11, sm: 13 }, color: "#aaa",
+            letterSpacing: "2px", textTransform: "uppercase", mb: 0.5,
+          }}>Good day</Typography>
+          <Typography sx={{
+            fontFamily: "'Playfair Display', serif", fontWeight: 800,
+            fontSize: { xs: 26, sm: 34 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px",
+          }}>{displayName} 👋</Typography>
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#aaa", mt: 0.8, fontWeight: 400,
+          }}>Here's what's available for you today.</Typography>
+        </Box>
       </Box>
 
       <Box ref={searchRef} sx={{ position: "relative", width: { xs: "100%", sm: 280, md: 620 }, flexShrink: 0 }}>
@@ -471,7 +492,7 @@ const Dashboard = () => {
   const HomeView = () => (
     <Fade in timeout={600}>
       <Box>
-        <CourseSearchBar onNavigate={goRoute} displayName={displayName} />
+        <CourseSearchBar onNavigate={goRoute} displayName={displayName} onOpenDrawer={() => setMobileDrawer(true)} />
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: { xs: 2, sm: 2 } }}>
           {SECTIONS.map(({ icon: Icon, title, desc, view, accent, tag }, i) => (
@@ -593,11 +614,12 @@ const Dashboard = () => {
             {SOCIAL.map(({ Icon, color, href, label }) => (
               <Box key={href} component="a" href={href} target="_blank" rel="noopener" aria-label={label}
                 sx={{
-                  flex: 1, height: 46, borderRadius: "14px",
+                  width: 46, height: 46, borderRadius: "14px",
                   border: `1.5px solid ${color}22`,
                   color,
                   display: "flex", alignItems: "center", justifyContent: "center",
                   background: `${color}0a`,
+                  flexShrink: 0,
                   transition: "all 0.2s ease",
                   "&:active": { background: color, color: "#fff", transform: "scale(0.95)" },
                 }}>
@@ -618,72 +640,6 @@ const Dashboard = () => {
         <ArrowBackIosNewIcon sx={{ fontSize: 14, color: "#1a1a2e" }} />
       </IconButton>
       <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 22, color: "#1a1a2e", letterSpacing: "-0.5px" }}>{title}</Typography>
-    </Box>
-  );
-
-  /* ─────────── MOBILE TOP BAR ─────────── */
-  const MobileTopBar = () => (
-    <Box sx={{
-      height: 60,
-      background: "#fff",
-      borderBottom: "1px solid #f0f0f4",
-      display: "flex", alignItems: "center", justifyContent: "space-between",
-      px: 2.5, flexShrink: 0,
-      boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
-    }}>
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-        <IconButton
-          onClick={() => setMobileDrawer(true)}
-          className="mobile-menu-btn"
-          sx={{
-            background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
-            color: "#fff",
-            width: 38, height: 38,
-            borderRadius: "12px",
-            boxShadow: "0 4px 12px rgba(26,26,46,0.3)",
-            "&:hover": { background: "linear-gradient(135deg, #2d2d5e 0%, #1a1a2e 100%)" },
-            transition: "all 0.2s ease",
-          }}
-        >
-          <MenuIcon sx={{ fontSize: 19 }} />
-        </IconButton>
-        <Box>
-          <Typography sx={{
-            fontFamily: "'Playfair Display', serif", fontWeight: 800,
-            fontSize: 16, color: "#1a1a2e", lineHeight: 1,
-          }}>
-            {isAdminRoute ? "Admin Panel" : "EduPortal"}
-          </Typography>
-          <Typography sx={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 9.5,
-            color: "#ccc", letterSpacing: "1px", textTransform: "uppercase",
-          }}>
-            {isAdminRoute ? "Management" : "Learning Platform"}
-          </Typography>
-        </Box>
-      </Box>
-
-      <Box sx={{
-        display: "flex", alignItems: "center", gap: 0.8,
-        px: 1.4, py: 0.7, borderRadius: "20px",
-        background: "#f5f5f8", border: "1.5px solid #ededf2",
-      }}>
-        <Box sx={{
-          width: 26, height: 26, borderRadius: "50%",
-          background: "linear-gradient(135deg, #1a1a2e 0%, #2d2d5e 100%)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontSize: 9.5, fontWeight: 800, color: "#fff",
-          fontFamily: "'DM Sans', sans-serif",
-          flexShrink: 0,
-        }}>
-          {displayName ? displayName.split(" ").filter(Boolean).map(w => w[0]).slice(0, 2).join("").toUpperCase() : "U"}
-        </Box>
-        <Box sx={{
-          width: 6, height: 6, borderRadius: "50%",
-          background: "#2ecc71",
-          boxShadow: "0 0 4px #2ecc71",
-        }} />
-      </Box>
     </Box>
   );
 
@@ -951,9 +907,6 @@ const Dashboard = () => {
 
           {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
-
-            {/* MOBILE top bar — only when NOT on a course route */}
-            {!isCourseRoute && isMobile && <MobileTopBar />}
 
             {/* Scrollable content */}
             <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>
