@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box, Typography, IconButton, createTheme, ThemeProvider,
   CssBaseline, Fade, useMediaQuery, useTheme,
@@ -21,6 +21,7 @@ import MilitaryTechIcon from "@mui/icons-material/MilitaryTech";
 import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import DashboardIcon from "@mui/icons-material/Dashboard";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
@@ -44,6 +45,7 @@ const VIEW_MYBATCHES     = "mybatches";
 const VIEW_NOTIFICATIONS = "notifications";
 const VIEW_DOUBTS        = "doubts";
 const VIEW_PAYMENTS      = "payments";
+const VIEW_ADMIN         = "admin";
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -60,68 +62,33 @@ const SOCIAL = [
 ];
 
 const QUICK_COURSES = [
-  {
-    label: "ProEdge",
-    sublabel: "Premium Batches",
-    route: "/pre",
-    icon: AutoAwesomeIcon,
-    emoji: "⚡",
-    iconBg: "linear-gradient(135deg, #2c2c2c 0%, #555555 100%)",
-    dot: "#333",
-  },
-  {
-    label: "Batches",
-    sublabel: "All Courses",
-    route: "/cou",
-    icon: LayersIcon,
-    emoji: "📚",
-    iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)",
-    dot: "#1a1a1a",
-  },
-  {
-    label: "DevAlgo",
-    sublabel: "DSA & Algorithms",
-    route: "/dsac",
-    icon: CodeIcon,
-    emoji: "💻",
-    iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)",
-    dot: "#3a3a3a",
-  },
-  {
-    label: "CDS",
-    sublabel: "Revision Batch",
-    route: "/rev",
-    icon: MilitaryTechIcon,
-    emoji: "🎯",
-    iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)",
-    dot: "#111",
-  },
-  {
-    label: "College",
-    sublabel: "University Prep",
-    route: "/col",
-    icon: AccountBalanceIcon,
-    emoji: "🏛️",
-    iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)",
-    dot: "#222",
-  },
+  { label: "ProEdge",  sublabel: "Premium Batches",  route: "/pre",  icon: AutoAwesomeIcon,    emoji: "⚡", iconBg: "linear-gradient(135deg, #2c2c2c 0%, #555555 100%)", dot: "#333" },
+  { label: "Batches",  sublabel: "All Courses",       route: "/cou",  icon: LayersIcon,         emoji: "📚", iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)", dot: "#1a1a1a" },
+  { label: "DevAlgo",  sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
+  { label: "CDS",      sublabel: "Revision Batch",    route: "/rev",  icon: MilitaryTechIcon,   emoji: "🎯", iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)", dot: "#111" },
+  { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
+];
+
+// Admin extra nav items
+const ADMIN_NAV = [
+  { icon: DashboardIcon,     title: "Admin Dashboard", view: VIEW_ADMIN },
+  { icon: SchoolIcon,        title: "My Batches",      view: VIEW_MYBATCHES },
+  { icon: NotificationsIcon, title: "Notifications",   view: VIEW_NOTIFICATIONS },
+  { icon: HelpOutlineIcon,   title: "Doubts",          view: VIEW_DOUBTS },
+  { icon: PaymentIcon,       title: "Payments",        view: VIEW_PAYMENTS },
 ];
 
 const SIDEBAR_W = 248;
 
 /* ─────────────────────────────────────────────────────────────────────
-   SEARCH BAR — extracted as a true top-level component so it NEVER
-   re-mounts when Dashboard state changes. This is the fix for the
-   cursor-loss bug: HomeView was defined inside Dashboard and recreated
-   on every render, which unmounted+remounted the <input> each keystroke.
+   SEARCH BAR
 ───────────────────────────────────────────────────────────────────── */
 const CourseSearchBar = ({ onNavigate, displayName }) => {
   const [searchQuery,   setSearchQuery]   = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
-  const searchRef  = useRef(null);
-  const inputRef   = useRef(null);
+  const searchRef = useRef(null);
+  const inputRef  = useRef(null);
 
-  /* close dropdown on outside click */
   useEffect(() => {
     const handler = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -155,17 +122,10 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
   }, []);
 
   return (
-    /* Wrapper: greeting left + search right, aligned to center */
     <Box sx={{
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "space-between",
-      gap: 3,
-      mb: 4,
-      flexWrap: { xs: "wrap", sm: "nowrap" },
+      display: "flex", alignItems: "center", justifyContent: "space-between",
+      gap: 3, mb: 4, flexWrap: { xs: "wrap", sm: "nowrap" },
     }}>
-
-      {/* ── LEFT: Greeting ── */}
       <Box sx={{ flexShrink: 0 }}>
         <Typography sx={{
           fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
@@ -181,36 +141,16 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
         }}>Here's what's available for you today.</Typography>
       </Box>
 
-      {/* ── RIGHT: Search bar ── */}
-      <Box
-        ref={searchRef}
-        sx={{
-          position: "relative",
-          width: { xs: "100%", sm: 280, md: 620 },
-          flexShrink: 0,
-        }}
-      >
-        {/* Input row */}
-        <Box
-          sx={{
-            display: "flex", alignItems: "center", gap: 1.2,
-            px: 2, height: 50,
-            borderRadius: "16px",
-            border: searchFocused ? "2px solid #1a1a2e" : "2px solid #e4e4e4",
-            background: searchFocused ? "#fff" : "#f5f5f7",
-            boxShadow: searchFocused
-              ? "0 8px 28px rgba(0,0,0,0.11)"
-              : "0 2px 6px rgba(0,0,0,0.04)",
-            transition: "border 0.2s, box-shadow 0.2s, background 0.2s",
-          }}
-        >
-          <SearchIcon sx={{
-            fontSize: 19,
-            color: searchFocused ? "#1a1a2e" : "#c0c0c0",
-            transition: "color 0.2s",
-            flexShrink: 0,
-          }} />
-
+      <Box ref={searchRef} sx={{ position: "relative", width: { xs: "100%", sm: 280, md: 620 }, flexShrink: 0 }}>
+        <Box sx={{
+          display: "flex", alignItems: "center", gap: 1.2,
+          px: 2, height: 50, borderRadius: "16px",
+          border: searchFocused ? "2px solid #1a1a2e" : "2px solid #e4e4e4",
+          background: searchFocused ? "#fff" : "#f5f5f7",
+          boxShadow: searchFocused ? "0 8px 28px rgba(0,0,0,0.11)" : "0 2px 6px rgba(0,0,0,0.04)",
+          transition: "border 0.2s, box-shadow 0.2s, background 0.2s",
+        }}>
+          <SearchIcon sx={{ fontSize: 19, color: searchFocused ? "#1a1a2e" : "#c0c0c0", transition: "color 0.2s", flexShrink: 0 }} />
           <input
             ref={inputRef}
             value={searchQuery}
@@ -218,96 +158,50 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
             onFocus={() => setSearchFocused(true)}
             placeholder="Search courses…"
             style={{
-              flex: 1,
-              border: "none",
-              outline: "none",
-              background: "transparent",
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 13.5,
-              fontWeight: 500,
-              color: "#1a1a2e",
-              minWidth: 0,
+              flex: 1, border: "none", outline: "none", background: "transparent",
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, fontWeight: 500, color: "#1a1a2e", minWidth: 0,
             }}
           />
-
           {searchQuery ? (
-            <IconButton
-              size="small"
-              onMouseDown={(e) => { e.preventDefault(); handleClear(); }}
-              sx={{
-                width: 24, height: 24, borderRadius: "7px",
-                background: "#e0e0e0", flexShrink: 0,
-                "&:hover": { background: "#cecece" },
-              }}
-            >
+            <IconButton size="small" onMouseDown={(e) => { e.preventDefault(); handleClear(); }}
+              sx={{ width: 24, height: 24, borderRadius: "7px", background: "#e0e0e0", flexShrink: 0, "&:hover": { background: "#cecece" } }}>
               <CloseIcon sx={{ fontSize: 13, color: "#555" }} />
             </IconButton>
           ) : (
-            <Box sx={{
-              px: 0.9, py: 0.2, borderRadius: "6px",
-              background: "#e8e8e8", flexShrink: 0,
-            }}>
-              <Typography sx={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 9.5,
-                fontWeight: 700, color: "#aaa", letterSpacing: "0.4px",
-              }}>⌘ K</Typography>
+            <Box sx={{ px: 0.9, py: 0.2, borderRadius: "6px", background: "#e8e8e8", flexShrink: 0 }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9.5, fontWeight: 700, color: "#aaa", letterSpacing: "0.4px" }}>⌘ K</Typography>
             </Box>
           )}
         </Box>
 
-        {/* Dropdown */}
         {showDropdown && (
           <Box sx={{
             position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0,
-            background: "#fff",
-            borderRadius: "14px",
-            border: "1.5px solid #e8e8e8",
-            boxShadow: "0 16px 48px rgba(0,0,0,0.13)",
-            overflow: "hidden",
-            zIndex: 1300,
+            background: "#fff", borderRadius: "14px", border: "1.5px solid #e8e8e8",
+            boxShadow: "0 16px 48px rgba(0,0,0,0.13)", overflow: "hidden", zIndex: 1300,
           }}>
             {filteredCourses.length > 0 ? (
               filteredCourses.map(({ label, sublabel, route, icon: Icon, iconBg }) => (
-                <Box
-                  key={route}
-                  /* use onMouseDown + preventDefault so blur fires AFTER click */
-                  onMouseDown={(e) => { e.preventDefault(); handleSelect(route); }}
+                <Box key={route} onMouseDown={(e) => { e.preventDefault(); handleSelect(route); }}
                   sx={{
-                    display: "flex", alignItems: "center", gap: 1.8,
-                    px: 2.2, py: 1.4, cursor: "pointer",
+                    display: "flex", alignItems: "center", gap: 1.8, px: 2.2, py: 1.4, cursor: "pointer",
                     transition: "background 0.13s",
                     "&:hover": { background: "#f7f7f9" },
                     "&:not(:last-child)": { borderBottom: "1px solid #f4f4f4" },
-                  }}
-                >
-                  <Box sx={{
-                    width: 34, height: 34, borderRadius: "10px",
-                    background: iconBg, flexShrink: 0,
-                    display: "flex", alignItems: "center", justifyContent: "center",
-                    boxShadow: "0 3px 10px rgba(0,0,0,0.14)",
                   }}>
+                  <Box sx={{ width: 34, height: 34, borderRadius: "10px", background: iconBg, flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 3px 10px rgba(0,0,0,0.14)" }}>
                     <Icon sx={{ fontSize: 16, color: "#fff" }} />
                   </Box>
                   <Box sx={{ flex: 1, overflow: "hidden" }}>
-                    <Typography sx={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontWeight: 700, fontSize: 13, color: "#1a1a2e",
-                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-                    }}>{label}</Typography>
-                    <Typography sx={{
-                      fontFamily: "'DM Sans', sans-serif",
-                      fontSize: 10.5, color: "#aaa",
-                    }}>{sublabel}</Typography>
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#aaa" }}>{sublabel}</Typography>
                   </Box>
                   <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ccc", transform: "rotate(180deg)", flexShrink: 0 }} />
                 </Box>
               ))
             ) : (
               <Box sx={{ px: 2.5, py: 2, textAlign: "center" }}>
-                <Typography sx={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontSize: 12.5, color: "#bbb", fontWeight: 500,
-                }}>No courses found for "{searchQuery}"</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "#bbb", fontWeight: 500 }}>No courses found for "{searchQuery}"</Typography>
               </Box>
             )}
           </Box>
@@ -319,12 +213,19 @@ const CourseSearchBar = ({ onNavigate, displayName }) => {
 
 /* ── main Dashboard ── */
 const Dashboard = () => {
-  const navigate   = useNavigate();
-  const location   = useLocation();
-  const muiTheme   = useTheme();
-  const isMobile   = useMediaQuery(muiTheme.breakpoints.down("md"));
+  const navigate  = useNavigate();
+  const location  = useLocation();
+  const muiTheme  = useTheme();
+  const isMobile  = useMediaQuery(muiTheme.breakpoints.down("md"));
 
-  const [activeView,   setActiveView]   = useState(VIEW_HOME);
+  // Persist admin status in a ref so it survives course-route changes.
+  // Once the user enters /admin-dashboard, isAdmin stays true for the
+  // lifetime of this component (i.e. the whole session).
+  const isAdminRef = useRef(location.pathname === "/admin-dashboard");
+  if (location.pathname === "/admin-dashboard") isAdminRef.current = true;
+  const isAdminRoute = isAdminRef.current;
+
+  const [activeView,   setActiveView]   = useState(isAdminRoute ? VIEW_ADMIN : VIEW_HOME);
   const [purchases,    setPurchases]    = useState([]);
   const [showPopup,    setShowPopup]    = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
@@ -344,17 +245,11 @@ const Dashboard = () => {
         const res = await axios.get(`${server}/api/user/profile`, {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
-        const name =
-          res.data?.fullName ||
-          res.data?.name ||
-          res.data?.username ||
-          localStorage.getItem("username") ||
-          "Student";
+        const name = res.data?.fullName || res.data?.name || res.data?.username || localStorage.getItem("username") || "Student";
         setUserName(name);
         localStorage.setItem("username", name);
       } catch {
-        const stored = localStorage.getItem("username") || "Student";
-        setUserName(stored);
+        setUserName(localStorage.getItem("username") || "Student");
       }
     };
     fetchUser();
@@ -395,76 +290,159 @@ const Dashboard = () => {
     return () => window.removeEventListener("storage", handleStorage);
   }, []);
 
+  // Block back button on admin dashboard
+  useEffect(() => {
+    if (isAdminRoute) {
+      window.history.pushState(null, "", window.location.href);
+      const blockBack = () => { window.history.pushState(null, "", window.location.href); };
+      window.addEventListener("popstate", blockBack);
+      return () => window.removeEventListener("popstate", blockBack);
+    }
+  }, [isAdminRoute]);
+
   const displayName = userName.includes("@")
     ? userName.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())
     : userName;
 
-  const initials = displayName
-    .split(" ").filter(Boolean).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
-
   const goView  = (view)  => { setActiveView(view); setMobileDrawer(false); };
   const goRoute = useCallback((route) => { navigate(route); setMobileDrawer(false); }, [navigate]);
-  const goBackToDashboard = () => { navigate("/dashboard"); setActiveView(VIEW_HOME); };
+  const goBackToDashboard = () => {
+    if (isAdminRoute) {
+      navigate("/admin-dashboard");
+      setActiveView(VIEW_ADMIN);
+    } else {
+      navigate("/dashboard");
+      setActiveView(VIEW_HOME);
+    }
+  };
 
-  /* ─────────────────────────────── SIDEBAR ─────────────────────────── */
-  const SidebarContent = () => (
+  /* ─────────── ADMIN SIDEBAR ─────────── */
+  const AdminSidebarContent = () => (
     <Box sx={{
       width: SIDEBAR_W, height: "100%",
       display: "flex", flexDirection: "column",
       background: "#fff",
       borderRight: "1.5px solid #f0f0f5",
       py: 0, overflow: "hidden",
-      position: "relative",
     }}>
+      {/* Logo / brand */}
+      <Box sx={{ px: 3, pt: 3, pb: 2, borderBottom: "1px solid #f0f0f5" }}>
+        <Typography sx={{
+          fontFamily: "'Playfair Display', serif", fontWeight: 800,
+          fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.5px",
+        }}>EduPortal</Typography>
+        <Typography sx={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700,
+          color: "#aaa", letterSpacing: "1.4px", textTransform: "uppercase", mt: 0.3,
+        }}>Admin Panel</Typography>
+      </Box>
 
-      <Box sx={{ px: 3, mb: 1.5, pt: 2.5, display: "flex", alignItems: "center", gap: 1 }}>
+      {/* My Courses section */}
+      <Box sx={{ px: 3, mt: 2, mb: 1 }}>
         <Typography sx={{
           fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
           color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase",
         }}>My Courses</Typography>
+      </Box>
+      <Box sx={{ px: 1.5, pb: 1 }}>
+        {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }) => (
+          <Box key={route} onClick={() => goRoute(route)}
+            sx={{
+              display: "flex", alignItems: "center", gap: 1.5,
+              px: 1.5, py: 1.2, borderRadius: "14px", cursor: "pointer", mb: 0.5,
+              transition: "all 0.18s ease",
+              "&:hover": { background: "#f7f7fb", transform: "translateX(4px)" },
+            }}>
+            <Box sx={{
+              width: 34, height: 34, borderRadius: "11px", background: iconBg,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, boxShadow: "0 3px 10px rgba(0,0,0,0.12)",
+            }}>
+              <Icon sx={{ fontSize: 16, color: "#fff" }} />
+            </Box>
+            <Box sx={{ overflow: "hidden", flex: 1 }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#aaa" }}>{sublabel}</Typography>
+            </Box>
+            <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ccc", transform: "rotate(180deg)", flexShrink: 0 }} />
+          </Box>
+        ))}
+      </Box>
+
+      <Box sx={{ mx: 2, my: 1, height: "1px", background: "#f0f0f5" }} />
+
+      {/* Admin Nav section */}
+      <Box sx={{ px: 3, mb: 1 }}>
+        <Typography sx={{
+          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
+          color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase",
+        }}>Management</Typography>
+      </Box>
+      <Box sx={{ px: 1.5, flex: 1, overflowY: "auto", pb: 2 }}>
+        {ADMIN_NAV.map(({ icon: Icon, title, view }) => {
+          const isActive = activeView === view;
+          return (
+            <Box key={view} onClick={() => goView(view)}
+              sx={{
+                display: "flex", alignItems: "center", gap: 1.5,
+                px: 1.5, py: 1.2, borderRadius: "14px", cursor: "pointer", mb: 0.5,
+                background: isActive ? "#1a1a2e" : "transparent",
+                transition: "all 0.18s ease",
+                "&:hover": { background: isActive ? "#1a1a2e" : "#f7f7fb", transform: isActive ? "none" : "translateX(4px)" },
+              }}>
+              <Box sx={{
+                width: 34, height: 34, borderRadius: "11px",
+                background: isActive ? "rgba(255,255,255,0.15)" : "#f0f0f5",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                <Icon sx={{ fontSize: 16, color: isActive ? "#fff" : "#555" }} />
+              </Box>
+              <Typography sx={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+                fontWeight: 700, color: isActive ? "#fff" : "#1a1a2e",
+              }}>{title}</Typography>
+              {isActive && (
+                <Box sx={{ ml: "auto", width: 6, height: 6, borderRadius: "50%", background: "#fff", flexShrink: 0 }} />
+              )}
+            </Box>
+          );
+        })}
+      </Box>
+    </Box>
+  );
+
+  /* ─────────── REGULAR SIDEBAR ─────────── */
+  const SidebarContent = () => (
+    <Box sx={{
+      width: SIDEBAR_W, height: "100%",
+      display: "flex", flexDirection: "column",
+      background: "#fff", borderRight: "1.5px solid #f0f0f5",
+      py: 0, overflow: "hidden", position: "relative",
+    }}>
+      <Box sx={{ px: 3, mb: 1.5, pt: 2.5, display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800, color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase" }}>My Courses</Typography>
         <Box sx={{ flex: 1, height: "1px", background: "#f0f0f5" }} />
       </Box>
 
       <Box sx={{ px: 1.5, flex: 1, overflowY: "auto", pb: 1 }}>
         {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }) => (
-          <Box
-            key={route}
-            onClick={() => goRoute(route)}
+          <Box key={route} onClick={() => goRoute(route)}
             sx={{
               display: "flex", alignItems: "center", gap: 1.5,
-              px: 1.5, py: 1.2, borderRadius: "14px",
-              cursor: "pointer", mb: 0.5,
+              px: 1.5, py: 1.2, borderRadius: "14px", cursor: "pointer", mb: 0.5,
               transition: "all 0.18s ease",
-              "&:hover": {
-                background: "#f7f7fb",
-                transform: "translateX(4px)",
-                "& .course-icon-box": { transform: "scale(1.08)" },
-              },
-            }}
-          >
-            <Box
-              className="course-icon-box"
-              sx={{
-                width: 38, height: 38, borderRadius: "11px",
-                background: iconBg,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0,
-                boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
-                transition: "transform 0.18s ease",
-              }}
-            >
+              "&:hover": { background: "#f7f7fb", transform: "translateX(4px)", "& .course-icon-box": { transform: "scale(1.08)" } },
+            }}>
+            <Box className="course-icon-box" sx={{
+              width: 38, height: 38, borderRadius: "11px", background: iconBg,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0, boxShadow: "0 4px 12px rgba(0,0,0,0.12)", transition: "transform 0.18s ease",
+            }}>
               <Icon sx={{ fontSize: 19, color: "#fff" }} />
             </Box>
             <Box sx={{ overflow: "hidden", flex: 1 }}>
-              <Typography sx={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
-                fontWeight: 700, color: "#1a1a2e",
-                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
-              }}>{label}</Typography>
-              <Typography sx={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 11,
-                color: "#aaa", fontWeight: 400,
-              }}>{sublabel}</Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#aaa", fontWeight: 400 }}>{sublabel}</Typography>
             </Box>
             <ArrowBackIosNewIcon sx={{ fontSize: 10, color: "#ccc", transform: "rotate(180deg)", flexShrink: 0 }} />
           </Box>
@@ -474,29 +452,16 @@ const Dashboard = () => {
       <Box sx={{ mx: 2, my: 1.5, height: "1px", background: "#f0f0f5" }} />
 
       <Box sx={{ px: 2.5, pb: 12 }}>
-        <Typography sx={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
-          color: "#c0c0cc", letterSpacing: "1.4px", textTransform: "uppercase", mb: 1.5,
-        }}>Connect With Us</Typography>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800, color: "#c0c0cc", letterSpacing: "1.4px", textTransform: "uppercase", mb: 1.5 }}>Connect With Us</Typography>
         <Box sx={{ display: "flex", gap: 1 }}>
           {SOCIAL.map(({ Icon, color, href, label }) => (
-            <Box
-              key={href} component="a" href={href}
-              target="_blank" rel="noopener" aria-label={label}
+            <Box key={href} component="a" href={href} target="_blank" rel="noopener" aria-label={label}
               sx={{
-                width: 36, height: 36, borderRadius: "11px",
-                border: "1.5px solid #f0f0f5", color,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                background: "#fafafa",
+                width: 36, height: 36, borderRadius: "11px", border: "1.5px solid #f0f0f5", color,
+                display: "flex", alignItems: "center", justifyContent: "center", background: "#fafafa",
                 transition: "all 0.2s ease",
-                "&:hover": {
-                  background: color, color: "#fff",
-                  border: `1.5px solid ${color}`,
-                  transform: "translateY(-3px)",
-                  boxShadow: `0 6px 16px ${color}40`,
-                },
-              }}
-            >
+                "&:hover": { background: color, color: "#fff", border: `1.5px solid ${color}`, transform: "translateY(-3px)", boxShadow: `0 6px 16px ${color}40` },
+              }}>
               <Icon sx={{ fontSize: 17 }} />
             </Box>
           ))}
@@ -505,96 +470,48 @@ const Dashboard = () => {
     </Box>
   );
 
-  /* ─────────────────────── HOME VIEW ──────────────────────────────── */
-  /* NOTE: HomeView stays inside Dashboard but NO longer contains the
-     search bar or the greeting — those live in CourseSearchBar above.
-     This means state changes from typing do NOT touch HomeView at all. */
+  /* ─────────── HOME VIEW ─────────── */
   const HomeView = () => (
     <Fade in timeout={600}>
       <Box>
-        {/* Search bar + greeting — stable top-level component, never re-mounts */}
         <CourseSearchBar onNavigate={goRoute} displayName={displayName} />
 
-        {/* Section cards */}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
           {SECTIONS.map(({ icon: Icon, title, desc, view, accent, tag }) => (
-            <Box
-              key={title}
-              className="card-hover"
-              onClick={() => goView(view)}
+            <Box key={title} className="card-hover" onClick={() => goView(view)}
               sx={{
-                background: "#fff", border: "1px solid #f0f0f0",
-                borderRadius: "20px", p: 3, cursor: "pointer",
-                display: "flex", flexDirection: "column", gap: 2,
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: 3, cursor: "pointer",
+                display: "flex", flexDirection: "column", gap: 2, boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                 position: "relative", overflow: "hidden",
-              }}
-            >
-              <Box sx={{
-                position: "absolute", top: 18, right: 18,
-                px: 1.2, py: 0.3, borderRadius: "8px", background: "#f4f4f6",
-                fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
-                color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase",
-              }}>{tag}</Box>
-
-              <Box sx={{
-                width: 46, height: 46, borderRadius: "14px", background: accent,
-                display: "flex", alignItems: "center", justifyContent: "center",
               }}>
+              <Box sx={{ position: "absolute", top: 18, right: 18, px: 1.2, py: 0.3, borderRadius: "8px", background: "#f4f4f6", fontSize: 10, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase" }}>{tag}</Box>
+              <Box sx={{ width: 46, height: 46, borderRadius: "14px", background: accent, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Icon sx={{ color: "#fff", fontSize: 22 }} />
               </Box>
-
               <Box>
-                <Typography sx={{
-                  fontFamily: "'Playfair Display', serif", fontWeight: 700,
-                  fontSize: 17, color: "#1a1a2e", mb: 0.5, letterSpacing: "-0.3px",
-                }}>{title}</Typography>
-                <Typography sx={{
-                  fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#aaa", lineHeight: 1.6,
-                }}>{desc}</Typography>
+                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 17, color: "#1a1a2e", mb: 0.5, letterSpacing: "-0.3px" }}>{title}</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#aaa", lineHeight: 1.6 }}>{desc}</Typography>
               </Box>
-
-              <Box sx={{
-                display: "inline-flex", alignItems: "center",
-                fontSize: 12, fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 700, color: accent, letterSpacing: "0.3px",
-              }}>Open →</Box>
+              <Box sx={{ display: "inline-flex", alignItems: "center", fontSize: 12, fontFamily: "'DM Sans', sans-serif", fontWeight: 700, color: accent, letterSpacing: "0.3px" }}>Open →</Box>
             </Box>
           ))}
         </Box>
 
-        {/* Quick access course pills */}
         <Box sx={{ mt: 4 }}>
-          <Typography sx={{
-            fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 11,
-            color: "#c0c0c8", letterSpacing: "1.5px", textTransform: "uppercase", mb: 2,
-          }}>Quick Access — Courses</Typography>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 11, color: "#c0c0c8", letterSpacing: "1.5px", textTransform: "uppercase", mb: 2 }}>Quick Access — Courses</Typography>
           <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
             {QUICK_COURSES.map(({ label, route, icon: Icon, iconBg }) => (
-              <Box
-                key={label}
-                onClick={() => goRoute(route)}
+              <Box key={label} onClick={() => goRoute(route)}
                 sx={{
-                  display: "flex", alignItems: "center", gap: 1,
-                  pl: 1, pr: 2.5, py: 0.8,
-                  borderRadius: "30px",
-                  border: "1px solid #e8e8e8", background: "#fff",
-                  cursor: "pointer",
+                  display: "flex", alignItems: "center", gap: 1, pl: 1, pr: 2.5, py: 0.8,
+                  borderRadius: "30px", border: "1px solid #e8e8e8", background: "#fff", cursor: "pointer",
                   transition: "all 0.18s ease",
                   "&:hover": { background: "#1a1a2e", color: "#fff", border: "1px solid #1a1a2e" },
-                }}
-              >
-                <Box sx={{
-                  width: 24, height: 24, borderRadius: "8px",
-                  background: iconBg,
-                  display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}>
+                <Box sx={{ width: 24, height: 24, borderRadius: "8px", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <Icon sx={{ fontSize: 13, color: "#fff" }} />
                 </Box>
-                <Typography sx={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 600, fontSize: 13, color: "inherit",
-                }}>{label}</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, color: "inherit" }}>{label}</Typography>
               </Box>
             ))}
           </Box>
@@ -603,27 +520,18 @@ const Dashboard = () => {
     </Fade>
   );
 
-  /* ─────────────────── SUB-VIEW BACK HEADER ───────────────────────── */
+  /* ─────────── SUB-VIEW BACK HEADER ─────────── */
   const SubViewHeader = ({ title }) => (
     <Box sx={{ display: "flex", alignItems: "center", gap: 2, mb: 3 }}>
-      <IconButton
-        onClick={() => goView(VIEW_HOME)}
-        sx={{
-          background: "#f7f7f9", border: "1px solid #ebebeb",
-          width: 36, height: 36, borderRadius: "10px",
-          "&:hover": { background: "#ebebeb" },
-        }}
-      >
+      <IconButton onClick={() => goView(isAdminRoute ? VIEW_ADMIN : VIEW_HOME)}
+        sx={{ background: "#f7f7f9", border: "1px solid #ebebeb", width: 36, height: 36, borderRadius: "10px", "&:hover": { background: "#ebebeb" } }}>
         <ArrowBackIosNewIcon sx={{ fontSize: 14, color: "#1a1a2e" }} />
       </IconButton>
-      <Typography sx={{
-        fontFamily: "'Playfair Display', serif",
-        fontWeight: 700, fontSize: 22, color: "#1a1a2e", letterSpacing: "-0.5px",
-      }}>{title}</Typography>
+      <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 22, color: "#1a1a2e", letterSpacing: "-0.5px" }}>{title}</Typography>
     </Box>
   );
 
-  /* ─────────────────────────── RENDER ─────────────────────────────── */
+  /* ─────────── RENDER ─────────── */
   return (
     <>
       <style>{`
@@ -642,65 +550,54 @@ const Dashboard = () => {
 
         <Box sx={{ display: "flex", height: "100vh", background: "#fafafa", overflow: "hidden" }}>
 
+          {/* ── SIDEBAR ── */}
           {!isCourseRoute && (
             <>
               {!isMobile ? (
                 <Box sx={{ width: SIDEBAR_W, flexShrink: 0, height: "100vh" }}>
-                  <SidebarContent />
+                  {isAdminRoute ? <AdminSidebarContent /> : <SidebarContent />}
                 </Box>
               ) : (
-                <Drawer
-                  anchor="left" open={mobileDrawer}
-                  onClose={() => setMobileDrawer(false)}
-                  PaperProps={{ sx: { width: SIDEBAR_W, border: "none" } }}
-                >
-                  <SidebarContent />
+                <Drawer anchor="left" open={mobileDrawer} onClose={() => setMobileDrawer(false)}
+                  PaperProps={{ sx: { width: SIDEBAR_W, border: "none" } }}>
+                  {isAdminRoute ? <AdminSidebarContent /> : <SidebarContent />}
                 </Drawer>
               )}
             </>
           )}
 
+          {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
+            {/* Mobile top bar */}
             {!isCourseRoute && isMobile && (
-              <Box sx={{
-                height: 52, background: "#fff", borderBottom: "1px solid #f0f0f0",
-                display: "flex", alignItems: "center", px: 2, flexShrink: 0,
-              }}>
+              <Box sx={{ height: 52, background: "#fff", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", px: 2, flexShrink: 0 }}>
                 <IconButton onClick={() => setMobileDrawer(true)} sx={{ color: "#333" }}>
                   <MenuIcon sx={{ fontSize: 22 }} />
                 </IconButton>
-                <Typography sx={{
-                  fontFamily: "'Playfair Display', serif",
-                  fontWeight: 700, fontSize: 16, color: "#1a1a2e", ml: 1,
-                }}>EduPortal</Typography>
+                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", ml: 1 }}>
+                  {isAdminRoute ? "Admin Panel" : "EduPortal"}
+                </Typography>
               </Box>
             )}
 
+            {/* Course route back button */}
             {isCourseRoute && (
-              <Box sx={{
-                height: 56, background: "#fff", borderBottom: "1px solid #f0f0f0",
-                display: "flex", alignItems: "center", px: 3, flexShrink: 0,
-              }}>
-                <Button
-                  onClick={goBackToDashboard}
+              <Box sx={{ height: 56, background: "#fff", borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", px: 3, flexShrink: 0 }}>
+                <Button onClick={goBackToDashboard}
                   startIcon={<ArrowBackIosNewIcon sx={{ fontSize: "13px !important" }} />}
-                  sx={{
-                    color: "#1a1a2e", textTransform: "none",
-                    fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13,
-                    borderRadius: "10px", px: 2, py: 0.8,
-                    border: "1px solid #ebebeb",
-                    "&:hover": { background: "#f7f7f9" },
-                  }}
-                >Back to Dashboard</Button>
+                  sx={{ color: "#1a1a2e", textTransform: "none", fontFamily: "'DM Sans', sans-serif", fontWeight: 600, fontSize: 13, borderRadius: "10px", px: 2, py: 0.8, border: "1px solid #ebebeb", "&:hover": { background: "#f7f7f9" } }}>
+                  Back to Dashboard
+                </Button>
               </Box>
             )}
 
+            {/* Scrollable content */}
             <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>
 
               <Routes>
                 <Route path="/auth"            element={<Authentication />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/admin-dashboard" element={<></>} />
                 <Route path="/dsac"            element={<Dsaclass />} />
                 <Route path="/cou"             element={<Courses />} />
                 <Route path="/pre"             element={<PreBatch />} />
@@ -708,7 +605,29 @@ const Dashboard = () => {
                 <Route path="/col"             element={<ColBatch />} />
               </Routes>
 
-              {!isCourseRoute && (
+              {/* Admin views */}
+              {isAdminRoute && !isCourseRoute && (
+                <>
+                  {activeView === VIEW_ADMIN && (
+                    <Fade in timeout={400}><Box><AdminDashboard /></Box></Fade>
+                  )}
+                  {activeView === VIEW_MYBATCHES && (
+                    <Fade in timeout={400}><Box><SubViewHeader title="My Batches" /><MyBatchesPage /></Box></Fade>
+                  )}
+                  {activeView === VIEW_NOTIFICATIONS && (
+                    <Fade in timeout={400}><Box><SubViewHeader title="Notifications" /><NotificationPage /></Box></Fade>
+                  )}
+                  {activeView === VIEW_DOUBTS && (
+                    <Fade in timeout={400}><Box><SubViewHeader title="Doubt / Issue" /><DoubtPage /></Box></Fade>
+                  )}
+                  {activeView === VIEW_PAYMENTS && (
+                    <Fade in timeout={400}><Box><SubViewHeader title="Payments" /><PaymentsPage /></Box></Fade>
+                  )}
+                </>
+              )}
+
+              {/* Normal user views */}
+              {!isCourseRoute && !isAdminRoute && (
                 <>
                   {activeView === VIEW_HOME && <HomeView />}
                   {activeView === VIEW_MYBATCHES && (
@@ -729,13 +648,8 @@ const Dashboard = () => {
           </Box>
         </Box>
 
-        <Snackbar
-          open={showPopup} autoHideDuration={4000}
-          onClose={() => setShowPopup(false)}
-          anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-        >
-          <Alert severity="info" onClose={() => setShowPopup(false)}
-            sx={{ fontFamily: "'DM Sans', sans-serif" }}>
+        <Snackbar open={showPopup} autoHideDuration={4000} onClose={() => setShowPopup(false)} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
+          <Alert severity="info" onClose={() => setShowPopup(false)} sx={{ fontFamily: "'DM Sans', sans-serif" }}>
             🔔 {popupMessage || "New Notification Received!"}
           </Alert>
         </Snackbar>
