@@ -57,9 +57,9 @@ const SECTIONS = [
 ];
 
 const SOCIAL = [
-  { Icon: LinkedInIcon,  color: "#0077b5", href: "https://whatsapp.com/channel/0029VbBV3BB5kg732Ch60Q1R", label: "LinkedIn" },
+  { Icon: LinkedInIcon,  color: "#0077b5", href: "https://www.linkedin.com/in/lav-yadav-90476981?utm_source=share_via&utm_content=profile&utm_medium=member_android", label: "LinkedIn" },
   { Icon: WhatsAppIcon,  color: "#25D366", href: "https://whatsapp.com/channel/0029VbBV3BB5kg732Ch60Q1R", label: "WhatsApp" },
-  { Icon: InstagramIcon, color: "#E4405F", href: "https://www.instagram.com/crrack_it?igsh=MWI5d2FodmJocjFvbw==", label: "Instagram" },
+  { Icon: InstagramIcon, color: "#E4405F", href: "https://www.instagram.com/crackhub.in?igsh=MW56d2poODJ0ZWtwdA==", label: "Instagram" },
   { Icon: TelegramIcon,  color: "#0088cc", href: "https://t.me/+PiG4n-LCEw0yMDg1", label: "Telegram" },
 ];
 

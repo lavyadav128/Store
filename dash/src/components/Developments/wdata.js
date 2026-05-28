@@ -2722,7 +2722,7 @@ const questionsData = {
 "interview":[
   {
     title: "Give me your introduction.",
-    answer: "Start confidently: 'I am Lav Kumar Yadav, a Civil Engineering student at IIT (ISM) Dhanbad with strong interest in Software Development and Full-Stack Engineering. I have built projects like NoteNova, Stock Trading Web App, and worked on ConvergeFi website redevelopment during my internship at Marketing Tusk. My core skills are React.js, Node.js, MongoDB, SQL, APIs, and DSA. I have solved 300+ LeetCode problems and enjoy building scalable real-world applications.'"
+    answer: "Start confidently: 'I am Your name, a Branch and College Name with strong interest in Software Development and Full-Stack Engineering. I have built projects like NoteNova, Stock Trading Web App, and worked on ConvergeFi website redevelopment during my internship at Marketing Tusk. My core skills are React.js, Node.js, MongoDB, SQL, APIs, and DSA. I have solved 300+ LeetCode problems and enjoy building scalable real-world applications.'"
   },
 
   {

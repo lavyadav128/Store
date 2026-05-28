@@ -1487,7 +1487,7 @@ const questionsData = {
   "consulting": [
     {
       "title": "Give me your introduction.",
-      "answer": "I am Lav Kumar Yadav, a Civil Engineering student at IIT (ISM) Dhanbad with a strong interest in consulting, data analytics, and business problem solving. I have worked on projects like retail customer behavior analysis, financial dashboards, and e-commerce analytics using Python, SQL, Power BI, and Excel. I enjoy breaking complex business problems into structured steps, analyzing data, and presenting insights that help in decision-making. I also have strong problem-solving skills with 300+ DSA problems solved."
+      "answer": "I am Your name, a Branch and college name with a strong interest in consulting, data analytics, and business problem solving. I have worked on projects like retail customer behavior analysis, financial dashboards, and e-commerce analytics using Python, SQL, Power BI, and Excel. I enjoy breaking complex business problems into structured steps, analyzing data, and presenting insights that help in decision-making. I also have strong problem-solving skills with 300+ DSA problems solved."
     },
     {
       "title": "Why consulting?",
@@ -1596,7 +1596,7 @@ const questionsData = {
     "interviewdata":[
   {
     title: "Give me your introduction.",
-    answer: "Start confidently: 'I am Lav Kumar Yadav, a Civil Engineering student at IIT (ISM) Dhanbad with strong interest in Data Analytics and Business Intelligence. I have built projects like Retail Customer Behavior Analysis, Credit Card Financial Dashboard, and Madhav E-Commerce Sales Dashboard using Python, SQL, Power BI, Tableau, and Excel. My core skills include data cleaning, visualization, SQL analysis, dashboard creation, and machine learning basics. I have solved 300+ DSA problems and enjoy converting raw data into meaningful business insights.'"
+    answer: "Start confidently: 'I am Your name, a Branch and college name with strong interest in Data Analytics and Business Intelligence. I have built projects like Retail Customer Behavior Analysis, Credit Card Financial Dashboard, and Madhav E-Commerce Sales Dashboard using Python, SQL, Power BI, Tableau, and Excel. My core skills include data cleaning, visualization, SQL analysis, dashboard creation, and machine learning basics. I have solved 300+ DSA problems and enjoy converting raw data into meaningful business insights.'"
   },
 
   {
