@@ -808,9 +808,9 @@ const Dashboard = () => {
           })}
 
           {/* ── LOGOUT BUTTON — mobile drawer only ── */}
-          {!isAdminRoute && (
+          {(
             <Box
-              onClick={handleLogout} // ← uses the centralized complete logout handler
+              onClick={handleLogout}
               className="drawer-item-in"
               style={{ animationDelay: "0.45s" }}
               sx={{
