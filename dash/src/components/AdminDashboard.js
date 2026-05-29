@@ -425,7 +425,6 @@
 
 
 
-
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -440,6 +439,7 @@ import {
   DialogContent,
   Fade,
   Checkbox,
+  IconButton,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -447,9 +447,25 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import TrackChangesIcon from "@mui/icons-material/TrackChanges";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddIcon from "@mui/icons-material/Add";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import server from "../environment";
 import { useLocation } from "react-router-dom";
+
+/* ── Motivational quotes pool ── */
+const MOTIVATIONAL_QUOTES = [
+  { quote: "The secret of getting ahead is getting started.", author: "Mark Twain" },
+  { quote: "It always seems impossible until it's done.", author: "Nelson Mandela" },
+  { quote: "Don't watch the clock; do what it does. Keep going.", author: "Sam Levenson" },
+  { quote: "Success is not final, failure is not fatal: it is the courage to continue that counts.", author: "Winston Churchill" },
+  { quote: "Believe you can and you're halfway there.", author: "Theodore Roosevelt" },
+  { quote: "The harder I work, the luckier I get.", author: "Samuel Goldwyn" },
+  { quote: "Great things never come from comfort zones.", author: "Anonymous" },
+  { quote: "Dream it. Wish it. Do it.", author: "Anonymous" },
+  { quote: "Push yourself, because no one else is going to do it for you.", author: "Anonymous" },
+  { quote: "Wake up with determination. Go to bed with satisfaction.", author: "Anonymous" },
+];
 
 const AdminDashboard = () => {
   const [message,      setMessage]      = useState("");
@@ -478,7 +494,35 @@ const AdminDashboard = () => {
   });
   const [newTask, setNewTask] = useState("");
 
+  // ── Motivational flash state ──
+  const [showMotivation, setShowMotivation] = useState(true);
+  const [motivationQuote] = useState(
+    () => MOTIVATIONAL_QUOTES[Math.floor(Math.random() * MOTIVATIONAL_QUOTES.length)]
+  );
+  const [motivationProgress, setMotivationProgress] = useState(100);
+
   const location = useLocation();
+
+  /* ── Motivational banner: 20-second timer + progress bar ── */
+  useEffect(() => {
+    setShowMotivation(true);
+    setMotivationProgress(100);
+
+    const totalMs = 20000;
+    const interval = 100;
+    let elapsed = 0;
+
+    const ticker = setInterval(() => {
+      elapsed += interval;
+      setMotivationProgress(Math.max(0, 100 - (elapsed / totalMs) * 100));
+      if (elapsed >= totalMs) {
+        clearInterval(ticker);
+        setShowMotivation(false);
+      }
+    }, interval);
+
+    return () => clearInterval(ticker);
+  }, []);
 
   /* ── persist aims ── */
   useEffect(() => {
@@ -558,6 +602,11 @@ const AdminDashboard = () => {
     setAims((prev) => prev.map((a) => a.id === id ? { ...a, completed: !a.completed } : a));
   };
 
+  /* ── delete aim ── */
+  const deleteAim = (id) => {
+    setAims((prev) => prev.filter((a) => a.id !== id));
+  };
+
   /* ── add task ── */
   const addTask = () => {
     if (!newTask.trim()) return;
@@ -568,6 +617,11 @@ const AdminDashboard = () => {
   /* ── toggle task ── */
   const toggleTask = (id) => {
     setTasks((prev) => prev.map((t) => t.id === id ? { ...t, completed: !t.completed } : t));
+  };
+
+  /* ── delete task ── */
+  const deleteTask = (id) => {
+    setTasks((prev) => prev.filter((t) => t.id !== id));
   };
 
   const unrepliedCount = doubts.filter((d) => !d.replied).length;
@@ -583,7 +637,7 @@ const AdminDashboard = () => {
   });
 
   /* ── shared modal content renderer ── */
-  const renderListModal = ({ open, onClose, title, icon, items, newVal, setNewVal, onAdd, onToggle, placeholder }) => (
+  const renderListModal = ({ open, onClose, title, icon, items, newVal, setNewVal, onAdd, onToggle, onDelete, placeholder }) => (
     <Dialog
       open={open}
       onClose={onClose}
@@ -696,6 +750,23 @@ const AdminDashboard = () => {
                   </Typography>
                 </Box>
               )}
+              {/* ── DELETE BUTTON ── */}
+              <IconButton
+                onClick={() => onDelete(item.id)}
+                size="small"
+                sx={{
+                  color: "#ccc",
+                  borderRadius: "8px",
+                  p: 0.6,
+                  "&:hover": {
+                    color: "#e53935",
+                    background: "#fff0f0",
+                  },
+                  transition: "all 0.18s ease",
+                }}
+              >
+                <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+              </IconButton>
             </Box>
           ))
         )}
@@ -710,7 +781,128 @@ const AdminDashboard = () => {
         * { box-sizing: border-box; }
         .admin-card { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease !important; }
         .admin-card:hover { transform: translateY(-4px) !important; box-shadow: 0 18px 48px rgba(0,0,0,0.10) !important; }
+
+        @keyframes motivationSlideDown {
+          from { opacity: 0; transform: translateY(-30px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)    scale(1);    }
+        }
+        @keyframes motivationFadeOut {
+          from { opacity: 1; transform: scale(1); }
+          to   { opacity: 0; transform: scale(0.96); }
+        }
+        @keyframes shimmer {
+          0%   { background-position: -400px 0; }
+          100% { background-position:  400px 0; }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50%       { opacity: 0.5; }
+        }
+        .motivation-banner {
+          animation: motivationSlideDown 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+        .motivation-banner.hiding {
+          animation: motivationFadeOut 0.4s ease forwards;
+        }
       `}</style>
+
+      {/* ── MOTIVATIONAL FLASH BANNER ── */}
+      {showMotivation && (
+        <Box
+          className="motivation-banner"
+          sx={{
+            position: "fixed",
+            top: { xs: 12, sm: 24 },
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 9999,
+            width: { xs: "calc(100% - 32px)", sm: "560px" },
+            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+            borderRadius: "22px",
+            p: { xs: 2.5, sm: 3.5 },
+            boxShadow: "0 24px 80px rgba(15,52,96,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+            overflow: "hidden",
+          }}
+        >
+          {/* Shimmer decoration */}
+          <Box sx={{
+            position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.04), transparent)",
+            backgroundSize: "400px 100%",
+            animation: "shimmer 2.5s infinite linear",
+            pointerEvents: "none",
+          }} />
+
+          {/* Top row: label + close */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+              <Box sx={{
+                width: 8, height: 8, borderRadius: "50%",
+                background: "#ffd700",
+                animation: "pulse 1.4s infinite",
+              }} />
+              <Typography sx={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 10, fontWeight: 800,
+                color: "rgba(255,215,0,0.8)",
+                letterSpacing: "2px", textTransform: "uppercase",
+              }}>
+                Daily Motivation
+              </Typography>
+            </Box>
+            <IconButton
+              onClick={() => setShowMotivation(false)}
+              size="small"
+              sx={{
+                color: "rgba(255,255,255,0.35)", p: 0.4,
+                "&:hover": { color: "#fff", background: "rgba(255,255,255,0.08)" },
+                borderRadius: "8px",
+              }}
+            >
+              <CloseIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          </Box>
+
+          {/* Quote text */}
+          <Typography sx={{
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 800,
+            fontSize: { xs: 18, sm: 22 },
+            color: "#fff",
+            lineHeight: 1.35,
+            letterSpacing: "-0.5px",
+            mb: 1.2,
+          }}>
+            "{motivationQuote.quote}"
+          </Typography>
+
+          {/* Author */}
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 12, fontWeight: 600,
+            color: "rgba(255,255,255,0.45)",
+            mb: 2,
+          }}>
+            — {motivationQuote.author}
+          </Typography>
+
+          {/* Progress bar (20-second countdown) */}
+          <Box sx={{
+            height: "3px",
+            background: "rgba(255,255,255,0.1)",
+            borderRadius: "4px",
+            overflow: "hidden",
+          }}>
+            <Box sx={{
+              height: "100%",
+              width: `${motivationProgress}%`,
+              background: "linear-gradient(90deg, #ffd700, #ffaa00)",
+              borderRadius: "4px",
+              transition: "width 0.1s linear",
+            }} />
+          </Box>
+        </Box>
+      )}
 
       <Fade in timeout={500}>
         <Box>
@@ -1119,6 +1311,7 @@ const AdminDashboard = () => {
         setNewVal: setNewAim,
         onAdd: addAim,
         onToggle: toggleAim,
+        onDelete: deleteAim,
         placeholder: "Add your aim in life…",
       })}
 
@@ -1133,6 +1326,7 @@ const AdminDashboard = () => {
         setNewVal: setNewTask,
         onAdd: addTask,
         onToggle: toggleTask,
+        onDelete: deleteTask,
         placeholder: "Add your today's task…",
       })}
 
