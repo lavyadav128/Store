@@ -812,16 +812,39 @@ const AdminDashboard = () => {
           className="motivation-banner"
           sx={{
             position: "fixed",
-            top: { xs: 12, sm: 24 },
+            top: { xs: 10, sm: 24 },
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 9999,
-            width: { xs: "calc(100% - 32px)", sm: "560px" },
-            background: "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-            borderRadius: "22px",
-            p: { xs: 2.5, sm: 3.5 },
-            boxShadow: "0 24px 80px rgba(15,52,96,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+          
+            width: {
+              xs: "92%",
+              sm: "560px",
+            },
+          
+            maxWidth: "560px",
+          
+            background:
+              "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
+          
+            borderRadius: {
+              xs: "18px",
+              sm: "22px",
+            },
+          
+            p: {
+              xs: 2,
+              sm: 3.5,
+            },
+          
+            boxShadow:
+              "0 24px 80px rgba(15,52,96,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
+          
             overflow: "hidden",
+          
+            backdropFilter: "blur(12px)",
+          
+            mx: "auto",
           }}
         >
           {/* Shimmer decoration */}
@@ -867,9 +890,12 @@ const AdminDashboard = () => {
           <Typography sx={{
             fontFamily: "'Playfair Display', serif",
             fontWeight: 800,
-            fontSize: { xs: 18, sm: 22 },
+            fontSize: { xs: 15, sm: 22 },
             color: "#fff",
-            lineHeight: 1.35,
+            lineHeight: {
+              xs: 1.5,
+              sm: 1.35,
+            },
             letterSpacing: "-0.5px",
             mb: 1.2,
           }}>
@@ -879,7 +905,11 @@ const AdminDashboard = () => {
           {/* Author */}
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif",
-            fontSize: 12, fontWeight: 600,
+            fontSize: {
+              xs: 11,
+              sm: 12,
+            },
+            fontWeight: 600,
             color: "rgba(255,255,255,0.45)",
             mb: 2,
           }}>
