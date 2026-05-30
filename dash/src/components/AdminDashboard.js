@@ -812,39 +812,13 @@ const AdminDashboard = () => {
           className="motivation-banner"
           sx={{
             position: "fixed",
-            top: { xs: 10, sm: 24 },
+            top: { xs: 8, sm: 24 },
             left: "50%",
             transform: "translateX(-50%)",
             zIndex: 9999,
-          
-            width: {
-              xs: "92%",
-              sm: "560px",
-            },
-          
-            maxWidth: "560px",
-          
-            background:
-              "linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)",
-          
-            borderRadius: {
-              xs: "18px",
-              sm: "22px",
-            },
-          
-            p: {
-              xs: 2,
-              sm: 3.5,
-            },
-          
-            boxShadow:
-              "0 24px 80px rgba(15,52,96,0.45), 0 0 0 1px rgba(255,255,255,0.06)",
-          
-            overflow: "hidden",
-          
-            backdropFilter: "blur(12px)",
-          
-            mx: "auto",
+            width: { xs: "calc(100vw - 24px)", sm: "560px" },
+            maxWidth: { xs: "none", sm: "560px" },
+            mx: 0,
           }}
         >
           {/* Shimmer decoration */}
