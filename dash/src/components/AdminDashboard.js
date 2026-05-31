@@ -1,3 +1,6 @@
+
+
+
 // import React, { useState, useEffect } from "react";
 // import {
 //   Box,
@@ -11,13 +14,21 @@
 //   DialogTitle,
 //   DialogContent,
 //   Fade,
+//   Checkbox,
+//   IconButton,
 // } from "@mui/material";
 // import SendIcon from "@mui/icons-material/Send";
 // import ForumIcon from "@mui/icons-material/Forum";
 // import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+// import TrackChangesIcon from "@mui/icons-material/TrackChanges";
+// import AssignmentIcon from "@mui/icons-material/Assignment";
+// import AddIcon from "@mui/icons-material/Add";
+// import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
+// import CloseIcon from "@mui/icons-material/Close";
 // import axios from "axios";
 // import server from "../environment";
 // import { useLocation } from "react-router-dom";
+
 
 // const AdminDashboard = () => {
 //   const [message,      setMessage]      = useState("");
@@ -30,7 +41,46 @@
 //   const [replyText,  setReplyText]  = useState({});
 //   const [openDoubts, setOpenDoubts] = useState(false);
 
+//   // ── Aims state ──
+//   const [openAims,  setOpenAims]  = useState(false);
+//   const [aims, setAims] = useState(() => {
+//     try {
+//       const stored = localStorage.getItem("admin_aims");
+//       if (stored) {
+//         const parsed = JSON.parse(stored);
+//         if (Array.isArray(parsed)) return parsed;
+//       }
+//     } catch {}
+//     return [];
+//   });
+//   const [newAim, setNewAim] = useState("");
+
+//   // ── Today's Tasks state ──
+//   const [openTasks,  setOpenTasks]  = useState(false);
+//   const [tasks, setTasks] = useState(() => {
+//     try {
+//       const stored = localStorage.getItem("admin_tasks");
+//       if (stored) {
+//         const parsed = JSON.parse(stored);
+//         if (Array.isArray(parsed)) return parsed;
+//       }
+//     } catch {}
+//     return [];
+//   });
+//   const [newTask, setNewTask] = useState("");
+
+
 //   const location = useLocation();
+
+//   /* ── persist aims ── */
+//   useEffect(() => {
+//     localStorage.setItem("admin_aims", JSON.stringify(aims));
+//   }, [aims]);
+
+//   /* ── persist tasks ── */
+//   useEffect(() => {
+//     localStorage.setItem("admin_tasks", JSON.stringify(tasks));
+//   }, [tasks]);
 
 //   /* ── fetch users ── */
 //   useEffect(() => {
@@ -88,7 +138,188 @@
 //     } catch { alert("Failed to send reply"); }
 //   };
 
+//   /* ── add aim ── */
+//   const addAim = () => {
+//     if (!newAim.trim()) return;
+//     setAims((prev) => [...prev, { id: Date.now(), text: newAim.trim(), completed: false }]);
+//     setNewAim("");
+//   };
+
+//   /* ── toggle aim ── */
+//   const toggleAim = (id) => {
+//     setAims((prev) => prev.map((a) => a.id === id ? { ...a, completed: !a.completed } : a));
+//   };
+
+//   /* ── delete aim ── */
+//   const deleteAim = (id) => {
+//     setAims((prev) => prev.filter((a) => a.id !== id));
+//   };
+
+//   /* ── add task ── */
+//   const addTask = () => {
+//     if (!newTask.trim()) return;
+//     setTasks((prev) => [...prev, { id: Date.now(), text: newTask.trim(), completed: false }]);
+//     setNewTask("");
+//   };
+
+//   /* ── toggle task ── */
+//   const toggleTask = (id) => {
+//     setTasks((prev) => prev.map((t) => t.id === id ? { ...t, completed: !t.completed } : t));
+//   };
+
+//   /* ── delete task ── */
+//   const deleteTask = (id) => {
+//     setTasks((prev) => prev.filter((t) => t.id !== id));
+//   };
+
 //   const unrepliedCount = doubts.filter((d) => !d.replied).length;
+
+//   /* ── shared styles for aim/task items ── */
+//   const itemBoxStyle = (completed) => ({
+//     display: "flex", alignItems: "center", gap: 1.5,
+//     p: 1.8, mb: 1.5,
+//     background: completed ? "#f9fdf9" : "#fff",
+//     border: `1px solid ${completed ? "#d4edda" : "#f0f0f0"}`,
+//     borderRadius: "14px",
+//     transition: "all 0.2s ease",
+//   });
+
+//   /* ── shared modal content renderer ── */
+//   const renderListModal = ({ open, onClose, title, icon, items, newVal, setNewVal, onAdd, onToggle, onDelete, placeholder }) => (
+//     <Dialog
+//       open={open}
+//       onClose={onClose}
+//       maxWidth="sm" fullWidth
+//       PaperProps={{
+//         sx: {
+//           borderRadius: "20px",
+//           fontFamily: "'DM Sans', sans-serif",
+//           boxShadow: "0 32px 80px rgba(0,0,0,0.15)",
+//         }
+//       }}
+//     >
+//       <DialogTitle sx={{
+//         fontFamily: "'Playfair Display', serif", fontWeight: 800,
+//         fontSize: 20, color: "#1a1a2e", pb: 1, borderBottom: "1px solid #f0f0f0",
+//         display: "flex", alignItems: "center", gap: 1.5,
+//       }}>
+//         <Box sx={{
+//           width: 36, height: 36, borderRadius: "11px",
+//           background: "#1a1a2e",
+//           display: "flex", alignItems: "center", justifyContent: "center",
+//           flexShrink: 0,
+//         }}>
+//           {icon}
+//         </Box>
+//         {title}
+//         <Box component="span" sx={{
+//           ml: 1, px: 1.2, py: 0.3, borderRadius: "8px",
+//           background: "#f4f4f6",
+//           fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 11, color: "#aaa",
+//           verticalAlign: "middle",
+//         }}>
+//           {items.length} total
+//         </Box>
+//       </DialogTitle>
+
+//       <DialogContent dividers sx={{ p: 3 }}>
+//         {/* Add input row */}
+//         <Box sx={{ display: "flex", gap: 1.5, mb: 3 }}>
+//           <TextField
+//             fullWidth
+//             placeholder={placeholder}
+//             value={newVal}
+//             onChange={(e) => setNewVal(e.target.value)}
+//             onKeyDown={(e) => { if (e.key === "Enter") onAdd(); }}
+//             sx={{
+//               "& .MuiOutlinedInput-root": {
+//                 borderRadius: "14px",
+//                 fontFamily: "'DM Sans', sans-serif",
+//                 fontSize: 14,
+//                 "& fieldset": { borderColor: "#e8e8e8" },
+//                 "&:hover fieldset": { borderColor: "#c0c0c0" },
+//                 "&.Mui-focused fieldset": { borderColor: "#1a1a2e" },
+//               },
+//             }}
+//           />
+//           <Button
+//             variant="contained"
+//             onClick={onAdd}
+//             sx={{
+//               background: "#1a1a2e", borderRadius: "14px",
+//               fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+//               fontSize: 14, px: 2.5, textTransform: "none",
+//               boxShadow: "none", whiteSpace: "nowrap", minWidth: "auto",
+//               "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" },
+//               transition: "all 0.2s ease",
+//             }}
+//           >
+//             <AddIcon sx={{ fontSize: 20 }} /> Add
+//           </Button>
+//         </Box>
+
+//         {/* Items list */}
+//         {items.length === 0 ? (
+//           <Box sx={{ textAlign: "center", py: 5 }}>
+//             <CheckCircleOutlineIcon sx={{ fontSize: 44, color: "#e0e0e0", mb: 1 }} />
+//             <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#ccc" }}>
+//               Nothing added yet
+//             </Typography>
+//           </Box>
+//         ) : (
+//           items.map((item) => (
+//             <Box key={item.id} sx={itemBoxStyle(item.completed)}>
+//               <Checkbox
+//                 checked={item.completed}
+//                 onChange={() => onToggle(item.id)}
+//                 sx={{
+//                   color: "#ddd", p: 0.5,
+//                   "&.Mui-checked": { color: "#2e7d32" },
+//                 }}
+//               />
+//               <Typography sx={{
+//                 fontFamily: "'DM Sans', sans-serif",
+//                 fontSize: 14, color: item.completed ? "#aaa" : "#333",
+//                 flex: 1, lineHeight: 1.6,
+//                 textDecoration: item.completed ? "line-through" : "none",
+//                 transition: "all 0.2s ease",
+//               }}>
+//                 {item.text}
+//               </Typography>
+//               {item.completed && (
+//                 <Box sx={{
+//                   px: 1.4, py: 0.3, borderRadius: "8px",
+//                   background: "#e8f5e9",
+//                   display: "flex", alignItems: "center", gap: 0.6,
+//                 }}>
+//                   <CheckCircleOutlineIcon sx={{ fontSize: 13, color: "#2e7d32" }} />
+//                   <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, color: "#2e7d32" }}>
+//                     Completed
+//                   </Typography>
+//                 </Box>
+//               )}
+//               <IconButton
+//                 onClick={() => onDelete(item.id)}
+//                 size="small"
+//                 sx={{
+//                   color: "#ccc",
+//                   borderRadius: "8px",
+//                   p: 0.6,
+//                   "&:hover": {
+//                     color: "#e53935",
+//                     background: "#fff0f0",
+//                   },
+//                   transition: "all 0.18s ease",
+//                 }}
+//               >
+//                 <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+//               </IconButton>
+//             </Box>
+//           ))
+//         )}
+//       </DialogContent>
+//     </Dialog>
+//   );
 
 //   return (
 //     <>
@@ -97,6 +328,15 @@
 //         * { box-sizing: border-box; }
 //         .admin-card { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease !important; }
 //         .admin-card:hover { transform: translateY(-4px) !important; box-shadow: 0 18px 48px rgba(0,0,0,0.10) !important; }
+
+//         @keyframes shimmer {
+//           0%   { background-position: -400px 0; }
+//           100% { background-position:  400px 0; }
+//         }
+//         @keyframes pulse {
+//           0%, 100% { opacity: 1; }
+//           50%       { opacity: 0.5; }
+//         }
 //       `}</style>
 
 //       <Fade in timeout={500}>
@@ -115,6 +355,7 @@
 //               Manage messages and respond to user doubts.
 //             </Typography>
 //           </Box>
+          
 
 //           {/* ── Two columns ── */}
 //           <Box sx={{
@@ -231,7 +472,6 @@
 //               justifyContent: "center", alignItems: "center",
 //               gap: 2, textAlign: "center",
 //             }}>
-//               {/* Icon */}
 //               <Box sx={{
 //                 width: 64, height: 64, borderRadius: "20px",
 //                 background: "#f4f4f6",
@@ -250,7 +490,6 @@
 //                 </Typography>
 //               </Box>
 
-//               {/* Pending badge */}
 //               {unrepliedCount > 0 && (
 //                 <Box sx={{
 //                   px: 2, py: 0.6, borderRadius: "30px",
@@ -300,6 +539,89 @@
 //                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa", mt: 0.5 }}>{label}</Typography>
 //               </Box>
 //             ))}
+//           </Box>
+
+//           {/* ── AIMS & TASKS BUTTONS ── */}
+//           <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
+
+//             {/* Aims of My Life button */}
+//             <Box className="admin-card" sx={{
+//               flex: "1 1 200px",
+//               background: "#fff", border: "1px solid #f0f0f0",
+//               borderRadius: "20px", p: { xs: 2.5, sm: 3 },
+//               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+//               display: "flex", alignItems: "center", gap: 2,
+//             }}>
+//               <Box sx={{
+//                 width: 48, height: 48, borderRadius: "14px",
+//                 background: "#f4f4f6", flexShrink: 0,
+//                 display: "flex", alignItems: "center", justifyContent: "center",
+//               }}>
+//                 <TrackChangesIcon sx={{ fontSize: 24, color: "#1a1a2e" }} />
+//               </Box>
+//               <Box sx={{ flex: 1 }}>
+//                 <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
+//                   Aims of My Life
+//                 </Typography>
+//                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>
+//                   {aims.filter(a => a.completed).length}/{aims.length} completed
+//                 </Typography>
+//               </Box>
+//               <Button
+//                 variant="contained"
+//                 onClick={() => setOpenAims(true)}
+//                 sx={{
+//                   background: "#1a1a2e", borderRadius: "12px",
+//                   fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+//                   fontSize: 13, py: 1.1, px: 2.5, textTransform: "none",
+//                   boxShadow: "none", whiteSpace: "nowrap",
+//                   "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" },
+//                   transition: "all 0.2s ease",
+//                 }}
+//               >
+//                 Open
+//               </Button>
+//             </Box>
+
+//             {/* Today's Tasks button */}
+//             <Box className="admin-card" sx={{
+//               flex: "1 1 200px",
+//               background: "#fff", border: "1px solid #f0f0f0",
+//               borderRadius: "20px", p: { xs: 2.5, sm: 3 },
+//               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+//               display: "flex", alignItems: "center", gap: 2,
+//             }}>
+//               <Box sx={{
+//                 width: 48, height: 48, borderRadius: "14px",
+//                 background: "#f4f4f6", flexShrink: 0,
+//                 display: "flex", alignItems: "center", justifyContent: "center",
+//               }}>
+//                 <AssignmentIcon sx={{ fontSize: 24, color: "#1a1a2e" }} />
+//               </Box>
+//               <Box sx={{ flex: 1 }}>
+//                 <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
+//                   Today's Tasks
+//                 </Typography>
+//                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>
+//                   {tasks.filter(t => t.completed).length}/{tasks.length} completed
+//                 </Typography>
+//               </Box>
+//               <Button
+//                 variant="contained"
+//                 onClick={() => setOpenTasks(true)}
+//                 sx={{
+//                   background: "#1a1a2e", borderRadius: "12px",
+//                   fontFamily: "'DM Sans', sans-serif", fontWeight: 700,
+//                   fontSize: 13, py: 1.1, px: 2.5, textTransform: "none",
+//                   boxShadow: "none", whiteSpace: "nowrap",
+//                   "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" },
+//                   transition: "all 0.2s ease",
+//                 }}
+//               >
+//                 Open
+//               </Button>
+//             </Box>
+
 //           </Box>
 //         </Box>
 //       </Fade>
@@ -412,6 +734,36 @@
 //         </DialogContent>
 //       </Dialog>
 
+//       {/* ── AIMS MODAL ── */}
+//       {renderListModal({
+//         open: openAims,
+//         onClose: () => setOpenAims(false),
+//         title: "Aims of My Life",
+//         icon: <TrackChangesIcon sx={{ color: "#fff", fontSize: 18 }} />,
+//         items: aims,
+//         newVal: newAim,
+//         setNewVal: setNewAim,
+//         onAdd: addAim,
+//         onToggle: toggleAim,
+//         onDelete: deleteAim,
+//         placeholder: "Add your aim in life…",
+//       })}
+
+//       {/* ── TASKS MODAL ── */}
+//       {renderListModal({
+//         open: openTasks,
+//         onClose: () => setOpenTasks(false),
+//         title: "Today's Tasks",
+//         icon: <AssignmentIcon sx={{ color: "#fff", fontSize: 18 }} />,
+//         items: tasks,
+//         newVal: newTask,
+//         setNewVal: setNewTask,
+//         onAdd: addTask,
+//         onToggle: toggleTask,
+//         onDelete: deleteTask,
+//         placeholder: "Add your today's task…",
+//       })}
+
 //       <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}>
 //         <Alert severity="success" sx={{ fontFamily: "'DM Sans', sans-serif", borderRadius: "12px" }}>
 //           Message sent successfully!
@@ -422,7 +774,6 @@
 // };
 
 // export default AdminDashboard;
-
 
 
 import React, { useState, useEffect } from "react";
@@ -467,17 +818,29 @@ const AdminDashboard = () => {
 
   // ── Aims state ──
   const [openAims,  setOpenAims]  = useState(false);
-  const [aims,      setAims]      = useState(() => {
-    try { return JSON.parse(localStorage.getItem("admin_aims")) || []; }
-    catch { return []; }
+  const [aims, setAims] = useState(() => {
+    try {
+      const stored = localStorage.getItem("admin_aims");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
   });
   const [newAim, setNewAim] = useState("");
 
   // ── Today's Tasks state ──
   const [openTasks,  setOpenTasks]  = useState(false);
-  const [tasks,      setTasks]      = useState(() => {
-    try { return JSON.parse(localStorage.getItem("admin_tasks")) || []; }
-    catch { return []; }
+  const [tasks, setTasks] = useState(() => {
+    try {
+      const stored = localStorage.getItem("admin_tasks");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
   });
   const [newTask, setNewTask] = useState("");
 
@@ -486,12 +849,16 @@ const AdminDashboard = () => {
 
   /* ── persist aims ── */
   useEffect(() => {
-    localStorage.setItem("admin_aims", JSON.stringify(aims));
+    if (aims.length > 0 || localStorage.getItem("admin_aims")) {
+      localStorage.setItem("admin_aims", JSON.stringify(aims));
+    }
   }, [aims]);
 
   /* ── persist tasks ── */
   useEffect(() => {
-    localStorage.setItem("admin_tasks", JSON.stringify(tasks));
+    if (tasks.length > 0 || localStorage.getItem("admin_tasks")) {
+      localStorage.setItem("admin_tasks", JSON.stringify(tasks));
+    }
   }, [tasks]);
 
   /* ── fetch users ── */
