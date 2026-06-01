@@ -3238,6 +3238,3651 @@ const questionsData = {
     title: "Explain the complete full-stack development workflow from frontend to deployment using Docker and Kubernetes?",
     answer: "Full-stack development is the complete process of building, connecting, deploying, and scaling an application using frontend, backend, database, Docker, cloud deployment, and Kubernetes.\n\nA complete workflow usually follows this order:\n\n1. Frontend Development\n2. Backend Development\n3. Database Integration\n4. API Communication\n5. Authentication\n6. Testing\n7. Deployment\n8. Docker Containerization\n9. Kubernetes Orchestration\n10. Monitoring & Scaling\n\n========================\n1. FRONTEND DEVELOPMENT\n========================\n\nFrontend is the part users interact with.\nIt includes UI, buttons, forms, dashboards, pages, animations, etc.\n\nCommon frontend technologies:\n- HTML\n- CSS\n- JavaScript\n- React.js\n- Material UI / Tailwind CSS\n\nExample:\nA login page with email and password fields.\n\nReact Example:\n\nfunction Login() {\n  return (\n    <div>\n      <input placeholder='Email' />\n      <input placeholder='Password' />\n      <button>Login</button>\n    </div>\n  )\n}\n\nExplanation:\n- User enters credentials.\n- Frontend collects data.\n- Frontend sends request to backend.\n\n========================\n2. BACKEND DEVELOPMENT\n========================\n\nBackend handles:\n- Business logic\n- Authentication\n- Database operations\n- APIs\n- Security\n\nCommon backend technologies:\n- Node.js\n- Express.js\n- Java Spring Boot\n- Django\n\nExample Express Server:\n\nconst express = require('express');\nconst app = express();\n\napp.use(express.json());\n\napp.get('/', (req, res) => {\n  res.send('Server Running');\n});\n\napp.listen(5000);\n\nExplanation:\n- Express creates server.\n- app.get() creates API.\n- Backend listens on port 5000.\n\n========================\n3. DATABASE INTEGRATION\n========================\n\nDatabase stores application data.\n\nCommon databases:\n- MongoDB\n- MySQL\n- PostgreSQL\n\nExample MongoDB User Document:\n\n{\n  username: 'lav',\n  email: 'lav@gmail.com',\n  password: 'hashedPassword'\n}\n\nMongoose Schema Example:\n\nconst userSchema = new mongoose.Schema({\n  username: String,\n  email: String,\n  password: String\n});\n\nExplanation:\n- Schema defines structure.\n- MongoDB stores data in collections.\n- Backend communicates with database.\n\n========================\n4. FRONTEND ↔ BACKEND API CONNECTION\n========================\n\nFrontend sends HTTP requests.\nBackend processes requests and returns response.\n\nExample Axios Request:\n\naxios.post('/login', {\n  email,\n  password\n})\n\nBackend Route Example:\n\nrouter.post('/login', async(req, res) => {\n  const user = await User.findOne({ email: req.body.email });\n  res.json(user);\n});\n\nWorkflow:\nFrontend → API Request → Backend → Database → Response → Frontend\n\n========================\n5. AUTHENTICATION FLOW\n========================\n\nAuthentication verifies user identity.\n\nUsually implemented using:\n- JWT\n- bcrypt\n- Middleware\n\nLogin Workflow:\n\n1. User enters email/password.\n2. Frontend sends login request.\n3. Backend checks user in database.\n4. Password verified using bcrypt.compare().\n5. JWT token generated.\n6. Token sent to frontend.\n7. Frontend stores token.\n8. Protected routes use token.\n\nJWT Example:\n\nconst token = jwt.sign(\n  { id: user._id },\n  process.env.JWT_SECRET,\n  { expiresIn: '7d' }\n);\n\nAuthorization Header Example:\n\nAuthorization: Bearer eyJhbGcOiJIUzI1Ni...\n\nExplanation:\n- Token proves user is logged in.\n- Middleware verifies token before access.\n\n========================\n6. TESTING THE APPLICATION\n========================\n\nTesting checks whether application works correctly.\n\nTypes:\n- Frontend testing\n- Backend API testing\n- Database testing\n\nExample API Test Using Postman:\n\nPOST http://localhost:5000/login\n\nBody:\n{\n  \"email\": \"lav@gmail.com\",\n  \"password\": \"123456\"\n}\n\nExpected Response:\n\n{\n  \"token\": \"jwt_token_here\"\n}\n\nExplanation:\n- APIs are verified before deployment.\n- Errors are fixed locally.\n\n========================\n7. DEPLOYMENT\n========================\n\nDeployment means making app available online.\n\nFrontend deployment platforms:\n- Vercel\n- Netlify\n- Render\n\nBackend deployment platforms:\n- Render\n- Railway\n- AWS EC2\n\nDatabase hosting:\n- MongoDB Atlas\n\nExample:\n\nFrontend:\nhttps://myapp.vercel.app\n\nBackend:\nhttps://myapi.onrender.com\n\nExplanation:\n- Users worldwide can access deployed app.\n- Frontend communicates with live backend.\n\n========================\n8. DOCKER CONTAINERIZATION\n========================\n\nDocker packages application with:\n- Code\n- Dependencies\n- Runtime\n- Environment\n\nPurpose:\n\"Works same on every machine\"\n\nFrontend Dockerfile Example:\n\nFROM node:20\nWORKDIR /app\nCOPY . .\nRUN npm install\nCMD [\"npm\", \"start\"]\n\nBuild Docker Image:\n\ndocker build -t frontend-app .\n\nRun Container:\n\ndocker run -p 3000:3000 frontend-app\n\nExplanation:\n- Docker creates isolated environment.\n- Avoids dependency issues.\n- Easy deployment anywhere.\n\n========================\n9. KUBERNETES ORCHESTRATION\n========================\n\nKubernetes manages multiple Docker containers automatically.\n\nIt handles:\n- Scaling\n- Auto-healing\n- Load balancing\n- Deployment management\n\nImportant Kubernetes Components:\n- Pod\n- Deployment\n- Service\n- Ingress\n\nDeployment YAML Example:\n\napiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: frontend-deployment\nspec:\n  replicas: 2\n  selector:\n    matchLabels:\n      app: frontend\n  template:\n    metadata:\n      labels:\n        app: frontend\n    spec:\n      containers:\n      - name: frontend\n        image: lav/frontend:v1\n        ports:\n        - containerPort: 3000\n\nExplanation:\n- replicas: 2 means 2 containers run.\n- If one crashes Kubernetes restarts it.\n- Kubernetes distributes traffic.\n\nService Example:\n\napiVersion: v1\nkind: Service\nmetadata:\n  name: frontend-service\nspec:\n  selector:\n    app: frontend\n  ports:\n  - port: 80\n    targetPort: 3000\n  type: LoadBalancer\n\nExplanation:\n- Service exposes application publicly.\n- LoadBalancer distributes traffic.\n\n========================\n10. COMPLETE REAL-WORLD FLOW\n========================\n\nComplete Workflow:\n\n1. User opens React frontend.\n2. Frontend sends API request.\n3. Backend Express server receives request.\n4. Backend checks MongoDB.\n5. Backend sends response.\n6. JWT token generated after login.\n7. Frontend stores token.\n8. Docker containers package frontend/backend.\n9. Docker images pushed to DockerHub.\n10. Kubernetes deploys containers.\n11. Services expose application.\n12. Users access deployed app globally.\n13. Kubernetes scales app automatically.\n\n========================\n11. COMPLETE TECHNOLOGY FLOW\n========================\n\nFrontend:\nReact + Material UI + Axios\n\n↓\n\nBackend:\nNode.js + Express.js\n\n↓\n\nDatabase:\nMongoDB + Mongoose\n\n↓\n\nAuthentication:\nJWT + bcrypt\n\n↓\n\nDeployment:\nRender / Vercel / AWS\n\n↓\n\nContainerization:\nDocker\n\n↓\n\nOrchestration:\nKubernetes\n\n========================\n12. SIMPLE MIND MAP SUMMARY\n========================\n\nUser\n↓\nFrontend (React)\n↓\nAxios/API Calls\n↓\nBackend (Node + Express)\n↓\nAuthentication (JWT)\n↓\nDatabase (MongoDB)\n↓\nDocker Container\n↓\nDockerHub\n↓\nKubernetes Cluster\n↓\nLoadBalancer Service\n↓\nUsers Access Application\n\n========================\n13. VERY IMPORTANT INTERVIEW UNDERSTANDING\n========================\n\nFrontend = User Interface\nBackend = Logic\nDatabase = Data Storage\nAPI = Communication Bridge\nJWT = Authentication\nDocker = Packaging App\nKubernetes = Managing Containers\nDeployment = Hosting Online\n\n========================\n14. REAL EXAMPLE (YOUR PROJECT TYPE)\n========================\n\nSuppose you build an educational platform:\n\nFrontend:\n- React dashboard\n- Notes page\n- Payment page\n- Video lectures\n\nBackend:\n- Login APIs\n- Purchase APIs\n- Payment verification\n- Batch access control\n\nDatabase:\n- Users\n- Courses\n- Purchases\n- Notes\n\nAuthentication:\n- JWT login system\n\nDeployment:\n- Frontend on Vercel\n- Backend on Render\n- MongoDB Atlas database\n\nDocker:\n- Frontend Docker image\n- Backend Docker image\n\nKubernetes:\n- Deploy multiple backend replicas\n- Auto-restart crashed containers\n- Handle thousands of students\n\nThis is a complete real-world full-stack workflow."
   }
+],
+
+"mysarthi":[
+  {
+    title: "What is Express.js and Why is it Used in MySaarthi?",
+    answer: "Express.js is a lightweight Node.js framework used to create APIs and handle HTTP requests.\n\nBenefits:\n- Fast development\n- Routing support\n- Middleware support\n- Easy MongoDB integration\n\nMySaarthi uses Express.js to handle authentication, profile management, assessments, messaging, and admin operations."
+    },
+    {
+    title: "What is a REST API?",
+    answer: "REST API is a set of rules that allows frontend and backend to communicate.\n\nExample:\nGET /profile\nPOST /login\nPUT /profile\nDELETE /message\n\nFrontend sends requests and backend returns responses in JSON format."
+    },
+    {
+    title: "What is Mongoose?",
+    answer: "Mongoose is an ODM (Object Data Modeling) library for MongoDB.\n\nIt helps:\n- Create schemas\n- Validate data\n- Query database\n- Define relationships\n\nMongoose acts as a bridge between Node.js and MongoDB."
+    },
+    {
+    title: "What is a Schema in MongoDB?",
+    answer: "A schema defines the structure of documents stored in MongoDB.\n\nExample User Schema:\nName\nEmail\nPassword\nPhone\nRole\n\nSchemas ensure consistency and validation."
+    },
+    {
+    title: "What is a Collection?",
+    answer: "A collection in MongoDB is similar to a table in SQL.\n\nExample Collections:\nUsers\nProfiles\nAssignments\nScores\nMessages\nAdmins\n\nEach collection stores related documents."
+    },
+    {
+    title: "What is a Document in MongoDB?",
+    answer: "A document is a single record inside a MongoDB collection.\n\nExample:\n{\n name:'Lav',\n email:'[lav@gmail.com](mailto:lav@gmail.com)'\n}\n\nDocuments are stored in BSON format."
+    },
+    {
+    title: "Why MongoDB is Called NoSQL?",
+    answer: "MongoDB stores data as flexible JSON-like documents instead of rows and columns.\n\nUnlike SQL databases, MongoDB does not require fixed table structures."
+    },
+    {
+    title: "What Happens When Backend Starts?",
+    answer: "1. Express server starts.\n2. Environment variables load.\n3. MongoDB connection established.\n4. Middleware initialized.\n5. Routes registered.\n6. APIs become available."
+    },
+    {
+    title: "Why Environment Variables Are Used?",
+    answer: "Environment variables store sensitive configuration outside source code.\n\nExamples:\nJWT_SECRET\nDATABASE_URL\nEMAIL_PASSWORD\nAPI_KEYS\n\nThis improves security and flexibility."
+    },
+    {
+    title: "What is .env File?",
+    answer: ".env file stores environment variables.\n\nExample:\nPORT=5000\nJWT_SECRET=xyz123\nMONGO_URI=database_url\n\nBackend reads these values during startup."
+    },
+    {
+    title: "Why .env File Should Never Be Uploaded to GitHub?",
+    answer: "Because it may contain:\n- Passwords\n- API keys\n- Database URLs\n- Secrets\n\nIf exposed publicly, attackers can gain access to the system."
+    },
+    {
+    title: "What is Middleware in Express?",
+    answer: "Middleware is a function executed between request and response.\n\nExample Uses:\n- Authentication\n- Logging\n- Validation\n- Error handling\n\nMiddleware can modify requests before controllers execute."
+    },
+    {
+    title: "What is Request Validation?",
+    answer: "Request validation checks whether incoming data is correct.\n\nExample:\nEmail format validation\nPassword length validation\nRequired field validation\n\nThis prevents invalid data from entering the database."
+    },
+    {
+    title: "What is Error Handling Middleware?",
+    answer: "Error handling middleware catches application errors and sends proper responses.\n\nInstead of crashing the server, it returns meaningful error messages."
+    },
+    {
+    title: "What is Controller Layer?",
+    answer: "Controllers contain business logic.\n\nExample:\nLogin Controller\nProfile Controller\nAssignment Controller\n\nControllers process requests and return responses."
+    },
+    {
+    title: "What is Route Layer?",
+    answer: "Routes define API endpoints.\n\nExample:\nPOST /login\nGET /profile\nPUT /profile\n\nRoutes connect requests to controllers."
+    },
+    {
+    title: "Why Backend Is Divided Into Routes, Controllers and Models?",
+    answer: "This follows separation of concerns.\n\nRoutes → Handle URLs\nControllers → Handle Logic\nModels → Handle Database\n\nThis improves maintainability."
+    },
+    {
+    title: "What is API Endpoint?",
+    answer: "An endpoint is a URL through which frontend communicates with backend.\n\nExample:\n/api/login\n/api/profile\n/api/assignment\n\nEach endpoint performs a specific task."
+    },
+    {
+    title: "What is JSON?",
+    answer: "JSON stands for JavaScript Object Notation.\n\nExample:\n{\n'name':'Lav',\n'age':22\n}\n\nIt is the standard format for data exchange between frontend and backend."
+    },
+    {
+    title: "Why JSON Is Used in APIs?",
+    answer: "JSON is:\n- Lightweight\n- Human readable\n- Easy to parse\n- Supported by all programming languages\n\nTherefore APIs commonly use JSON."
+    },
+    {
+    title: "How Frontend Sends Requests to Backend?",
+    answer: "Frontend uses fetch or Axios.\n\nExample:\nLogin Form\n↓\nPOST Request\n↓\nBackend API\n↓\nJSON Response\n↓\nUI Update"
+    },
+    {
+    title: "What is Axios?",
+    answer: "Axios is a JavaScript library used to make HTTP requests.\n\nFeatures:\n- Automatic JSON parsing\n- Interceptors\n- Error handling\n- Request cancellation"
+    },
+    {
+    title: "What is CORS?",
+    answer: "CORS stands for Cross-Origin Resource Sharing.\n\nIt allows frontend and backend running on different domains to communicate securely."
+    },
+    {
+    title: "Why CORS Is Required?",
+    answer: "Without CORS, browsers block requests between different origins.\n\nExample:\nFrontend: localhost:5173\nBackend: localhost:5000\n\nCORS allows communication between them."
+    },
+    {
+    title: "What is Authentication?",
+    answer: "Authentication verifies who the user is.\n\nExample:\nUser enters email and password.\n\nSystem verifies identity before granting access."
+    },
+    {
+    title: "What is Authorization?",
+    answer: "Authorization determines what a user is allowed to do.\n\nExample:\nUser can view profile.\nAdmin can manage all users."
+    },
+    {
+    title: "Difference Between Authentication and Authorization",
+    answer: "Authentication:\n'Who are you?'\n\nAuthorization:\n'What can you access?'\n\nAuthentication happens first, authorization happens second."
+    },
+    {
+    title: "Why JWT Is Better Than Traditional Sessions?",
+    answer: "JWT is stateless.\n\nBenefits:\n- Scalable\n- Faster\n- Suitable for APIs\n- Easier microservice integration\n\nServer does not need to store session data."
+    },
+    {
+    title: "What Information Is Stored Inside JWT?",
+    answer: "JWT usually contains:\n- User ID\n- Email\n- Role\n- Expiration Time\n\nSensitive data should never be stored inside JWT."
+    },
+    {
+    title: "What Happens When JWT Expires?",
+    answer: "User must login again or obtain a refreshed token.\n\nExpired tokens are rejected by authentication middleware."
+    },
+    {
+      title: "What is MongoDB?",
+      answer: "MongoDB is a NoSQL document-oriented database used to store application data.\n\nInstead of tables and rows, MongoDB stores data as collections and documents.\n\nBenefits:\n- Flexible schema\n- Easy scaling\n- High performance\n- JSON-like structure\n\nMySaarthi uses MongoDB to store users, profiles, assignments, messages, scores, and admin data."
+      },
+      {
+      title: "Why Was MongoDB Chosen for MySaarthi?",
+      answer: "MongoDB was chosen because:\n- Flexible document structure\n- Easy integration with Node.js\n- Fast development cycle\n- Horizontal scalability\n- JSON compatibility\n\nSince MySaarthi handles different types of user and assessment data, MongoDB provides excellent flexibility."
+      },
+      {
+      title: "How Does MongoDB Store Data Internally?",
+      answer: "MongoDB stores data as BSON documents.\n\nBSON stands for Binary JSON.\n\nFlow:\nJavaScript Object\n↓\nBSON Conversion\n↓\nMongoDB Storage\n\nBSON supports additional data types such as Date, ObjectId, and Binary."
+      },
+      {
+      title: "What is BSON?",
+      answer: "BSON stands for Binary JSON.\n\nMongoDB internally converts JSON documents into BSON format.\n\nAdvantages:\n- Faster processing\n- More efficient storage\n- Additional data types\n\nDevelopers usually work with JSON while MongoDB stores BSON."
+      },
+      {
+      title: "What is ObjectId in MongoDB?",
+      answer: "ObjectId is MongoDB's default unique identifier.\n\nExample:\n64f1d0d9c2b4f14a8f29a123\n\nEvery document automatically receives a unique ObjectId if no custom ID is provided."
+      },
+      {
+      title: "Why Does MongoDB Use ObjectId Instead of Auto Increment?",
+      answer: "ObjectId provides:\n- Global uniqueness\n- Better distributed system support\n- Timestamp information\n- Reduced conflicts\n\nUnlike auto-increment IDs, ObjectIds work efficiently across multiple servers."
+      },
+      {
+      title: "What Information is Embedded Inside ObjectId?",
+      answer: "ObjectId contains:\n- Timestamp\n- Machine identifier\n- Process identifier\n- Counter value\n\nThis helps MongoDB generate unique IDs without database coordination."
+      },
+      {
+      title: "What is a Collection in MongoDB?",
+      answer: "A collection is a group of related documents.\n\nExamples in MySaarthi:\nUsers Collection\nProfiles Collection\nAssignments Collection\nMessages Collection\nScores Collection\n\nCollections are similar to tables in SQL databases."
+      },
+      {
+      title: "What is a Document in MongoDB?",
+      answer: "A document is a single record stored inside a collection.\n\nExample:\n{\n name:'Lav',\n email:'[lav@gmail.com](mailto:lav@gmail.com)',\n role:'user'\n}\n\nDocuments are equivalent to rows in SQL."
+      },
+      {
+      title: "What is a MongoDB Database?",
+      answer: "A database is a container that holds multiple collections.\n\nExample:\nMySaarthi Database\n↓\nUsers\nProfiles\nMessages\nAssignments\nScores\n\nAll related collections belong to the same database."
+      },
+      {
+      title: "What is Schema Design?",
+      answer: "Schema design determines how data is organized in MongoDB.\n\nGood schema design improves:\n- Query speed\n- Storage efficiency\n- Scalability\n- Maintainability"
+      },
+      {
+      title: "What is Schema Validation?",
+      answer: "Schema validation ensures documents follow predefined rules.\n\nExample:\nEmail must exist.\nPassword must be required.\nAge must be a number.\n\nValidation prevents invalid data from entering the database."
+      },
+      {
+      title: "What is Embedded Data in MongoDB?",
+      answer: "Embedded data means storing related information inside the same document.\n\nExample:\nUser\n └ Skills\n └ Education\n └ Projects\n\nThis reduces the need for additional queries."
+      },
+      {
+      title: "What is Referenced Data in MongoDB?",
+      answer: "Referenced data stores relationships using ObjectIds.\n\nExample:\nUser Document\n↓\nAssignment IDs\n↓\nAssignment Collection\n\nUseful when related data becomes very large."
+      },
+      {
+      title: "When Should Embedding Be Used?",
+      answer: "Embedding should be used when:\n- Data is frequently accessed together.\n- Relationship is one-to-few.\n- Document size remains manageable.\n\nExample:\nUser profile information."
+      },
+      {
+      title: "When Should Referencing Be Used?",
+      answer: "Referencing should be used when:\n- Data is large.\n- Relationship is one-to-many.\n- Data changes independently.\n\nExample:\nUsers and Assignments."
+      },
+      {
+      title: "What is CRUD in MongoDB?",
+      answer: "CRUD stands for:\n\nCreate → Insert Data\nRead → Retrieve Data\nUpdate → Modify Data\nDelete → Remove Data\n\nAlmost every MongoDB operation falls under CRUD."
+      },
+      {
+      title: "How Does Create Operation Work?",
+      answer: "Create operation inserts a new document.\n\nExample:\nUser Signup\n↓\nUser Data Received\n↓\nMongoDB Insert\n↓\nUser Document Created"
+      },
+      {
+      title: "How Does Read Operation Work?",
+      answer: "Read operation retrieves documents.\n\nExample:\nUser Opens Profile\n↓\nBackend Query\n↓\nMongoDB Search\n↓\nProfile Returned"
+      },
+      {
+      title: "How Does Update Operation Work?",
+      answer: "Update modifies existing documents.\n\nExample:\nUser Updates Phone Number\n↓\nMongoDB Finds User\n↓\nPhone Number Updated"
+      },
+      {
+      title: "How Does Delete Operation Work?",
+      answer: "Delete removes documents from collections.\n\nExample:\nAdmin Deletes User\n↓\nUser Record Removed\n↓\nDatabase Updated"
+      },
+      {
+      title: "What is findOne() in MongoDB?",
+      answer: "findOne() returns a single matching document.\n\nExample:\nFind user by email.\n\nUsed frequently during login and profile retrieval."
+      },
+      {
+      title: "What is findById()?",
+      answer: "findById() searches using MongoDB ObjectId.\n\nExample:\nFind user using:\n64f1d0d9c2b4f14a8f29a123\n\nIt is optimized for primary key lookups."
+      },
+      {
+      title: "What is find()?",
+      answer: "find() returns multiple documents.\n\nExample:\nRetrieve all assignments.\nRetrieve all messages.\nRetrieve all users."
+      },
+      {
+      title: "What is updateOne()?",
+      answer: "updateOne() modifies a single matching document.\n\nExample:\nUpdate one user's profile information."
+      },
+      {
+      title: "What is updateMany()?",
+      answer: "updateMany() modifies multiple documents.\n\nExample:\nChange status of all inactive assignments."
+      },
+      {
+      title: "What is deleteOne()?",
+      answer: "deleteOne() removes a single matching document.\n\nExample:\nDelete one user message."
+      },
+      {
+      title: "What is deleteMany()?",
+      answer: "deleteMany() removes multiple documents.\n\nExample:\nDelete all expired OTP records."
+      },
+      {
+      title: "What is Projection in MongoDB?",
+      answer: "Projection controls which fields are returned.\n\nExample:\nReturn only:\n- Name\n- Email\n\nHide:\n- Password\n\nThis improves security and performance."
+      },
+      {
+      title: "Why Should Passwords Never Be Returned From MongoDB Queries?",
+      answer: "Passwords are sensitive information.\n\nEven hashed passwords should generally not be sent to frontend.\n\nBest practice:\nExclude password field using projection or schema settings."
+      },
+      {
+        title: "What is Authentication?",
+        answer: "Authentication is the process of verifying a user's identity.\n\nIn simple words:\nAuthentication answers the question:\n'Who are you?'\n\nExample:\nUser enters email and password.\nSystem verifies credentials.\nIf correct, access is granted."
+        },
+        {
+        title: "Why Authentication is Required in MySaarthi?",
+        answer: "Authentication protects user data and platform resources.\n\nWithout authentication:\n- Anyone could access profiles\n- Anyone could modify assignments\n- Anyone could view scores\n- Anyone could access admin functionality\n\nAuthentication ensures only verified users can access protected features."
+        },
+        {
+        title: "What is Authorization?",
+        answer: "Authorization determines what a user is allowed to do after authentication.\n\nExample:\nUser Login Success\n↓\nAuthorization Check\n↓\nAllowed Resources Determined\n\nAuthorization answers:\n'What are you allowed to access?'"
+        },
+        {
+        title: "Difference Between Authentication and Authorization",
+        answer: "Authentication:\nVerifies identity.\n\nExample:\nLogin using email and password.\n\nAuthorization:\nDetermines permissions.\n\nExample:\nAdmin can manage users.\nNormal users cannot.\n\nAuthentication happens first, authorization happens second."
+        },
+        {
+        title: "What is JWT?",
+        answer: "JWT stands for JSON Web Token.\n\nJWT is a secure token used to identify authenticated users.\n\nAfter login:\nUser\n↓\nServer Generates JWT\n↓\nFrontend Stores JWT\n↓\nJWT Sent With Requests\n↓\nServer Verifies JWT"
+        },
+        {
+        title: "Why JWT is Used in MySaarthi?",
+        answer: "JWT provides:\n- Stateless authentication\n- Better scalability\n- Faster API communication\n- Reduced server memory usage\n\nThe backend does not need to store session information for every user."
+        },
+        {
+        title: "What Does JWT Look Like?",
+        answer: "Example JWT:\n\neyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMyJ9.xxxxxxx\n\nJWT contains three parts:\n1. Header\n2. Payload\n3. Signature"
+        },
+        {
+        title: "What is JWT Header?",
+        answer: "Header contains metadata about the token.\n\nExample:\n{\n alg:'HS256',\n typ:'JWT'\n}\n\nIt tells the server which algorithm was used to sign the token."
+        },
+        {
+        title: "What is JWT Payload?",
+        answer: "Payload contains user information.\n\nExample:\n{\n userId:'123',\n role:'user'\n}\n\nPayload should contain identification data but not sensitive information."
+        },
+        {
+        title: "What is JWT Signature?",
+        answer: "Signature verifies token integrity.\n\nGenerated using:\nHeader + Payload + Secret Key\n\nIf someone modifies the token, signature verification fails."
+        },
+        {
+        title: "What is JWT Secret?",
+        answer: "JWT Secret is a private key used to sign and verify JWT tokens.\n\nExample:\nJWT_SECRET=mySuperSecretKey\n\nOnly the server should know this secret."
+        },
+        {
+        title: "Why JWT Secret Must Be Hidden?",
+        answer: "If attackers obtain the JWT secret:\n- Fake tokens can be created.\n- Users can be impersonated.\n- Security is completely compromised.\n\nJWT secrets should always remain inside environment variables."
+        },
+        {
+        title: "What Information Should Be Stored Inside JWT?",
+        answer: "Recommended:\n- User ID\n- Email\n- Role\n\nAvoid storing:\n- Passwords\n- OTPs\n- Sensitive personal information\n\nJWT should remain lightweight."
+        },
+        {
+        title: "What Happens During User Login?",
+        answer: "1. User enters credentials.\n2. Backend finds user.\n3. Password verified.\n4. JWT generated.\n5. JWT returned.\n6. Frontend stores token.\n7. User becomes authenticated."
+        },
+        {
+        title: "How Does Backend Verify Passwords?",
+        answer: "Backend compares entered password with stored hashed password using bcrypt.\n\nEntered Password\n↓\nBcrypt Compare\n↓\nStored Hash\n↓\nMatch Result"
+        },
+        {
+        title: "Why Passwords Are Not Stored Directly?",
+        answer: "Direct password storage is extremely dangerous.\n\nIf database is compromised:\nAll passwords become visible.\n\nInstead passwords are hashed before storage."
+        },
+        {
+        title: "What is Password Hashing?",
+        answer: "Hashing converts a password into an unreadable string.\n\nExample:\nPassword:\nhello123\n\nHash:\n$2b$10$A7sd8d7s9d...\n\nHashing protects user credentials."
+        },
+        {
+        title: "What is bcrypt?",
+        answer: "bcrypt is a password hashing library.\n\nFeatures:\n- Strong encryption\n- Salting support\n- Slow brute-force resistance\n\nIt is widely used for secure password storage."
+        },
+        {
+        title: "What is Salting in Password Hashing?",
+        answer: "Salt is random data added before hashing.\n\nPassword:\nhello123\n\nSalt:\nxyz789\n\nCombined:\nhello123xyz789\n\nThis prevents rainbow table attacks."
+        },
+        {
+        title: "What is a Rainbow Table Attack?",
+        answer: "Rainbow tables are precomputed password-hash lookup tables.\n\nSalting prevents attackers from using rainbow tables effectively."
+        },
+        {
+        title: "What is OTP?",
+        answer: "OTP stands for One Time Password.\n\nIt is a temporary verification code sent to users.\n\nExample:\n652194\n\nUsed during registration, email verification, and password reset."
+        },
+        {
+        title: "Why OTP Verification is Used?",
+        answer: "OTP ensures that users actually own the email address they provide.\n\nBenefits:\n- Prevent fake accounts\n- Improve security\n- Verify ownership"
+        },
+        {
+        title: "How OTP Verification Works?",
+        answer: "1. User registers.\n2. OTP generated.\n3. OTP emailed.\n4. User enters OTP.\n5. Backend verifies OTP.\n6. Account becomes verified."
+        },
+        {
+        title: "Why OTP Should Expire?",
+        answer: "OTP expiration prevents misuse.\n\nExample:\nOTP valid for 5 minutes.\n\nAfter expiration:\nOTP becomes invalid.\n\nThis improves account security."
+        },
+        {
+        title: "What Happens If OTP Expires?",
+        answer: "User must request a new OTP.\n\nExpired OTPs should never be accepted because they create security risks."
+        },
+        {
+        title: "How Password Reset Works?",
+        answer: "1. User clicks Forgot Password.\n2. OTP generated.\n3. OTP emailed.\n4. User verifies OTP.\n5. New password entered.\n6. Password updated."
+        },
+        {
+        title: "Why Authentication Middleware is Needed?",
+        answer: "Authentication middleware protects routes.\n\nExample:\n/profile\n/admin\n/messages\n\nWithout valid JWT these routes remain inaccessible."
+        },
+        {
+        title: "How Authentication Middleware Works?",
+        answer: "1. Request arrives.\n2. JWT extracted.\n3. JWT verified.\n4. User identified.\n5. Request allowed.\n\nIf verification fails:\nAccess denied."
+        },
+        {
+        title: "What Happens If JWT Is Missing?",
+        answer: "Authentication middleware rejects the request.\n\nResponse:\n401 Unauthorized\n\nThe user must login again."
+        },
+        {
+        title: "What Happens If JWT Is Invalid?",
+        answer: "Invalid tokens fail verification.\n\nPossible reasons:\n- Token modified\n- Wrong secret\n- Fake token\n\nRequest is rejected."
+        },
+        {
+          title: "What is React?",
+          answer: "React is a JavaScript library used for building user interfaces.\n\nReact allows developers to create reusable components and build fast, interactive web applications.\n\nMySaarthi uses React to create:\n- Login Pages\n- Dashboard\n- Profile Pages\n- Assignment Pages\n- Admin Panel\n- Messaging Screens"
+          },
+          {
+          title: "Why React Was Chosen For MySaarthi?",
+          answer: "React provides:\n- Reusable components\n- Faster UI updates\n- Virtual DOM\n- Large ecosystem\n- Easy API integration\n\nThese features make React ideal for large applications like MySaarthi."
+          },
+          {
+          title: "What is a Component in React?",
+          answer: "A component is a reusable piece of UI.\n\nExamples:\n- Navbar Component\n- Login Component\n- Profile Component\n- Assignment Component\n\nComponents help avoid repeating code."
+          },
+          {
+          title: "Why Are Components Important?",
+          answer: "Components improve:\n- Code reusability\n- Maintainability\n- Readability\n- Scalability\n\nInstead of writing the same UI multiple times, components can be reused throughout the application."
+          },
+          {
+          title: "What is JSX?",
+          answer: "JSX stands for JavaScript XML.\n\nIt allows HTML-like syntax inside JavaScript.\n\nExample:\n<div>Hello User</div>\n\nReact converts JSX into JavaScript code internally."
+          },
+          {
+          title: "Why JSX is Used?",
+          answer: "JSX makes UI development easier.\n\nBenefits:\n- Cleaner syntax\n- Easier readability\n- HTML-like structure\n- Better developer experience"
+          },
+          {
+          title: "What is Virtual DOM?",
+          answer: "Virtual DOM is a lightweight copy of the real DOM.\n\nReact updates Virtual DOM first.\nThen compares differences.\nThen updates only changed parts.\n\nThis improves performance significantly."
+          },
+          {
+          title: "Why Virtual DOM Makes React Faster?",
+          answer: "Without Virtual DOM:\nEntire page updates.\n\nWith Virtual DOM:\nOnly changed elements update.\n\nResult:\nFaster rendering and better user experience."
+          },
+          {
+          title: "What is State in React?",
+          answer: "State stores dynamic data inside a component.\n\nExamples:\n- Logged-in user\n- Form values\n- Scores\n- Messages\n\nWhen state changes, React automatically updates the UI."
+          },
+          {
+          title: "What is useState Hook?",
+          answer: "useState is a React Hook used to manage state.\n\nExample:\nconst [name,setName] = useState('');\n\nWhenever setName is called, the UI updates automatically."
+          },
+          {
+          title: "What is Props in React?",
+          answer: "Props are data passed from parent components to child components.\n\nExample:\nParent sends user information.\nChild displays user information.\n\nProps help components communicate."
+          },
+          {
+          title: "Difference Between State and Props",
+          answer: "State:\nManaged inside component.\nCan change.\n\nProps:\nReceived from parent.\nRead-only.\n\nState manages local data while props pass data between components."
+          },
+          {
+          title: "What is useEffect Hook?",
+          answer: "useEffect allows running code after component rendering.\n\nCommon Uses:\n- API calls\n- Event listeners\n- Data fetching\n- Authentication checks"
+          },
+          {
+          title: "Why useEffect is Important in MySaarthi?",
+          answer: "MySaarthi uses useEffect for:\n- Loading profile data\n- Fetching assignments\n- Loading messages\n- Checking authentication\n- Dashboard initialization"
+          },
+          {
+          title: "How API Calls Work in React?",
+          answer: "Flow:\nComponent Loads\n↓\nAPI Request Sent\n↓\nBackend Responds\n↓\nData Stored In State\n↓\nUI Updates Automatically"
+          },
+          {
+          title: "What is React Router?",
+          answer: "React Router manages navigation between pages.\n\nExamples:\n/login\n/dashboard\n/profile\n/admin\n/messages\n\nWithout reloading the entire application."
+          },
+          {
+          title: "Why React Router is Used?",
+          answer: "Benefits:\n- Fast navigation\n- Single Page Application\n- Better user experience\n- No full page refreshes"
+          },
+          {
+          title: "What is a Single Page Application (SPA)?",
+          answer: "SPA loads one HTML page.\n\nReact dynamically updates content without reloading the browser.\n\nThis makes applications feel much faster."
+          },
+          {
+          title: "What is Conditional Rendering?",
+          answer: "Conditional rendering shows different UI based on conditions.\n\nExample:\nIf user logged in:\nShow Dashboard\n\nElse:\nShow Login Page"
+          },
+          {
+          title: "Why Conditional Rendering is Important?",
+          answer: "Conditional rendering helps display:\n- Authentication states\n- Loading screens\n- Error messages\n- Role-based content"
+          },
+          {
+          title: "What is Form Handling in React?",
+          answer: "Form handling manages user input.\n\nExamples:\n- Login forms\n- Signup forms\n- Profile updates\n- Assignment submissions"
+          },
+          {
+          title: "How Login Form Works in MySaarthi?",
+          answer: "1. User enters credentials.\n2. React stores values in state.\n3. Submit button triggers API request.\n4. Backend validates credentials.\n5. JWT returned.\n6. User redirected to dashboard."
+          },
+          {
+          title: "What is Controlled Component?",
+          answer: "Controlled components store input values inside React state.\n\nBenefits:\n- Easy validation\n- Better control\n- Real-time updates"
+          },
+          {
+          title: "How Dashboard Works in MySaarthi?",
+          answer: "Dashboard fetches user-specific data.\n\nExamples:\n- Profile Information\n- Scores\n- Assignments\n- Messages\n\nData is loaded using APIs and displayed dynamically."
+          },
+          {
+          title: "How Profile Page Works?",
+          answer: "1. Profile API called.\n2. User data fetched.\n3. Data displayed.\n4. User edits information.\n5. Update API called.\n6. Database updated."
+          },
+          {
+          title: "How Assignment Page Works?",
+          answer: "1. Assignments fetched from backend.\n2. Questions displayed.\n3. User submits answers.\n4. Backend evaluates answers.\n5. Score stored."
+          },
+          {
+          title: "How Messaging Page Works?",
+          answer: "1. User sends message.\n2. Backend stores message.\n3. Admin retrieves message.\n4. Admin replies.\n5. User receives updated conversation."
+          },
+          {
+          title: "How Admin Dashboard Differs From User Dashboard?",
+          answer: "Admin Dashboard:\n- Manage users\n- View reports\n- Manage assignments\n- Review messages\n\nUser Dashboard:\n- View profile\n- Attempt assignments\n- Check scores"
+          },
+          {
+          title: "What is Lazy Loading?",
+          answer: "Lazy loading loads components only when needed.\n\nBenefits:\n- Faster initial load\n- Reduced bundle size\n- Better performance"
+          },
+          {
+          title: "Interview Question: Explain Frontend Architecture of MySaarthi",
+          answer: "MySaarthi frontend is built using React and Vite.\n\nThe application follows a component-based architecture where reusable UI components communicate with an Express backend through REST APIs.\n\nReact Router handles navigation, Hooks manage state and side effects, and APIs dynamically load user, profile, assignment, score, and messaging data."
+          },
+          {
+            title: "What is the Admin Panel in MySaarthi?",
+            answer: "The Admin Panel is a centralized management system that allows administrators to control and monitor platform activities.\n\nAdmin Responsibilities:\n- Manage users\n- View profiles\n- Manage assignments\n- Review scores\n- Handle messages\n- Monitor platform usage\n\nThe admin panel acts as the control center of MySaarthi."
+            },
+            {
+            title: "Why is an Admin Panel Required?",
+            answer: "Without an admin panel, managing users and platform data becomes difficult.\n\nBenefits:\n- Centralized control\n- Easier monitoring\n- Better security\n- Faster issue resolution\n- User management capabilities"
+            },
+            {
+            title: "How Does Admin Authentication Work?",
+            answer: "Admin login follows the same authentication process as users but includes additional role verification.\n\nFlow:\nAdmin Login\n↓\nJWT Generated\n↓\nRole Verified\n↓\nAdmin Dashboard Access Granted\n\nOnly users with admin roles can access admin routes."
+            },
+            {
+            title: "Why Role-Based Access Control Is Important?",
+            answer: "Role-Based Access Control (RBAC) ensures users can only access authorized resources.\n\nExample:\nUser → View own profile\nAdmin → Manage all users\n\nThis prevents privilege escalation."
+            },
+            {
+            title: "How Does Admin Authorization Work?",
+            answer: "After authentication:\n1. JWT verified.\n2. User role checked.\n3. Admin permissions validated.\n4. Request allowed or denied.\n\nOnly admins can access protected admin endpoints."
+            },
+            {
+            title: "What is User Management?",
+            answer: "User management allows admins to view and control user accounts.\n\nExamples:\n- View user details\n- Update accounts\n- Disable accounts\n- Monitor activity"
+            },
+            {
+            title: "Why User Management Is Important?",
+            answer: "User management helps maintain platform quality.\n\nBenefits:\n- Detect misuse\n- Resolve issues\n- Manage inactive users\n- Ensure security"
+            },
+            {
+            title: "How Can Admin View User Profiles?",
+            answer: "Admin dashboard requests profile data through backend APIs.\n\nFlow:\nAdmin Dashboard\n↓\nAPI Request\n↓\nMongoDB Query\n↓\nProfile Data Returned"
+            },
+            {
+            title: "What is Assignment Management?",
+            answer: "Assignment management allows administrators to create, update, and manage assessments.\n\nAdmins can:\n- Create questions\n- Edit assignments\n- Delete assignments\n- Track submissions"
+            },
+            {
+            title: "Why Assignment Management Is Important?",
+            answer: "Assignments help evaluate user knowledge and performance.\n\nThe admin panel provides complete control over assessment content."
+            },
+            {
+            title: "How Does Assignment Creation Work?",
+            answer: "1. Admin enters assignment details.\n2. Questions are added.\n3. Assignment saved to database.\n4. Assignment becomes available to users."
+            },
+            {
+            title: "How Does Assignment Retrieval Work?",
+            answer: "When users open assignments:\n\nFrontend\n↓\nAssignment API\n↓\nMongoDB Query\n↓\nAssignment Data Returned\n↓\nQuestions Displayed"
+            },
+            {
+            title: "How Does Assignment Submission Work?",
+            answer: "1. User answers questions.\n2. Answers sent to backend.\n3. Submission stored.\n4. Evaluation performed.\n5. Results generated."
+            },
+            {
+            title: "What is Score Management?",
+            answer: "Score management tracks user performance.\n\nScores help:\n- Measure progress\n- Analyze performance\n- Generate reports\n- Track improvement"
+            },
+            {
+            title: "How Are Scores Stored?",
+            answer: "After evaluation:\n\nSubmission\n↓\nScore Calculation\n↓\nMongoDB Storage\n↓\nDashboard Display"
+            },
+            {
+            title: "Why Historical Score Tracking Is Useful?",
+            answer: "Historical tracking allows users and admins to monitor progress over time.\n\nBenefits:\n- Identify improvement\n- Compare performances\n- Track learning trends"
+            },
+            {
+            title: "What is the Messaging System?",
+            answer: "The messaging system enables communication between users and administrators.\n\nPurpose:\n- Support requests\n- Feedback\n- Queries\n- Guidance"
+            },
+            {
+            title: "How Does User Messaging Work?",
+            answer: "1. User sends message.\n2. Backend stores message.\n3. Admin views conversation.\n4. Admin replies.\n5. User receives response."
+            },
+            {
+            title: "Why Messaging Is Important?",
+            answer: "Messaging improves user support and communication.\n\nBenefits:\n- Faster issue resolution\n- Better user experience\n- Direct communication channel"
+            },
+            {
+            title: "How Are Messages Stored?",
+            answer: "Messages are stored as documents in MongoDB.\n\nTypical fields:\n- Sender\n- Receiver\n- Message Content\n- Timestamp\n- Status"
+            },
+            {
+            title: "What is Resume Parsing?",
+            answer: "Resume parsing automatically extracts information from uploaded resumes.\n\nInstead of manually entering details, users upload a resume and data is extracted automatically."
+            },
+            {
+            title: "Why Resume Parsing Is Useful?",
+            answer: "Benefits:\n- Saves time\n- Reduces manual work\n- Improves user experience\n- Faster profile creation"
+            },
+            {
+            title: "What Information Can Be Extracted From Resumes?",
+            answer: "Examples:\n- Name\n- Email\n- Phone Number\n- Skills\n- Education\n- Experience\n- Certifications\n\nThe parser converts unstructured resume text into structured profile data."
+            },
+            {
+            title: "How Resume Parsing Works Internally?",
+            answer: "Resume Upload\n↓\nFile Processing\n↓\nText Extraction\n↓\nInformation Identification\n↓\nStructured Data Generated\n↓\nProfile Updated"
+            },
+            {
+            title: "What Challenges Exist In Resume Parsing?",
+            answer: "Challenges include:\n- Different resume formats\n- Complex layouts\n- Missing information\n- Inconsistent wording\n\nThe parser must handle multiple document structures."
+            },
+            {
+            title: "What is Contact Management?",
+            answer: "Contact management handles user inquiries and support requests.\n\nUsers can submit questions and administrators can respond through the system."
+            },
+            {
+            title: "Why Contact Forms Are Important?",
+            answer: "Contact forms provide a direct communication channel.\n\nBenefits:\n- User support\n- Feedback collection\n- Issue reporting\n- Platform improvement"
+            },
+            {
+            title: "How Does Admin Monitor Platform Activity?",
+            answer: "Admins access dashboards showing:\n- User counts\n- Assignment activity\n- Message volume\n- Profile completion statistics\n\nThis helps understand platform usage."
+            },
+            {
+            title: "Interview Question: Explain Admin Module of MySaarthi",
+            answer: "The Admin Module provides centralized platform management. Administrators can manage users, assignments, scores, messages, and support requests.\n\nThe module uses role-based access control, protected APIs, MongoDB data management, and React dashboards to monitor and control platform operations securely."
+            },
+            {
+            title: "Interview Question: Which Feature Was Most Challenging To Build?",
+            answer: "Features like authentication, role-based access control, assignment evaluation, and resume parsing are typically the most challenging because they require backend logic, security considerations, database design, and frontend integration working together."
+            },
+            {
+              title: "What is Deployment?",
+              answer: "Deployment is the process of making an application available for users on the internet.\n\nDevelopment Environment\n↓\nTesting\n↓\nDeployment\n↓\nProduction Environment\n\nAfter deployment, users can access the application through a public URL."
+              },
+              {
+              title: "How Was MySaarthi Deployed?",
+              answer: "MySaarthi follows a full-stack deployment architecture.\n\nFrontend:\nReact Application\n\nBackend:\nNode.js + Express APIs\n\nDatabase:\nMongoDB Atlas\n\nThe frontend and backend are deployed separately and communicate through APIs."
+              },
+              {
+              title: "What is a Production Environment?",
+              answer: "Production is the live environment where real users access the application.\n\nCharacteristics:\n- Real data\n- Real users\n- High availability\n- Strong security\n\nProduction systems must be stable and reliable."
+              },
+              {
+              title: "Difference Between Development and Production",
+              answer: "Development:\n- Local machine\n- Testing code\n- Frequent changes\n\nProduction:\n- Live users\n- Stable code\n- Security focused\n- Performance optimized"
+              },
+              {
+              title: "What is Hosting?",
+              answer: "Hosting means storing and running an application on a server connected to the internet.\n\nWithout hosting:\nApplication only runs on local machine.\n\nWith hosting:\nAnyone can access the application online."
+              },
+              {
+              title: "Why Separate Frontend and Backend Deployment?",
+              answer: "Benefits:\n- Independent scaling\n- Easier maintenance\n- Better performance\n- Flexible architecture\n\nFrontend and backend can be updated independently."
+              },
+              {
+              title: "What is Render?",
+              answer: "Render is a cloud platform used for deploying applications.\n\nFeatures:\n- Backend hosting\n- Automatic deployments\n- SSL support\n- Environment variables\n- Easy integration with GitHub"
+              },
+              {
+              title: "Why Render Is Popular For Full Stack Projects?",
+              answer: "Render simplifies deployment.\n\nBenefits:\n- Easy setup\n- Free tier available\n- Automatic builds\n- Continuous deployment\n- Backend hosting support"
+              },
+              {
+              title: "What is MongoDB Atlas?",
+              answer: "MongoDB Atlas is MongoDB's cloud database platform.\n\nBenefits:\n- Managed database\n- Automatic backups\n- High availability\n- Global access\n- Easy scalability"
+              },
+              {
+              title: "Why MongoDB Atlas Was Used?",
+              answer: "MongoDB Atlas eliminates the need to manage database servers manually.\n\nDevelopers can focus on application development while Atlas manages infrastructure."
+              },
+              {
+              title: "How Frontend Communicates With Backend In Production?",
+              answer: "Frontend sends HTTP requests to backend API URLs.\n\nExample:\nFrontend\n↓\nHTTPS Request\n↓\nBackend API\n↓\nDatabase Query\n↓\nResponse Returned"
+              },
+              {
+              title: "Why Environment Variables Are Important In Production?",
+              answer: "Environment variables store sensitive information securely.\n\nExamples:\n- Database URLs\n- JWT Secrets\n- Email Credentials\n- API Keys\n\nThey prevent sensitive data from being exposed in source code."
+              },
+              {
+              title: "What is HTTPS?",
+              answer: "HTTPS is a secure communication protocol.\n\nBenefits:\n- Data encryption\n- User privacy\n- Protection from attackers\n\nProduction applications should always use HTTPS."
+              },
+              {
+              title: "Why HTTPS Is Better Than HTTP?",
+              answer: "HTTP:\nData transmitted in plain text.\n\nHTTPS:\nData encrypted.\n\nHTTPS protects passwords, tokens, and personal information during transmission."
+              },
+              {
+              title: "What is SSL Certificate?",
+              answer: "SSL certificates enable HTTPS.\n\nThey:\n- Encrypt communication\n- Verify website identity\n- Increase user trust"
+              },
+              {
+              title: "What is Scalability?",
+              answer: "Scalability is the ability of a system to handle increasing traffic and workload.\n\nA scalable system continues performing well as users grow."
+              },
+              {
+              title: "Why Scalability Is Important?",
+              answer: "As user numbers increase:\n- More API requests occur.\n- More database operations happen.\n- More resources are required.\n\nScalability ensures smooth performance."
+              },
+              {
+              title: "What is Horizontal Scaling?",
+              answer: "Horizontal scaling means adding more servers.\n\nExample:\n1 Server\n↓\n2 Servers\n↓\n5 Servers\n\nTraffic is distributed across multiple machines."
+              },
+              {
+              title: "What is Vertical Scaling?",
+              answer: "Vertical scaling means increasing resources of the same server.\n\nExample:\nMore RAM\nMore CPU\nMore Storage\n\nThis increases server capacity."
+              },
+              {
+              title: "Difference Between Horizontal and Vertical Scaling",
+              answer: "Horizontal Scaling:\nAdd more servers.\n\nVertical Scaling:\nUpgrade existing server.\n\nLarge systems often prefer horizontal scaling."
+              },
+              {
+              title: "What is Load Balancing?",
+              answer: "Load balancing distributes incoming traffic across multiple servers.\n\nBenefits:\n- Better performance\n- Higher availability\n- Reduced server overload"
+              },
+              {
+              title: "What Happens If Backend Server Crashes?",
+              answer: "Without redundancy:\nApplication becomes unavailable.\n\nWith multiple servers and load balancing:\nTraffic is redirected to healthy servers."
+              },
+              {
+              title: "What is Caching?",
+              answer: "Caching stores frequently accessed data temporarily.\n\nBenefits:\n- Faster responses\n- Reduced database load\n- Better user experience"
+              },
+              {
+              title: "How Does Caching Improve Performance?",
+              answer: "Without Cache:\nEvery request hits database.\n\nWith Cache:\nFrequently requested data is served instantly.\n\nThis reduces response time."
+              },
+              {
+              title: "What is Redis?",
+              answer: "Redis is an in-memory data store commonly used for caching.\n\nUses:\n- Session storage\n- API caching\n- Rate limiting\n- Real-time features"
+              },
+              {
+              title: "What is CI/CD?",
+              answer: "CI/CD stands for:\n\nContinuous Integration\nContinuous Deployment\n\nIt automates testing, building, and deployment processes."
+              },
+              {
+              title: "How CI/CD Works?",
+              answer: "Developer Pushes Code\n↓\nAutomated Tests Run\n↓\nBuild Created\n↓\nDeployment Triggered\n↓\nProduction Updated"
+              },
+              {
+              title: "Why CI/CD Is Important?",
+              answer: "Benefits:\n- Faster deployments\n- Fewer manual errors\n- Consistent releases\n- Better development workflow"
+              },
+              {
+              title: "What is GitHub Integration In Deployment?",
+              answer: "GitHub integration automatically deploys new code after pushing updates.\n\nFlow:\nCode Push\n↓\nGitHub\n↓\nDeployment Platform\n↓\nAutomatic Build\n↓\nApplication Updated"
+              },
+              {
+              title: "Interview Question: Explain Production Architecture of MySaarthi",
+              answer: "MySaarthi follows a modern full-stack architecture.\n\nFrontend is built using React and deployed separately.\nBackend uses Node.js, Express, JWT authentication, and MongoDB Atlas.\n\nThe frontend communicates with backend APIs through HTTPS. Environment variables secure sensitive information, while cloud hosting provides public access and scalability."
+              },
+              {
+              title: "Interview Question: How Would You Improve MySaarthi For 1 Million Users?",
+              answer: "Possible improvements:\n- Docker containerization\n- Redis caching\n- Load balancers\n- Horizontal scaling\n- CDN integration\n- Database optimization\n- Microservices architecture\n- Kubernetes orchestration\n\nThese changes improve scalability, performance, and reliability."
+              },
+              {
+                title:"Give me a brief overview of MySaarthi.",
+                answer:"MySaarthi is a full-stack career guidance and student management platform built using React, Node.js, Express, and MongoDB. It includes authentication, profile management, resume parsing, assignments, score tracking, messaging, and an admin dashboard."
+                },
+                {
+                title:"Why did you build MySaarthi?",
+                answer:"I wanted to solve the problem of managing student profiles, assessments, communication, and career-related information on a single platform. The goal was to provide a centralized system for both students and administrators."
+                },
+                {
+                title:"What technologies did you use and why?",
+                answer:"Frontend: React\nBackend: Node.js + Express\nDatabase: MongoDB\nAuthentication: JWT\nPassword Security: bcrypt\n\nI chose the MERN stack because it uses JavaScript throughout the application and integrates efficiently."
+                },
+                {
+                title:"Explain the complete architecture of your project.",
+                answer:"React frontend communicates with Express APIs. Express handles business logic and interacts with MongoDB. JWT authentication secures protected routes. Admin and user roles are managed through authorization middleware."
+                },
+                {
+                title:"Why did you choose MongoDB instead of MySQL?",
+                answer:"MongoDB provides flexible document-based storage. Since user profiles, assignments, and resume data can vary in structure, MongoDB was easier to work with than fixed relational schemas."
+                },
+                {
+                title:"How does user registration work internally?",
+                answer:"User submits registration form → Backend validates input → Password hashed using bcrypt → User stored in MongoDB → OTP generated and sent → User verifies OTP → Account activated."
+                },
+                {
+                title:"How does login work internally?",
+                answer:"User submits email and password → Backend finds user → bcrypt compares password → JWT generated → JWT returned to frontend → Frontend stores token and uses it for future requests."
+                },
+                {
+                title:"Why did you use JWT?",
+                answer:"JWT provides stateless authentication. The server does not need to maintain session data, making the application easier to scale."
+                },
+                {
+                title:"How is JWT verified?",
+                answer:"JWT middleware extracts the token from the request header, verifies it using the secret key, and identifies the authenticated user before allowing access."
+                },
+                {
+                title:"Where do you store JWT on the frontend?",
+                answer:"JWT is stored on the client side and sent with authenticated requests. The token is included in the Authorization header."
+                },
+                {
+                title:"Why do we hash passwords?",
+                answer:"Passwords should never be stored in plain text. Hashing protects user credentials even if the database is compromised."
+                },
+                {
+                title:"Why did you use bcrypt?",
+                answer:"bcrypt provides secure password hashing with salting and is resistant to brute-force attacks."
+                },
+                {
+                title:"How does OTP verification work?",
+                answer:"A random OTP is generated and sent via email. The user submits the OTP back to the server. The backend verifies the OTP before activating the account."
+                },
+                {
+                title:"What happens if OTP expires?",
+                answer:"The OTP becomes invalid and the user must request a new one."
+                },
+                {
+                title:"How did you design your database?",
+                answer:"I created separate collections for users, profiles, assignments, messages, scores, and other modules. Relationships are managed using ObjectIds where required."
+                },
+                {
+                title:"What collections exist in your database?",
+                answer:"Users, Profiles, Messages, Assignments, Scores, and other supporting collections used by the platform."
+                },
+                {
+                title:"How does profile management work?",
+                answer:"Users can view and update profile information. Updates are validated and stored in MongoDB through secured APIs."
+                },
+                {
+                title:"How does the assignment system work?",
+                answer:"Assignments are created by administrators and retrieved by users. Users submit responses, and results are stored for later analysis."
+                },
+                {
+                title:"How does score tracking work?",
+                answer:"Scores are calculated after assignment completion and stored in MongoDB. Users can later view their performance history."
+                },
+                {
+                title:"How does the messaging system work?",
+                answer:"Users send messages through the frontend. Messages are stored in MongoDB and can be viewed and managed by administrators."
+                },
+                {
+                title:"Explain the admin dashboard.",
+                answer:"The admin dashboard allows administrators to manage users, assignments, messages, scores, and platform activities through protected APIs."
+                },
+                {
+                title:"How do you prevent normal users from accessing admin routes?",
+                answer:"Role-based authorization middleware checks the user's role before granting access to admin endpoints."
+                },
+                {
+                title:"What middleware have you used?",
+                answer:"Authentication middleware, authorization middleware, CORS middleware, JSON parsing middleware, and error-handling middleware."
+                },
+                {
+                title:"What is CORS and why is it needed?",
+                answer:"CORS allows frontend and backend running on different origins to communicate securely."
+                },
+                {
+                title:"How do you handle errors in your backend?",
+                answer:"Errors are caught using try-catch blocks and centralized error-handling middleware returns appropriate responses."
+                },
+                {
+                title:"What challenge did you face while building this project?",
+                answer:"Authentication flow, OTP verification, role-based access control, and integrating multiple modules together were among the biggest challenges."
+                },
+                {
+                title:"How did you solve authentication challenges?",
+                answer:"By implementing JWT middleware, secure password hashing, protected routes, and proper validation checks."
+                },
+                {
+                title:"What would you improve if given more time?",
+                answer:"I would add Redis caching, Docker deployment, automated testing, real-time notifications, and advanced analytics."
+                },
+                {
+                title:"How would you scale this project for one million users?",
+                answer:"I would introduce Redis caching, load balancing, Docker containers, horizontal scaling, CDN support, and database optimization."
+                },
+                {
+                title:"Why should we consider this project significant?",
+                answer:"Because it combines frontend development, backend APIs, authentication, authorization, database design, resume parsing, admin management, and deployment into a single real-world application."
+                },            
+],
+
+"notenova":[
+  {
+    title: "What is the Store Platform?",
+    answer: "Store is a full-stack educational platform built using React, Node.js, Express, MongoDB, Socket.IO, Razorpay, AI integrations, and Docker.\n\nThe platform provides:\n- DSA Learning\n- Web Development Courses\n- Mock Tests\n- Practice Problems\n- AI Assistance\n- Notifications\n- Purchase Management\n- Student Dashboard\n- Admin Dashboard\n\nThe goal is to provide a centralized learning ecosystem."
+  },
+  {
+    title: "Why Did You Build Store?",
+    answer: "I wanted to create a real-world educational platform that combines learning, testing, communication, AI assistance, and payments in one application.\n\nThe project helped me learn full-stack development, system design, deployment, authentication, and real-world architecture."
+  },
+  {
+    title: "What Problem Does Store Solve?",
+    answer: "Students often use multiple platforms for courses, tests, notes, and doubt solving.\n\nStore combines these features into one platform, reducing fragmentation and improving learning efficiency."
+  },
+  {
+    title: "Explain Store Architecture.",
+    answer: "Architecture:\n\nReact Frontend\n↓\nExpress APIs\n↓\nMongoDB Database\n\nAdditional Services:\n- Razorpay\n- Socket.IO\n- AI Chatbot\n- Twilio\n- Docker\n- Kubernetes\n\nFrontend handles UI.\nBackend handles business logic.\nMongoDB stores data."
+  },
+  {
+    title: "Why React Was Chosen?",
+    answer: "React provides:\n- Component Reusability\n- Virtual DOM\n- Faster Rendering\n- Large Ecosystem\n- Easy API Integration\n\nThese features make React ideal for large frontend applications."
+  },
+  {
+    title: "What is React?",
+    answer: "React is a JavaScript library used for building user interfaces.\n\nIt follows a component-based architecture and updates UI efficiently using the Virtual DOM."
+  },
+  {
+    title: "What is a Component?",
+    answer: "A component is a reusable UI block.\n\nExamples:\n- Navbar\n- Sidebar\n- Login Form\n- Dashboard Card\n- Course Card\n\nComponents help reduce duplicate code."
+  },
+  {
+    title: "Why Are Components Important?",
+    answer: "Benefits:\n- Reusability\n- Maintainability\n- Scalability\n- Cleaner Code\n\nLarge applications become easier to manage."
+  },
+  {
+    title: "What is JSX?",
+    answer: "JSX stands for JavaScript XML.\n\nIt allows writing HTML-like syntax inside JavaScript.\n\nReact converts JSX into JavaScript during compilation."
+  },
+  {
+    title: "Why Use JSX?",
+    answer: "JSX makes UI development more readable.\n\nDevelopers can describe UI visually instead of manually creating DOM elements."
+  },
+  {
+    title: "What is Virtual DOM?",
+    answer: "Virtual DOM is a lightweight copy of the real DOM.\n\nReact updates Virtual DOM first and then updates only changed parts in the real DOM."
+  },
+  {
+    title: "Why Virtual DOM Improves Performance?",
+    answer: "Without Virtual DOM:\nEntire page updates.\n\nWith Virtual DOM:\nOnly changed elements update.\n\nThis reduces expensive DOM operations."
+  },
+  {
+    title: "What is State?",
+    answer: "State stores dynamic data inside a component.\n\nExamples:\n- Logged-in user\n- Course data\n- Notifications\n- Test scores"
+  },
+  {
+    title: "What is useState?",
+    answer: "useState is a React Hook used to create and update state.\n\nExample:\nconst [count,setCount] = useState(0);\n\nWhenever state changes, React re-renders the component."
+  },
+  {
+    title: "What is useEffect?",
+    answer: "useEffect allows executing code after rendering.\n\nCommon Uses:\n- API Calls\n- Authentication Checks\n- Event Listeners\n- Data Fetching"
+  },
+  {
+    title: "Why useEffect is Important?",
+    answer: "Most applications need data from servers.\n\nuseEffect helps fetch and update data when components load."
+  },
+  {
+    title: "What Are Props?",
+    answer: "Props are values passed from parent components to child components.\n\nThey help components communicate."
+  },
+  {
+    title: "Difference Between State and Props?",
+    answer: "State:\n- Managed inside component\n- Can change\n\nProps:\n- Passed by parent\n- Read-only"
+  },
+  {
+    title: "What is React Router?",
+    answer: "React Router handles navigation between pages.\n\nExamples:\n/login\n/dashboard\n/profile\n/practice\n\nwithout reloading the application."
+  },
+  {
+    title: "Why Use React Router?",
+    answer: "Benefits:\n- Fast navigation\n- Better user experience\n- Single Page Application support"
+  },
+  {
+    title: "What is a Single Page Application?",
+    answer: "A Single Page Application loads once and dynamically updates content without refreshing the browser."
+  },
+  {
+    title: "What is Conditional Rendering?",
+    answer: "Conditional rendering displays different UI based on conditions.\n\nExample:\nLogged In → Dashboard\nNot Logged In → Login Page"
+  },
+  {
+    title: "How Does Login Page Work?",
+    answer: "User enters credentials.\nFrontend sends request.\nBackend validates.\nJWT generated.\nUser redirected to dashboard."
+  },
+  {
+    title: "How Does Registration Work?",
+    answer: "User submits information.\nBackend validates data.\nPassword hashed.\nUser saved in database.\nAccount created."
+  },
+  {
+    title: "Why Material UI?",
+    answer: "Material UI provides:\n- Ready-made components\n- Responsive design\n- Faster development\n- Consistent UI"
+  },
+  {
+    title: "What MUI Components Did You Use?",
+    answer: "Examples:\n- Box\n- Grid\n- Card\n- Button\n- Typography\n- Dialog\n- Snackbar\n- TextField"
+  },
+  {
+    title: "Why Use Snackbar?",
+    answer: "Snackbar displays temporary messages.\n\nExamples:\n- Login Success\n- Error Messages\n- Payment Success"
+  },
+  {
+    title: "What is Responsive Design?",
+    answer: "Responsive design ensures applications work properly on:\n- Mobile\n- Tablet\n- Laptop\n- Desktop"
+  },
+  {
+    title: "How Did You Make Store Responsive?",
+    answer: "Using:\n- MUI Grid System\n- Flexbox\n- Breakpoints\n- Responsive Typography"
+  },
+  {
+    title: "What is Lazy Loading?",
+    answer: "Lazy loading loads components only when needed.\n\nBenefits:\n- Faster initial load\n- Smaller bundle size"
+  },
+  {
+    title: "What is API Integration?",
+    answer: "API integration allows frontend and backend to communicate using HTTP requests."
+  },
+  {
+    title: "How Does Frontend Call APIs?",
+    answer: "Frontend sends HTTP requests using Axios or Fetch.\n\nBackend processes request and returns response."
+  },
+  {
+    title: "What is Axios?",
+    answer: "Axios is a JavaScript library used for making HTTP requests.\n\nIt simplifies API communication."
+  },
+  {
+    title: "Why Axios Instead of Fetch?",
+    answer: "Axios provides:\n- Better error handling\n- Request interceptors\n- Automatic JSON transformation"
+  },
+  {
+    title: "How Are Tokens Sent With Requests?",
+    answer: "JWT is included in Authorization headers.\n\nExample:\nAuthorization: Bearer token"
+  },
+  {
+    title: "What Happens If Token Is Missing?",
+    answer: "Backend rejects request and returns Unauthorized response."
+  },
+  {
+    title: "How Does Dashboard Work?",
+    answer: "Dashboard loads user data through APIs and displays:\n- Courses\n- Progress\n- Purchases\n- Notifications"
+  },
+  {
+    title: "How Does Course Listing Work?",
+    answer: "Frontend requests course data.\nBackend fetches courses.\nReact renders course cards dynamically."
+  },
+  {
+    title: "How Does Search Work?",
+    answer: "User enters query.\nFrontend filters results or sends request to backend.\nMatching items displayed."
+  },
+  {
+    title: "What is Component Reusability?",
+    answer: "A reusable component can be used multiple times.\n\nExample:\nCourseCard used for all courses."
+  },
+  {
+    title: "Why Reusable Components Matter?",
+    answer: "Benefits:\n- Less code\n- Easier maintenance\n- Faster development"
+  },
+  {
+    title: "How Does Notification Bell Work?",
+    answer: "Frontend requests notifications.\nUnread count displayed.\nUser clicks bell to view messages."
+  },
+  {
+    title: "How Does Profile Page Work?",
+    answer: "Profile API fetches user data.\nReact displays information.\nUpdates are sent through API calls."
+  },
+  {
+    title: "How Does Purchase Page Work?",
+    answer: "Courses displayed.\nUser selects course.\nPayment initiated.\nBackend processes purchase."
+  },
+  {
+    title: "How Does Practice Section Work?",
+    answer: "Questions fetched from database.\nUser attempts problems.\nResults stored and displayed."
+  },
+  {
+    title: "How Does Test Section Work?",
+    answer: "Test data loaded.\nTimer starts.\nUser submits answers.\nBackend evaluates responses."
+  },
+  {
+    title: "What Makes Store Different From Simple CRUD Projects?",
+    answer: "Store includes:\n- Authentication\n- Payments\n- AI\n- Real-Time Features\n- Notifications\n- Admin Dashboard\n- Docker\n- Kubernetes\n\nmaking it a production-style application."
+  },
+  {
+    title: "Interview Question: Explain Frontend Architecture of Store.",
+    answer: "Store frontend follows component-based architecture using React and Material UI.\n\nReact Router manages navigation, Hooks manage state and side effects, APIs fetch backend data, and reusable components maintain consistency across the application."
+  },
+  {
+    title: "Interview Question: Why Did You Choose React Over Angular?",
+    answer: "React provides greater flexibility, a simpler learning curve, reusable components, and a massive ecosystem, making it suitable for rapidly building scalable applications."
+  },
+  {
+    title: "Interview Question: Which Frontend Feature Was Most Challenging?",
+    answer: "Complex dashboard rendering, state synchronization, authentication flows, and integrating multiple APIs are typically the most challenging frontend tasks."
+  },
+  {
+    title: "Why Did You Choose Node.js For Store?",
+    answer: "Node.js allows JavaScript to run on the server side.\n\nBenefits:\n- Fast development\n- Same language across frontend and backend\n- Huge ecosystem\n- Excellent for API development\n- Non-blocking architecture"
+  },
+  {
+    title: "What is Node.js?",
+    answer: "Node.js is a JavaScript runtime built on Chrome's V8 Engine.\n\nIt allows JavaScript code to execute outside the browser and is commonly used for backend development."
+  },
+  {
+    title: "Why is Node.js Fast?",
+    answer: "Node.js uses:\n- V8 Engine\n- Event Loop\n- Non-blocking I/O\n\nInstead of waiting for one request to finish before handling another, Node.js can process many requests concurrently."
+  },
+  {
+    title: "What is the Event Loop?",
+    answer: "The Event Loop is the mechanism that allows Node.js to perform non-blocking operations.\n\nIt continuously checks pending tasks and executes callbacks when operations complete."
+  },
+  {
+    title: "Explain Non-Blocking I/O.",
+    answer: "Traditional systems wait for operations like database queries to finish.\n\nNode.js sends the operation, continues other work, and processes the result later.\n\nThis improves scalability."
+  },
+  {
+    title: "Why Express.js?",
+    answer: "Express simplifies backend development.\n\nIt provides:\n- Routing\n- Middleware\n- Request Handling\n- Response Handling\n- API Development"
+  },
+  {
+    title: "What is Express.js?",
+    answer: "Express is a lightweight Node.js framework used for building APIs and backend applications."
+  },
+  {
+    title: "What is a Route?",
+    answer: "A route defines how the backend responds to a specific request.\n\nExample:\nGET /api/users\nPOST /api/login"
+  },
+  {
+    title: "Difference Between GET and POST?",
+    answer: "GET:\nRetrieve Data\n\nPOST:\nCreate Data\n\nGET is used for fetching information while POST is used for sending data to the server."
+  },
+  {
+    title: "Difference Between PUT and PATCH?",
+    answer: "PUT:\nReplaces entire resource.\n\nPATCH:\nUpdates specific fields only."
+  },
+  {
+    title: "Difference Between PUT and POST?",
+    answer: "POST creates new resources.\nPUT updates existing resources."
+  },
+  {
+    title: "What is REST API?",
+    answer: "REST API is an architectural style where frontend and backend communicate using HTTP methods such as GET, POST, PUT, PATCH, and DELETE."
+  },
+  {
+    title: "Why Use REST APIs?",
+    answer: "REST APIs provide:\n- Separation of concerns\n- Scalability\n- Reusability\n- Frontend-backend independence"
+  },
+  {
+    title: "What APIs Did You Build In Store?",
+    answer: "Examples:\n- Authentication APIs\n- Course APIs\n- Purchase APIs\n- Notification APIs\n- Profile APIs\n- Admin APIs\n- Chatbot APIs"
+  },
+  {
+    title: "How Does API Flow Work?",
+    answer: "Frontend Request\n↓\nRoute\n↓\nController\n↓\nDatabase Query\n↓\nResponse\n↓\nFrontend Update"
+  },
+  {
+    title: "What is Middleware?",
+    answer: "Middleware is a function that runs between request and response.\n\nExamples:\n- Authentication\n- Logging\n- Validation\n- Error Handling"
+  },
+  {
+    title: "Why Use Middleware?",
+    answer: "Middleware avoids repeating logic in every route.\n\nAuthentication checks can be written once and reused everywhere."
+  },
+  {
+    title: "What is Authentication Middleware?",
+    answer: "Authentication middleware verifies JWT tokens before allowing access to protected routes."
+  },
+  {
+    title: "What Happens Inside Authentication Middleware?",
+    answer: "1. Extract JWT.\n2. Verify JWT.\n3. Identify user.\n4. Attach user info to request.\n5. Allow or reject request."
+  },
+  {
+    title: "What is Authorization Middleware?",
+    answer: "Authorization middleware checks user permissions after authentication."
+  },
+  {
+    title: "Difference Between Authentication and Authorization?",
+    answer: "Authentication:\nWho are you?\n\nAuthorization:\nWhat are you allowed to do?"
+  },
+  {
+    title: "How Do Admin Routes Work?",
+    answer: "Authentication verifies user identity.\nAuthorization checks whether user role is Admin.\nOnly then access is granted."
+  },
+  {
+    title: "Why Separate Routes and Controllers?",
+    answer: "Routes handle endpoints.\nControllers handle business logic.\n\nThis improves maintainability."
+  },
+  {
+    title: "What is a Controller?",
+    answer: "A controller contains the actual logic executed when a route is called."
+  },
+  {
+    title: "What is Business Logic?",
+    answer: "Business logic contains the rules of the application.\n\nExamples:\n- Login validation\n- Payment processing\n- Purchase verification"
+  },
+  {
+    title: "What is MVC Architecture?",
+    answer: "MVC stands for:\nModel\nView\nController\n\nIt separates application responsibilities for better organization."
+  },
+  {
+    title: "How Does MVC Help?",
+    answer: "Benefits:\n- Cleaner code\n- Easier debugging\n- Better scalability\n- Team collaboration"
+  },
+  {
+    title: "What is Request Object?",
+    answer: "Request object contains information sent by the client.\n\nExamples:\n- Body\n- Headers\n- Parameters\n- Query Data"
+  },
+  {
+    title: "What is Response Object?",
+    answer: "Response object is used to send data back to the client."
+  },
+  {
+    title: "Difference Between req.params and req.query?",
+    answer: "req.params:\n/api/user/123\n\nreq.query:\n/api/user?id=123"
+  },
+  {
+    title: "What is JSON?",
+    answer: "JSON is a lightweight data format used for communication between frontend and backend."
+  },
+  {
+    title: "Why JSON Is Popular?",
+    answer: "JSON is:\n- Human readable\n- Lightweight\n- Easy to parse\n- Language independent"
+  },
+  {
+    title: "How Are Errors Handled?",
+    answer: "Errors are caught using try-catch blocks and centralized error-handling middleware."
+  },
+  {
+    title: "Why Centralized Error Handling?",
+    answer: "Benefits:\n- Consistency\n- Cleaner code\n- Easier debugging"
+  },
+  {
+    title: "What is Async/Await?",
+    answer: "Async/Await simplifies asynchronous programming and makes code easier to read."
+  },
+  {
+    title: "Why Use Async/Await Instead of Callbacks?",
+    answer: "Benefits:\n- Cleaner syntax\n- Better readability\n- Easier error handling"
+  },
+  {
+    title: "What is Promise?",
+    answer: "A Promise represents a future result of an asynchronous operation."
+  },
+  {
+    title: "Promise States?",
+    answer: "Pending\nFulfilled\nRejected"
+  },
+  {
+    title: "How Does Course Purchase Flow Work?",
+    answer: "User Selects Course\n↓\nFrontend Calls Purchase API\n↓\nPayment Verification\n↓\nPurchase Stored\n↓\nCourse Access Granted"
+  },
+  {
+    title: "How Does Notification API Work?",
+    answer: "Notification created.\nStored in database.\nReturned through API.\nDisplayed on frontend."
+  },
+  {
+    title: "What is API Validation?",
+    answer: "Validation ensures incoming data is correct before processing."
+  },
+  {
+    title: "Why Validation Is Important?",
+    answer: "Benefits:\n- Prevents invalid data\n- Improves security\n- Reduces bugs"
+  },
+  {
+    title: "What Happens If Validation Is Missing?",
+    answer: "Invalid data can enter the database and cause application failures."
+  },
+  {
+    title: "What Status Code Means Success?",
+    answer: "200 OK\n201 Created"
+  },
+  {
+    title: "What Status Code Means Unauthorized?",
+    answer: "401 Unauthorized"
+  },
+  {
+    title: "What Status Code Means Forbidden?",
+    answer: "403 Forbidden"
+  },
+  {
+    title: "What Status Code Means Not Found?",
+    answer: "404 Not Found"
+  },
+  {
+    title: "What Status Code Means Server Error?",
+    answer: "500 Internal Server Error"
+  },
+  {
+    title: "What is CORS?",
+    answer: "Cross-Origin Resource Sharing allows frontend and backend running on different domains to communicate."
+  },
+  {
+    title: "Why Was CORS Needed In Store?",
+    answer: "Frontend and backend are deployed separately.\nCORS allows them to communicate securely."
+  },
+  {
+    title: "What Happens If CORS Is Not Configured?",
+    answer: "Browsers block requests between different origins."
+  },
+  {
+    title: "Explain Backend Architecture of Store.",
+    answer: "Store backend follows layered architecture:\n\nRoutes\n↓\nMiddleware\n↓\nControllers\n↓\nServices\n↓\nMongoDB\n\nThis separation improves maintainability and scalability."
+  },
+  {
+    title: "Interview Question: Explain Login Flow End-To-End.",
+    answer: "User enters credentials.\nFrontend sends login request.\nBackend validates credentials.\nPassword compared using bcrypt.\nJWT generated.\nJWT returned.\nFrontend stores token.\nProtected APIs use token for authentication."
+  },
+  {
+    title: "Interview Question: Explain One API You Built.",
+    answer: "For example Purchase API:\nUser initiates payment.\nBackend creates Razorpay order.\nPayment completes.\nBackend verifies signature.\nPurchase stored.\nCourse access granted."
+  },
+  {
+    title: "Interview Question: What Was The Hardest Backend Feature?",
+    answer: "Authentication, payment verification, Socket.IO integration, and AI chatbot integration are typically the most challenging backend features because they involve multiple systems working together."
+  },
+  {
+    title: "Why Did You Choose MongoDB For Store?",
+    answer: "MongoDB is a NoSQL document database.\n\nBenefits:\n- Flexible schema\n- JSON-like documents\n- Fast development\n- Easy scaling\n- Perfect for MERN stack applications"
+  },
+  {
+    title: "What is MongoDB?",
+    answer: "MongoDB is a NoSQL database that stores data in BSON documents instead of tables and rows."
+  },
+  {
+    title: "Difference Between SQL and MongoDB?",
+    answer: "SQL:\n- Tables\n- Rows\n- Fixed Schema\n\nMongoDB:\n- Collections\n- Documents\n- Flexible Schema"
+  },
+  {
+    title: "Why MongoDB Fits Educational Platforms?",
+    answer: "Student profiles, courses, purchases, tests, and AI data can vary significantly.\n\nMongoDB's flexible schema handles this naturally."
+  },
+  {
+    title: "What is BSON?",
+    answer: "BSON stands for Binary JSON.\n\nMongoDB stores documents internally in BSON format for efficient storage and retrieval."
+  },
+  {
+    title: "What is a Collection?",
+    answer: "A collection is similar to a table in SQL.\n\nExample:\nUsers Collection\nCourses Collection\nPurchases Collection"
+  },
+  {
+    title: "What is a Document?",
+    answer: "A document is a single record stored in MongoDB.\n\nExample:\nA single user's profile information."
+  },
+  {
+    title: "Difference Between Collection and Document?",
+    answer: "Collection:\nGroup of documents.\n\nDocument:\nSingle record inside collection."
+  },
+  {
+    title: "What is ObjectId?",
+    answer: "ObjectId is MongoDB's default unique identifier.\n\nEvery document automatically receives a unique ObjectId."
+  },
+  {
+    title: "Why Use ObjectId?",
+    answer: "Benefits:\n- Globally unique\n- Efficient indexing\n- Fast lookups"
+  },
+  {
+    title: "What is Mongoose?",
+    answer: "Mongoose is an ODM (Object Data Modeling) library for MongoDB and Node.js."
+  },
+  {
+    title: "Why Use Mongoose?",
+    answer: "Mongoose provides:\n- Schema validation\n- Middleware\n- Query helpers\n- Cleaner code"
+  },
+  {
+    title: "What is a Schema?",
+    answer: "A schema defines the structure of documents stored in MongoDB."
+  },
+  {
+    title: "Example User Schema Fields?",
+    answer: "Typical fields:\n- Name\n- Email\n- Password\n- Role\n- CreatedAt\n- UpdatedAt"
+  },
+  {
+    title: "Why Use Schemas If MongoDB Is Schema-Less?",
+    answer: "Schemas provide:\n- Validation\n- Consistency\n- Better maintainability"
+  },
+  {
+    title: "What is Model in Mongoose?",
+    answer: "A model is used to interact with MongoDB collections based on a schema."
+  },
+  {
+    title: "How Does Mongoose Model Work?",
+    answer: "Schema defines structure.\nModel uses schema.\nModel performs CRUD operations."
+  },
+  {
+    title: "What is CRUD?",
+    answer: "CRUD stands for:\nCreate\nRead\nUpdate\nDelete\n\nThese are the basic database operations."
+  },
+  {
+    title: "How Do You Create Documents?",
+    answer: "Using model.create() or new Model().save()."
+  },
+  {
+    title: "How Do You Read Documents?",
+    answer: "Using:\nfind()\nfindOne()\nfindById()"
+  },
+  {
+    title: "How Do You Update Documents?",
+    answer: "Using:\nupdateOne()\nupdateMany()\nfindByIdAndUpdate()"
+  },
+  {
+    title: "How Do You Delete Documents?",
+    answer: "Using:\ndeleteOne()\ndeleteMany()\nfindByIdAndDelete()"
+  },
+  {
+    title: "What is Database Indexing?",
+    answer: "Indexes improve query speed by allowing MongoDB to locate documents efficiently."
+  },
+  {
+    title: "Why Are Indexes Important?",
+    answer: "Without indexes:\nFull collection scan.\n\nWith indexes:\nFast lookups."
+  },
+  {
+    title: "Which Fields Usually Need Indexes?",
+    answer: "Examples:\n- Email\n- Username\n- CourseId\n- PurchaseId"
+  },
+  {
+    title: "Why Index Email?",
+    answer: "Login systems frequently search users by email.\n\nIndexing improves authentication performance."
+  },
+  {
+    title: "What Happens If Too Many Indexes Exist?",
+    answer: "Reads become faster but writes become slower because indexes must also be updated."
+  },
+  {
+    title: "What is Data Validation?",
+    answer: "Validation ensures documents meet required rules before being stored."
+  },
+  {
+    title: "Examples of Validation?",
+    answer: "Examples:\n- Required fields\n- Email format\n- Minimum length\n- Unique constraints"
+  },
+  {
+    title: "Why Validation Is Important?",
+    answer: "Validation prevents invalid data from entering the database."
+  },
+  {
+    title: "What is Unique Constraint?",
+    answer: "A unique field prevents duplicate values.\n\nExample:\nEmail addresses should be unique."
+  },
+  {
+    title: "How Does User Registration Use MongoDB?",
+    answer: "Registration data is validated, password hashed, and user document inserted into Users collection."
+  },
+  {
+    title: "How Does Login Use MongoDB?",
+    answer: "MongoDB searches for the user document using email and returns matching data."
+  },
+  {
+    title: "How Does Purchase Storage Work?",
+    answer: "After successful payment, purchase details are stored in a Purchases collection."
+  },
+  {
+    title: "How Are Notifications Stored?",
+    answer: "Each notification is stored as a document associated with a user."
+  },
+  {
+    title: "How Are Course Purchases Linked To Users?",
+    answer: "Using ObjectId references between User and Purchase documents."
+  },
+  {
+    title: "What is Referencing in MongoDB?",
+    answer: "Referencing stores ObjectIds of related documents instead of embedding all data."
+  },
+  {
+    title: "What is Embedding?",
+    answer: "Embedding stores related data inside the same document."
+  },
+  {
+    title: "Embedding vs Referencing?",
+    answer: "Embedding:\nFaster reads.\n\nReferencing:\nBetter normalization.\n\nChoice depends on use case."
+  },
+  {
+    title: "When Should You Use Embedding?",
+    answer: "When related data is small and frequently accessed together."
+  },
+  {
+    title: "When Should You Use Referencing?",
+    answer: "When relationships are large or reused across multiple collections."
+  },
+  {
+    title: "What is Population in Mongoose?",
+    answer: "Populate replaces ObjectId references with actual document data."
+  },
+  {
+    title: "Why Use Populate?",
+    answer: "It simplifies fetching related information from multiple collections."
+  },
+  {
+    title: "Example of Populate?",
+    answer: "Fetching purchase details along with user details in a single query."
+  },
+  {
+    title: "What is Aggregation Framework?",
+    answer: "Aggregation allows advanced data processing and analytics inside MongoDB."
+  },
+  {
+    title: "Why Use Aggregation?",
+    answer: "For reporting, statistics, dashboards, and analytical queries."
+  },
+  {
+    title: "How Could Aggregation Be Used In Store?",
+    answer: "Examples:\n- Total purchases\n- Most popular course\n- Active users\n- Revenue analytics"
+  },
+  {
+    title: "What is Pagination?",
+    answer: "Pagination loads data in chunks instead of loading everything at once."
+  },
+  {
+    title: "Why Is Pagination Important?",
+    answer: "Benefits:\n- Faster APIs\n- Reduced memory usage\n- Better user experience"
+  },
+  {
+    title: "How Would You Implement Pagination?",
+    answer: "Using skip() and limit() methods."
+  },
+  {
+    title: "What is Database Optimization?",
+    answer: "Optimization improves query performance and reduces resource consumption."
+  },
+  {
+    title: "How Would You Optimize MongoDB?",
+    answer: "Methods:\n- Proper indexing\n- Pagination\n- Efficient queries\n- Aggregation optimization"
+  },
+  {
+    title: "What Happens If Database Becomes Very Large?",
+    answer: "Performance may degrade.\n\nSolutions:\n- Indexing\n- Sharding\n- Caching\n- Horizontal scaling"
+  },
+  {
+    title: "What is Sharding?",
+    answer: "Sharding distributes data across multiple MongoDB servers."
+  },
+  {
+    title: "Why Use Sharding?",
+    answer: "To handle extremely large datasets and high traffic."
+  },
+  {
+    title: "What is Replication?",
+    answer: "Replication creates multiple copies of data across servers."
+  },
+  {
+    title: "Why Is Replication Important?",
+    answer: "Benefits:\n- High availability\n- Disaster recovery\n- Fault tolerance"
+  },
+  {
+    title: "Interview Question: Explain Database Design Of Store.",
+    answer: "Store uses MongoDB with separate collections for users, courses, purchases, notifications, tests, and administrative data.\n\nRelationships are maintained using ObjectIds and Mongoose schemas ensure data consistency."
+  },
+  {
+    title: "Interview Question: Why MongoDB Instead Of PostgreSQL?",
+    answer: "MongoDB provides schema flexibility and integrates naturally with JavaScript objects used throughout the MERN stack."
+  },
+  {
+    title: "Interview Question: What Would You Improve In Your Database Design?",
+    answer: "Possible improvements include:\n- Better indexing\n- Aggregation-based analytics\n- Redis caching\n- Sharding for large-scale deployments"
+  },
+  {
+    title: "What is Authentication?",
+    answer: "Authentication is the process of verifying a user's identity.\n\nExamples:\n- Login using email and password\n- OTP verification\n- Google OAuth\n\nAuthentication answers the question:\n'Who are you?'"
+  },
+  {
+    title: "What is Authorization?",
+    answer: "Authorization determines what an authenticated user is allowed to access.\n\nExamples:\n- Student Dashboard\n- Admin Dashboard\n- Purchase Management\n\nAuthorization answers:\n'What are you allowed to do?'"
+  },
+  {
+    title: "Difference Between Authentication and Authorization?",
+    answer: "Authentication:\nVerifies identity.\n\nAuthorization:\nVerifies permissions.\n\nExample:\nUser logs in → Authentication\nUser accesses Admin Panel → Authorization"
+  },
+  {
+    title: "Why Does Store Need Authentication?",
+    answer: "Authentication protects user-specific data.\n\nExamples:\n- Purchased Courses\n- Profile Information\n- Notifications\n- Test Results\n\nOnly authenticated users should access their own data."
+  },
+  {
+    title: "What is JWT?",
+    answer: "JWT stands for JSON Web Token.\n\nIt is a secure token used for authentication between frontend and backend."
+  },
+  {
+    title: "Why Use JWT Instead of Sessions?",
+    answer: "JWT is:\n- Stateless\n- Scalable\n- Easy to use in APIs\n- Suitable for distributed systems\n\nNo server-side session storage is required."
+  },
+  {
+    title: "Structure of JWT?",
+    answer: "JWT contains:\n\nHeader\n.\nPayload\n.\nSignature\n\nExample:\nxxxxx.yyyyy.zzzzz"
+  },
+  {
+    title: "What is JWT Header?",
+    answer: "Header contains metadata.\n\nExample:\n- Token type\n- Signing algorithm"
+  },
+  {
+    title: "What is JWT Payload?",
+    answer: "Payload contains user information.\n\nExamples:\n- User ID\n- Role\n- Email"
+  },
+  {
+    title: "What is JWT Signature?",
+    answer: "Signature verifies that the token has not been modified.\n\nIt is generated using a secret key."
+  },
+  {
+    title: "How Does Login Work Using JWT?",
+    answer: "1. User enters credentials.\n2. Backend validates credentials.\n3. JWT generated.\n4. JWT sent to frontend.\n5. Frontend stores token.\n6. Token sent with future requests."
+  },
+  {
+    title: "How Is JWT Sent To Backend?",
+    answer: "JWT is sent inside Authorization header.\n\nExample:\nAuthorization: Bearer token"
+  },
+  {
+    title: "What Happens When Protected API Is Called?",
+    answer: "1. Backend extracts JWT.\n2. Verifies signature.\n3. Retrieves user information.\n4. Allows access if valid."
+  },
+  {
+    title: "What Happens If JWT Is Invalid?",
+    answer: "Backend rejects request and returns:\n401 Unauthorized"
+  },
+  {
+    title: "What Happens If JWT Expires?",
+    answer: "User must login again or use a refresh token mechanism."
+  },
+  {
+    title: "Why Should JWT Have Expiry Time?",
+    answer: "Expiry reduces security risks if a token gets stolen."
+  },
+  {
+    title: "What Is JWT Secret?",
+    answer: "JWT Secret is a private key used to generate and verify token signatures."
+  },
+  {
+    title: "Why Keep JWT Secret Private?",
+    answer: "Anyone with the secret can create valid tokens.\n\nCompromise of secret compromises authentication."
+  },
+  {
+    title: "Where Should JWT Secret Be Stored?",
+    answer: "Inside environment variables (.env file).\n\nNever hardcode secrets in source code."
+  },
+  {
+    title: "What Is Role-Based Access Control?",
+    answer: "RBAC restricts functionality based on user roles.\n\nExamples:\n- Student\n- Admin\n- Instructor"
+  },
+  {
+    title: "How Does Admin Authorization Work?",
+    answer: "1. JWT verified.\n2. User role checked.\n3. Admin routes accessible only to Admin users."
+  },
+  {
+    title: "What Is bcrypt?",
+    answer: "bcrypt is a password hashing library used to securely store passwords."
+  },
+  {
+    title: "Why Not Store Passwords Directly?",
+    answer: "Plain-text passwords are dangerous.\n\nIf database leaks, all passwords become exposed."
+  },
+  {
+    title: "What Is Password Hashing?",
+    answer: "Hashing converts passwords into irreversible encrypted values."
+  },
+  {
+    title: "Why Use bcrypt Specifically?",
+    answer: "bcrypt automatically adds salt and is computationally expensive, making brute-force attacks difficult."
+  },
+  {
+    title: "What Is Salt In bcrypt?",
+    answer: "Salt is random data added before hashing.\n\nIt prevents rainbow-table attacks."
+  },
+  {
+    title: "How Does Registration Work With bcrypt?",
+    answer: "1. User enters password.\n2. Password hashed.\n3. Hash stored in database.\n4. Original password discarded."
+  },
+  {
+    title: "How Does Login Work With bcrypt?",
+    answer: "1. User enters password.\n2. bcrypt compares entered password with stored hash.\n3. Login succeeds if match found."
+  },
+  {
+    title: "Can Original Password Be Retrieved From Hash?",
+    answer: "No.\n\nHashing is one-way."
+  },
+  {
+    title: "What Is OTP Authentication?",
+    answer: "OTP stands for One-Time Password.\n\nIt is used to verify user identity using a temporary code."
+  },
+  {
+    title: "Why Use OTP?",
+    answer: "OTP provides an additional verification layer beyond passwords."
+  },
+  {
+    title: "How Does OTP Flow Work?",
+    answer: "1. User requests OTP.\n2. OTP generated.\n3. OTP sent via SMS/Email.\n4. User enters OTP.\n5. Backend verifies OTP."
+  },
+  {
+    title: "What Is Two-Factor Authentication?",
+    answer: "2FA requires two verification methods.\n\nExample:\nPassword + OTP"
+  },
+  {
+    title: "Why Is 2FA More Secure?",
+    answer: "Even if password is stolen, attacker still needs OTP."
+  },
+  {
+    title: "What Is Session Hijacking?",
+    answer: "Session hijacking occurs when attackers steal authentication tokens."
+  },
+  {
+    title: "How Can JWT Theft Be Reduced?",
+    answer: "Methods:\n- HTTPS\n- Token Expiry\n- Secure Storage\n- Refresh Tokens"
+  },
+  {
+    title: "What Is HTTPS?",
+    answer: "HTTPS encrypts communication between browser and server."
+  },
+  {
+    title: "Why Is HTTPS Important?",
+    answer: "Without HTTPS, attackers may intercept sensitive information."
+  },
+  {
+    title: "What Is CORS?",
+    answer: "Cross-Origin Resource Sharing controls which domains can access backend APIs."
+  },
+  {
+    title: "Why Configure CORS Carefully?",
+    answer: "Misconfigured CORS may expose APIs to unauthorized websites."
+  },
+  {
+    title: "What Is XSS?",
+    answer: "Cross-Site Scripting allows attackers to inject malicious JavaScript into webpages."
+  },
+  {
+    title: "Example of XSS Attack?",
+    answer: "Attacker inserts malicious script into comments.\n\nOther users execute the script unknowingly."
+  },
+  {
+    title: "How To Prevent XSS?",
+    answer: "Methods:\n- Input Sanitization\n- Output Escaping\n- Content Security Policy"
+  },
+  {
+    title: "What Is CSRF?",
+    answer: "Cross-Site Request Forgery tricks users into performing unwanted actions."
+  },
+  {
+    title: "Example of CSRF?",
+    answer: "Attacker causes logged-in user to submit a payment request unknowingly."
+  },
+  {
+    title: "How To Prevent CSRF?",
+    answer: "Methods:\n- CSRF Tokens\n- SameSite Cookies\n- Proper Authentication"
+  },
+  {
+    title: "What Is NoSQL Injection?",
+    answer: "NoSQL Injection manipulates MongoDB queries using malicious input."
+  },
+  {
+    title: "Example of NoSQL Injection?",
+    answer: "Attacker injects query operators to bypass authentication checks."
+  },
+  {
+    title: "How To Prevent NoSQL Injection?",
+    answer: "Methods:\n- Input Validation\n- Query Sanitization\n- Parameterized Queries"
+  },
+  {
+    title: "Why Validate Input?",
+    answer: "Validation prevents invalid or malicious data from entering the system."
+  },
+  {
+    title: "What Is Input Sanitization?",
+    answer: "Sanitization removes dangerous content before processing user input."
+  },
+  {
+    title: "How Are Protected Routes Implemented?",
+    answer: "Protected routes use authentication middleware to verify JWT before granting access."
+  },
+  {
+    title: "What Is Refresh Token?",
+    answer: "Refresh tokens generate new access tokens without forcing user login repeatedly."
+  },
+  {
+    title: "Why Use Refresh Tokens?",
+    answer: "Improves security while maintaining user experience."
+  },
+  {
+    title: "What Happens During Logout?",
+    answer: "Frontend removes token and user loses access to protected resources."
+  },
+  {
+    title: "Interview Question: Explain JWT Flow End-To-End.",
+    answer: "User logs in.\nBackend verifies credentials.\nJWT generated.\nFrontend stores token.\nToken attached to future requests.\nMiddleware verifies token.\nProtected APIs become accessible."
+  },
+  {
+    title: "Interview Question: Why JWT Instead Of Sessions?",
+    answer: "JWT is stateless, scalable, and suitable for distributed systems where multiple servers may handle requests."
+  },
+  {
+    title: "Interview Question: Why bcrypt Instead Of MD5?",
+    answer: "bcrypt includes salting and is intentionally slow.\nMD5 is fast and vulnerable to modern attacks."
+  },
+  {
+    title: "Interview Question: How Would You Improve Authentication Security?",
+    answer: "Possible improvements:\n- Refresh Tokens\n- 2FA\n- Device Tracking\n- Login Alerts\n- Rate Limiting"
+  },
+  {
+    title: "Why Did You Integrate Razorpay?",
+    answer: "Razorpay allows secure online payments.\n\nStudents can purchase courses, test series, and premium content directly from the platform."
+  },
+  {
+    title: "What is Razorpay?",
+    answer: "Razorpay is a payment gateway that enables businesses to accept online payments through cards, UPI, net banking, wallets, and other payment methods."
+  },
+  {
+    title: "What is a Payment Gateway?",
+    answer: "A payment gateway acts as a bridge between customers, banks, and merchants.\n\nIt securely processes online payments."
+  },
+  {
+    title: "How Does Payment Flow Work In Store?",
+    answer: "User Selects Course\n↓\nFrontend Requests Order Creation\n↓\nBackend Creates Razorpay Order\n↓\nUser Pays\n↓\nRazorpay Returns Payment Data\n↓\nBackend Verifies Signature\n↓\nPurchase Stored\n↓\nCourse Access Granted"
+  },
+  {
+    title: "Why Not Process Payments Yourself?",
+    answer: "Handling card information requires strict security compliance.\n\nPayment gateways handle this securely."
+  },
+  {
+    title: "What Is a Razorpay Order?",
+    answer: "An order represents a payment request created before the actual payment is made."
+  },
+  {
+    title: "Why Create Order Before Payment?",
+    answer: "Orders help track payment status and ensure secure transaction management."
+  },
+  {
+    title: "How Does Backend Create Order?",
+    answer: "Backend sends amount, currency, and receipt details to Razorpay APIs.\n\nRazorpay returns an order ID."
+  },
+  {
+    title: "What Is Order ID?",
+    answer: "Order ID uniquely identifies a payment request inside Razorpay."
+  },
+  {
+    title: "What Is Payment ID?",
+    answer: "Payment ID uniquely identifies a completed payment transaction."
+  },
+  {
+    title: "Why Store Payment ID?",
+    answer: "Payment IDs help verify payments, track transactions, and resolve disputes."
+  },
+  {
+    title: "What Is Payment Verification?",
+    answer: "Payment verification confirms that a payment actually originated from Razorpay and was not forged."
+  },
+  {
+    title: "Why Is Verification Important?",
+    answer: "Without verification, attackers could fake successful payments and gain course access."
+  },
+  {
+    title: "How Does Razorpay Verification Work?",
+    answer: "Razorpay returns payment information and a signature.\n\nBackend recreates the signature using a secret key and compares both values."
+  },
+  {
+    title: "What Is Razorpay Signature?",
+    answer: "A signature is a cryptographic value used to verify payment authenticity."
+  },
+  {
+    title: "Why Use Secret Key During Verification?",
+    answer: "Only Razorpay and your backend know the secret key.\n\nAttackers cannot generate valid signatures."
+  },
+  {
+    title: "What Happens If Signature Does Not Match?",
+    answer: "Payment is rejected and purchase is not recorded."
+  },
+  {
+    title: "What Happens After Successful Verification?",
+    answer: "1. Purchase saved.\n2. User granted access.\n3. Notifications generated.\n4. Dashboard updated."
+  },
+  {
+    title: "How Are Purchases Stored?",
+    answer: "Purchase documents typically contain:\n- User ID\n- Course ID\n- Payment ID\n- Amount\n- Purchase Date"
+  },
+  {
+    title: "Why Store Purchase History?",
+    answer: "Purchase history helps:\n- Grant access\n- Generate invoices\n- Resolve payment disputes"
+  },
+  {
+    title: "How Does User Access Purchased Courses?",
+    answer: "Backend checks purchase records before allowing access."
+  },
+  {
+    title: "Can Users Access Courses Without Purchase?",
+    answer: "No.\n\nBackend verifies ownership before providing protected content."
+  },
+  {
+    title: "How Do You Prevent Fake Purchase Requests?",
+    answer: "Course access is granted only after backend-side payment verification."
+  },
+  {
+    title: "Why Should Verification Happen On Backend?",
+    answer: "Frontend can be manipulated.\n\nBackend is trusted."
+  },
+  {
+    title: "What Is Payment Failure Handling?",
+    answer: "Failed payments are detected and access is not granted."
+  },
+  {
+    title: "What Happens If User Closes Browser During Payment?",
+    answer: "Payment status can be checked later using Razorpay APIs or webhooks."
+  },
+  {
+    title: "What Is a Webhook?",
+    answer: "A webhook is an automatic notification sent by Razorpay when payment events occur."
+  },
+  {
+    title: "Why Use Webhooks?",
+    answer: "Webhooks provide reliable payment updates even if users disconnect."
+  },
+  {
+    title: "What Payment Events Can Webhooks Track?",
+    answer: "Examples:\n- Payment Success\n- Payment Failure\n- Refund Processed"
+  },
+  {
+    title: "What Is Refund Processing?",
+    answer: "Refunds return money to users after approved cancellation requests."
+  },
+  {
+    title: "How Could Refunds Be Implemented?",
+    answer: "Backend sends refund request to Razorpay APIs and updates purchase records."
+  },
+  {
+    title: "Why Log Payment Activity?",
+    answer: "Logs help debug issues and investigate transaction disputes."
+  },
+  {
+    title: "What Security Risks Exist In Payment Systems?",
+    answer: "Examples:\n- Fake Payments\n- Replay Attacks\n- Signature Forgery\n- API Abuse"
+  },
+  {
+    title: "What Is Replay Attack?",
+    answer: "An attacker reuses valid payment data multiple times to gain unauthorized access."
+  },
+  {
+    title: "How To Prevent Replay Attacks?",
+    answer: "Store transaction IDs and reject duplicate payment processing."
+  },
+  {
+    title: "Why Validate Payment Amount?",
+    answer: "Attackers may try modifying amounts.\n\nBackend must verify expected values."
+  },
+  {
+    title: "What Happens If Amount Does Not Match?",
+    answer: "Payment should be rejected and investigated."
+  },
+  {
+    title: "Should Secret Keys Be Stored In Code?",
+    answer: "No.\n\nSecrets should always be stored in environment variables."
+  },
+  {
+    title: "Why Are Environment Variables Important?",
+    answer: "They keep sensitive information outside source code repositories."
+  },
+  {
+    title: "How Does Course Unlocking Work?",
+    answer: "Purchase record created.\nBackend checks ownership.\nCourse becomes accessible."
+  },
+  {
+    title: "Can One User Share Access With Others?",
+    answer: "Proper authentication and authorization reduce unauthorized sharing."
+  },
+  {
+    title: "How Would You Improve Payment Security?",
+    answer: "Improvements:\n- Webhooks\n- Audit Logs\n- Rate Limiting\n- Fraud Detection"
+  },
+  {
+    title: "What Is Payment Audit Trail?",
+    answer: "An audit trail records all actions related to transactions."
+  },
+  {
+    title: "Why Is Audit Trail Useful?",
+    answer: "It helps resolve disputes and investigate suspicious activity."
+  },
+  {
+    title: "How Does Payment Integration Improve Resume Value?",
+    answer: "Most students never integrate real payment systems.\n\nPayment gateways demonstrate real-world development experience."
+  },
+  {
+    title: "Interview Question: Explain Payment Flow End-To-End.",
+    answer: "Frontend requests order.\nBackend creates Razorpay order.\nUser completes payment.\nRazorpay returns payment data.\nBackend verifies signature.\nPurchase stored.\nAccess granted."
+  },
+  {
+    title: "Interview Question: Why Is Signature Verification Necessary?",
+    answer: "Signature verification ensures payment data is authentic and prevents attackers from forging successful transactions."
+  },
+  {
+    title: "Interview Question: What Would Happen If Verification Was Removed?",
+    answer: "Attackers could fake successful payments and gain access without actually paying."
+  },
+  {
+    title: "Interview Question: Why Is Payment Verification Done On Backend?",
+    answer: "Frontend is controlled by users and cannot be trusted.\n\nBackend verification ensures security."
+  },
+  {
+    title: "Interview Question: What Was The Hardest Part Of Razorpay Integration?",
+    answer: "Understanding payment flow, secure verification, purchase storage, and handling edge cases such as failures and retries."
+  },
+  {
+    title: "Interview Question: How Would You Scale Payment Processing?",
+    answer: "Use asynchronous processing, queues, webhooks, monitoring, and distributed services for handling high transaction volumes."
+  },
+  {
+    title: "Why Did You Use Socket.IO In Store?",
+    answer: "Socket.IO enables real-time communication between frontend and backend.\n\nExamples:\n- Notifications\n- Live Chats\n- Doubt Discussions\n- Real-Time Updates"
+  },
+  {
+    title: "What Is Socket.IO?",
+    answer: "Socket.IO is a library that enables bidirectional real-time communication between clients and servers."
+  },
+  {
+    title: "What Is Real-Time Communication?",
+    answer: "Real-time communication allows data to be sent instantly without refreshing the page."
+  },
+  {
+    title: "What Is WebSocket?",
+    answer: "WebSocket is a communication protocol that provides full-duplex communication between client and server."
+  },
+  {
+    title: "What Does Full-Duplex Mean?",
+    answer: "Both client and server can send messages to each other at any time."
+  },
+  {
+    title: "Difference Between HTTP and WebSocket?",
+    answer: "HTTP:\nRequest → Response\nConnection closes.\n\nWebSocket:\nPersistent connection.\nData flows continuously in both directions."
+  },
+  {
+    title: "Why Not Use HTTP Polling?",
+    answer: "Polling repeatedly sends requests.\n\nThis wastes bandwidth and increases server load."
+  },
+  {
+    title: "How Does Socket.IO Improve Over Polling?",
+    answer: "Socket.IO sends updates only when events occur, reducing unnecessary requests."
+  },
+  {
+    title: "What Happens During Socket Connection?",
+    answer: "1. Client connects.\n2. Server accepts connection.\n3. Unique socket ID assigned.\n4. Communication channel established."
+  },
+  {
+    title: "What Is Socket ID?",
+    answer: "Socket ID uniquely identifies a connected client."
+  },
+  {
+    title: "How Does Store Use Socket.IO?",
+    answer: "Store uses Socket.IO for:\n- Notifications\n- Real-time updates\n- Future chat functionality\n- Event broadcasting"
+  },
+  {
+    title: "What Is Event-Based Communication?",
+    answer: "Socket.IO works using events.\n\nExamples:\n- notification\n- message\n- joinRoom\n- disconnect"
+  },
+  {
+    title: "What Is emit()?",
+    answer: "emit() sends an event from client to server or server to client."
+  },
+  {
+    title: "What Is on()?",
+    answer: "on() listens for incoming events."
+  },
+  {
+    title: "Example Of Socket Communication?",
+    answer: "Client emits:\nnewNotification\n\nServer receives event.\n\nServer emits:\nnotificationReceived"
+  },
+  {
+    title: "How Are Notifications Delivered Instantly?",
+    answer: "Backend emits notification events through Socket.IO immediately after creation."
+  },
+  {
+    title: "What Is A Room In Socket.IO?",
+    answer: "A room is a logical group of connected sockets."
+  },
+  {
+    title: "Why Use Rooms?",
+    answer: "Rooms allow sending messages only to specific users or groups."
+  },
+  {
+    title: "Example Of Rooms?",
+    answer: "User A joins Room A.\nUser B joins Room B.\nNotifications can be sent individually."
+  },
+  {
+    title: "How Can User-Specific Notifications Work?",
+    answer: "Each user joins a room named after their user ID.\n\nServer emits notifications only to that room."
+  },
+  {
+    title: "What Is Broadcasting?",
+    answer: "Broadcasting sends events to multiple connected clients."
+  },
+  {
+    title: "Difference Between emit And broadcast?",
+    answer: "emit:\nSpecific recipient.\n\nbroadcast:\nMultiple recipients."
+  },
+  {
+    title: "What Happens When User Disconnects?",
+    answer: "Socket connection closes and disconnect event triggers."
+  },
+  {
+    title: "Why Handle Disconnect Events?",
+    answer: "To clean resources and update online/offline status."
+  },
+  {
+    title: "How Does Socket.IO Handle Reconnection?",
+    answer: "Socket.IO automatically attempts reconnection when network interruptions occur."
+  },
+  {
+    title: "What Is Handshake In Socket.IO?",
+    answer: "Handshake is the initial communication process when establishing a connection."
+  },
+  {
+    title: "Can Authentication Be Applied To Socket.IO?",
+    answer: "Yes.\n\nJWT tokens can be verified before allowing socket connections."
+  },
+  {
+    title: "Why Secure Socket Connections?",
+    answer: "Unauthorized users should not receive private notifications."
+  },
+  {
+    title: "How Does JWT Work With Socket.IO?",
+    answer: "Client sends JWT during connection.\nServer verifies token before accepting communication."
+  },
+  {
+    title: "What Is Socket Middleware?",
+    answer: "Socket middleware executes before socket events are processed."
+  },
+  {
+    title: "Why Use Socket Middleware?",
+    answer: "Authentication, logging, and validation can be centralized."
+  },
+  {
+    title: "What Is Event-Driven Architecture?",
+    answer: "Systems react to events instead of continuously checking for changes."
+  },
+  {
+    title: "How Does Store Use Event-Driven Architecture?",
+    answer: "Examples:\n- Payment Success → Notification Event\n- New Purchase → Access Granted Event\n- New Message → Notification Event"
+  },
+  {
+    title: "Benefits Of Event-Driven Systems?",
+    answer: "Benefits:\n- Loose coupling\n- Scalability\n- Faster response"
+  },
+  {
+    title: "Can Socket.IO Scale Horizontally?",
+    answer: "Not automatically.\n\nMultiple servers require shared communication mechanisms."
+  },
+  {
+    title: "Why Is Scaling Socket.IO Challenging?",
+    answer: "Users may connect to different servers.\n\nMessages must be synchronized."
+  },
+  {
+    title: "How Can Socket.IO Be Scaled?",
+    answer: "Using Redis Pub/Sub, message brokers, or distributed event systems."
+  },
+  {
+    title: "What Is Redis Pub/Sub?",
+    answer: "Redis Pub/Sub allows multiple servers to share events in real time."
+  },
+  {
+    title: "How Does Redis Help Socket.IO?",
+    answer: "Messages received on one server can be forwarded to users connected on another server."
+  },
+  {
+    title: "What Is Latency?",
+    answer: "Latency is the delay between sending and receiving data."
+  },
+  {
+    title: "Why Is Low Latency Important?",
+    answer: "Real-time applications require instant communication."
+  },
+  {
+    title: "How Can Socket Latency Be Reduced?",
+    answer: "Methods:\n- Efficient event design\n- Faster servers\n- Reduced payload size"
+  },
+  {
+    title: "What Is Message Queueing?",
+    answer: "Messages are temporarily stored before processing."
+  },
+  {
+    title: "Why Use Queues In Real-Time Systems?",
+    answer: "Queues prevent message loss during traffic spikes."
+  },
+  {
+    title: "Can Notifications Be Stored In Database Too?",
+    answer: "Yes.\n\nDatabase storage ensures users can view notifications later."
+  },
+  {
+    title: "Why Combine Database And Socket.IO?",
+    answer: "Socket.IO provides instant delivery.\nDatabase provides persistence."
+  },
+  {
+    title: "What Happens If User Is Offline?",
+    answer: "Notification stored in database and delivered when user returns."
+  },
+  {
+    title: "How Would Chat Feature Be Built?",
+    answer: "Messages emitted through Socket.IO.\nStored in database.\nDisplayed instantly to participants."
+  },
+  {
+    title: "How Would Online User Tracking Work?",
+    answer: "Connected socket IDs are maintained in memory and updated on connect/disconnect."
+  },
+  {
+    title: "What Is Presence System?",
+    answer: "Presence systems show whether users are online or offline."
+  },
+  {
+    title: "Interview Question: Why Use Socket.IO Instead Of HTTP?",
+    answer: "HTTP requires repeated requests.\nSocket.IO maintains persistent connections and supports real-time communication."
+  },
+  {
+    title: "Interview Question: Explain Notification Flow In Store.",
+    answer: "Notification created.\nSaved in database.\nSocket.IO emits event.\nFrontend receives update instantly.\nUI refreshes automatically."
+  },
+  {
+    title: "Interview Question: What Happens Internally During Socket Connection?",
+    answer: "Client requests connection.\nHandshake occurs.\nSocket ID assigned.\nEvents become available for communication."
+  },
+  {
+    title: "Interview Question: How Would You Scale Socket.IO To 1 Million Users?",
+    answer: "Use multiple servers, Redis Pub/Sub, load balancers, message queues, and distributed infrastructure."
+  },
+  {
+    title: "Interview Question: What Was The Most Difficult Part Of Socket.IO Integration?",
+    answer: "Managing authentication, event synchronization, reconnections, and ensuring reliable notification delivery."
+  },
+  {
+    title: "Why Did You Add An AI Chatbot To Store?",
+    answer: "The AI chatbot helps students quickly find answers, understand concepts, and interact with study materials without manually searching through notes."
+  },
+  {
+    title: "What Is An AI Chatbot?",
+    answer: "An AI chatbot is a software system that understands user queries and generates intelligent responses using language models."
+  },
+  {
+    title: "How Does Your Chatbot Work?",
+    answer: "User Query\n↓\nEmbedding Generation\n↓\nVector Search\n↓\nRelevant Context Retrieval\n↓\nLLM Processing\n↓\nFinal Answer"
+  },
+  {
+    title: "What Is RAG?",
+    answer: "RAG stands for Retrieval Augmented Generation.\n\nIt combines information retrieval with language models to generate more accurate answers."
+  },
+  {
+    title: "Why Use RAG?",
+    answer: "LLMs have limited knowledge.\n\nRAG allows the model to use external documents and provide more relevant answers."
+  },
+  {
+    title: "What Problem Does RAG Solve?",
+    answer: "RAG reduces hallucinations and allows AI to answer questions based on custom data."
+  },
+  {
+    title: "What Is An Embedding?",
+    answer: "An embedding is a numerical vector representation of text that captures semantic meaning."
+  },
+  {
+    title: "Why Convert Text Into Vectors?",
+    answer: "Computers cannot directly understand meaning.\n\nVectors allow similarity comparisons mathematically."
+  },
+  {
+    title: "What Is Vector Search?",
+    answer: "Vector search finds documents whose embeddings are most similar to the query embedding."
+  },
+  {
+    title: "Why Use Vector Search Instead Of Keyword Search?",
+    answer: "Keyword search looks for exact words.\n\nVector search finds similar meanings even when wording differs."
+  },
+  {
+    title: "What Is A Vector Store?",
+    answer: "A vector store is a database that stores embeddings and enables similarity search."
+  },
+  {
+    title: "What Is vector_store.json?",
+    answer: "vector_store.json stores generated embeddings and related text chunks used by the chatbot for retrieval."
+  },
+  {
+    title: "Why Store Embeddings?",
+    answer: "Generating embeddings repeatedly is expensive.\n\nPre-storing them improves performance."
+  },
+  {
+    title: "What Is Document Chunking?",
+    answer: "Chunking divides large documents into smaller pieces before embedding."
+  },
+  {
+    title: "Why Is Chunking Necessary?",
+    answer: "Large documents exceed model limits.\n\nSmaller chunks improve retrieval accuracy."
+  },
+  {
+    title: "What Is The Ideal Chunk Size?",
+    answer: "There is no fixed value.\n\nTypically 200–1000 words depending on the use case."
+  },
+  {
+    title: "What Happens During PDF Ingestion?",
+    answer: "PDF\n↓\nText Extraction\n↓\nChunking\n↓\nEmbedding Generation\n↓\nStore In Vector Database"
+  },
+  {
+    title: "What Is PDF Parsing?",
+    answer: "PDF parsing extracts text content from PDF documents for processing."
+  },
+  {
+    title: "Why Parse PDFs?",
+    answer: "Educational notes, study material, and documentation are often stored as PDFs."
+  },
+  {
+    title: "What Challenges Exist In PDF Parsing?",
+    answer: "Challenges:\n- Tables\n- Images\n- Formatting\n- Multi-column layouts"
+  },
+  {
+    title: "What Is ingest.js?",
+    answer: "ingest.js processes documents, generates embeddings, and stores them in the vector store."
+  },
+  {
+    title: "Why Is ingest.js Important?",
+    answer: "Without ingestion, documents cannot be converted into searchable vectors."
+  },
+  {
+    title: "What Happens When User Asks A Question?",
+    answer: "Query\n↓\nEmbedding Generated\n↓\nSimilarity Search\n↓\nRelevant Chunks Retrieved\n↓\nLLM Generates Response"
+  },
+  {
+    title: "How Does Similarity Search Work?",
+    answer: "The query vector is compared against stored vectors.\n\nMost similar vectors are selected."
+  },
+  {
+    title: "What Is Cosine Similarity?",
+    answer: "Cosine similarity measures how closely two vectors point in the same direction."
+  },
+  {
+    title: "Why Use Cosine Similarity?",
+    answer: "It effectively measures semantic similarity between text embeddings."
+  },
+  {
+    title: "What Is Semantic Search?",
+    answer: "Semantic search focuses on meaning rather than exact keyword matches."
+  },
+  {
+    title: "Difference Between Semantic Search And Keyword Search?",
+    answer: "Keyword Search:\nMatches words.\n\nSemantic Search:\nMatches meaning."
+  },
+  {
+    title: "What Is Context Injection?",
+    answer: "Retrieved chunks are inserted into the prompt before sending it to the language model."
+  },
+  {
+    title: "Why Provide Context To LLM?",
+    answer: "The model can answer based on your documents rather than relying only on training data."
+  },
+  {
+    title: "What Is Prompt Engineering?",
+    answer: "Prompt engineering involves designing prompts that improve model output quality."
+  },
+  {
+    title: "How Does Prompt Design Affect Results?",
+    answer: "Better prompts produce more accurate and relevant answers."
+  },
+  {
+    title: "What Is Hallucination?",
+    answer: "Hallucination occurs when an AI model generates incorrect or fabricated information."
+  },
+  {
+    title: "How Does RAG Reduce Hallucinations?",
+    answer: "RAG provides real context from documents, reducing the need for the model to guess."
+  },
+  {
+    title: "What Is Fine-Tuning?",
+    answer: "Fine-tuning retrains a model on custom data to change its behavior."
+  },
+  {
+    title: "Difference Between RAG And Fine-Tuning?",
+    answer: "RAG:\nRetrieves external information.\n\nFine-Tuning:\nModifies model parameters."
+  },
+  {
+    title: "Why Choose RAG Instead Of Fine-Tuning?",
+    answer: "RAG is cheaper, faster, easier to update, and works well for document-based systems."
+  },
+  {
+    title: "Can RAG Data Be Updated Easily?",
+    answer: "Yes.\n\nSimply add new documents and regenerate embeddings."
+  },
+  {
+    title: "Why Not Send Entire PDF To GPT?",
+    answer: "Large PDFs exceed context limits and increase costs significantly."
+  },
+  {
+    title: "What Is Context Window?",
+    answer: "The context window is the maximum amount of text a model can process in one request."
+  },
+  {
+    title: "Why Is Context Window Important?",
+    answer: "Documents larger than the context window must be chunked."
+  },
+  {
+    title: "What AI Models Can Be Used?",
+    answer: "Examples:\n- OpenAI GPT\n- Gemini\n- Ollama\n- Llama\n- Mistral"
+  },
+  {
+    title: "What Is Ollama?",
+    answer: "Ollama allows running large language models locally on your machine."
+  },
+  {
+    title: "Why Use Local Models?",
+    answer: "Benefits:\n- Privacy\n- Reduced API costs\n- Offline operation"
+  },
+  {
+    title: "What Is Retrieval Accuracy?",
+    answer: "Retrieval accuracy measures how often the correct context is returned."
+  },
+  {
+    title: "How Can Retrieval Accuracy Be Improved?",
+    answer: "Methods:\n- Better chunking\n- Better embeddings\n- Metadata filtering\n- Re-ranking"
+  },
+  {
+    title: "What Is Metadata In RAG?",
+    answer: "Metadata provides additional information about documents such as source, title, or category."
+  },
+  {
+    title: "Why Use Metadata Filtering?",
+    answer: "It narrows search results and improves retrieval quality."
+  },
+  {
+    title: "What Is Re-Ranking?",
+    answer: "Re-ranking reorders retrieved results to prioritize the most relevant chunks."
+  },
+  {
+    title: "How Would You Scale Your Chatbot?",
+    answer: "Use:\n- Dedicated vector database\n- Caching\n- Load balancing\n- Distributed AI services"
+  },
+  {
+    title: "What Would You Replace vector_store.json With In Production?",
+    answer: "Production systems typically use:\n- Pinecone\n- Weaviate\n- Qdrant\n- Chroma\n- Elasticsearch"
+  },
+  {
+    title: "Interview Question: Explain RAG End-To-End.",
+    answer: "Documents are parsed and chunked.\nEmbeddings generated.\nStored in vector database.\nUser query converted into embedding.\nSimilarity search retrieves relevant chunks.\nChunks sent to LLM.\nLLM generates final answer."
+  },
+  {
+    title: "Interview Question: Why Use Embeddings?",
+    answer: "Embeddings capture semantic meaning, enabling intelligent retrieval beyond exact keyword matching."
+  },
+  {
+    title: "Interview Question: Why Is RAG Better Than Sending Entire Documents?",
+    answer: "RAG retrieves only relevant sections, reducing token usage, cost, and latency."
+  },
+  {
+    title: "Interview Question: What Was The Hardest Part Of AI Integration?",
+    answer: "Understanding embeddings, retrieval pipelines, chunking strategies, and ensuring accurate context retrieval."
+  },
+  {
+    title: "Why Did You Use Docker In Store?",
+    answer: "Docker allows the Store platform to run consistently across development, testing, and production environments."
+  },
+  {
+    title: "What Problem Does Docker Solve?",
+    answer: "Docker eliminates environment differences.\n\nIt solves:\n- Dependency conflicts\n- Node version mismatch\n- Missing packages\n- OS compatibility issues"
+  },
+  {
+    title: "What Is Containerization?",
+    answer: "Containerization packages an application with all its dependencies into an isolated container."
+  },
+  {
+    title: "How Does Store Benefit From Containerization?",
+    answer: "Frontend, backend, and future services can run consistently on any machine."
+  },
+  {
+    title: "What Is Dockerfile?",
+    answer: "Dockerfile contains instructions used to build Docker images."
+  },
+  {
+    title: "What Is Docker Image?",
+    answer: "A Docker image is a packaged snapshot containing application code, dependencies, runtime, and configuration."
+  },
+  {
+    title: "What Is Docker Container?",
+    answer: "A container is a running instance of a Docker image."
+  },
+  {
+    title: "Explain Docker Workflow In Store.",
+    answer: "Source Code\n↓\nDockerfile\n↓\nDocker Build\n↓\nDocker Image\n↓\nDocker Container\n↓\nApplication Running"
+  },
+  {
+    title: "Why Is Docker Better Than Traditional Deployment?",
+    answer: "Docker provides consistent deployment and avoids server configuration issues."
+  },
+  {
+    title: "What Is Docker Compose?",
+    answer: "Docker Compose manages multiple containers using a single configuration file."
+  },
+  {
+    title: "Why Use Docker Compose?",
+    answer: "Store contains multiple services.\n\nDocker Compose can start all services together."
+  },
+  {
+    title: "What Is docker-compose.yml?",
+    answer: "It defines containers, networks, volumes, environment variables, and startup configurations."
+  },
+  {
+    title: "How Does Docker Compose Help Store?",
+    answer: "Frontend, backend, MongoDB, Redis, and future services can be managed together."
+  },
+  {
+    title: "What Happens During docker compose up?",
+    answer: "Docker Compose:\n1. Creates network.\n2. Creates containers.\n3. Maps ports.\n4. Starts services."
+  },
+  {
+    title: "What Happens During docker compose build?",
+    answer: "Docker builds images using instructions defined in Dockerfiles."
+  },
+  {
+    title: "What Is Docker Layering?",
+    answer: "Every Dockerfile instruction creates a separate image layer."
+  },
+  {
+    title: "Why Are Layers Important?",
+    answer: "Layers improve build performance through caching."
+  },
+  {
+    title: "What Is Layer Caching?",
+    answer: "Docker reuses unchanged layers from previous builds."
+  },
+  {
+    title: "Why Copy package.json Before Source Code?",
+    answer: "Dependency installation can be cached if package.json remains unchanged."
+  },
+  {
+    title: "What Is .dockerignore?",
+    answer: ".dockerignore excludes unnecessary files from image builds."
+  },
+  {
+    title: "Why Use .dockerignore?",
+    answer: "Benefits:\n- Smaller images\n- Faster builds\n- Better security"
+  },
+  {
+    title: "Should node_modules Be Copied Into Docker Images?",
+    answer: "Usually no.\n\nDependencies should be installed inside the container."
+  },
+  {
+    title: "Should .env Be Copied Into Docker Images?",
+    answer: "No.\n\nEnvironment variables should be injected during runtime."
+  },
+  {
+    title: "What Is Port Mapping?",
+    answer: "Port mapping connects host machine ports to container ports."
+  },
+  {
+    title: "Example Of Port Mapping?",
+    answer: "3000:3000\n\nHost Port 3000 → Container Port 3000"
+  },
+  {
+    title: "How Does Frontend Communicate With Backend Inside Docker?",
+    answer: "Containers communicate using service names rather than localhost."
+  },
+  {
+    title: "Why Not Use localhost Between Containers?",
+    answer: "Inside a container, localhost refers only to that container itself."
+  },
+  {
+    title: "What Is Docker Networking?",
+    answer: "Docker networking allows containers to communicate securely."
+  },
+  {
+    title: "What Is Bridge Network?",
+    answer: "Bridge network is Docker's default network used for container communication."
+  },
+  {
+    title: "How Does MongoDB Connect To Backend In Docker?",
+    answer: "Backend uses MongoDB service name as hostname."
+  },
+  {
+    title: "What Is A Docker Volume?",
+    answer: "Volumes provide persistent storage independent of container lifecycle."
+  },
+  {
+    title: "Why Are Volumes Important?",
+    answer: "Without volumes, data disappears when containers are removed."
+  },
+  {
+    title: "What Data Should Use Volumes?",
+    answer: "Examples:\n- MongoDB Data\n- Uploads\n- Logs\n- User Files"
+  },
+  {
+    title: "What Is Bind Mount?",
+    answer: "Bind mounts connect local machine folders directly into containers."
+  },
+  {
+    title: "When Are Bind Mounts Useful?",
+    answer: "During development when code changes should instantly reflect inside containers."
+  },
+  {
+    title: "What Is Multi-Stage Build?",
+    answer: "Multi-stage builds use multiple FROM statements to create smaller production images."
+  },
+  {
+    title: "Why Use Multi-Stage Builds For React?",
+    answer: "Build files are generated separately and only production assets are deployed."
+  },
+  {
+    title: "Why Should Production Images Be Small?",
+    answer: "Smaller images:\n- Deploy faster\n- Pull faster\n- Reduce storage usage"
+  },
+  {
+    title: "What Is Docker Registry?",
+    answer: "A registry stores Docker images.\n\nExamples:\n- Docker Hub\n- AWS ECR\n- Azure Registry"
+  },
+  {
+    title: "What Is Docker Hub?",
+    answer: "Docker Hub is a cloud repository for Docker images."
+  },
+  {
+    title: "How Would You Deploy Store Using Docker Hub?",
+    answer: "Build image.\nPush image.\nPull image on server.\nRun container."
+  },
+  {
+    title: "What Is Docker Tag?",
+    answer: "Tags represent image versions.\n\nExample:\nstore-backend:v1"
+  },
+  {
+    title: "Why Use Tags?",
+    answer: "Tags help manage multiple application versions."
+  },
+  {
+    title: "How Does CI/CD Work With Docker?",
+    answer: "Code Push\n↓\nBuild Image\n↓\nRun Tests\n↓\nPush Image\n↓\nDeploy"
+  },
+  {
+    title: "How Does Docker Improve CI/CD?",
+    answer: "The same image moves through all environments."
+  },
+  {
+    title: "How Would You Deploy Store On A VPS?",
+    answer: "Install Docker.\nPull image.\nRun containers.\nConfigure domain and SSL."
+  },
+  {
+    title: "What Is Container Orchestration?",
+    answer: "Managing large numbers of containers automatically."
+  },
+  {
+    title: "Why Is Kubernetes Needed?",
+    answer: "Managing hundreds of containers manually becomes difficult."
+  },
+  {
+    title: "Interview Question: Explain Docker Architecture.",
+    answer: "Docker CLI sends commands to Docker Daemon.\nDocker Daemon manages images, containers, networks, and volumes."
+  },
+  {
+    title: "Interview Question: Why Docker Instead Of VM?",
+    answer: "Containers share host kernel, making them lighter and faster than virtual machines."
+  },
+  {
+    title: "Interview Question: What Happens Internally During docker run?",
+    answer: "Docker creates container layer, configures networking, allocates resources, and starts the application process."
+  },
+  {
+    title: "Interview Question: What Was The Benefit Of Docker In Store?",
+    answer: "Docker simplified deployment and ensured consistent execution across machines."
+  },
+  {
+    title: "Why Did You Add Kubernetes Files To Store?",
+    answer: "Kubernetes helps deploy, scale, and manage containers automatically in production environments."
+  },
+  {
+    title: "What Is Kubernetes?",
+    answer: "Kubernetes is a container orchestration platform used to automate deployment, scaling, networking, and management of containers."
+  },
+  {
+    title: "Why Is Kubernetes Needed If We Already Have Docker?",
+    answer: "Docker runs containers.\n\nKubernetes manages large numbers of containers automatically."
+  },
+  {
+    title: "What Problems Does Kubernetes Solve?",
+    answer: "Kubernetes solves:\n- Container scaling\n- Self-healing\n- Load balancing\n- Automated deployment\n- Service discovery"
+  },
+  {
+    title: "What Is A Pod?",
+    answer: "A Pod is the smallest deployable unit in Kubernetes.\n\nIt contains one or more containers."
+  },
+  {
+    title: "Why Does Kubernetes Use Pods Instead Of Containers Directly?",
+    answer: "Pods provide networking, storage sharing, and lifecycle management for containers."
+  },
+  {
+    title: "Can A Pod Contain Multiple Containers?",
+    answer: "Yes.\n\nMultiple tightly coupled containers can run inside a single Pod."
+  },
+  {
+    title: "What Is A Node?",
+    answer: "A Node is a machine that runs Kubernetes workloads."
+  },
+  {
+    title: "What Types Of Nodes Exist?",
+    answer: "1. Master Node (Control Plane)\n2. Worker Node"
+  },
+  {
+    title: "What Is The Control Plane?",
+    answer: "The Control Plane manages the entire Kubernetes cluster."
+  },
+  {
+    title: "What Does The Control Plane Do?",
+    answer: "It schedules Pods, manages deployments, monitors cluster health, and handles scaling."
+  },
+  {
+    title: "What Is A Worker Node?",
+    answer: "Worker nodes run actual application containers."
+  },
+  {
+    title: "How Would Store Run On Kubernetes?",
+    answer: "Frontend Pod\nBackend Pod\nDatabase Pod\n\nAll managed by Kubernetes."
+  },
+  {
+    title: "What Is A Deployment?",
+    answer: "A Deployment manages Pods and ensures desired replicas remain running."
+  },
+  {
+    title: "Why Use Deployments?",
+    answer: "Deployments provide automatic recovery, updates, and scaling."
+  },
+  {
+    title: "What Is A Replica?",
+    answer: "A replica is an additional copy of a Pod."
+  },
+  {
+    title: "Why Use Multiple Replicas?",
+    answer: "Multiple replicas improve availability and load handling."
+  },
+  {
+    title: "What Happens If A Pod Crashes?",
+    answer: "Kubernetes automatically creates a replacement Pod."
+  },
+  {
+    title: "What Is Self-Healing?",
+    answer: "Self-healing means Kubernetes automatically replaces failed containers or Pods."
+  },
+  {
+    title: "What Is A ReplicaSet?",
+    answer: "A ReplicaSet ensures a specified number of Pod replicas remain running."
+  },
+  {
+    title: "How Does Deployment Use ReplicaSets?",
+    answer: "Deployments manage ReplicaSets, which manage Pods."
+  },
+  {
+    title: "What Is A Kubernetes Service?",
+    answer: "A Service provides a stable network endpoint for accessing Pods."
+  },
+  {
+    title: "Why Are Services Needed?",
+    answer: "Pod IP addresses change.\n\nServices provide a permanent access point."
+  },
+  {
+    title: "What Is ClusterIP Service?",
+    answer: "ClusterIP exposes applications only inside the Kubernetes cluster."
+  },
+  {
+    title: "What Is NodePort Service?",
+    answer: "NodePort exposes applications using a port on every node."
+  },
+  {
+    title: "What Is LoadBalancer Service?",
+    answer: "LoadBalancer exposes applications externally using cloud load balancers."
+  },
+  {
+    title: "How Would Frontend Access Backend In Kubernetes?",
+    answer: "Frontend calls backend using the Kubernetes Service name."
+  },
+  {
+    title: "What Is Service Discovery?",
+    answer: "Service discovery allows applications to locate other services automatically."
+  },
+  {
+    title: "What Is kube-dns?",
+    answer: "kube-dns provides DNS resolution inside Kubernetes clusters."
+  },
+  {
+    title: "How Does Kubernetes Perform Load Balancing?",
+    answer: "Traffic is distributed across available Pod replicas."
+  },
+  {
+    title: "What Is Horizontal Scaling?",
+    answer: "Horizontal scaling means adding more Pods."
+  },
+  {
+    title: "What Is Vertical Scaling?",
+    answer: "Vertical scaling means increasing CPU or memory resources."
+  },
+  {
+    title: "Which Scaling Method Is Preferred?",
+    answer: "Horizontal scaling is generally preferred because it improves availability."
+  },
+  {
+    title: "What Is Horizontal Pod Autoscaler?",
+    answer: "HPA automatically increases or decreases Pod replicas based on resource usage."
+  },
+  {
+    title: "Why Use Autoscaling?",
+    answer: "Autoscaling helps handle traffic spikes efficiently."
+  },
+  {
+    title: "What Is Rolling Update?",
+    answer: "Rolling updates replace old Pods gradually without downtime."
+  },
+  {
+    title: "Why Are Rolling Updates Important?",
+    answer: "Users continue using the application during deployment."
+  },
+  {
+    title: "What Is Rollback?",
+    answer: "Rollback restores a previous stable version after deployment failure."
+  },
+  {
+    title: "What Is A Namespace?",
+    answer: "Namespaces logically separate Kubernetes resources."
+  },
+  {
+    title: "Why Use Namespaces?",
+    answer: "Different teams and environments can share the same cluster safely."
+  },
+  {
+    title: "What Is A ConfigMap?",
+    answer: "ConfigMaps store non-sensitive configuration data."
+  },
+  {
+    title: "Examples Of ConfigMap Data?",
+    answer: "API URLs, application settings, environment-specific configurations."
+  },
+  {
+    title: "What Is A Secret In Kubernetes?",
+    answer: "Secrets store sensitive information such as passwords and API keys."
+  },
+  {
+    title: "Why Not Store Secrets In Code?",
+    answer: "Hardcoded secrets create security risks and expose credentials."
+  },
+  {
+    title: "How Would MongoDB Credentials Be Stored?",
+    answer: "MongoDB credentials should be stored in Kubernetes Secrets."
+  },
+  {
+    title: "What Is Resource Request?",
+    answer: "Resource requests define guaranteed CPU and memory requirements."
+  },
+  {
+    title: "What Is Resource Limit?",
+    answer: "Resource limits define maximum CPU and memory consumption."
+  },
+  {
+    title: "Why Set Resource Limits?",
+    answer: "Limits prevent containers from consuming excessive resources."
+  },
+  {
+    title: "What Is Liveness Probe?",
+    answer: "Liveness probes determine whether containers are healthy."
+  },
+  {
+    title: "What Happens If Liveness Probe Fails?",
+    answer: "Kubernetes restarts the container automatically."
+  },
+  {
+    title: "What Is Readiness Probe?",
+    answer: "Readiness probes determine whether a Pod is ready to receive traffic."
+  },
+  {
+    title: "Why Are Readiness Probes Important?",
+    answer: "Traffic should only reach healthy Pods."
+  },
+  {
+    title: "What Is Ingress?",
+    answer: "Ingress manages external HTTP and HTTPS access to services."
+  },
+  {
+    title: "Why Use Ingress?",
+    answer: "Ingress allows multiple services to share a single public IP."
+  },
+  {
+    title: "How Would Store Use Ingress?",
+    answer: "Frontend and backend could be routed through different URLs using one load balancer."
+  },
+  {
+    title: "What Is Persistent Volume?",
+    answer: "Persistent Volumes provide durable storage independent of Pods."
+  },
+  {
+    title: "Why Are Persistent Volumes Needed?",
+    answer: "Data should survive Pod restarts and redeployments."
+  },
+  {
+    title: "How Would MongoDB Use Persistent Volumes?",
+    answer: "Database files would be stored on persistent storage rather than inside containers."
+  },
+  {
+    title: "What Is StatefulSet?",
+    answer: "StatefulSet manages stateful applications like databases."
+  },
+  {
+    title: "Why Use StatefulSet For MongoDB?",
+    answer: "MongoDB requires stable identities and persistent storage."
+  },
+  {
+    title: "How Would You Deploy Store In Production Using Kubernetes?",
+    answer: "Frontend Deployment\nBackend Deployment\nMongoDB StatefulSet\nServices\nIngress\nSecrets\nConfigMaps"
+  },
+  {
+    title: "Interview Question: Difference Between Docker And Kubernetes?",
+    answer: "Docker creates and runs containers.\n\nKubernetes manages large-scale container deployments."
+  },
+  {
+    title: "Interview Question: What Happens If A Node Fails?",
+    answer: "Kubernetes automatically schedules Pods onto healthy nodes."
+  },
+  {
+    title: "Interview Question: Explain Kubernetes Architecture.",
+    answer: "Control Plane manages cluster operations.\nWorker Nodes run application Pods.\nServices provide networking.\nDeployments manage replicas."
+  },
+  {
+    title: "Interview Question: How Would You Scale Store To 1 Million Users?",
+    answer: "Use multiple replicas, autoscaling, load balancing, caching, distributed databases, and Kubernetes orchestration."
+  },
+  {
+    title: "Interview Question: What Was Your Reason For Learning Kubernetes?",
+    answer: "Kubernetes is the industry standard for production container orchestration and large-scale deployments."
+  },
+  {
+    title: "What Is System Design?",
+    answer: "System design is the process of designing scalable, reliable, maintainable, and efficient software systems."
+  },
+  {
+    title: "Why Is System Design Important?",
+    answer: "As applications grow, architecture decisions become critical for performance and reliability."
+  },
+  {
+    title: "How Would You Explain Store Architecture?",
+    answer: "React Frontend\n↓\nExpress Backend APIs\n↓\nMongoDB Database\n\nAdditional Components:\n- Socket.IO\n- AI Chatbot\n- Razorpay\n- Notifications\n- Docker\n- Kubernetes"
+  },
+  {
+    title: "How Many Users Can A Single Node.js Server Handle?",
+    answer: "It depends on hardware and workload.\n\nTypically thousands of concurrent connections can be handled efficiently."
+  },
+  {
+    title: "What Happens When User Traffic Increases?",
+    answer: "CPU usage rises, memory usage increases, database load grows, and response times may increase."
+  },
+  {
+    title: "What Is Scalability?",
+    answer: "Scalability is the ability of a system to handle increasing traffic without performance degradation."
+  },
+  {
+    title: "What Is Horizontal Scaling?",
+    answer: "Horizontal scaling means adding more servers."
+  },
+  {
+    title: "What Is Vertical Scaling?",
+    answer: "Vertical scaling means increasing resources of an existing server."
+  },
+  {
+    title: "Which Scaling Method Is Better?",
+    answer: "Horizontal scaling is generally preferred because it improves availability and fault tolerance."
+  },
+  {
+    title: "How Would You Scale Store To 100,000 Users?",
+    answer: "Use multiple backend instances, load balancing, caching, database optimization, and Kubernetes."
+  },
+  {
+    title: "What Is Load Balancing?",
+    answer: "Load balancing distributes incoming requests across multiple servers."
+  },
+  {
+    title: "Why Is Load Balancing Important?",
+    answer: "It prevents one server from becoming overloaded."
+  },
+  {
+    title: "What Is A Load Balancer?",
+    answer: "A load balancer sits between users and servers and distributes traffic."
+  },
+  {
+    title: "Examples Of Load Balancers?",
+    answer: "NGINX\nHAProxy\nAWS ELB\nCloudflare"
+  },
+  {
+    title: "How Does Load Balancing Improve Reliability?",
+    answer: "If one server fails, traffic can be routed to healthy servers."
+  },
+  {
+    title: "What Is High Availability?",
+    answer: "High availability ensures the application remains accessible even during failures."
+  },
+  {
+    title: "How Would You Achieve High Availability?",
+    answer: "Use multiple servers, replication, failover mechanisms, and load balancing."
+  },
+  {
+    title: "What Is Single Point Of Failure?",
+    answer: "A component whose failure causes the entire system to stop working."
+  },
+  {
+    title: "What Are Single Points Of Failure In Small Systems?",
+    answer: "Single server, single database, single network path."
+  },
+  {
+    title: "How Can Single Points Of Failure Be Eliminated?",
+    answer: "Use redundancy and distributed infrastructure."
+  },
+  {
+    title: "What Is Redis?",
+    answer: "Redis is an in-memory key-value data store used for caching and fast data access."
+  },
+  {
+    title: "Why Is Redis Fast?",
+    answer: "Redis stores data in RAM instead of disk."
+  },
+  {
+    title: "Why Would Store Use Redis?",
+    answer: "Redis can cache frequently accessed data and reduce database load."
+  },
+  {
+    title: "What Data Could Be Cached In Store?",
+    answer: "Course lists, popular notes, user profiles, test metadata, and AI responses."
+  },
+  {
+    title: "What Is Caching?",
+    answer: "Caching stores frequently used data temporarily for faster retrieval."
+  },
+  {
+    title: "How Does Caching Improve Performance?",
+    answer: "Requests are served from memory instead of querying the database repeatedly."
+  },
+  {
+    title: "What Is Cache Hit?",
+    answer: "Requested data found in cache."
+  },
+  {
+    title: "What Is Cache Miss?",
+    answer: "Requested data not found in cache."
+  },
+  {
+    title: "What Happens During Cache Miss?",
+    answer: "Data is fetched from database and added to cache."
+  },
+  {
+    title: "What Is Cache Invalidation?",
+    answer: "Removing outdated data from cache."
+  },
+  {
+    title: "Why Is Cache Invalidation Difficult?",
+    answer: "Incorrect invalidation can cause users to see stale data."
+  },
+  {
+    title: "How Would You Cache Course Data?",
+    answer: "Store frequently accessed course information in Redis."
+  },
+  {
+    title: "What Is Database Indexing?",
+    answer: "Indexes speed up database searches."
+  },
+  {
+    title: "Why Are Indexes Important?",
+    answer: "Without indexes, databases may scan entire collections."
+  },
+  {
+    title: "What Fields Would You Index?",
+    answer: "Email, user ID, course ID, purchase ID, notification status."
+  },
+  {
+    title: "What Is Database Replication?",
+    answer: "Replication creates copies of database data across multiple servers."
+  },
+  {
+    title: "Why Use Replication?",
+    answer: "Improves availability and fault tolerance."
+  },
+  {
+    title: "What Is Primary Database?",
+    answer: "The database responsible for write operations."
+  },
+  {
+    title: "What Is Secondary Database?",
+    answer: "Replicated databases used mainly for reads."
+  },
+  {
+    title: "What Is Read Scaling?",
+    answer: "Distributing read operations across multiple database replicas."
+  },
+  {
+    title: "How Would You Scale MongoDB?",
+    answer: "Use replication, indexing, sharding, and caching."
+  },
+  {
+    title: "What Is Database Sharding?",
+    answer: "Sharding splits data across multiple database servers."
+  },
+  {
+    title: "Why Use Sharding?",
+    answer: "Large datasets can be distributed across multiple machines."
+  },
+  {
+    title: "What Is CDN?",
+    answer: "Content Delivery Network stores content closer to users."
+  },
+  {
+    title: "Why Use CDN?",
+    answer: "Faster content delivery and reduced server load."
+  },
+  {
+    title: "How Would CDN Help Store?",
+    answer: "Images, PDFs, and static assets could be delivered faster."
+  },
+  {
+    title: "What Is Latency?",
+    answer: "Latency is the time required for data to travel between systems."
+  },
+  {
+    title: "How Can Latency Be Reduced?",
+    answer: "Caching, CDN, optimized queries, and geographically distributed servers."
+  },
+  {
+    title: "What Is Throughput?",
+    answer: "Throughput measures how many requests a system can process."
+  },
+  {
+    title: "How Would You Improve Throughput?",
+    answer: "Load balancing, caching, scaling, and efficient code."
+  },
+  {
+    title: "What Is Rate Limiting?",
+    answer: "Rate limiting restricts how many requests users can make."
+  },
+  {
+    title: "Why Use Rate Limiting?",
+    answer: "Protects APIs from abuse and DDoS attacks."
+  },
+  {
+    title: "How Would You Rate Limit Store APIs?",
+    answer: "Use middleware such as express-rate-limit or Redis-based rate limiting."
+  },
+  {
+    title: "What Is Queueing?",
+    answer: "Queueing processes tasks asynchronously rather than immediately."
+  },
+  {
+    title: "Why Use Queues?",
+    answer: "Queues prevent slow operations from blocking user requests."
+  },
+  {
+    title: "What Tasks Could Use Queues?",
+    answer: "Email sending, notifications, PDF processing, AI ingestion."
+  },
+  {
+    title: "What Is Message Broker?",
+    answer: "A system that transfers messages between services."
+  },
+  {
+    title: "Examples Of Message Brokers?",
+    answer: "RabbitMQ\nKafka\nRedis Streams\nAmazon SQS"
+  },
+  {
+    title: "How Would You Scale AI Features?",
+    answer: "Dedicated AI services, vector databases, caching, and asynchronous processing."
+  },
+  {
+    title: "What Is Eventual Consistency?",
+    answer: "Data may not be instantly synchronized but becomes consistent over time."
+  },
+  {
+    title: "Interview Question: How Would You Scale Store To 1 Million Users?",
+    answer: "Load balancing, Kubernetes, Redis caching, MongoDB replication, CDN, queues, autoscaling, and distributed services."
+  },
+  {
+    title: "Interview Question: What Would Be Your First Optimization?",
+    answer: "Database indexing and caching because they usually provide immediate performance improvements."
+  },
+  {
+    title: "Interview Question: Why Use Redis?",
+    answer: "Redis provides extremely fast in-memory data access and reduces database load."
+  },
+  {
+    title: "Interview Question: What Would You Cache First?",
+    answer: "Frequently accessed course data, notes, and user dashboard information."
+  },
+  {
+    title: "Interview Question: What Is The Biggest Bottleneck In Growing Systems?",
+    answer: "Database load is often the first major bottleneck as user traffic increases."
+  },
+  {
+    title: "Why Is Security Important In Store?",
+    answer: "Store handles user accounts, payments, purchases, notifications, and AI services.\n\nSecurity protects user data and business operations."
+  },
+  {
+    title: "What Is Authentication?",
+    answer: "Authentication verifies a user's identity."
+  },
+  {
+    title: "What Is Authorization?",
+    answer: "Authorization determines what an authenticated user can access."
+  },
+  {
+    title: "Difference Between Authentication And Authorization?",
+    answer: "Authentication:\nWho are you?\n\nAuthorization:\nWhat are you allowed to do?"
+  },
+  {
+    title: "Why Use JWT In Store?",
+    answer: "JWT provides stateless authentication and allows secure API access."
+  },
+  {
+    title: "What Does JWT Stand For?",
+    answer: "JSON Web Token."
+  },
+  {
+    title: "What Are The Three Parts Of JWT?",
+    answer: "Header\nPayload\nSignature"
+  },
+  {
+    title: "What Is JWT Header?",
+    answer: "Header contains token type and signing algorithm."
+  },
+  {
+    title: "What Is JWT Payload?",
+    answer: "Payload stores user-related information such as user ID and role."
+  },
+  {
+    title: "What Is JWT Signature?",
+    answer: "Signature verifies that the token has not been modified."
+  },
+  {
+    title: "Why Is JWT Signature Important?",
+    answer: "Without signature verification, attackers could forge tokens."
+  },
+  {
+    title: "Where Should JWT Be Stored?",
+    answer: "Preferably in secure HTTP-only cookies.\n\nLocalStorage is more vulnerable to XSS attacks."
+  },
+  {
+    title: "What Is JWT Expiration?",
+    answer: "Expiration limits how long a token remains valid."
+  },
+  {
+    title: "Why Should Tokens Expire?",
+    answer: "Expired tokens reduce damage if credentials are compromised."
+  },
+  {
+    title: "What Happens When JWT Expires?",
+    answer: "User must re-authenticate or use a refresh token."
+  },
+  {
+    title: "What Is A Refresh Token?",
+    answer: "A refresh token generates new access tokens without requiring login again."
+  },
+  {
+    title: "Why Use Refresh Tokens?",
+    answer: "Improves user experience while maintaining security."
+  },
+  {
+    title: "What Is Password Hashing?",
+    answer: "Hashing converts passwords into irreversible values."
+  },
+  {
+    title: "Why Not Store Plain Passwords?",
+    answer: "If database is compromised, all user passwords become exposed."
+  },
+  {
+    title: "What Is bcrypt?",
+    answer: "bcrypt is a password hashing algorithm designed for secure password storage."
+  },
+  {
+    title: "Why Is bcrypt Better Than Simple Hashing?",
+    answer: "bcrypt intentionally slows hashing, making brute-force attacks harder."
+  },
+  {
+    title: "What Is Salt In bcrypt?",
+    answer: "Salt is random data added before hashing."
+  },
+  {
+    title: "Why Use Salt?",
+    answer: "Salt prevents identical passwords from producing identical hashes."
+  },
+  {
+    title: "What Is Brute Force Attack?",
+    answer: "An attacker repeatedly tries passwords until one succeeds."
+  },
+  {
+    title: "How Can Brute Force Attacks Be Prevented?",
+    answer: "Rate limiting, account lockouts, CAPTCHA, and strong passwords."
+  },
+  {
+    title: "What Is XSS?",
+    answer: "Cross-Site Scripting (XSS) allows attackers to inject malicious JavaScript into webpages."
+  },
+  {
+    title: "Why Is XSS Dangerous?",
+    answer: "Attackers may steal tokens, session data, or manipulate page content."
+  },
+  {
+    title: "Example Of XSS?",
+    answer: "<script>alert('hacked')</script>\n\nIf executed, malicious code runs inside the user's browser."
+  },
+  {
+    title: "How Can XSS Be Prevented?",
+    answer: "Input validation, output escaping, sanitization, and Content Security Policy."
+  },
+  {
+    title: "What Is Stored XSS?",
+    answer: "Malicious scripts are saved in the database and executed whenever users view content."
+  },
+  {
+    title: "What Is Reflected XSS?",
+    answer: "Malicious scripts are reflected immediately through requests."
+  },
+  {
+    title: "What Is DOM-Based XSS?",
+    answer: "The vulnerability occurs entirely inside browser-side JavaScript."
+  },
+  {
+    title: "What Is CSRF?",
+    answer: "Cross-Site Request Forgery tricks authenticated users into performing unwanted actions."
+  },
+  {
+    title: "Example Of CSRF?",
+    answer: "An attacker causes a logged-in user to unknowingly submit a payment or account change request."
+  },
+  {
+    title: "How Can CSRF Be Prevented?",
+    answer: "CSRF tokens, SameSite cookies, origin validation, and secure authentication flows."
+  },
+  {
+    title: "What Is NoSQL Injection?",
+    answer: "NoSQL Injection manipulates database queries using malicious input."
+  },
+  {
+    title: "Example Of NoSQL Injection?",
+    answer: "Improperly validated MongoDB queries may allow attackers to bypass authentication."
+  },
+  {
+    title: "How Can NoSQL Injection Be Prevented?",
+    answer: "Input validation, sanitization, schema validation, and parameterized query construction."
+  },
+  {
+    title: "What Is SQL Injection?",
+    answer: "SQL Injection manipulates SQL queries through malicious input."
+  },
+  {
+    title: "Does Store Use SQL?",
+    answer: "No.\n\nStore uses MongoDB, but NoSQL injection risks still exist."
+  },
+  {
+    title: "What Is Input Validation?",
+    answer: "Validation ensures user input matches expected formats."
+  },
+  {
+    title: "Why Is Input Validation Important?",
+    answer: "It prevents malformed, dangerous, or malicious input from reaching application logic."
+  },
+  {
+    title: "What Is Sanitization?",
+    answer: "Sanitization removes dangerous content from user input."
+  },
+  {
+    title: "What Is CORS?",
+    answer: "Cross-Origin Resource Sharing controls which domains can access backend APIs."
+  },
+  {
+    title: "Why Is CORS Needed?",
+    answer: "Browsers restrict cross-origin requests by default."
+  },
+  {
+    title: "How Would You Configure CORS Securely?",
+    answer: "Allow only trusted frontend domains rather than using unrestricted origins."
+  },
+  {
+    title: "What Is HTTPS?",
+    answer: "HTTPS encrypts communication between client and server."
+  },
+  {
+    title: "Why Is HTTPS Important?",
+    answer: "It protects sensitive data from interception."
+  },
+  {
+    title: "What Is TLS?",
+    answer: "Transport Layer Security is the protocol behind HTTPS encryption."
+  },
+  {
+    title: "What Is API Security?",
+    answer: "API security protects endpoints from unauthorized access and abuse."
+  },
+  {
+    title: "How Are Store APIs Protected?",
+    answer: "JWT authentication, authorization middleware, validation, and rate limiting."
+  },
+  {
+    title: "What Is Rate Limiting?",
+    answer: "Rate limiting restricts how many requests users can make in a time window."
+  },
+  {
+    title: "Why Use Rate Limiting?",
+    answer: "It prevents abuse, brute-force attacks, and excessive resource consumption."
+  },
+  {
+    title: "What Security Headers Can Be Added?",
+    answer: "Examples:\n- Content-Security-Policy\n- X-Frame-Options\n- X-Content-Type-Options\n- Strict-Transport-Security"
+  },
+  {
+    title: "What Is Helmet.js?",
+    answer: "Helmet is an Express middleware that adds important security headers."
+  },
+  {
+    title: "Why Use Helmet?",
+    answer: "It helps protect applications from common web vulnerabilities."
+  },
+  {
+    title: "What Is Session Hijacking?",
+    answer: "Attackers steal authentication credentials and impersonate users."
+  },
+  {
+    title: "How Can Session Hijacking Be Prevented?",
+    answer: "HTTPS, secure cookies, short token lifetimes, and strong authentication."
+  },
+  {
+    title: "What Is Principle Of Least Privilege?",
+    answer: "Users should receive only the permissions they actually need."
+  },
+  {
+    title: "Why Is Least Privilege Important?",
+    answer: "It limits damage if accounts become compromised."
+  },
+  {
+    title: "Interview Question: How Would You Secure Store For Production?",
+    answer: "HTTPS, JWT authentication, bcrypt hashing, validation, sanitization, rate limiting, security headers, logging, and monitoring."
+  },
+  {
+    title: "Interview Question: Why Is bcrypt Better Than Plain Hashing?",
+    answer: "bcrypt includes salting and computational cost, making password cracking significantly harder."
+  },
+  {
+    title: "Interview Question: What Is The Difference Between Authentication And Authorization?",
+    answer: "Authentication verifies identity.\nAuthorization controls access permissions."
+  },
+  {
+    title: "Interview Question: What Is The Biggest Security Risk For Full Stack Applications?",
+    answer: "Improper authentication, insecure APIs, injection vulnerabilities, and insufficient input validation."
+  },
+  {
+    title: "What Is CI/CD?",
+    answer: "CI/CD stands for Continuous Integration and Continuous Deployment.\n\nIt automates building, testing, and deploying applications."
+  },
+  {
+    title: "What Is Continuous Integration?",
+    answer: "Continuous Integration automatically builds and tests code whenever developers push changes."
+  },
+  {
+    title: "What Is Continuous Deployment?",
+    answer: "Continuous Deployment automatically releases validated code into production."
+  },
+  {
+    title: "Why Is CI/CD Important?",
+    answer: "CI/CD reduces manual work, catches bugs early, and enables faster deployments."
+  },
+  {
+    title: "How Would CI/CD Help Store?",
+    answer: "Whenever code is pushed to GitHub, automated workflows can build, test, and deploy Store."
+  },
+  {
+    title: "What Is GitHub Actions?",
+    answer: "GitHub Actions is GitHub's automation platform used for CI/CD workflows."
+  },
+  {
+    title: "What Is A Workflow?",
+    answer: "A workflow is a set of automated steps defined in YAML files."
+  },
+  {
+    title: "Where Are GitHub Actions Workflows Stored?",
+    answer: ".github/workflows/"
+  },
+  {
+    title: "What Happens When Code Is Pushed?",
+    answer: "GitHub Actions can automatically trigger build, test, and deployment pipelines."
+  },
+  {
+    title: "What Is A Pipeline?",
+    answer: "A pipeline is a sequence of automated stages executed during CI/CD."
+  },
+  {
+    title: "Typical CI/CD Pipeline?",
+    answer: "Code Push\n→ Build\n→ Test\n→ Docker Build\n→ Push Image\n→ Deploy"
+  },
+  {
+    title: "What Is Build Automation?",
+    answer: "Automatically compiling and preparing applications for deployment."
+  },
+  {
+    title: "Why Automate Builds?",
+    answer: "Automation reduces human errors and improves consistency."
+  },
+  {
+    title: "How Would Docker Fit Into CI/CD?",
+    answer: "CI pipeline builds Docker images and pushes them to a registry."
+  },
+  {
+    title: "What Happens After Docker Image Creation?",
+    answer: "The image can be deployed to staging or production environments."
+  },
+  {
+    title: "Why Are Automated Tests Important?",
+    answer: "Tests catch bugs before deployment."
+  },
+  {
+    title: "What Happens If Tests Fail?",
+    answer: "Deployment should stop until issues are fixed."
+  },
+  {
+    title: "What Is Deployment Automation?",
+    answer: "Automatically releasing applications to production servers."
+  },
+  {
+    title: "What Is Blue-Green Deployment?",
+    answer: "Two environments exist.\n\nOne serves users while the other receives updates."
+  },
+  {
+    title: "Why Use Blue-Green Deployment?",
+    answer: "It minimizes downtime and simplifies rollback."
+  },
+  {
+    title: "What Is Canary Deployment?",
+    answer: "New versions are released gradually to a small subset of users."
+  },
+  {
+    title: "Why Use Canary Deployment?",
+    answer: "Problems can be detected before affecting all users."
+  },
+  {
+    title: "What Is Rollback?",
+    answer: "Rollback restores a previously stable version."
+  },
+  {
+    title: "Why Is Rollback Important?",
+    answer: "It allows quick recovery from deployment failures."
+  },
+  {
+    title: "What Is Logging?",
+    answer: "Logging records events occurring inside applications."
+  },
+  {
+    title: "Why Is Logging Important?",
+    answer: "Logs help diagnose bugs, monitor systems, and investigate failures."
+  },
+  {
+    title: "What Should Be Logged In Store?",
+    answer: "User logins, purchases, API errors, payment events, chatbot activity."
+  },
+  {
+    title: "What Should Never Be Logged?",
+    answer: "Passwords, JWT secrets, API keys, and sensitive personal data."
+  },
+  {
+    title: "What Is Structured Logging?",
+    answer: "Logs are stored in machine-readable formats such as JSON."
+  },
+  {
+    title: "Why Is Structured Logging Useful?",
+    answer: "Logs become easier to search and analyze."
+  },
+  {
+    title: "What Is Monitoring?",
+    answer: "Monitoring tracks system health and performance."
+  },
+  {
+    title: "Why Is Monitoring Important?",
+    answer: "Monitoring helps detect issues before users are affected."
+  },
+  {
+    title: "What Metrics Would You Monitor?",
+    answer: "CPU usage, memory usage, response time, error rates, database performance."
+  },
+  {
+    title: "What Is Application Monitoring?",
+    answer: "Tracking behavior and performance of software applications."
+  },
+  {
+    title: "What Is Infrastructure Monitoring?",
+    answer: "Monitoring servers, containers, networks, and hardware."
+  },
+  {
+    title: "What Is Alerting?",
+    answer: "Alerting notifies engineers when critical issues occur."
+  },
+  {
+    title: "Example Alert Conditions?",
+    answer: "High CPU usage, server downtime, excessive errors, failed payments."
+  },
+  {
+    title: "What Is Observability?",
+    answer: "Observability measures how easily system behavior can be understood."
+  },
+  {
+    title: "Three Pillars Of Observability?",
+    answer: "Logs\nMetrics\nTraces"
+  },
+  {
+    title: "What Are Metrics?",
+    answer: "Numerical measurements describing system performance."
+  },
+  {
+    title: "What Are Traces?",
+    answer: "Traces show how requests travel across services."
+  },
+  {
+    title: "Why Are Traces Useful?",
+    answer: "They help identify bottlenecks and failures."
+  },
+  {
+    title: "What Is Prometheus?",
+    answer: "Prometheus is a monitoring and metrics collection system."
+  },
+  {
+    title: "What Is Grafana?",
+    answer: "Grafana visualizes monitoring data using dashboards."
+  },
+  {
+    title: "What Is ELK Stack?",
+    answer: "Elasticsearch, Logstash, and Kibana used for centralized logging."
+  },
+  {
+    title: "Why Use Centralized Logging?",
+    answer: "Logs from multiple servers can be searched from one location."
+  },
+  {
+    title: "What Is AWS?",
+    answer: "Amazon Web Services is a cloud computing platform."
+  },
+  {
+    title: "Why Would Store Use AWS?",
+    answer: "AWS provides scalable infrastructure and managed services."
+  },
+  {
+    title: "What Is EC2?",
+    answer: "EC2 provides virtual servers in AWS."
+  },
+  {
+    title: "What Is S3?",
+    answer: "S3 is AWS object storage used for files and static assets."
+  },
+  {
+    title: "How Could Store Use S3?",
+    answer: "Store PDFs, course materials, profile images, and uploads."
+  },
+  {
+    title: "What Is RDS?",
+    answer: "RDS is AWS's managed relational database service."
+  },
+  {
+    title: "What Is CloudFront?",
+    answer: "CloudFront is AWS's content delivery network."
+  },
+  {
+    title: "How Would CloudFront Help Store?",
+    answer: "Static content would load faster globally."
+  },
+  {
+    title: "What Is Auto Scaling?",
+    answer: "Automatically increasing or decreasing resources based on demand."
+  },
+  {
+    title: "Why Use Auto Scaling?",
+    answer: "Traffic spikes can be handled without manual intervention."
+  },
+  {
+    title: "What Is Infrastructure As Code?",
+    answer: "Managing infrastructure using configuration files instead of manual setup."
+  },
+  {
+    title: "Examples Of Infrastructure As Code?",
+    answer: "Terraform, CloudFormation, Pulumi."
+  },
+  {
+    title: "What Is Disaster Recovery?",
+    answer: "Processes that restore systems after major failures."
+  },
+  {
+    title: "Why Is Disaster Recovery Important?",
+    answer: "It minimizes downtime and data loss."
+  },
+  {
+    title: "How Would You Backup Store?",
+    answer: "Regular database backups, file backups, and infrastructure backups."
+  },
+  {
+    title: "Interview Question: Explain A Complete Production Deployment Flow.",
+    answer: "Developer Pushes Code\n→ GitHub Actions Runs\n→ Tests Execute\n→ Docker Image Built\n→ Image Pushed To Registry\n→ Kubernetes Deployment Updated\n→ New Version Released"
+  },
+  {
+    title: "Interview Question: How Would You Monitor Store In Production?",
+    answer: "Prometheus for metrics, Grafana dashboards, centralized logs, alerts, and uptime monitoring."
+  },
+  {
+    title: "Interview Question: What Would You Do If Production Suddenly Became Slow?",
+    answer: "Check metrics, logs, database performance, API latency, CPU usage, memory usage, and recent deployments."
+  },
+  {
+    title: "Interview Question: What Is The Difference Between Logging And Monitoring?",
+    answer: "Logging records events.\nMonitoring continuously tracks system health and performance."
+  },
+  {
+    title: "Interview Question: Why Is CI/CD Valuable?",
+    answer: "CI/CD improves development speed, reliability, consistency, and deployment quality."
+  },
+  
+
+
 ]
 
 };

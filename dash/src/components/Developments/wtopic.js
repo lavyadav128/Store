@@ -33,6 +33,9 @@ const topics = [
   { id: "authentication", name: "Authentication" },
   { id: "full-stack", name: "Full-stack" },
   { id: "interview", name: "Interview" },
+  { id: "mysarthi", name: "Mysarthi" },
+  { id: "notenova", name: "Notenova" },
+
 
 
 
