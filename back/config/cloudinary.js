@@ -4,14 +4,17 @@ import multer from "multer";
 import dotenv from "dotenv";
 dotenv.config();
 
-// This reads CLOUDINARY_URL automatically
-cloudinary.config(true);
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 const storage = new CloudinaryStorage({
   cloudinary,
   params: async (req, file) => ({
     folder:        `notenova/${req.body.category}`,
-    resource_type: "auto",
+    resource_type: "auto",   // handles pdf, image, video automatically
     public_id:     `${Date.now()}-${file.originalname}`,
   }),
 });
