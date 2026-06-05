@@ -6,9 +6,28 @@ import auth from "../controller/authh.js";
 const router = express.Router();
 
 // ── UPLOAD file (admin only) ──
-router.post("/upload", auth, upload.single("file"), async (req, res) => {
+router.post("/upload", auth, (req, res, next) => {
+  upload.single("file")(req, res, (err) => {
+    if (err) {
+      console.error("MULTER/CLOUDINARY ERROR:", err.message, err);
+      return res.status(500).json({ message: err.message });
+    }
+    next();
+  });
+}, async (req, res) => {
   try {
+    console.log("FILE:", req.file);
+    console.log("BODY:", req.body);
+
+    if (!req.file) {
+      return res.status(400).json({ message: "No file received" });
+    }
+
     const { title, category } = req.body;
+
+    if (!title || !category) {
+      return res.status(400).json({ message: "Title and category are required" });
+    }
 
     const resource = await Resource.create({
       title,
@@ -20,8 +39,8 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
 
     res.status(201).json(resource);
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ message: "Upload failed" });
+    console.error("Upload error:", err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
