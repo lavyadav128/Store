@@ -1,6 +1,4 @@
 
-
-
 // import React, { useState, useEffect } from "react";
 // import {
 //   Box,
@@ -74,12 +72,16 @@
 
 //   /* ── persist aims ── */
 //   useEffect(() => {
-//     localStorage.setItem("admin_aims", JSON.stringify(aims));
+//     if (aims.length > 0 || localStorage.getItem("admin_aims")) {
+//       localStorage.setItem("admin_aims", JSON.stringify(aims));
+//     }
 //   }, [aims]);
 
 //   /* ── persist tasks ── */
 //   useEffect(() => {
-//     localStorage.setItem("admin_tasks", JSON.stringify(tasks));
+//     if (tasks.length > 0 || localStorage.getItem("admin_tasks")) {
+//       localStorage.setItem("admin_tasks", JSON.stringify(tasks));
+//     }
 //   }, [tasks]);
 
 //   /* ── fetch users ── */
@@ -776,6 +778,7 @@
 // export default AdminDashboard;
 
 
+
 import React, { useState, useEffect } from "react";
 import {
   Box,
@@ -849,16 +852,12 @@ const AdminDashboard = () => {
 
   /* ── persist aims ── */
   useEffect(() => {
-    if (aims.length > 0 || localStorage.getItem("admin_aims")) {
-      localStorage.setItem("admin_aims", JSON.stringify(aims));
-    }
+    localStorage.setItem("admin_aims", JSON.stringify(aims));
   }, [aims]);
 
   /* ── persist tasks ── */
   useEffect(() => {
-    if (tasks.length > 0 || localStorage.getItem("admin_tasks")) {
-      localStorage.setItem("admin_tasks", JSON.stringify(tasks));
-    }
+    localStorage.setItem("admin_tasks", JSON.stringify(tasks));
   }, [tasks]);
 
   /* ── fetch users ── */
