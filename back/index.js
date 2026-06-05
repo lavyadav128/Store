@@ -12,6 +12,8 @@ import chatbotRoutes from './ai/chatbot.js';
 import adminRoutes from "./routes/admin.routes.js";
 import doubtRoutes from "./routes/doubt.routes.js";
 import notificationsRoutes from "./routes/notifications.routes.js";
+import userListRoutes from './routes/userList.routes.js';
+import resourceRoutes from './routes/resource.routes.js';
 
 
 
@@ -28,7 +30,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3001',
-    'https://note-vevp.onrender.com',          // Deployed frontend
+    // 'https://note-vevp.onrender.com',          // Deployed frontend
     // 'http://localhost:30265',                    // Local frontend
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],    // Allowed HTTP methods
@@ -48,6 +50,9 @@ app.use("/api/admin", adminRoutes);
 
 app.use("/api/notifications", notificationsRoutes);
 
+app.use("/api/resources", resourceRoutes);
+
+app.use("/api/admin/list", userListRoutes);
 
 // Mount user-related routes at /api
 app.use('/api', userRoutes);

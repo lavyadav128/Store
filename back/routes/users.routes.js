@@ -7,6 +7,7 @@ import jwt from 'jsonwebtoken';
 import httpStatus from 'http-status';
 import { User } from '../schema/user.model.js';
 import { Message } from "../schema/message.model.js";
+import auth from "../controller/authh.js"
 
 
 const router = express.Router();
@@ -116,6 +117,18 @@ router.get("/notifications/:username", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch notifications" });
+  }
+});
+
+
+// GET /api/user/profile
+router.get("/user/profile", auth, async (req, res) => {
+  try {
+    const user = await User.findOne({ username: req.user.username }).select("-password");
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 
