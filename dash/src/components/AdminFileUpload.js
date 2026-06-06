@@ -14,7 +14,7 @@ import axios from "axios";
 import server from "../environment";
 import { Modal } from "@mui/material";
 
-const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos"];
+const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos", "Motivation"];
 
 const AdminFileUpload = () => {
   const theme = useTheme();
@@ -92,26 +92,101 @@ const AdminFileUpload = () => {
   const filtered = filterCat === "all" ? resources : resources.filter(r => r.category === filterCat);
 
 
-  const openFileViewer = (fileUrl) => {
-    setViewerContent(
-      <Box
-        sx={{
-          width: "100%",
-          height: "100%",
-          bgcolor: "#f9f9f9",
-        }}
-      >
+  const getYoutubeEmbedUrl = (url) => {
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/i
+    );
+  
+    return match
+      ? `https://www.youtube.com/embed/${match[1]}`
+      : null;
+  };
+  
+  const openFileViewer = (url) => {
+  
+    // YouTube
+    if (
+      url.includes("youtube.com") ||
+      url.includes("youtu.be")
+    ) {
+      const embedUrl = getYoutubeEmbedUrl(url);
+  
+      setViewerContent(
         <iframe
-          src={fileUrl}
-          title="File Viewer"
+          src={embedUrl}
+          title="YouTube Video"
+          allowFullScreen
           style={{
             width: "100%",
             height: "100%",
             border: "none",
           }}
         />
-      </Box>
-    );
+      );
+    }
+  
+    // Instagram Reel
+    else if (
+      url.includes("instagram.com")
+    ) {
+      window.open(url, "_blank");
+      return;
+    }
+  
+    // Videos
+    else if (
+      url.includes("/video/upload/") ||
+      url.endsWith(".mp4") ||
+      url.endsWith(".mov") ||
+      url.endsWith(".webm")
+    ) {
+      setViewerContent(
+        <video
+          controls
+          autoPlay
+          style={{
+            width: "100%",
+            height: "100%",
+            background: "#000",
+            objectFit: "contain",
+          }}
+        >
+          <source src={url} />
+        </video>
+      );
+    }
+  
+    // Images
+    else if (
+      /\.(jpg|jpeg|png|gif|webp)$/i.test(url)
+    ) {
+      setViewerContent(
+        <img
+          src={url}
+          alt="Preview"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+          }}
+        />
+      );
+    }
+  
+    // PDFs
+    else {
+      setViewerContent(
+        <iframe
+          src={url}
+          title="Viewer"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+        />
+      );
+    }
   
     setModalOpen(true);
   };
@@ -273,7 +348,7 @@ const AdminFileUpload = () => {
                       </Typography>
                     </Box>
                   <Button
-                    onClick={() => openFileViewer(r.fileUrl)}
+                    onClick={() => openFileViewer(r.fileUrl,r.fileType)}
                     size="small"
                     sx={{
                     fontFamily: "'DM Sans'",
