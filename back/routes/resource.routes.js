@@ -6,34 +6,49 @@ import auth from "../controller/authh.js";
 const router = express.Router();
 
 // ── UPLOAD file (admin only) ──
-router.post("/upload", auth, (req, res, next) => {
-  upload.single("file")(req, res, (err) => {
-    if (err) {
-      console.error("MULTER/CLOUDINARY ERROR:", err.message, err);
-      return res.status(500).json({ message: err.message });
-    }
-    next();
-  });
-}, async (req, res) => {
+router.post("/upload", auth, upload.single("file"), async (req, res) => {
   try {
-    console.log("FILE:", req.file);
     console.log("BODY:", req.body);
+    console.log("FILE:", req.file?.originalname);
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file received" });
-    }
+    if (!req.file) return res.status(400).json({ message: "No file received" });
 
     const { title, category } = req.body;
+    if (!title || !category) return res.status(400).json({ message: "Title and category required" });
 
-    if (!title || !category) {
-      return res.status(400).json({ message: "Title and category are required" });
-    }
+    // Upload buffer directly to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      // determine resource type based on file type
+      const isPDF = req.file.mimetype === "application/pdf";
+      const resourceType = isPDF ? "raw" : "auto";
+    
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          folder: `notenova/${category}`,
+          resource_type: resourceType,
+          type: "upload",
+          access_mode: "public",
+          public_id: `${Date.now()}-${req.file.originalname}`,
+        },
+        (error, result) => {
+          if (error) {
+            console.error("Cloudinary error:", error);
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+      stream.end(req.file.buffer);
+    });
+
+    console.log("Cloudinary upload success:", uploadResult.secure_url);
 
     const resource = await Resource.create({
       title,
       category,
-      fileUrl:  req.file.path,
-      publicId: req.file.filename,
+      fileUrl:  uploadResult.secure_url,
+      publicId: uploadResult.public_id,
       fileType: req.file.mimetype,
     });
 
@@ -70,14 +85,26 @@ router.delete("/:id", auth, async (req, res) => {
     const resource = await Resource.findById(req.params.id);
     if (!resource) return res.status(404).json({ message: "Not found" });
 
-    // Delete from Cloudinary too
-    await cloudinary.uploader.destroy(resource.publicId, { resource_type: "auto" });
+    // destroy with correct resource_type
+    const isPDF = resource.fileType === "application/pdf";
+    const resourceType = isPDF ? "raw" : "auto";
+
+    try {
+      await cloudinary.uploader.destroy(resource.publicId, { 
+        resource_type: resourceType,
+        invalidate: true,
+      });
+      console.log("Deleted from Cloudinary:", resource.publicId);
+    } catch (cloudErr) {
+      console.error("Cloudinary delete error:", cloudErr.message);
+      // still delete from MongoDB even if Cloudinary fails
+    }
 
     await Resource.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted successfully" });
   } catch (err) {
-    console.error("Delete error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("Delete error:", err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 

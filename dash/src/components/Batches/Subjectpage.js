@@ -105,6 +105,7 @@ export const chaptersData = {
       { title: "hyperbola", videoUrl: "https://www.youtube.com/live/Es6IoDqItuc?si=K2LvYH36ErbduvBG" },
       { title: "mathematical-reasoning ", videoUrl: "https://www.youtube.com/live/zbxVS7Y5NZc?si=5pAu8GNEjVbZVZ6V" },
       { title: "statistics", videoUrl: "https://www.youtube.com/live/fjgu_j2Xvjo?si=NmmXL-Bc7WhGvMs9" },
+
     ],
     physics: [
       { title: "unit-measurements", videoUrl: "https://youtu.be/YX5sLwRtULk?si=uzJGkLFKwh4r5p_-" },

@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
 import dotenv from "dotenv";
 dotenv.config();
@@ -10,14 +9,6 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req, file) => ({
-    folder:        `notenova/${req.body.category}`,
-    resource_type: "auto",   // handles pdf, image, video automatically
-    public_id:     `${Date.now()}-${file.originalname}`,
-  }),
-});
-
-export const upload = multer({ storage });
+// Store file in memory instead of Cloudinary directly
+export const upload = multer({ storage: multer.memoryStorage() });
 export { cloudinary };

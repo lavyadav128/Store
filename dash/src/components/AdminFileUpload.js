@@ -12,6 +12,7 @@ import FilterListIcon from "@mui/icons-material/FilterList";
 import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import server from "../environment";
+import { Modal } from "@mui/material";
 
 const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos"];
 
@@ -28,6 +29,9 @@ const AdminFileUpload = () => {
   const [resources,       setResources]       = useState([]);
   const [filterCat,       setFilterCat]       = useState("all");
   const [filterDrawer,    setFilterDrawer]    = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [viewerContent, setViewerContent] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   const authHeader = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -74,6 +78,31 @@ const AdminFileUpload = () => {
   };
 
   const filtered = filterCat === "all" ? resources : resources.filter(r => r.category === filterCat);
+
+
+  const openFileViewer = (fileUrl) => {
+    setViewerContent(
+      <Box
+        sx={{
+          width: "100%",
+          height: "100%",
+          bgcolor: "#f9f9f9",
+        }}
+      >
+        <iframe
+          src={fileUrl}
+          title="File Viewer"
+          style={{
+            width: "100%",
+            height: "100%",
+            border: "none",
+          }}
+        />
+      </Box>
+    );
+  
+    setModalOpen(true);
+  };
 
   return (
     <>
@@ -231,16 +260,24 @@ const AdminFileUpload = () => {
                         {r.category}
                       </Typography>
                     </Box>
-                    <Button
-                      href={r.fileUrl} target="_blank" size="small"
-                      sx={{
-                        fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 12,
-                        color: "#1a1a2e", textTransform: "none", p: 0,
-                        "&:hover": { background: "transparent", textDecoration: "underline" },
-                      }}
-                    >
-                      View File →
-                    </Button>
+                  <Button
+                    onClick={() => openFileViewer(r.fileUrl)}
+                    size="small"
+                    sx={{
+                    fontFamily: "'DM Sans'",
+                    fontWeight: 700,
+                    fontSize: 12,
+                    color: "#1a1a2e",
+                    textTransform: "none",
+                    p: 0,
+                    "&:hover": {
+                    background: "transparent",
+                    textDecoration: "underline",
+                },
+              }}
+            >
+           View File →
+                </Button>
                   </Box>
                 </Box>
               ))}
@@ -370,8 +407,98 @@ const AdminFileUpload = () => {
             {uploading ? `Uploading ${progress}%…` : "Upload File"}
           </Button>
         </DialogContent>
-      </Dialog>
-    </>
+        </Dialog>
+
+          {/* File Preview Dialog */}
+          <Dialog
+            open={!!selectedFile}
+            onClose={() => setSelectedFile(null)}
+            maxWidth="lg"
+            fullWidth
+          >
+            <DialogTitle
+              sx={{
+                fontFamily: "'DM Sans'",
+                fontWeight: 700,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              File Preview
+
+              <IconButton onClick={() => setSelectedFile(null)}>
+                <CloseIcon />
+              </IconButton>
+            </DialogTitle>
+
+            <DialogContent sx={{ p: 0 }}>
+              {selectedFile?.toLowerCase().includes(".pdf") ? (
+                <iframe
+                  src={selectedFile}
+                  width="100%"
+                  height="800px"
+                  title="PDF Viewer"
+                  style={{ border: "none" }}
+                />
+              ) : (
+                <img
+                  src={selectedFile}
+                  alt="Preview"
+                  style={{
+                    width: "100%",
+                    maxHeight: "800px",
+                    objectFit: "contain",
+                  }}
+                />
+              )}
+            </DialogContent>
+          </Dialog>
+          <Modal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+          >
+            <Box
+              sx={{
+                position: "fixed",
+                top: 0,
+                left: 0,
+                width: "100vw",
+                height: "100vh",
+                bgcolor: "#000",
+                overflow: "hidden",
+                zIndex: 1300,
+              }}
+            >
+              <IconButton
+                onClick={() => setModalOpen(false)}
+                sx={{
+                  position: "absolute",
+                  top: 16,
+                  right: 16,
+                  backgroundColor: "#fff",
+                  boxShadow: 3,
+                  zIndex: 1000,
+                  "&:hover": {
+                    backgroundColor: "#eee",
+                  },
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+
+              <Box
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                }}
+              >
+                {viewerContent}
+              </Box>
+            </Box>
+          </Modal>
+
+          </>
   );
 };
 

@@ -30,7 +30,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3001',
-    // 'https://note-vevp.onrender.com',          // Deployed frontend
+    'https://note-vevp.onrender.com',          // Deployed frontend
     // 'http://localhost:30265',                    // Local frontend
   ],
   methods: ["GET", "POST","PATCH", "PUT", "DELETE"],    // Allowed HTTP methods
