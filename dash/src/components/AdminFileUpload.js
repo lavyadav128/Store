@@ -32,6 +32,8 @@ const AdminFileUpload = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewerContent, setViewerContent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [resourceUrl, setResourceUrl] = useState("");
+  
 
   const authHeader = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -47,11 +49,21 @@ const AdminFileUpload = () => {
   useEffect(() => { fetchResources(); }, []);
 
   const handleUpload = async () => {
-    if (!title || !category || !file) return alert("Fill all fields and select a file");
+    if (!title || !category || (!file && !resourceUrl)) {
+      return alert("Please upload a file OR provide a URL");
+    }
     const formData = new FormData();
-    formData.append("title",    title);
+
+    formData.append("title", title);
     formData.append("category", category);
-    formData.append("file",     file);
+    
+    if (file) {
+      formData.append("file", file);
+    }
+    
+    if (resourceUrl) {
+      formData.append("resourceUrl", resourceUrl);
+    }
 
     setUploading(true);
     try {
@@ -62,7 +74,7 @@ const AdminFileUpload = () => {
         },
         onUploadProgress: (e) => setProgress(Math.round((e.loaded * 100) / e.total)),
       });
-      setTitle(""); setCategory(""); setFile(null); setProgress(0);
+      setTitle(""); setCategory(""); setFile(null); setResourceUrl(""); setProgress(0);
       setOpen(false);
       fetchResources();
     } catch { alert("Upload failed"); }
@@ -376,9 +388,28 @@ const AdminFileUpload = () => {
               color: file ? "#1a1a2e" : "#aaa", fontWeight: file ? 700 : 400,
               wordBreak: "break-word", px: 1,
             }}>
-              {file ? file.name : "Tap to choose a file (PDF, image, video)"}
+            {
+              file
+                ? file.name
+                : resourceUrl
+                ? "URL Added"
+                : "Choose a file OR enter a URL"
+            }
             </Typography>
           </Box>
+
+            <TextField
+              label="YouTube / Reel / Video URL"
+              fullWidth
+              value={resourceUrl}
+              onChange={(e) => setResourceUrl(e.target.value)}
+              placeholder="https://youtube.com/watch?v=..."
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  borderRadius: "14px",
+                },
+              }}
+            />
 
           {uploading && (
             <Box>
