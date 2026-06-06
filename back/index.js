@@ -14,6 +14,7 @@ import doubtRoutes from "./routes/doubt.routes.js";
 import notificationsRoutes from "./routes/notifications.routes.js";
 import userListRoutes from './routes/userList.routes.js';
 import resourceRoutes from './routes/resource.routes.js';
+import videoStudioRouter from "./routes/video.routes.js";
 
 
 
@@ -53,6 +54,8 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/resources", resourceRoutes);
 
 app.use("/api/admin/list", userListRoutes);
+
+app.use("/api/video-studio", videoStudioRouter);
 
 // Mount user-related routes at /api
 app.use('/api', userRoutes);

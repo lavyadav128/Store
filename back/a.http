@@ -1,0 +1,11 @@
+POST http://localhost:5000/api/video-studio/generate-script
+
+Headers:
+  Authorization: Bearer YOUR_TOKEN
+  Content-Type: application/json
+
+Body (raw JSON):
+{
+  "scriptType": "motivational",
+  "topic": "morning routine"
+}
