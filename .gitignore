@@ -2,7 +2,7 @@ node_modules/
 dist/
 build/
 .next/
-.env
+# .env
 
 # # ❌ DO NOT TRACK CONTENT FILES
 # dash/public/images/completenotes/
