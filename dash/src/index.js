@@ -9,7 +9,7 @@ import Dsa from './components/Algorithms/Dsa';
 import DtopicPage from './components/Algorithms/dtopic'; // Practice Page Component
 import DpractisePage from './components/Algorithms/dpractise';
 
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 import Revision from './components/Revision/concept'; // Revision Page Component
 import College from './components/College/Top'; // College Page Component
@@ -38,7 +38,7 @@ import PpractisePage from './components/Aptitude/ppractise';
 
 
 import Authentication from './components/authentication';
-import { AuthProvider } from './contexts/AuthContext';
+// import { AuthProvider } from './contexts/AuthContext';
 import MentorshipPage from './components/Batches/mentorship'; // adjust the path as needed
 
 
@@ -64,10 +64,15 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <BrowserRouter>
-      <AuthProvider>
+      {/* <AuthProvider> */}
         <>
           <Routes>
             <Route path="/" element={<Authentication />} />
+
+
+            {/* <Route element={<ProtectedRoute />}> */}
+
+            
             <Route path="/dsa" element={<Dsa />} />
             <Route path="/dtopic" element={<DtopicPage />} />
             <Route path="/dpractice/:topicId" element={<DpractisePage />} />
@@ -153,6 +158,9 @@ root.render(
 
 
             <Route path="premium/class/:classId/mentorship" element={<MentorshipPage />} />
+            
+            
+            {/* </Route> */}
 
 
             {/* Fallback route */}
@@ -162,7 +170,7 @@ root.render(
           {/* ChatBot on all pages */}
           <ChatBot />
         </>
-      </AuthProvider>
+      {/* </AuthProvider> */}
     </BrowserRouter>
   </React.StrictMode>
 );

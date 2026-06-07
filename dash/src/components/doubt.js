@@ -1,7 +1,4 @@
-
-
-
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -17,7 +14,6 @@ import {
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { makeAuthenticatedRequest } from "./makeauth";
 import server from "../environment";
-import { AuthContext } from "../contexts/AuthContext";
 
 const DoubtPage = () => {
   const [formData, setFormData] = useState({
@@ -33,13 +29,7 @@ const DoubtPage = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const auth = useContext(AuthContext);
-
-  // ✅ SAFE USERNAME FETCH (FIX)
-  const username =
-    auth?.getUsername?.() ||
-    localStorage.getItem("username") ||
-    "";
+  const username = localStorage.getItem("username") || "";
 
   const handleChange = (e) => {
     setFormData((prev) => ({
