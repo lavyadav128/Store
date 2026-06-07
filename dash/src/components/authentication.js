@@ -426,3 +426,186 @@ export default function Authentication() {
     </>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// import * as React from "react";
+// import axios from "axios";
+// import httpStatus from "http-status";
+// import { useNavigate } from "react-router-dom";
+// import server from "../environment";
+
+// import CssBaseline from "@mui/material/CssBaseline";
+// import { createTheme, ThemeProvider } from "@mui/material/styles";
+// import { Snackbar } from "@mui/material";
+
+// import SchoolIcon from "@mui/icons-material/School";
+// import EmailIcon from "@mui/icons-material/Email";
+// import LockIcon from "@mui/icons-material/Lock";
+// import PersonIcon from "@mui/icons-material/Person";
+
+// const defaultTheme = createTheme({
+//   typography: {
+//     fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+//   },
+// });
+
+// const client = axios.create({
+//   baseURL: server,
+// });
+
+// export default function Authentication() {
+//   const navigate = useNavigate();
+
+//   const [username, setUsername] = React.useState("");
+//   const [password, setPassword] = React.useState("");
+//   const [name, setName] = React.useState("");
+//   const [error, setError] = React.useState("");
+//   const [message, setMessage] = React.useState("");
+//   const [formState, setFormState] = React.useState(0);
+//   const [open, setOpen] = React.useState(false);
+//   const [focusedField, setFocusedField] = React.useState(null);
+//   const [loading, setLoading] = React.useState(false);
+
+//   /* ---------------- AXIOS INTERCEPTOR ---------------- */
+//   React.useEffect(() => {
+//     const interceptor = client.interceptors.request.use((config) => {
+//       const token = localStorage.getItem("token");
+
+//       if (token) {
+//         config.headers.Authorization = `Bearer ${token}`;
+//       }
+
+//       return config;
+//     });
+
+//     return () => {
+//       client.interceptors.request.eject(interceptor);
+//     };
+//   }, []);
+
+//   /* ---------------- REDIRECT ---------------- */
+//   const redirectUser = (username) => {
+//     if (username === "adminbrand") {
+//       navigate("/admin-dashboard");
+//     } else {
+//       navigate("/dashboard");
+//     }
+//   };
+
+//   /* ---------------- REGISTER ---------------- */
+//   const handleRegister = async (name, username, password) => {
+//     try {
+//       const res = await client.post("/api/register", {
+//         name,
+//         username,
+//         password,
+//       });
+
+//       if (res.status === httpStatus.CREATED) {
+//         const {
+//           token,
+//           username: registeredUsername,
+//         } = res.data;
+
+//         localStorage.setItem("token", token);
+//         localStorage.setItem("username", registeredUsername);
+
+//         redirectUser(registeredUsername);
+
+//         return res.data.message;
+//       }
+//     } catch (err) {
+//       throw err;
+//     }
+//   };
+
+//   /* ---------------- LOGIN ---------------- */
+//   const handleLogin = async (username, password) => {
+//     try {
+//       const res = await client.post("/api/login", {
+//         username,
+//         password,
+//       });
+
+//       if (res.status === httpStatus.OK) {
+//         const {
+//           token,
+//           username: loggedInUsername,
+//         } = res.data;
+
+//         localStorage.setItem("token", token);
+//         localStorage.setItem("username", loggedInUsername);
+
+//         redirectUser(loggedInUsername);
+//       }
+//     } catch (err) {
+//       throw err;
+//     }
+//   };
+
+//   /* ---------------- AUTH ---------------- */
+//   const handleAuth = async () => {
+//     setLoading(true);
+
+//     try {
+//       if (formState === 0) {
+//         await handleLogin(username, password);
+//       } else {
+//         const result = await handleRegister(
+//           name,
+//           username,
+//           password
+//         );
+
+//         setMessage(result);
+//         setOpen(true);
+//         setFormState(0);
+//         setError("");
+//         setName("");
+//         setUsername("");
+//         setPassword("");
+//       }
+//     } catch (err) {
+//       const msg =
+//         err?.response?.data?.message ||
+//         "Something went wrong";
+
+//       setError(msg);
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleKeyDown = (e) => {
+//     if (e.key === "Enter") {
+//       handleAuth();
+//     }
+//   };
+
+//   return (
+//     <>
+//       {/* KEEP YOUR ENTIRE EXISTING JSX HERE EXACTLY AS IT IS */}
+
+//       <Snackbar
+//         open={open}
+//         autoHideDuration={4000}
+//         onClose={() => setOpen(false)}
+//         message={message}
+//       />
+//     </>
+//   );
+// }
+
+
