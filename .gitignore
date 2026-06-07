@@ -12,4 +12,6 @@ build/
 # *.pdf
 # *.mp3
 # *.mp4
-# *.zip
+# *.zipback/.env
+back/node_modules/
+node_modules/
