@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import axios from "axios";
+import { useState, useEffect, useCallback } from "react";
 
 /* ── Google Fonts ── */
 const fontLink = document.createElement("link");
@@ -532,39 +531,54 @@ const speakText = (text, voiceCfg, onEnd) => {
   window.speechSynthesis.speak(utt);
 };
 
+/* ── Pollinations fallback (always free, no key needed) ── */
+const pollinationsFallback = (prompt) => {
+  const seed = Math.floor(Math.random() * 999999);
+  // Correct Pollinations URL: prompt goes in the PATH, query params after
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1280&height=720&seed=${seed}&nologo=true&model=flux&enhance=true`;
+};
+
 /* ── Gemini Image Generation ── */
 const generateImageWithGemini = async (prompt, apiKey) => {
-  if (!apiKey || apiKey === "YOUR_GEMINI_API_KEY_HERE") {
-    // Fallback to Pollinations if no API key
-    const seed = Math.floor(Math.random() * 999999);
-    return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ", ultra detailed, photorealistic, 8K, professional")}&width=1280&height=720&seed=${seed}&nologo=true&model=flux&enhance=true`;
+  const key = (apiKey || "").trim();
+  const hasKey = key && key !== "YOUR_GEMINI_API_KEY_HERE" && key.length > 10;
+
+  if (!hasKey) {
+    // No key — use free Pollinations.ai (Flux model)
+    return pollinationsFallback(prompt);
   }
+
   try {
+    // Gemini 2.0 Flash image generation (free tier in AI Studio)
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${key}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["TEXT", "IMAGE"] }
+          generationConfig: { responseModalities: ["IMAGE"] }
         })
       }
     );
+
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(errBody?.error?.message || `HTTP ${response.status}`);
+    }
+
     const data = await response.json();
     if (data.error) throw new Error(data.error.message);
+
     const parts = data.candidates?.[0]?.content?.parts || [];
     const imgPart = parts.find(p => p.inlineData?.mimeType?.startsWith("image/"));
     if (imgPart?.inlineData?.data) {
-      const b64 = imgPart.inlineData.data;
-      const mime = imgPart.inlineData.mimeType;
-      return `data:${mime};base64,${b64}`;
+      return `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}`;
     }
-    throw new Error("No image in response");
+    throw new Error("Gemini returned no image part");
   } catch (err) {
-    console.warn("Gemini image gen failed, using fallback:", err.message);
-    const seed = Math.floor(Math.random() * 999999);
-    return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}&width=1280&height=720&seed=${seed}&nologo=true&model=flux&enhance=true`;
+    console.warn("Gemini image gen failed, falling back to Pollinations:", err.message);
+    return pollinationsFallback(prompt);
   }
 };
 
@@ -655,57 +669,62 @@ export default function VideoStudio() {
     window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
   }, []);
 
-  /* ── 1. Generate Script via Gemini (fallback to Claude API) ── */
+  /* ── 1. Generate Script via Gemini ── */
   const generateScript = async () => {
     if (!scriptType || !scriptTopic.trim()) return;
+
+    // Guard: must have a real key
+    if (!geminiKey || geminiKey === "YOUR_GEMINI_API_KEY_HERE" || geminiKey.trim().length < 10) {
+      showToast("⚠️ Please enter your Gemini API key first (click 'Set key' above).", "err");
+      setShowKeyInput(true);
+      return;
+    }
+
     setGenScript(true);
     try {
-      // Try Gemini for script generation too
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey.trim()}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             contents: [{
               parts: [{
-                text: `Write a ${scriptType} style video script about: "${scriptTopic}". 
+                text: `Write a ${scriptType} style video script about: "${scriptTopic}".
+
 Requirements:
-- 8-12 vivid, punchy sentences
-- Each sentence should paint a clear visual image (for AI image generation)
-- No bullet points, just flowing narration
-- Highly engaging, hook in the first sentence
-- Natural speech rhythm for text-to-speech
-- End with a strong call-to-action or memorable closer
+- 8 to 12 vivid, punchy sentences total
+- Each sentence must paint a clear visual scene (it will be matched with an AI-generated image)
+- No bullet points — flowing narration only
+- Hook the viewer in the very first sentence
+- Natural rhythm for text-to-speech narration
+- End with a powerful closer or call-to-action
 - Maximum 180 words
-Output ONLY the script text, no titles or labels.`
+
+Output ONLY the script text. No title, no labels, no quotes around it.`
               }]
-            }]
+            }],
+            generationConfig: { temperature: 0.9, maxOutputTokens: 400 }
           })
         }
       );
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err?.error?.message || `HTTP ${response.status}`);
+      }
+
       const data = await response.json();
-      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-      if (text.trim()) {
-        setScript(text.trim());
+      const text = (data.candidates?.[0]?.content?.parts?.[0]?.text || "").trim();
+
+      if (text) {
+        setScript(text);
         showToast("✨ Script ready!");
       } else {
-        throw new Error("Empty response");
+        throw new Error("Gemini returned an empty response.");
       }
     } catch (e) {
-      // Fallback: use backend
-      try {
-        const res = await axios.post(
-          `/api/video-studio/generate-script`,
-          { scriptType, topic: scriptTopic },
-          { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
-        );
-        const text = res.data.script || "";
-        if (text) { setScript(text.trim()); showToast("✨ Script ready!"); }
-        else showToast("Script generation failed. Check API key.", "err");
-      } catch (e2) {
-        showToast("Script generation failed: " + (e2.message || ""), "err");
-      }
+      showToast(`Script generation failed: ${e.message}`, "err");
     }
     setGenScript(false);
   };
@@ -1055,7 +1074,7 @@ Output ONLY the script text, no titles or labels.`
   const STEPS = ["Script", "Voice", "Images", "Export"];
   const curScene = scenes[previewIdx];
   const previewImgUrl = curScene?.images?.[curScene.selected]?.url;
-  const hasGeminiKey = geminiKey && geminiKey !== "YOUR_GEMINI_API_KEY_HERE";
+  const hasGeminiKey = !!(geminiKey && geminiKey !== "YOUR_GEMINI_API_KEY_HERE" && geminiKey.trim().length > 10);
 
   return (
     <>
@@ -1092,25 +1111,30 @@ Output ONLY the script text, no titles or labels.`
                 <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
                   <div className="vs-gemini-badge">✦ Gemini AI</div>
                   <button className="vs-btn vs-btn-ghost vs-btn-sm" onClick={()=>setShowKeyInput(v=>!v)}>
-                    {hasGeminiKey ? "🔑 Key set" : "Set key"}
+                    {hasGeminiKey ? "🔑 Key saved ✓" : "⚙ Set API key"}
                   </button>
                 </div>
-                {showKeyInput && (
+                {(showKeyInput || !hasGeminiKey) && (
                   <div>
                     <input
                       className="vs-input mb-2"
-                      placeholder="AIza... (Gemini API key)"
-                      value={geminiKey === "YOUR_GEMINI_API_KEY_HERE" ? "" : geminiKey}
-                      onChange={e => setGeminiKey(e.target.value || "YOUR_GEMINI_API_KEY_HERE")}
+                      placeholder="Paste your Gemini key: AIza..."
+                      value={hasGeminiKey ? geminiKey : ""}
+                      onChange={e => {
+                        const v = e.target.value.trim();
+                        setGeminiKey(v.length > 10 ? v : "YOUR_GEMINI_API_KEY_HERE");
+                        if (v.length > 10) setShowKeyInput(false);
+                      }}
                     />
-                    <div className="muted" style={{fontSize:10}}>
-                      Free key at <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{color:"var(--ink2)"}}>aistudio.google.com</a>
+                    <div className="muted" style={{fontSize:10,lineHeight:1.6}}>
+                      Free key → <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer" style={{color:"var(--ink2)"}}>aistudio.google.com/apikey</a>
+                      <br/>Without a key, images use Pollinations.ai (free, slower).
                     </div>
                   </div>
                 )}
-                {!hasGeminiKey && (
-                  <div className="vs-apikey-warn">
-                    ⚠️ No Gemini key — using free Pollinations.ai fallback. For faster, higher-quality images <a href="https://aistudio.google.com/apikey" target="_blank" rel="noreferrer">get a free Gemini key</a>.
+                {hasGeminiKey && !showKeyInput && (
+                  <div style={{fontSize:11,color:"var(--green)",fontFamily:"var(--mono)"}}>
+                    ✓ Gemini active — fast AI images &amp; scripts enabled
                   </div>
                 )}
               </div>
