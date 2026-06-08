@@ -20,7 +20,6 @@ const IMAGE_STYLES = [
   { id: "fantasy",    label: "🧙 Fantasy",    prompt: "epic fantasy digital art, magical volumetric light, ultra detailed environment" },
 ];
 
-// ElevenLabs voices (free tier includes all these)
 const EL_VOICES = [
   { id: "EXAVITQu4vr4xnSDxMaL", name: "Sarah",   emoji: "👩‍🦰", desc: "Warm · Conversational", tags: ["narration","story"] },
   { id: "TX3LPaxmHKxFdv7VOQHJ", name: "Liam",    emoji: "👨‍💼", desc: "Deep · Authoritative",  tags: ["narration","news"] },
@@ -30,7 +29,6 @@ const EL_VOICES = [
   { id: "pFZP5JQG7iQjIQuC4Bku", name: "Lily",    emoji: "🌸",  desc: "Soft · Gentle",          tags: ["story","calm"] },
 ];
 
-// Free/royalty-free audio tracks (demo — replace URLs with real CDN)
 const SONG_LIBRARY = [
   { id: "cinematic1",   title: "Epic Cinematic",     artist: "Free Music",  emoji: "🎬", genre: "cinematic",    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",  duration: "3:22" },
   { id: "lofi1",        title: "Lo-Fi Chill",         artist: "ChillBeats",  emoji: "☕", genre: "lo-fi",        url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",  duration: "2:58" },
@@ -63,25 +61,48 @@ const css = `
   --shadow2:0 2px 8px rgba(0,0,0,0.08),0 12px 40px rgba(0,0,0,0.08);
 }
 .vs{font-family:var(--sans);background:var(--bg);color:var(--ink);min-height:100vh}
-.vs-bar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:200;gap:16px}
+.vs-bar{height:56px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:200;gap:10px}
 .vs-brand{font-family:var(--font);font-size:18px;font-weight:700;letter-spacing:-0.5px;color:var(--ink);display:flex;align-items:center;gap:10px;flex-shrink:0}
-.vs-brand-mark{width:28px;height:28px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;font-weight:800;font-family:var(--sans)}
-.vs-steps{display:flex;gap:2px;align-items:center;background:var(--surface3);border-radius:50px;padding:4px;border:1px solid var(--border)}
-.vs-step-btn{font-family:var(--sans);font-size:12px;font-weight:500;padding:6px 16px;border-radius:50px;border:none;background:transparent;color:var(--ink3);cursor:pointer;transition:all .2s;white-space:nowrap}
+.vs-brand-mark{width:28px;height:28px;background:var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;color:white;font-weight:800;font-family:var(--sans);flex-shrink:0}
+.vs-steps{display:flex;gap:2px;align-items:center;background:var(--surface3);border-radius:50px;padding:3px;border:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;max-width:calc(100vw - 120px)}
+.vs-steps::-webkit-scrollbar{display:none}
+.vs-step-btn{font-family:var(--sans);font-size:11px;font-weight:500;padding:5px 11px;border-radius:50px;border:none;background:transparent;color:var(--ink3);cursor:pointer;transition:all .2s;white-space:nowrap;-webkit-tap-highlight-color:transparent}
 .vs-step-btn:hover{color:var(--ink2)}
 .vs-step-btn.active{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:var(--shadow)}
 .vs-step-btn.done{color:var(--ink2)}
+
+/* DESKTOP layout */
 .vs-layout{display:grid;grid-template-columns:300px 1fr;min-height:calc(100vh - 56px)}
-@media(max-width:768px){.vs-layout{grid-template-columns:1fr}.vs-sidebar{max-height:none;border-right:none;border-bottom:1px solid var(--border)}.vs-bar{padding:0 16px}.vs-brand span{display:none}}
+
+/* MOBILE layout — sidebar becomes bottom sheet / stacked panel */
+@media(max-width:768px){
+  .vs-layout{grid-template-columns:1fr;grid-template-rows:auto 1fr;min-height:calc(100vh - 56px)}
+  .vs-sidebar{
+    max-height:none;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+    padding:16px 14px;
+    /* Allow natural height on mobile */
+    overflow-y:visible;
+  }
+  .vs-main{
+    padding:16px 14px;
+    max-height:none;
+    overflow-y:visible;
+  }
+  .vs-bar{padding:0 12px}
+  .vs-brand span{display:none}
+}
+
 .vs-sidebar{background:var(--surface);border-right:1px solid var(--border);padding:20px 18px;overflow-y:auto;max-height:calc(100vh - 56px);scrollbar-width:thin;scrollbar-color:var(--border) transparent}
 .vs-main{padding:28px 32px;overflow-y:auto;max-height:calc(100vh - 56px);background:var(--bg)}
-@media(max-width:768px){.vs-main{padding:20px 16px}}
+
 .vs-lbl{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:block}
 .vs-hr{height:1px;background:var(--border);margin:16px 0}
-.vs-input,.vs-textarea{width:100%;font-family:var(--sans);font-size:13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;color:var(--ink);outline:none;transition:all .2s;line-height:1.5}
+.vs-input,.vs-textarea{width:100%;font-family:var(--sans);font-size:13px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;color:var(--ink);outline:none;transition:all .2s;line-height:1.5;-webkit-appearance:none}
 .vs-input:focus,.vs-textarea:focus{border-color:var(--ink);background:var(--surface);box-shadow:0 0 0 3px rgba(26,25,23,0.06)}
 .vs-textarea{resize:vertical;min-height:80px;font-family:var(--mono);font-size:12px;line-height:1.8}
-.vs-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--sans);font-size:13px;font-weight:600;padding:10px 18px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all .18s;white-space:nowrap}
+.vs-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:var(--sans);font-size:13px;font-weight:600;padding:10px 18px;border-radius:var(--radius);border:1px solid transparent;cursor:pointer;transition:all .18s;white-space:nowrap;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-btn:disabled{opacity:.4;cursor:not-allowed!important}
 .vs-btn-primary{background:var(--ink);color:white;border-color:var(--ink)}
 .vs-btn-primary:not(:disabled):hover{background:#3d3b35}
@@ -102,9 +123,15 @@ const css = `
 .vs-btn-block{width:100%}
 .vs-btn-sm{padding:5px 11px;font-size:11px;border-radius:8px}
 
+/* Touch-friendly tap targets on mobile */
+@media(max-width:768px){
+  .vs-btn{min-height:44px;padding:10px 16px}
+  .vs-btn-sm{min-height:36px;padding:6px 12px}
+}
+
 /* MODE TOGGLE */
 .vs-mode-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px}
-.vs-mode-card{padding:16px 12px;border-radius:14px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;text-align:center}
+.vs-mode-card{padding:16px 12px;border-radius:14px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .2s;text-align:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-mode-card:hover{border-color:var(--border2);background:var(--surface)}
 .vs-mode-card.sel{border-color:var(--ink);background:var(--surface);box-shadow:var(--shadow)}
 .vs-mode-card .mic{font-size:28px;display:block;margin-bottom:8px}
@@ -123,7 +150,7 @@ const css = `
 
 /* VOICES */
 .vs-voices{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px}
-.vs-voice{padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .18s;text-align:center}
+.vs-voice{padding:12px 10px;border-radius:12px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .18s;text-align:center;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-voice:hover{border-color:var(--border2);background:var(--surface3)}
 .vs-voice.sel{border-color:var(--ink);background:var(--ink)}
 .vs-voice .vem{font-size:22px;display:block;margin-bottom:5px}
@@ -134,11 +161,11 @@ const css = `
 
 /* SONG LIBRARY */
 .vs-song-genres{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
-.vs-genre-chip{padding:4px 11px;border-radius:50px;font-size:10px;font-weight:600;font-family:var(--mono);border:1px solid var(--border);color:var(--ink3);background:var(--surface2);cursor:pointer;transition:all .18s;text-transform:capitalize}
+.vs-genre-chip{padding:4px 11px;border-radius:50px;font-size:10px;font-weight:600;font-family:var(--mono);border:1px solid var(--border);color:var(--ink3);background:var(--surface2);cursor:pointer;transition:all .18s;text-transform:capitalize;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-genre-chip:hover{border-color:var(--border2);color:var(--ink2)}
 .vs-genre-chip.sel{background:var(--ink);color:white;border-color:var(--ink)}
-.vs-song-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent}
-.vs-song-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .18s}
+.vs-song-list{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;max-height:220px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--border) transparent;-webkit-overflow-scrolling:touch}
+.vs-song-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-song-item:hover{border-color:var(--border2);background:var(--surface)}
 .vs-song-item.sel{border-color:var(--ink);background:var(--surface);box-shadow:var(--shadow)}
 .vs-song-item .sico{font-size:18px;flex-shrink:0}
@@ -146,25 +173,25 @@ const css = `
 .vs-song-item .stitle{font-size:12px;font-weight:700;color:var(--ink);font-family:var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vs-song-item .sartist{font-size:10px;color:var(--ink3);font-family:var(--mono)}
 .vs-song-item .sdur{font-size:10px;color:var(--ink4);font-family:var(--mono);flex-shrink:0}
-.vs-song-item .play-mini{background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.vs-song-item .play-mini{background:var(--surface3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;font-size:10px;cursor:pointer;transition:all .15s;flex-shrink:0;min-height:32px;display:flex;align-items:center}
 .vs-song-item .play-mini:hover{background:var(--ink);color:white;border-color:var(--ink)}
 .vs-song-item.sel .play-mini{background:var(--ink);color:white;border-color:var(--ink)}
 
 /* UPLOAD MUSIC */
-.vs-music-upload{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .18s;margin-bottom:12px;font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.vs-music-upload{border:2px dashed var(--border);border-radius:12px;padding:16px;text-align:center;cursor:pointer;transition:all .18s;margin-bottom:12px;font-family:var(--mono);font-size:11px;color:var(--ink3);display:block;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-music-upload:hover{border-color:var(--ink);color:var(--ink);background:var(--surface3)}
 .vs-music-upload .ico{font-size:24px;margin-bottom:6px;display:block}
 .vs-selected-song{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid var(--green);background:#f0fdf4;margin-bottom:12px;font-family:var(--mono);font-size:11px;color:#166534}
 .vs-volume-row{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:var(--mono);font-size:11px;color:var(--ink3)}
-.vs-volume-row input[type=range]{flex:1;accent-color:var(--ink)}
+.vs-volume-row input[type=range]{flex:1;accent-color:var(--ink);height:20px}
 
 /* OTHER */
 .vs-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.vs-chip{padding:5px 13px;border-radius:50px;font-size:11px;font-weight:600;font-family:var(--sans);border:1px solid var(--border);color:var(--ink3);background:var(--surface2);cursor:pointer;transition:all .18s}
+.vs-chip{padding:5px 13px;border-radius:50px;font-size:11px;font-weight:600;font-family:var(--sans);border:1px solid var(--border);color:var(--ink3);background:var(--surface2);cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-chip:hover{border-color:var(--border2);color:var(--ink2)}
 .vs-chip.sel{background:var(--ink);color:white;border-color:var(--ink)}
 .vs-fmts{display:flex;gap:8px;margin-bottom:16px}
-.vs-fmt{flex:1;padding:11px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--ink3);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--sans);text-align:center;transition:all .18s}
+.vs-fmt{flex:1;padding:11px 8px;border-radius:10px;border:1px solid var(--border);background:var(--surface2);color:var(--ink3);cursor:pointer;font-size:11px;font-weight:700;font-family:var(--sans);text-align:center;transition:all .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-fmt:hover{border-color:var(--border2);color:var(--ink2)}
 .vs-fmt.sel{border-color:var(--ink);color:var(--ink);background:var(--surface);box-shadow:var(--shadow)}
 .vs-fmt small{display:block;font-size:9px;opacity:.5;font-family:var(--mono);margin-top:3px;font-weight:400}
@@ -184,9 +211,9 @@ const css = `
 .vs-scene-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
 .vs-scene-num{width:34px;height:34px;border-radius:10px;background:var(--ink);color:white;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;font-family:var(--sans)}
 .vs-scene-acts{display:flex;gap:5px;flex-shrink:0;margin-left:auto}
-.vs-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}
+.vs-img-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-top:12px}
 @media(max-width:480px){.vs-img-grid{grid-template-columns:repeat(2,1fr)}}
-.vs-img-thumb{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:all .18s;background:var(--surface3)}
+.vs-img-thumb{position:relative;aspect-ratio:16/9;border-radius:10px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:all .18s;background:var(--surface3);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-img-thumb:hover{border-color:var(--border2);transform:translateY(-2px);box-shadow:var(--shadow)}
 .vs-img-thumb.sel{border-color:var(--ink);box-shadow:0 0 0 2px rgba(26,25,23,.2),var(--shadow)}
 .vs-img-thumb img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .4s}
@@ -194,11 +221,11 @@ const css = `
 .vs-img-thumb .del-img{position:absolute;bottom:5px;right:5px;background:rgba(255,255,255,.92);border-radius:5px;padding:2px 7px;font-size:9px;color:var(--ink);cursor:pointer;line-height:1.5;transition:all .15s;border:1px solid var(--border)}
 .vs-img-thumb .del-img:hover{background:var(--red);color:white;border-color:var(--red)}
 .vs-img-thumb .auto-badge{position:absolute;top:6px;left:6px;background:var(--gold);border-radius:4px;padding:2px 6px;font-size:8px;font-weight:700;color:#000;font-family:var(--mono)}
-.vs-upload-tile{aspect-ratio:16/9;border-radius:10px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;font-size:10px;color:var(--ink4);gap:5px;font-family:var(--mono);background:var(--surface2)}
+.vs-upload-tile{aspect-ratio:16/9;border-radius:10px;border:2px dashed var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;transition:all .18s;font-size:10px;color:var(--ink4);gap:5px;font-family:var(--mono);background:var(--surface2);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-upload-tile:hover{border-color:var(--ink);color:var(--ink);background:var(--surface3)}
 .vs-upload-tile .ico{font-size:20px}
 .vs-prompt-row{display:flex;gap:7px;margin-top:8px}
-.vs-prompt-input{flex:1;font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--ink);outline:none;transition:all .18s}
+.vs-prompt-input{flex:1;font-family:var(--mono);font-size:11px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--ink);outline:none;transition:all .18s;-webkit-appearance:none;min-height:40px}
 .vs-prompt-input:focus{border-color:var(--ink);background:var(--surface)}
 .vs-prompt-input::placeholder{color:var(--ink4)}
 .vs-preview{background:var(--ink);border-radius:16px;overflow:hidden;position:relative;border:1px solid var(--border2);box-shadow:var(--shadow2)}
@@ -210,24 +237,25 @@ const css = `
 .vs-preview .pempty .big{font-size:48px}
 .vs-preview .pempty p{font-size:13px;font-family:var(--mono);line-height:1.7}
 .vs-dots{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-top:14px}
-.vs-dot{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);cursor:pointer;color:var(--ink3);transition:all .18s;background:var(--surface)}
+.vs-dot{width:30px;height:30px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;font-family:var(--mono);cursor:pointer;color:var(--ink3);transition:all .18s;background:var(--surface);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-dot:hover:not(.a){border-color:var(--border2);color:var(--ink2)}
 .vs-dot.a{background:var(--ink);border-color:var(--ink);color:white}
 .vs-page-title{font-family:var(--font);font-size:32px;font-weight:900;letter-spacing:-1.5px;color:var(--ink);margin-bottom:6px}
 .vs-page-sub{font-family:var(--sans);font-size:14px;color:var(--ink3);margin-bottom:32px;line-height:1.6}
-@media(max-width:768px){.vs-page-title{font-size:24px}.vs-page-sub{margin-bottom:24px}}
+@media(max-width:768px){.vs-page-title{font-size:22px}.vs-page-sub{margin-bottom:18px;font-size:13px}}
 .vs-section{font-family:var(--font);font-size:20px;font-weight:700;color:var(--ink);margin:32px 0 16px;letter-spacing:-0.5px}
-.vs-intro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-top:16px}
+.vs-intro-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-top:16px}
 .vs-intro-item .ico{font-size:28px;display:block;margin-bottom:10px}
 .vs-intro-item h3{font-size:15px;font-weight:700;margin-bottom:6px;font-family:var(--font)}
 .vs-intro-item p{font-size:12px;color:var(--ink3);line-height:1.7;font-family:var(--sans)}
 .vs-hint{font-size:11px;color:var(--ink3);font-family:var(--mono);line-height:1.6;margin-bottom:12px}
-.vs-toast{position:fixed;bottom:22px;right:22px;z-index:9999;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:13px 20px;font-size:13px;font-weight:600;animation:tin .22s ease;max-width:320px;font-family:var(--sans);box-shadow:var(--shadow2)}
+.vs-toast{position:fixed;bottom:22px;right:16px;left:16px;z-index:9999;background:var(--surface);color:var(--ink);border:1px solid var(--border);border-radius:12px;padding:13px 20px;font-size:13px;font-weight:600;animation:tin .22s ease;font-family:var(--sans);box-shadow:var(--shadow2);text-align:center}
+@media(min-width:480px){.vs-toast{left:auto;max-width:320px}}
 .vs-toast.err{border-color:rgba(192,57,43,.4);color:var(--red)}
 .vs-toast.ok{border-color:rgba(46,125,82,.3);color:var(--green)}
 @keyframes tin{from{transform:translateY(12px);opacity:0}to{transform:translateY(0);opacity:1}}
-.vs-vprofile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:28px}
-.vs-vcard{padding:18px 16px;border-radius:14px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .18s}
+.vs-vprofile-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-bottom:28px}
+.vs-vcard{padding:18px 16px;border-radius:14px;border:1px solid var(--border);background:transparent;cursor:pointer;transition:all .18s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 .vs-vcard:hover{border-color:var(--border2);background:var(--surface)}
 .vs-vcard.sel{border-color:var(--ink);background:var(--surface);box-shadow:0 0 0 2px rgba(26,25,23,.08),var(--shadow)}
 .vs-vcard .ico{font-size:26px;margin-bottom:10px;display:block}
@@ -260,6 +288,12 @@ const css = `
 .el-status.err{background:#fff0f0;border:1px solid #fca5a5;color:#991b1b}
 .el-status.idle{background:var(--surface2);border:1px solid var(--border);color:var(--ink3)}
 .el-generating{display:flex;align-items:center;gap:8px;padding:10px 14px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1px solid #c4b5fd;border-radius:10px;font-family:var(--mono);font-size:11px;color:#5b21b6;margin-bottom:12px}
+
+/* Mobile-specific recording warning */
+.vs-mobile-warn{display:none}
+@media(max-width:768px){
+  .vs-mobile-warn{display:flex;align-items:flex-start;gap:10px;background:#fffbeb;border:1px solid #f59e0b;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-family:var(--mono);font-size:10px;color:#92400e;line-height:1.6}
+}
 `;
 
 // ─────────────────────────────────────────────────────────────
@@ -331,7 +365,7 @@ Return ONLY a JSON array: [{"sceneIndex":0,"imageIndex":2},...]`;
 };
 
 // ─────────────────────────────────────────────────────────────
-// ELEVENLABS TTS — returns AudioBuffer
+// ELEVENLABS TTS — returns ArrayBuffer
 // ─────────────────────────────────────────────────────────────
 const elevenLabsTTS = async (text, voiceId) => {
   const resp = await fetch(`${API_BASE}/api/video-studio/tts`, {
@@ -347,10 +381,39 @@ const elevenLabsTTS = async (text, voiceId) => {
 };
 
 // ─────────────────────────────────────────────────────────────
+// CLOUDINARY SAVE — uses XMLHttpRequest for mobile compatibility
+// (fetch + FormData + Authorization header is blocked on some
+//  iOS/Android browsers; XHR avoids that restriction)
+// ─────────────────────────────────────────────────────────────
+const saveToCloudinaryXHR = (blob, token) => new Promise((resolve, reject) => {
+  const formData = new FormData();
+  formData.append("video", blob, `video_${Date.now()}.webm`);
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `${API_BASE}/api/video-studio/save-to-cloudinary`);
+  xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      try { resolve(JSON.parse(xhr.responseText)); }
+      catch { reject(new Error("Invalid JSON response")); }
+    } else {
+      try {
+        const err = JSON.parse(xhr.responseText);
+        reject(new Error(err.message || `Server error ${xhr.status}`));
+      } catch {
+        reject(new Error(`Server error ${xhr.status}`));
+      }
+    }
+  };
+  xhr.onerror = () => reject(new Error("Network error — check your connection"));
+  xhr.ontimeout = () => reject(new Error("Upload timed out"));
+  xhr.timeout = 120000; // 2 min timeout for large video files
+  xhr.send(formData);
+});
+
+// ─────────────────────────────────────────────────────────────
 // DRAW FRAME
 // ─────────────────────────────────────────────────────────────
 const drawFrame = (ctx, imgEl, progress, sceneNum, total, W, H) => {
-  // Fill with dark background first — never leave canvas transparent
   ctx.fillStyle = "#1a1917";
   ctx.fillRect(0, 0, W, H);
   if (imgEl) {
@@ -387,10 +450,10 @@ const drawFrame = (ctx, imgEl, progress, sceneNum, total, W, H) => {
 // ═══════════════════════════════════════════════════════════════
 export default function VideoStudio() {
   const [step, setStep]                   = useState(1);
-  const [videoMode, setVideoMode]         = useState("story"); // "story" | "music"
+  const [videoMode, setVideoMode]         = useState("story");
   const [script, setScript]               = useState("");
   const [elVoice, setElVoice]             = useState(EL_VOICES[0]);
-  const [elStatus, setElStatus]           = useState("idle"); // idle | ok | err
+  const [elStatus, setElStatus]           = useState("idle");
   const [elStatusMsg, setElStatusMsg]     = useState("");
   const [format, setFormat]               = useState("landscape");
   const [imgStyle, setImgStyle]           = useState(IMAGE_STYLES[0]);
@@ -399,7 +462,6 @@ export default function VideoStudio() {
   const [previewPlaying, setPreviewPlaying] = useState(false);
   const [previewAudio, setPreviewAudio]   = useState(null);
 
-  // Music mode
   const [selectedSong, setSelectedSong]   = useState(null);
   const [customSongFile, setCustomSongFile] = useState(null);
   const [customSongUrl, setCustomSongUrl] = useState(null);
@@ -408,14 +470,12 @@ export default function VideoStudio() {
   const [songPreviewAudio, setSongPreviewAudio] = useState(null);
   const [playingSongId, setPlayingSongId] = useState(null);
 
-  // Record
   const [recording, setRecording]         = useState(false);
   const [recProg, setRecProg]             = useState(0);
   const [recStatus, setRecStatus]         = useState("");
   const [exportedUrl, setExportedUrl]     = useState(null);
   const [exportedBlob, setExportedBlob]   = useState(null);
 
-  // Other
   const [matching, setMatching]           = useState(false);
   const [lastMatchedCount, setLastMatchedCount] = useState(0);
   const [savingToCloud, setSavingToCloud] = useState(false);
@@ -426,8 +486,13 @@ export default function VideoStudio() {
 
   const showToast = (msg, type = "ok") => { setToast({ msg, type }); setTimeout(() => setToast(null), 5000); };
 
+  // ── Resume AudioContext on user gesture (required on mobile) ──
+  const ensureAudioContext = async (audioCtx) => {
+    if (audioCtx.state === "suspended") {
+      try { await audioCtx.resume(); } catch (e) { /* ignore */ }
+    }
+  };
 
-  // Test ElevenLabs API key
   const testElKey = async () => {
     setElStatus("idle"); setElStatusMsg("Testing…");
     try {
@@ -448,18 +513,24 @@ export default function VideoStudio() {
     }
   };
 
-  // Preview a voice using ElevenLabs
   const previewElVoice = async (v) => {
     if (previewAudio) { previewAudio.pause(); }
     showToast(`🔊 Loading ${v.name}…`);
     try {
       const sampleText = script ? script.slice(0, 100) : `Hi, I'm ${v.name}. This is how I sound when narrating your video.`;
       const ab = await elevenLabsTTS(sampleText, v.id);
-      const blob = new Blob([ab], { type: "audio/mpeg" });
-      const url  = URL.createObjectURL(blob);
-      const audio = new Audio(url);
-      audio.play();
-      setPreviewAudio(audio);
+
+      // ── MOBILE FIX: decode and play via AudioContext instead of
+      //    Audio element, which can silently fail on iOS for ArrayBuffers ──
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      const ctx = new AudioCtx();
+      await ensureAudioContext(ctx);
+      const decoded = await ctx.decodeAudioData(ab.slice(0)); // slice to copy
+      const source = ctx.createBufferSource();
+      source.buffer = decoded;
+      source.connect(ctx.destination);
+      source.start();
+      source.onended = () => ctx.close();
       setElStatus("ok"); setElStatusMsg("✓ Voice preview playing");
     } catch (err) {
       setElStatus("err"); setElStatusMsg(`✗ ${err.message}`);
@@ -467,13 +538,16 @@ export default function VideoStudio() {
     }
   };
 
-  // Song library preview
   const previewSong = (song) => {
     if (songPreviewAudio) { songPreviewAudio.pause(); setPlayingSongId(null); }
     if (playingSongId === song.id) { setSongPreviewAudio(null); setPlayingSongId(null); return; }
     const audio = new Audio(song.url);
     audio.volume = 0.4;
-    audio.play().catch(() => showToast("Could not play preview", "err"));
+    // ── MOBILE FIX: must call play() in direct response to user tap ──
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(() => showToast("Could not play preview — tap again", "err"));
+    }
     audio.onended = () => setPlayingSongId(null);
     setSongPreviewAudio(audio);
     setPlayingSongId(song.id);
@@ -534,18 +608,14 @@ export default function VideoStudio() {
   // ══════════════════════════════════════════════════════════════
   // RECORD VIDEO
   //
-  // AUDIO STRATEGY (no speaker / no external sound):
-  //
-  // We use AudioContext entirely — no microphone, no speaker capture.
-  //   • Story mode: fetch ElevenLabs MP3 for each scene upfront,
-  //     decode into AudioBuffers, then play via AudioContext nodes
-  //     routed to MediaStreamDestination — completely silent on
-  //     speakers, zero external bleed.
-  //   • Music mode: fetch the song audio, loop/trim it across the
-  //     whole video duration the same way.
-  //
-  // Canvas frames are drawn as usual (Ken Burns effect).
-  // Both streams are combined into one MediaRecorder.
+  // MOBILE FIXES applied here:
+  //  1. AudioContext.resume() called immediately after creation
+  //     (mobile browsers suspend context until user gesture;
+  //      we're inside a button click so resume() works)
+  //  2. canvas.captureStream() guarded with existence check
+  //  3. Reduced resolution on mobile to avoid OOM crashes
+  //  4. ElevenLabs ArrayBuffer copied before decodeAudioData
+  //     (some mobile WebKit versions consume the buffer)
   // ══════════════════════════════════════════════════════════════
   const recordVideo = async () => {
     if (!scenes.length) return;
@@ -554,14 +624,24 @@ export default function VideoStudio() {
       showToast("Choose a song or upload your own for music mode!", "err"); return;
     }
 
+    // ── MOBILE FIX: check captureStream support upfront ──
+    const testCanvas = document.createElement("canvas");
+    if (typeof testCanvas.captureStream !== "function") {
+      showToast("❌ Video recording not supported on this browser. Try Chrome on Android or desktop.", "err");
+      return;
+    }
+
     setRecording(true); setRecProg(0); setRecStatus("Preparing…");
     setExportedUrl(null); setExportedBlob(null); setCloudUrl(null);
 
     const isPortrait = format === "portrait";
-    const W = isPortrait ? 720 : 1280, H = isPortrait ? 1280 : 720;
-    const FPS = 30, MS = Math.round(1000 / FPS);
+    // ── MOBILE FIX: lower resolution on mobile to prevent OOM ──
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const W = isPortrait ? (isMobile ? 540 : 720) : (isMobile ? 960 : 1280);
+    const H = isPortrait ? (isMobile ? 960 : 1280) : (isMobile ? 540 : 720);
+    const FPS = isMobile ? 24 : 30;
+    const MS = Math.round(1000 / FPS);
 
-    // ── Preload images ──
     setRecStatus("🖼️ Loading images…");
     const imgEls = [];
     for (let i = 0; i < scenes.length; i++) {
@@ -569,16 +649,19 @@ export default function VideoStudio() {
       imgEls.push(imgEntry?.url ? await loadImageEl(imgEntry.url, 18000) : null);
     }
 
-    // ── Set up AudioContext — routed internally, silent on device ──
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 44100 });
-    const audioDest = audioCtx.createMediaStreamDestination();
+    // ── MOBILE FIX: create AudioContext inside button click handler
+    //    (this call IS inside the click — recordVideo is triggered by onClick)
+    //    Then immediately resume() to unlock it on mobile ──
+    const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
+    const audioCtx = new AudioCtxClass({ sampleRate: 44100 });
+    await ensureAudioContext(audioCtx); // unlock immediately
 
-    // Master gain for mixing
+    const audioDest = audioCtx.createMediaStreamDestination();
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 1.0;
     masterGain.connect(audioDest);
 
-    // Keep-alive silent oscillator (stops Safari from suspending context)
+    // Keep-alive oscillator (prevents iOS from suspending context mid-recording)
     const keepAlive = audioCtx.createOscillator();
     const keepGain  = audioCtx.createGain();
     keepGain.gain.value = 0.00001;
@@ -588,14 +671,15 @@ export default function VideoStudio() {
     let musicAudioBuffer  = null;
 
     if (videoMode === "story") {
-      // ── Pre-generate all narration via ElevenLabs ──
       setRecStatus("🎙️ Generating narration with ElevenLabs…");
       for (let i = 0; i < scenes.length; i++) {
         setRecProg(Math.round((i / scenes.length) * 40));
         setRecStatus(`🎙️ Generating voice ${i + 1}/${scenes.length}…`);
         try {
           const ab = await elevenLabsTTS(scenes[i].text, elVoice.id);
-          const decoded = await audioCtx.decodeAudioData(ab);
+          // ── MOBILE FIX: slice() to get a fresh copy before decode
+          //    (WebKit on iOS sometimes transfers the buffer, making it detached) ──
+          const decoded = await audioCtx.decodeAudioData(ab.slice(0));
           sceneAudioBuffers.push(decoded);
         } catch (err) {
           showToast(`TTS error scene ${i+1}: ${err.message}`, "err");
@@ -603,12 +687,11 @@ export default function VideoStudio() {
         }
       }
     } else {
-      // ── Load song audio ──
       setRecStatus("🎵 Loading song…");
       try {
         const songResp = await fetch(selectedSong.url);
         const songAb   = await songResp.arrayBuffer();
-        musicAudioBuffer = await audioCtx.decodeAudioData(songAb);
+        musicAudioBuffer = await audioCtx.decodeAudioData(songAb.slice(0));
       } catch (err) {
         showToast(`Song load failed: ${err.message}`, "err");
         await audioCtx.close();
@@ -616,47 +699,52 @@ export default function VideoStudio() {
       }
     }
 
-    // ── Set up canvas ──
     const canvas = document.createElement("canvas");
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext("2d");
     drawFrame(ctx, imgEls[0], 0, 1, scenes.length, W, H);
 
-    // ── Combined stream ──
     const videoStream = canvas.captureStream(FPS);
     const combined = new MediaStream([...videoStream.getVideoTracks(), ...audioDest.stream.getAudioTracks()]);
 
-    const mimeType = ["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm"]
+    const mimeType = ["video/webm;codecs=vp9,opus","video/webm;codecs=vp8,opus","video/webm","video/mp4"]
       .find(m => MediaRecorder.isTypeSupported(m)) || "video/webm";
+
     const chunks = [];
-    const recorder = new MediaRecorder(combined, { mimeType, videoBitsPerSecond: 14_000_000, audioBitsPerSecond: 192_000 });
-    recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    const recOptions = { mimeType };
+    // ── MOBILE FIX: lower bitrate on mobile to prevent buffer overflows ──
+    if (!isMobile) {
+      recOptions.videoBitsPerSecond = 14_000_000;
+      recOptions.audioBitsPerSecond = 192_000;
+    } else {
+      recOptions.videoBitsPerSecond = 4_000_000;
+      recOptions.audioBitsPerSecond = 128_000;
+    }
+
+    const recorder = new MediaRecorder(combined, recOptions);
+    recorder.ondataavailable = e => { if (e.data && e.data.size > 0) chunks.push(e.data); };
 
     stopRecordingRef.current = () => { if (recorder.state === "recording") recorder.stop(); };
 
     const finalBlob = await new Promise((resolve, reject) => {
       recorder.onstop = () => {
         audioCtx.close();
-        resolve(new Blob(chunks, { type: "video/webm" }));
+        resolve(new Blob(chunks, { type: mimeType.split(";")[0] }));
       };
-      recorder.onerror = reject;
-      recorder.start(50);
+      recorder.onerror = (e) => reject(e.error || new Error("Recorder error"));
+      recorder.start(100); // larger chunk interval on mobile is more stable
 
       (async () => {
         if (videoMode === "story") {
-          // ── STORY MODE: play each scene's audio via AudioContext ──
           for (let i = 0; i < scenes.length; i++) {
             if (recorder.state !== "recording") break;
             setRecProg(40 + Math.round((i / scenes.length) * 55));
             setRecStatus(`🎬 Recording scene ${i + 1} of ${scenes.length}…`);
-            const imgEl  = imgEls[i];
+            const imgEl    = imgEls[i];
             const audioBuf = sceneAudioBuffers[i];
-
-            // Duration = audio buffer duration (or 3s fallback)
             const durationSec = audioBuf ? audioBuf.duration + 0.3 : 3;
             const durationMs  = durationSec * 1000;
 
-            // Schedule audio through AudioContext (goes to MediaStreamDestination — no speaker)
             let audioEnded = false;
             if (audioBuf) {
               const source = audioCtx.createBufferSource();
@@ -665,12 +753,13 @@ export default function VideoStudio() {
               gainNode.gain.value = 1.0;
               source.connect(gainNode); gainNode.connect(masterGain);
               source.onended = () => { audioEnded = true; };
-              source.start(audioCtx.currentTime);
+              // ── MOBILE FIX: schedule slightly in the future to avoid
+              //    "start time in the past" errors on slow mobile devices ──
+              source.start(audioCtx.currentTime + 0.05);
             } else {
               audioEnded = true;
             }
 
-            // Draw frames for this scene's duration — no gap between scenes
             const sceneStart = Date.now();
             await new Promise(resolveScene => {
               const timer = setInterval(() => {
@@ -679,17 +768,14 @@ export default function VideoStudio() {
                 drawFrame(ctx, imgEl, progress, i + 1, scenes.length, W, H);
                 if ((audioEnded && elapsed >= durationMs * 0.5) || elapsed > durationMs + 2000) {
                   clearInterval(timer);
-                  // Immediately paint first frame of next scene — zero blank gap
                   if (i + 1 < scenes.length) drawFrame(ctx, imgEls[i + 1], 0, i + 2, scenes.length, W, H);
                   resolveScene();
                 }
               }, MS);
             });
-            // No delay here — next iteration starts immediately
           }
         } else {
-          // ── MUSIC MODE: play song across entire video ──
-          const totalSceneDurationSec = scenes.length * 4; // 4s per scene default
+          const totalSceneDurationSec = scenes.length * 4;
           const musicGain = audioCtx.createGain();
           musicGain.gain.value = songVolume;
           musicGain.connect(masterGain);
@@ -699,12 +785,10 @@ export default function VideoStudio() {
             src.buffer = musicAudioBuffer;
             src.loop = true;
             src.connect(musicGain);
-            src.start(audioCtx.currentTime);
-            // Stop after total duration
-            src.stop(audioCtx.currentTime + totalSceneDurationSec + 1);
+            src.start(audioCtx.currentTime + 0.05);
+            src.stop(audioCtx.currentTime + totalSceneDurationSec + 1.05);
           }
 
-          // Cycle through scenes with fixed per-scene duration
           const perSceneMs = 4000;
           for (let i = 0; i < scenes.length; i++) {
             if (recorder.state !== "recording") break;
@@ -727,7 +811,6 @@ export default function VideoStudio() {
           }
         }
 
-        // Final fade
         setRecStatus("✨ Finishing up…");
         const fadeStart = Date.now();
         await new Promise(res => {
@@ -745,7 +828,7 @@ export default function VideoStudio() {
     const url = URL.createObjectURL(finalBlob);
     setExportedBlob(finalBlob); setExportedUrl(url);
     setRecording(false); setRecProg(100); setRecStatus("");
-    showToast("🎬 Video recorded! Download or save to Cloudinary.");
+    showToast("🎬 Video ready! Download or save to Cloudinary.");
     stopRecordingRef.current = null;
   };
 
@@ -754,28 +837,18 @@ export default function VideoStudio() {
     setRecording(false);
   };
 
+  // ── CLOUDINARY SAVE — uses XHR for mobile compatibility ──
   const saveToCloudinary = async () => {
     if (!exportedBlob) { showToast("No video to save!", "err"); return; }
     setSavingToCloud(true);
     try {
-      const formData = new FormData();
-      formData.append("video", exportedBlob, `video_${format}_${Date.now()}.webm`);
-  
       const token = localStorage.getItem("token");
-  
-      const resp = await fetch(`${API_BASE}/api/video-studio/save-to-cloudinary`, {
-        method: "POST",
-        body: formData,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!resp.ok) {
-        const err = await resp.json().catch(() => ({ message: resp.statusText }));
-        throw new Error(err.message || `Server error ${resp.status}`);
-      }
-      const data = await resp.json();
+
+      // Use XHR instead of fetch to avoid mobile browser CORS/auth issues
+      const data = await saveToCloudinaryXHR(exportedBlob, token);
       setCloudUrl(data.secure_url);
-  
-      // ── Save to resources so it appears in AdminFileUpload ──
+
+      // Save to resources
       await fetch(`${API_BASE}/api/resources/upload`, {
         method: "POST",
         headers: {
@@ -788,9 +861,11 @@ export default function VideoStudio() {
           resourceUrl: data.secure_url,
         }),
       });
-  
+
       showToast("☁️ Video saved to Cloudinary & added to File Manager!");
-    } catch (err) { showToast(`Cloudinary save failed: ${err.message}`, "err"); }
+    } catch (err) {
+      showToast(`Cloudinary save failed: ${err.message}`, "err");
+    }
     setSavingToCloud(false);
   };
 
@@ -829,7 +904,6 @@ export default function VideoStudio() {
           {/* ══ SIDEBAR ══ */}
           <aside className="vs-sidebar">
 
-            {/* STEP 1 — Script */}
             {step === 1 && (<>
               <span className="vs-lbl">Video Mode</span>
               <div className="vs-mode-toggle mb-3">
@@ -865,19 +939,18 @@ export default function VideoStudio() {
               </button>
             </>)}
 
-            {/* STEP 2 — Voice / Music */}
             {step === 2 && videoMode === "story" && (<>
-            <div className="vs-apikey-box mb-3">
-              <div className="title">
-                <div className={`dot ${elStatus === "ok" ? "" : elStatus === "err" ? "off" : ""}`} />
-                {elStatus === "ok" ? "ElevenLabs Connected" : elStatus === "err" ? "Connection Error" : "ElevenLabs (Server)"}
+              <div className="vs-apikey-box mb-3">
+                <div className="title">
+                  <div className={`dot ${elStatus === "ok" ? "" : elStatus === "err" ? "off" : ""}`} />
+                  {elStatus === "ok" ? "ElevenLabs Connected" : elStatus === "err" ? "Connection Error" : "ElevenLabs (Server)"}
+                </div>
+                {elStatusMsg && (
+                  <div className={`el-status ${elStatus}`} style={{ marginTop: 8 }}>{elStatusMsg}</div>
+                )}
+                <button className="vs-btn vs-btn-outline vs-btn-block" style={{ marginTop: 8, fontSize: 11 }}
+                  onClick={testElKey}>Test Connection</button>
               </div>
-              {elStatusMsg && (
-                <div className={`el-status ${elStatus}`} style={{ marginTop: 8 }}>{elStatusMsg}</div>
-              )}
-              <button className="vs-btn vs-btn-outline vs-btn-block" style={{ marginTop: 8, fontSize: 11 }}
-                onClick={testElKey}>Test Connection</button>
-            </div>
               <span className="vs-lbl">Voice</span>
               <div className="vs-voices mb-3">
                 {EL_VOICES.map(v => (
@@ -978,7 +1051,6 @@ export default function VideoStudio() {
               </div>
             </>)}
 
-            {/* STEP 3 — Images */}
             {step === 3 && (<>
               <span className="vs-lbl">Visual Style</span>
               <div className="vs-chips mb-3">
@@ -1007,7 +1079,6 @@ export default function VideoStudio() {
               </div>
             </>)}
 
-            {/* STEP 4 — Record */}
             {step === 4 && (<>
               <span className="vs-lbl">Summary</span>
               <div className="vs-summary mb-3">
@@ -1025,8 +1096,13 @@ export default function VideoStudio() {
                 ))}
               </div>
 
+              {/* Mobile recording warning */}
+              <div className="vs-mobile-warn">
+                ⚠️ Mobile recording uses lower resolution for stability. Use Chrome on Android for best results. Safari/iOS has limited WebM support.
+              </div>
+
               <div className="vs-hint mb-2" style={{ background: "var(--surface2)", padding: "10px 12px", borderRadius: 8, border: "1px solid var(--border)" }}>
-                🔕 <strong>Silent recording</strong> — audio goes through AudioContext directly into the video file. No speaker volume needed, no external sounds captured.
+                🔕 <strong>Silent recording</strong> — audio goes through AudioContext directly into the video file. No speaker volume needed.
                 {videoMode === "story" && " ElevenLabs voices are generated server-side."}
               </div>
 
@@ -1155,11 +1231,11 @@ export default function VideoStudio() {
                   The song plays across your entire reel — no microphone needed.
                 </div>
                 <div className="vs-section" style={{ marginTop: 0, marginBottom: 16 }}>Song Library</div>
-                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 12, marginBottom: 32 }}>
                   {SONG_LIBRARY.map(song => (
                     <div key={song.id}
                       onClick={() => setSelectedSong(song)}
-                      style={{ padding: "16px 14px", borderRadius: 14, border: `2px solid ${selectedSong?.id === song.id ? "var(--ink)" : "var(--border)"}`, background: selectedSong?.id === song.id ? "var(--surface)" : "var(--surface2)", cursor: "pointer", transition: "all .18s", boxShadow: selectedSong?.id === song.id ? "var(--shadow)" : "none" }}>
+                      style={{ padding: "16px 14px", borderRadius: 14, border: `2px solid ${selectedSong?.id === song.id ? "var(--ink)" : "var(--border)"}`, background: selectedSong?.id === song.id ? "var(--surface)" : "var(--surface2)", cursor: "pointer", transition: "all .18s", boxShadow: selectedSong?.id === song.id ? "var(--shadow)" : "none", WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}>
                       <div style={{ fontSize: 28, marginBottom: 8 }}>{song.emoji}</div>
                       <div style={{ fontFamily: "var(--font)", fontSize: 14, fontWeight: 700, marginBottom: 4 }}>{song.title}</div>
                       <div style={{ fontFamily: "var(--mono)", fontSize: 10, color: "var(--ink3)", marginBottom: 10 }}>{song.artist} · {song.duration} · {song.genre}</div>
@@ -1171,7 +1247,7 @@ export default function VideoStudio() {
                   ))}
                 </div>
                 <div className="vs-section">Upload Your Own</div>
-                <label style={{ display: "block", border: "2px dashed var(--border)", borderRadius: 14, padding: "28px", textAlign: "center", cursor: "pointer", transition: "all .18s", fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink3)", background: "var(--surface2)" }}
+                <label style={{ display: "block", border: "2px dashed var(--border)", borderRadius: 14, padding: "28px", textAlign: "center", cursor: "pointer", transition: "all .18s", fontFamily: "var(--mono)", fontSize: 12, color: "var(--ink3)", background: "var(--surface2)", WebkitTapHighlightColor: "transparent", touchAction: "manipulation" }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = "var(--ink)"}
                   onMouseLeave={e => e.currentTarget.style.borderColor = "var(--border)"}>
                   <input type="file" accept="audio/*" hidden onChange={handleCustomSongUpload} />
@@ -1305,7 +1381,7 @@ export default function VideoStudio() {
                 {exportedUrl && (<>
                   <div className="vs-section">Recorded Video</div>
                   <div className="muted mb-2">.webm plays in Chrome, Firefox, VLC. Convert to .mp4 with Handbrake if needed.</div>
-                  <video src={exportedUrl} controls className="vs-export-vid" />
+                  <video src={exportedUrl} controls className="vs-export-vid" playsInline />
                   {cloudUrl && (
                     <div style={{ marginTop: 12, padding: "10px 14px", background: "#f0fdf4", border: "1px solid #86efac", borderRadius: 10, fontFamily: "var(--mono)", fontSize: 11, color: "#166534" }}>
                       ☁️ <a href={cloudUrl} target="_blank" rel="noopener noreferrer" style={{ color: "var(--blue)" }}>{cloudUrl}</a>
