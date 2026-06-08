@@ -128,9 +128,24 @@ router.post("/tts", auth, async (req, res) => {
       return res.status(resp.status).json({ message: err?.message || `TTS error ${resp.status}` });
     }
 
+    // Unreal Speech returns JSON with OutputUri, not direct audio stream
+    const data = await resp.json();
+    const audioUrl = data.OutputUri;
+
+    if (!audioUrl) {
+      return res.status(500).json({ message: "No audio URL in response" });
+    }
+
+    // Fetch the actual audio and pipe it
+    const audioResp = await fetch(audioUrl);
+    if (!audioResp.ok) {
+      return res.status(500).json({ message: "Failed to fetch audio file" });
+    }
+
     res.setHeader("Content-Type", "audio/mpeg");
-    resp.body.pipe(res);
+    audioResp.body.pipe(res);
   } catch (err) {
+    console.error("TTS error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
