@@ -31,13 +31,14 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3001',
-    'https://note-vevp.onrender.com',          // Deployed frontend
-    // 'http://localhost:30265',                    // Local frontend
+    'https://note-vevp.onrender.com',
   ],
-  methods: ["GET", "POST","PATCH", "PUT", "DELETE"],    // Allowed HTTP methods
-  credentials: true,                            // Allow credentials (cookies, headers)
-  allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
 }));
+
+app.options('*', cors()); // ← yeh line add karo
 
 // Middleware to parse incoming JSON requests
 app.use(express.json({ limit: "20mb" }));
