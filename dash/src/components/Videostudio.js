@@ -389,8 +389,6 @@ export default function VideoStudio() {
   const [step, setStep]                   = useState(1);
   const [videoMode, setVideoMode]         = useState("story"); // "story" | "music"
   const [script, setScript]               = useState("");
-  const [elApiKey, setElApiKey]           = useState(() => localStorage.getItem("el_api_key") || "");
-  const [elApiKeyInput, setElApiKeyInput] = useState(() => localStorage.getItem("el_api_key") || "");
   const [elVoice, setElVoice]             = useState(EL_VOICES[0]);
   const [elStatus, setElStatus]           = useState("idle"); // idle | ok | err
   const [elStatusMsg, setElStatusMsg]     = useState("");
@@ -428,14 +426,6 @@ export default function VideoStudio() {
 
   const showToast = (msg, type = "ok") => { setToast({ msg, type }); setTimeout(() => setToast(null), 5000); };
 
-  // Save API key to localStorage
-  const saveApiKey = () => {
-    const key = elApiKeyInput.trim();
-    setElApiKey(key);
-    localStorage.setItem("el_api_key", key);
-    if (key) { setElStatus("idle"); setElStatusMsg("Key saved. Will verify on first use."); }
-    else { setElStatus("idle"); setElStatusMsg(""); }
-  };
 
   // Test ElevenLabs API key
   const testElKey = async () => {
@@ -460,12 +450,11 @@ export default function VideoStudio() {
 
   // Preview a voice using ElevenLabs
   const previewElVoice = async (v) => {
-    if (!elApiKey) { showToast("Enter your ElevenLabs API key first!", "err"); return; }
     if (previewAudio) { previewAudio.pause(); }
     showToast(`🔊 Loading ${v.name}…`);
     try {
       const sampleText = script ? script.slice(0, 100) : `Hi, I'm ${v.name}. This is how I sound when narrating your video.`;
-      const ab = await elevenLabsTTS(sampleText, v.id, elApiKey);
+      const ab = await elevenLabsTTS(sampleText, v.id);
       const blob = new Blob([ab], { type: "audio/mpeg" });
       const url  = URL.createObjectURL(blob);
       const audio = new Audio(url);
@@ -561,9 +550,6 @@ export default function VideoStudio() {
   const recordVideo = async () => {
     if (!scenes.length) return;
 
-    if (videoMode === "story" && !elApiKey) {
-      showToast("Enter your ElevenLabs API key to record with narration!", "err"); return;
-    }
     if (videoMode === "music" && !selectedSong) {
       showToast("Choose a song or upload your own for music mode!", "err"); return;
     }
@@ -608,7 +594,7 @@ export default function VideoStudio() {
         setRecProg(Math.round((i / scenes.length) * 40));
         setRecStatus(`🎙️ Generating voice ${i + 1}/${scenes.length}…`);
         try {
-          const ab = await elevenLabsTTS(scenes[i].text, elVoice.id, elApiKey);
+          const ab = await elevenLabsTTS(scenes[i].text, elVoice.id);
           const decoded = await audioCtx.decodeAudioData(ab);
           sceneAudioBuffers.push(decoded);
         } catch (err) {
@@ -881,24 +867,17 @@ export default function VideoStudio() {
 
             {/* STEP 2 — Voice / Music */}
             {step === 2 && videoMode === "story" && (<>
-              <span className="vs-lbl">ElevenLabs API Key</span>
-              <div className="vs-apikey-box mb-3">
-                <div className="title">
-                  <div className={`dot ${elStatus === "ok" ? "" : "off"}`} />
-                  {elStatus === "ok" ? "Connected" : elStatus === "err" ? "Error" : "Not connected"}
-                </div>
-                <div className="vs-apikey-input-wrap">
-                  <input type="password" placeholder="sk_abc123…" value={elApiKeyInput}
-                    onChange={e => setElApiKeyInput(e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && saveApiKey()} />
-                  <button className="vs-btn vs-btn-soft vs-btn-sm" onClick={saveApiKey}>Save</button>
-                </div>
-                {elStatusMsg && (
-                  <div className={`el-status ${elStatus} mt-2`} style={{ marginTop: 8 }}>{elStatusMsg}</div>
-                )}
-                <button className="vs-btn vs-btn-outline vs-btn-block" style={{ marginTop: 8, fontSize: 11 }}
-                  onClick={testElKey}>Test Connection</button>
+            <div className="vs-apikey-box mb-3">
+              <div className="title">
+                <div className={`dot ${elStatus === "ok" ? "" : elStatus === "err" ? "off" : ""}`} />
+                {elStatus === "ok" ? "ElevenLabs Connected" : elStatus === "err" ? "Connection Error" : "ElevenLabs (Server)"}
               </div>
+              {elStatusMsg && (
+                <div className={`el-status ${elStatus}`} style={{ marginTop: 8 }}>{elStatusMsg}</div>
+              )}
+              <button className="vs-btn vs-btn-outline vs-btn-block" style={{ marginTop: 8, fontSize: 11 }}
+                onClick={testElKey}>Test Connection</button>
+            </div>
               <span className="vs-lbl">Voice</span>
               <div className="vs-voices mb-3">
                 {EL_VOICES.map(v => (
@@ -1145,11 +1124,9 @@ export default function VideoStudio() {
                   Audio is routed through AudioContext directly into the video file.
                 </div>
                 <div style={{ background: "linear-gradient(135deg,#f5f3ff,#ede9fe)", border: "1px solid #c4b5fd", borderRadius: 14, padding: "16px 18px", marginBottom: 28, fontFamily: "var(--mono)", fontSize: 11, color: "#5b21b6", lineHeight: 1.8 }}>
-                  <strong>🔑 How to get your free ElevenLabs API key:</strong><br/>
-                  1. Go to <strong>elevenlabs.io</strong> → Sign Up (free, no credit card)<br/>
-                  2. Free tier: ~10,000 chars/month<br/>
-                  3. Profile icon → Profile + API Key → copy key<br/>
-                  4. Paste it in the sidebar and click <strong>Save</strong>
+                  🔒 <strong>ElevenLabs is configured on the server.</strong><br/>
+                  Your API key is securely stored in the backend — no setup needed here.<br/>
+                  Click <strong>Test Connection</strong> in the sidebar to verify it's working.
                 </div>
                 <div className="vs-vprofile-grid">
                   {EL_VOICES.map(v => (
