@@ -333,22 +333,17 @@ Return ONLY a JSON array: [{"sceneIndex":0,"imageIndex":2},...]`;
 // ─────────────────────────────────────────────────────────────
 // ELEVENLABS TTS — returns AudioBuffer
 // ─────────────────────────────────────────────────────────────
-const elevenLabsTTS = async (text, voiceId, apiKey) => {
-  const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
+const elevenLabsTTS = async (text, voiceId) => {
+  const resp = await fetch(`${API_BASE}/api/video-studio/tts`, {
     method: "POST",
-    headers: { "xi-api-key": apiKey, "Content-Type": "application/json", "Accept": "audio/mpeg" },
-    body: JSON.stringify({
-      text,
-      model_id: "eleven_multilingual_v2",
-      voice_settings: { stability: 0.5, similarity_boost: 0.75 }
-    })
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ text, voiceId }),
   });
-  if (!resp.ok) {
-    const err = await resp.json().catch(() => ({}));
-    throw new Error(err?.detail?.message || `ElevenLabs error ${resp.status}`);
-  }
-  const arrayBuffer = await resp.arrayBuffer();
-  return arrayBuffer;
+  if (!resp.ok) throw new Error(`TTS error ${resp.status}`);
+  return await resp.arrayBuffer();
 };
 
 // ─────────────────────────────────────────────────────────────
@@ -444,15 +439,19 @@ export default function VideoStudio() {
 
   // Test ElevenLabs API key
   const testElKey = async () => {
-    if (!elApiKey) { showToast("Enter your ElevenLabs API key first!", "err"); return; }
     setElStatus("idle"); setElStatusMsg("Testing…");
     try {
-      const resp = await fetch("https://api.elevenlabs.io/v1/voices", {
-        headers: { "xi-api-key": elApiKey }
+      const resp = await fetch(`${API_BASE}/api/video-studio/tts`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ text: "Connection test.", voiceId: EL_VOICES[0].id }),
       });
       if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       setElStatus("ok"); setElStatusMsg("✓ Connected to ElevenLabs");
-      showToast("✅ ElevenLabs API key works!");
+      showToast("✅ ElevenLabs connected!");
     } catch (err) {
       setElStatus("err"); setElStatusMsg(`✗ ${err.message}`);
       showToast(`ElevenLabs error: ${err.message}`, "err");
