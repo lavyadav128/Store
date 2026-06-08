@@ -73,7 +73,7 @@ router.post("/tts", auth, async (req, res) => {
     const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
       method: "POST",
       headers: {
-        "xi-api-key":sk_c14e598f87595351917068d3ab4465db1d69633555602923,
+        "xi-api-key": "sk_c14e598f87595351917068d3ab4465db1d69633555602923",
         "Content-Type": "application/json",
         "Accept": "audio/mpeg",
       },
