@@ -1,8 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-
-// ── CONFIG ──
-const API_BASE = "http://localhost:5000";
-
+import server from "../environment";
 // ── Google Fonts ──
 if (typeof document !== "undefined") {
   const fontLink = document.createElement("link");
@@ -368,7 +365,7 @@ Return ONLY a JSON array: [{"sceneIndex":0,"imageIndex":2},...]`;
 // ELEVENLABS TTS — returns ArrayBuffer
 // ─────────────────────────────────────────────────────────────
 const elevenLabsTTS = async (text, voiceId) => {
-  const resp = await fetch(`${API_BASE}/api/video-studio/tts`, {
+  const resp = await fetch(`${server}/api/video-studio/tts`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -389,7 +386,7 @@ const saveToCloudinaryXHR = (blob, token) => new Promise((resolve, reject) => {
   const formData = new FormData();
   formData.append("video", blob, `video_${Date.now()}.webm`);
   const xhr = new XMLHttpRequest();
-  xhr.open("POST", `${API_BASE}/api/video-studio/save-to-cloudinary`);
+  xhr.open("POST", `${server}/api/video-studio/save-to-cloudinary`);
   xhr.setRequestHeader("Authorization", `Bearer ${token}`);
   xhr.onload = () => {
     if (xhr.status >= 200 && xhr.status < 300) {
@@ -496,7 +493,7 @@ export default function VideoStudio() {
   const testElKey = async () => {
     setElStatus("idle"); setElStatusMsg("Testing…");
     try {
-      const resp = await fetch(`${API_BASE}/api/video-studio/tts`, {
+      const resp = await fetch(`${server}/api/video-studio/tts`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -849,7 +846,7 @@ export default function VideoStudio() {
       setCloudUrl(data.secure_url);
 
       // Save to resources
-      await fetch(`${API_BASE}/api/resources/upload`, {
+      await fetch(`${server}/api/resources/upload`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
