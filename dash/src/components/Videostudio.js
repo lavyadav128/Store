@@ -364,18 +364,27 @@ Return ONLY a JSON array: [{"sceneIndex":0,"imageIndex":2},...]`;
 // ─────────────────────────────────────────────────────────────
 // ELEVENLABS TTS — returns ArrayBuffer
 // ─────────────────────────────────────────────────────────────
-const elevenLabsTTS = async (text, voiceId) => {
-  const resp = await fetch(`${server}/api/video-studio/tts`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ text, voiceId }),
-  });
-  if (!resp.ok) throw new Error(`TTS error ${resp.status}`);
-  return await resp.arrayBuffer();
-};
+// ─────────────────────────────────────────────────────────────
+// ELEVENLABS TTS — returns ArrayBuffer (XHR for mobile compat)
+// ─────────────────────────────────────────────────────────────
+const elevenLabsTTS = (text, voiceId) => new Promise((resolve, reject) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `${server}/api/video-studio/tts`);
+  xhr.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.responseType = "arraybuffer";
+  xhr.timeout = 60000;
+  xhr.onload = () => {
+    if (xhr.status >= 200 && xhr.status < 300) {
+      resolve(xhr.response);
+    } else {
+      reject(new Error(`TTS error ${xhr.status}`));
+    }
+  };
+  xhr.onerror = () => reject(new Error("Network error on TTS request"));
+  xhr.ontimeout = () => reject(new Error("TTS request timed out"));
+  xhr.send(JSON.stringify({ text, voiceId }));
+});
 
 // ─────────────────────────────────────────────────────────────
 // CLOUDINARY SAVE — uses XMLHttpRequest for mobile compatibility
@@ -490,24 +499,26 @@ export default function VideoStudio() {
     }
   };
 
-  const testElKey = async () => {
+  const testElKey = () => {
     setElStatus("idle"); setElStatusMsg("Testing…");
-    try {
-      const resp = await fetch(`${server}/api/video-studio/tts`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ text: "Connection test.", voiceId: EL_VOICES[0].id }),
-      });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-      setElStatus("ok"); setElStatusMsg("✓ Connected to ElevenLabs");
-      showToast("✅ ElevenLabs connected!");
-    } catch (err) {
-      setElStatus("err"); setElStatusMsg(`✗ ${err.message}`);
-      showToast(`ElevenLabs error: ${err.message}`, "err");
-    }
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", `${server}/api/video-studio/tts`);
+    xhr.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
+    xhr.setRequestHeader("Content-Type", "application/json");
+    xhr.responseType = "arraybuffer";
+    xhr.timeout = 30000;
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        setElStatus("ok"); setElStatusMsg("✓ Connected to ElevenLabs");
+        showToast("✅ ElevenLabs connected!");
+      } else {
+        setElStatus("err"); setElStatusMsg(`✗ HTTP ${xhr.status}`);
+        showToast(`ElevenLabs error: HTTP ${xhr.status}`, "err");
+      }
+    };
+    xhr.onerror = () => { setElStatus("err"); setElStatusMsg("✗ Network error"); showToast("Network error — check connection", "err"); };
+    xhr.ontimeout = () => { setElStatus("err"); setElStatusMsg("✗ Timeout"); showToast("Connection timed out", "err"); };
+    xhr.send(JSON.stringify({ text: "Connection test.", voiceId: EL_VOICES[0].id }));
   };
 
   const previewElVoice = async (v) => {
