@@ -39,6 +39,8 @@ const resourceSchema = new mongoose.Schema(
         "dsa_files",
         "completenotes",
         "videos",
+        "motivation",
+        "projects"
       ],
     },
 
