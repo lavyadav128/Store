@@ -313,6 +313,27 @@ const loadImageEl = (src, timeoutMs = 20000) => new Promise(resolve => {
   }
 });
 
+// ADD THIS NEW FUNCTION RIGHT AFTER loadImageEl:
+const loadMediaEl = (entry, timeoutMs = 20000) => new Promise(resolve => {
+  if (!entry?.url) return resolve(null);
+
+  if (entry.type === "video") {
+    const vid = document.createElement("video");
+    vid.crossOrigin = "anonymous";
+    vid.muted = true;
+    vid.playsInline = true;
+    vid.src = entry.url;
+    vid.currentTime = 0;
+    const t = setTimeout(() => resolve(null), timeoutMs);
+    vid.onloadeddata = () => { clearTimeout(t); resolve(vid); };
+    vid.onerror = () => { clearTimeout(t); resolve(null); };
+    vid.load();
+  } else {
+    // existing image path
+    loadImageEl(entry.url, timeoutMs).then(resolve);
+  }
+});
+
 const tokenize = (text) => text.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(w => w.length > 3);
 const similarity = (a, b) => {
   const sa = new Set(tokenize(a)), sb = new Set(tokenize(b));
@@ -420,36 +441,68 @@ const saveToCloudinaryXHR = (blob, token) => new Promise((resolve, reject) => {
 // ─────────────────────────────────────────────────────────────
 // DRAW FRAME
 // ─────────────────────────────────────────────────────────────
+// REPLACE ONLY THE if(imgEl) BLOCK with this:
 const drawFrame = (ctx, imgEl, progress, sceneNum, total, W, H) => {
+  // background
   ctx.fillStyle = "#1a1917";
   ctx.fillRect(0, 0, W, H);
+
   if (imgEl) {
-    const scale = 1 + progress * 0.06;
-    const panX = (progress - 0.5) * 0.02 * W;
-    const panY = (progress - 0.5) * 0.015 * H;
-    const sw = W * scale, sh = H * scale;
-    ctx.drawImage(imgEl, (W - sw) / 2 + panX, (H - sh) / 2 + panY, sw, sh);
+    const isVideo = imgEl.tagName === "VIDEO";
+    if (isVideo) {
+      // no Ken Burns for video — just cover-fit
+      const vw = imgEl.videoWidth  || W;
+      const vh = imgEl.videoHeight || H;
+      const scale = Math.max(W / vw, H / vh);
+      const dw = vw * scale, dh = vh * scale;
+      ctx.drawImage(imgEl, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    } else {
+      // Ken Burns for images
+      const scale = 1 + progress * 0.06;
+      const panX = (progress - 0.5) * 0.02 * W;
+      const panY = (progress - 0.5) * 0.015 * H;
+      const sw = W * scale, sh = H * scale;
+      ctx.drawImage(imgEl, (W - sw) / 2 + panX, (H - sh) / 2 + panY, sw, sh);
+    }
   } else {
     const grd = ctx.createLinearGradient(0, 0, W, H);
-    grd.addColorStop(0, "#1a1917"); grd.addColorStop(1, "#2d2b26");
-    ctx.fillStyle = grd; ctx.fillRect(0, 0, W, H);
+    grd.addColorStop(0, "#1a1917");
+    grd.addColorStop(1, "#2d2b26");
+    ctx.fillStyle = grd;
+    ctx.fillRect(0, 0, W, H);
   }
+
+  // top and bottom bars
   const barH = H * 0.052;
-  ctx.fillStyle = "rgba(0,0,0,0.88)"; ctx.fillRect(0, 0, W, barH); ctx.fillRect(0, H - barH, W, barH);
+  ctx.fillStyle = "rgba(0,0,0,0.88)";
+  ctx.fillRect(0, 0, W, barH);
+  ctx.fillRect(0, H - barH, W, barH);
+
+  // bottom gradient overlay
   const grad = ctx.createLinearGradient(0, H * 0.55, 0, H);
-  grad.addColorStop(0, "rgba(0,0,0,0)"); grad.addColorStop(1, "rgba(0,0,0,0.65)");
-  ctx.fillStyle = grad; ctx.fillRect(0, H * 0.55, W, H * 0.45);
+  grad.addColorStop(0, "rgba(0,0,0,0)");
+  grad.addColorStop(1, "rgba(0,0,0,0.65)");
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, H * 0.55, W, H * 0.45);
+
+  // vignette
   const vig = ctx.createRadialGradient(W/2, H/2, H*0.18, W/2, H/2, H*0.82);
-  vig.addColorStop(0, "rgba(0,0,0,0)"); vig.addColorStop(1, "rgba(0,0,0,0.36)");
-  ctx.fillStyle = vig; ctx.fillRect(0, 0, W, H);
+  vig.addColorStop(0, "rgba(0,0,0,0)");
+  vig.addColorStop(1, "rgba(0,0,0,0.36)");
+  ctx.fillStyle = vig;
+  ctx.fillRect(0, 0, W, H);
+
+  // scene counter text
   ctx.font = `${Math.round(W*0.011)}px 'DM Mono', monospace`;
   ctx.fillStyle = "rgba(255,255,255,0.45)";
   ctx.fillText(`${sceneNum}/${total}`, W*0.025, barH*0.68);
-  const FADE_FRAC = 0.12;
-  let fadeAlpha = 0;
-  if (progress < FADE_FRAC) fadeAlpha = 1 - (progress / FADE_FRAC);
-  else if (progress > 1 - FADE_FRAC) fadeAlpha = (progress - (1 - FADE_FRAC)) / FADE_FRAC;
-  if (fadeAlpha > 0.01) { ctx.fillStyle = `rgba(0,0,0,${Math.min(fadeAlpha,1)})`; ctx.fillRect(0,0,W,H); }
+
+  // ONLY fade in at the very start of the first scene — NO fade between scenes
+  if (sceneNum === 1 && progress < 0.04) {
+    const fadeAlpha = 1 - (progress / 0.04);
+    ctx.fillStyle = `rgba(0,0,0,${Math.min(fadeAlpha, 1)})`;
+    ctx.fillRect(0, 0, W, H);
+  }
 };
 
 // ═══════════════════════════════════════════════════════════════
@@ -588,6 +641,20 @@ export default function VideoStudio() {
     const newImgs = Array.from(files).map(f => ({ url: URL.createObjectURL(f), name: f.name }));
     setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], images: [...u[si].images, ...newImgs] }; return u; });
   };
+
+  const addVideoFiles = (si, files) => {
+    const newItems = Array.from(files).map(f => ({
+      url: URL.createObjectURL(f),
+      name: f.name,
+      type: "video"   // <-- marks it as video
+    }));
+    setScenes(prev => {
+      const u = [...prev];
+      u[si] = { ...u[si], images: [...u[si].images, ...newItems] };
+      return u;
+    });
+  };
+  
   const addImgUrl = (si, url) => {
     if (!url.trim()) return;
     setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], images: [...u[si].images, { url: url.trim(), name: url.split("/").pop() || "URL" }] }; return u; });
@@ -595,6 +662,29 @@ export default function VideoStudio() {
   const delImg = (si, ii) => {
     setScenes(prev => { const u = [...prev]; const imgs = u[si].images.filter((_, idx) => idx !== ii); u[si] = { ...u[si], images: imgs, selected: Math.min(u[si].selected, Math.max(0, imgs.length - 1)) }; return u; });
   };
+
+
+  // ADD THIS RIGHT AFTER:
+const addVideoUrl = (si, url) => {
+  if (!url.trim()) return;
+  setScenes(prev => {
+    const u = [...prev];
+    u[si] = {
+      ...u[si],
+      images: [
+        ...u[si].images,
+        {
+          url: url.trim(),
+          name: url.split("/").pop() || "Video URL",
+          type: "video"   // <-- marks it as video
+        }
+      ]
+    };
+    return u;
+  });
+};
+
+
   const delScene = (si) => { setScenes(prev => prev.filter((_, i) => i !== si)); if (previewIdx >= si && previewIdx > 0) setPreviewIdx(p => p - 1); };
   const addScene  = () => setScenes(prev => [...prev, { id: Date.now(), text: "", images: [], selected: 0, autoMatched: false }]);
   const updateScene = (si, field, val) => setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], [field]: val }; return u; });
@@ -651,11 +741,11 @@ export default function VideoStudio() {
     const FPS = isMobile ? 24 : 30;
     const MS = Math.round(1000 / FPS);
 
-    setRecStatus("🖼️ Loading images…");
+    setRecStatus("🖼️ Loading images & video clips…");
     const imgEls = [];
     for (let i = 0; i < scenes.length; i++) {
-      const sc = scenes[i], imgEntry = sc.images[sc.selected] ?? sc.images[0];
-      imgEls.push(imgEntry?.url ? await loadImageEl(imgEntry.url, 18000) : null);
+      const sc = scenes[i], mediaEntry = sc.images[sc.selected] ?? sc.images[0];
+      imgEls.push(mediaEntry ? await loadMediaEl(mediaEntry, 18000) : null);
     }
 
     // ── MOBILE FIX: create AudioContext inside button click handler
@@ -762,11 +852,16 @@ export default function VideoStudio() {
               gainNode.gain.value = 1.0;
               source.connect(gainNode); gainNode.connect(masterGain);
               source.onended = () => { audioEnded = true; };
-              // ── MOBILE FIX: schedule slightly in the future to avoid
-              //    "start time in the past" errors on slow mobile devices ──
               source.start(audioCtx.currentTime + 0.05);
             } else {
               audioEnded = true;
+            }
+
+            // ADD THIS RIGHT AFTER — play video clip if this scene's media is a video:
+            const mediaEl = imgEls[i];
+            if (mediaEl?.tagName === "VIDEO") {
+              mediaEl.currentTime = 0;
+              mediaEl.play().catch(() => {});
             }
 
             const sceneStart = Date.now();
@@ -777,7 +872,10 @@ export default function VideoStudio() {
                 drawFrame(ctx, imgEl, progress, i + 1, scenes.length, W, H);
                 if ((audioEnded && elapsed >= durationMs * 0.5) || elapsed > durationMs + 2000) {
                   clearInterval(timer);
-                  if (i + 1 < scenes.length) drawFrame(ctx, imgEls[i + 1], 0, i + 2, scenes.length, W, H);
+                  // immediately draw next scene at progress 0 before resolving
+                  // so there is zero gap between scenes
+                  const nextEl = imgEls[i + 1] ?? imgEls[i]; // fallback to same image if last scene
+                  drawFrame(ctx, nextEl, 0, Math.min(i + 2, scenes.length), scenes.length, W, H);
                   resolveScene();
                 }
               }, MS);
@@ -803,7 +901,13 @@ export default function VideoStudio() {
             if (recorder.state !== "recording") break;
             setRecProg(Math.round((i / scenes.length) * 90));
             setRecStatus(`🎬 Recording scene ${i + 1} of ${scenes.length}…`);
-            const imgEl     = imgEls[i];
+
+            const imgEl = imgEls[i];
+            // Play video clip if this scene uses one
+            if (imgEl?.tagName === "VIDEO") {
+              imgEl.currentTime = 0;
+              imgEl.play().catch(() => {});
+            }
             const sceneStart = Date.now();
             await new Promise(resolveScene => {
               const timer = setInterval(() => {
@@ -812,7 +916,9 @@ export default function VideoStudio() {
                 drawFrame(ctx, imgEl, progress, i + 1, scenes.length, W, H);
                 if (elapsed >= perSceneMs) {
                   clearInterval(timer);
-                  if (i + 1 < scenes.length) drawFrame(ctx, imgEls[i + 1], 0, i + 2, scenes.length, W, H);
+                  // immediately draw next scene before resolving — zero gap
+                  const nextEl = imgEls[i + 1] ?? imgEls[i];
+                  drawFrame(ctx, nextEl, 0, Math.min(i + 2, scenes.length), scenes.length, W, H);
                   resolveScene();
                 }
               }, MS);
@@ -821,15 +927,8 @@ export default function VideoStudio() {
         }
 
         setRecStatus("✨ Finishing up…");
-        const fadeStart = Date.now();
-        await new Promise(res => {
-          const fadeTimer = setInterval(() => {
-            const p = Math.min((Date.now() - fadeStart) / 800, 1);
-            ctx.fillStyle = `rgba(0,0,0,${p})`; ctx.fillRect(0, 0, W, H);
-            if (p >= 1) { clearInterval(fadeTimer); res(); }
-          }, MS);
-        });
-        await new Promise(r => setTimeout(r, 400));
+        // short pause so final frame is captured, then stop — no black fade
+        await new Promise(r => setTimeout(r, 200));
         recorder.stop();
       })();
     });
@@ -1296,26 +1395,52 @@ export default function VideoStudio() {
                       {sc.images.length === 0 ? "⚠️ No image yet" : `${sc.images.length} image${sc.images.length > 1 ? "s" : ""} · click to select`}
                     </div>
                     <div className="vs-img-grid">
-                      {sc.images.map((img, ii) => (
-                        <div key={ii} className={`vs-img-thumb ${sc.selected === ii ? "sel" : ""}`}
-                          onClick={() => updateScene(si, "selected", ii)}>
+
+                    {sc.images.map((img, ii) => (
+                      <div key={ii} className={`vs-img-thumb ${sc.selected === ii ? "sel" : ""}`}
+                        onClick={() => updateScene(si, "selected", ii)}>
+
+                        {img.type === "video" ? (
+                          // Video thumbnail
+                          <video src={img.url}
+                            style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 1 }}
+                            muted playsInline preload="metadata" />
+                        ) : (
+                          // Existing image
                           <img src={img.url} alt="" crossOrigin="anonymous"
                             style={{ opacity: 0 }}
                             onLoad={e => { e.target.style.opacity = 1; }}
                             onError={e => { e.target.parentElement.style.background = "var(--surface3)"; e.target.style.display = "none"; }} />
-                          {sc.selected === ii && <div className="chk">✓</div>}
-                          {sc.autoMatched && sc.selected === ii && <div className="auto-badge">AI</div>}
-                          <div className="del-img" onClick={e => { e.stopPropagation(); delImg(si, ii); }}>✕</div>
-                        </div>
-                      ))}
-                      <label className="vs-upload-tile">
-                        <input type="file" accept="image/*" multiple hidden onChange={e => addImgFiles(si, e.target.files)} />
-                        <span className="ico">📁</span>
-                        <span>Upload photo(s)</span>
-                      </label>
+                        )}
+
+                        {/* Video badge */}
+                        {img.type === "video" && (
+                          <div style={{ position: "absolute", bottom: 5, left: 5, background: "rgba(0,0,0,0.7)", borderRadius: 4, padding: "2px 6px", fontSize: 9, color: "white", fontFamily: "var(--mono)", fontWeight: 700 }}>
+                            🎬 VIDEO
+                          </div>
+                        )}
+
+                        {sc.selected === ii && <div className="chk">✓</div>}
+                        {sc.autoMatched && sc.selected === ii && <div className="auto-badge">AI</div>}
+                        <div className="del-img" onClick={e => { e.stopPropagation(); delImg(si, ii); }}>✕</div>
+                      </div>
+                    ))}
+
+                    <label className="vs-upload-tile">
+                      <input type="file" accept="image/*" multiple hidden onChange={e => addImgFiles(si, e.target.files)} />
+                      <span className="ico">📁</span>
+                      <span>Upload photo(s)</span>
+                    </label>
+
+                    {/* ADD THIS NEW TILE RIGHT AFTER: */}
+                    <label className="vs-upload-tile">
+                      <input type="file" accept="video/*" multiple hidden onChange={e => addVideoFiles(si, e.target.files)} />
+                      <span className="ico">🎬</span>
+                      <span>Upload video clip(s)</span>
+                    </label>
                     </div>
                     <PasteUrl onAdd={url => addImgUrl(si, url)} />
-                  </div>
+                    <PasteVideoUrl onAdd={url => addVideoUrl(si, url)} />                  </div>
                 ))}
                 <div className="vs-add-scene">
                   <button className="vs-btn vs-btn-outline" onClick={addScene}>+ Add Another Scene</button>
@@ -1335,9 +1460,15 @@ export default function VideoStudio() {
 
                 <div className={`vs-preview ${format}`}>
                   {scenes.length > 0 && curScene ? (<>
+
                     {previewImgUrl
-                      ? <img key={previewIdx} src={previewImgUrl} className="pimg" crossOrigin="anonymous"
-                          onError={e => { e.target.style.display = "none"; }} alt="preview" />
+                      ? (curScene?.images?.[curScene.selected]?.type === "video"
+                          ? <video key={previewIdx} src={previewImgUrl} className="pimg"
+                              autoPlay muted loop playsInline
+                              style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                          : <img key={previewIdx} src={previewImgUrl} className="pimg" crossOrigin="anonymous"
+                              onError={e => { e.target.style.display = "none"; }} alt="preview" />
+                        )
                       : <div style={{ width: "100%", height: "100%", background: "var(--ink)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <span style={{ color: "rgba(255,255,255,.2)", fontFamily: "var(--mono)", fontSize: 12 }}>no image</span>
                         </div>
@@ -1369,9 +1500,16 @@ export default function VideoStudio() {
                       <div key={sc.id} style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12, cursor: "pointer" }}
                         onClick={() => setPreviewIdx(i)}>
                         <div style={{ width: 28, height: 28, borderRadius: 7, background: previewIdx === i ? "var(--ink)" : "var(--surface3)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, color: previewIdx === i ? "white" : "var(--ink3)", flexShrink: 0, fontFamily: "var(--sans)" }}>{i + 1}</div>
+
                         {sc.images[sc.selected]?.url && (
-                          <div style={{ width: 56, height: 36, borderRadius: 7, overflow: "hidden", border: "1px solid var(--border)", flexShrink: 0, background: "var(--surface3)" }}>
-                            <img src={sc.images[sc.selected].url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" crossOrigin="anonymous" />
+                          <div style={{ width: 56, height: 36, borderRadius: 7, overflow: "hidden", border: "1px solid var(--border)", flexShrink: 0, background: "var(--surface3)", position: "relative" }}>
+                            {sc.images[sc.selected]?.type === "video"
+                              ? <video src={sc.images[sc.selected].url} style={{ width: "100%", height: "100%", objectFit: "cover" }} muted playsInline preload="metadata" />
+                              : <img src={sc.images[sc.selected].url} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" crossOrigin="anonymous" />
+                            }
+                            {sc.images[sc.selected]?.type === "video" && (
+                              <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", background: "rgba(0,0,0,0.3)", fontSize: 12 }}>🎬</div>
+                            )}
                           </div>
                         )}
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -1426,6 +1564,34 @@ function PasteUrl({ onAdd }) {
         onKeyDown={e => { if (e.key === "Enter" && val.trim()) { onAdd(val.trim()); setVal(""); } }} />
       <button className="vs-btn vs-btn-soft vs-btn-sm" style={{ flexShrink: 0 }}
         onClick={() => { if (val.trim()) { onAdd(val.trim()); setVal(""); } }}>Add URL</button>
+    </div>
+  );
+}
+
+// ADD THIS NEW COMPONENT RIGHT AFTER:
+function PasteVideoUrl({ onAdd }) {
+  const [val, setVal] = useState("");
+  return (
+    <div className="vs-prompt-row" style={{ marginTop: 6 }}>
+      <input
+        className="vs-prompt-input"
+        placeholder="Or paste a video URL (.mp4, .webm…) and press Enter…"
+        value={val}
+        onChange={e => setVal(e.target.value)}
+        onKeyDown={e => {
+          if (e.key === "Enter" && val.trim()) {
+            onAdd(val.trim());
+            setVal("");
+          }
+        }}
+        style={{ borderColor: "rgba(124,58,237,0.3)" }}  // subtle purple to distinguish from image URL input
+      />
+      <button
+        className="vs-btn vs-btn-soft vs-btn-sm"
+        style={{ flexShrink: 0, borderColor: "rgba(124,58,237,0.4)", color: "var(--purple)" }}
+        onClick={() => { if (val.trim()) { onAdd(val.trim()); setVal(""); } }}>
+        🎬 Add
+      </button>
     </div>
   );
 }
