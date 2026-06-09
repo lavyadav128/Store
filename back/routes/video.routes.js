@@ -61,6 +61,7 @@ router.post("/save-to-cloudinary", auth, upload.single("video"), async (req, res
 // POST /api/video-studio/tts
 // ─────────────────────────────────────────
 router.post("/tts", auth, async (req, res) => {
+  console.log("TTS body:", req.body); // ADD THIS
   const { text, voiceId } = req.body;
   if (!text || !voiceId)
     return res.status(400).json({ message: "text and voiceId are required" });
@@ -74,7 +75,7 @@ router.post("/tts", auth, async (req, res) => {
       },
       body: JSON.stringify({
         Text: text,
-        VoiceId: "Puja",   // ✅ Hindi Female voice in Unreal Speech
+        VoiceId: "Scarlett",   // ✅ Hindi Female voice in Unreal Speech
         Bitrate: "192k",
         Speed: "0",
         Pitch: "1",
@@ -83,8 +84,12 @@ router.post("/tts", auth, async (req, res) => {
     });
 
     if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      return res.status(resp.status).json({ message: err?.message || `TTS error ${resp.status}` });
+      const errorText = await resp.text();
+      console.log("UnrealSpeech Error:", errorText);
+    
+      return res.status(resp.status).json({
+        message: errorText
+      });
     }
 
     const data = await resp.json();
