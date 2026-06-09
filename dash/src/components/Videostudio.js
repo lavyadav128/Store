@@ -299,27 +299,6 @@ const css = `
 // ─────────────────────────────────────────────────────────────
 
 
-const generateImageWithGemini = async (prompt, server) => {
-  const resp = await fetch(`${server}/api/video-studio/generate-image`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-    body: JSON.stringify({ prompt }),
-  });
-  const data = await resp.json();
-  if (!resp.ok) throw new Error(data.message || "Generation failed");
-  return data.image; // base64 data URL
-};
-
-
-
-
-
-
-
-
 
 
 const loadImageEl = (src, timeoutMs = 20000) => new Promise(resolve => {
@@ -679,16 +658,12 @@ export default function VideoStudio() {
     });
   };
   
-  const addImgUrl = (si, url, name) => {
+  const addImgUrl = (si, url) => {
     if (!url.trim()) return;
-    setScenes(prev => {
-      const u = [...prev];
-      u[si] = {
-        ...u[si],
-        images: [...u[si].images, { url: url.trim(), name: name || url.split("/").pop() || "URL" }],
-      };
-      return u;
-    });
+    setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], images: [...u[si].images, { url: url.trim(), name: url.split("/").pop() || "URL" }] }; return u; });
+  };
+  const delImg = (si, ii) => {
+    setScenes(prev => { const u = [...prev]; const imgs = u[si].images.filter((_, idx) => idx !== ii); u[si] = { ...u[si], images: imgs, selected: Math.min(u[si].selected, Math.max(0, imgs.length - 1)) }; return u; });
   };
 
 
@@ -712,18 +687,10 @@ const addVideoUrl = (si, url) => {
   });
 };
 
-    const delScene = (si) => { setScenes(prev => prev.filter((_, i) => i !== si)); if (previewIdx >= si && previewIdx > 0) setPreviewIdx(p => p - 1); };
-    const addScene  = () => setScenes(prev => [...prev, { id: Date.now(), text: "", images: [], selected: 0, autoMatched: false }]);
-    const updateScene = (si, field, val) => setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], [field]: val }; return u; });
-    const delImg = (si, ii) => {
-      setScenes(prev => {
-        const u = [...prev];
-        const imgs = u[si].images.filter((_, idx) => idx !== ii);
-        u[si] = { ...u[si], images: imgs, selected: Math.min(u[si].selected, Math.max(0, imgs.length - 1)) };
-        return u;
-      });
-    };
 
+  const delScene = (si) => { setScenes(prev => prev.filter((_, i) => i !== si)); if (previewIdx >= si && previewIdx > 0) setPreviewIdx(p => p - 1); };
+  const addScene  = () => setScenes(prev => [...prev, { id: Date.now(), text: "", images: [], selected: 0, autoMatched: false }]);
+  const updateScene = (si, field, val) => setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], [field]: val }; return u; });
 
   const handleAutoMatch = async () => {
     const seen = new Set(), allImages = [];
@@ -1476,14 +1443,7 @@ const addVideoUrl = (si, url) => {
                     </label>
                     </div>
                     <PasteUrl onAdd={url => addImgUrl(si, url)} />
-                    <PasteVideoUrl onAdd={url => addVideoUrl(si, url)} />
-                      <GenerateImageTile
-                        onAdd={(dataUrl, name) => addImgUrl(si, dataUrl, name)}
-                        server={server}
-                        imgStyle={imgStyle}
-                        showToast={showToast}
-                      />                  
-                      </div>
+                    <PasteVideoUrl onAdd={url => addVideoUrl(si, url)} />                  </div>
                 ))}
                 <div className="vs-add-scene">
                   <button className="vs-btn vs-btn-outline" onClick={addScene}>+ Add Another Scene</button>
@@ -1635,83 +1595,6 @@ function PasteVideoUrl({ onAdd }) {
         onClick={() => { if (val.trim()) { onAdd(val.trim()); setVal(""); } }}>
         🎬 Add
       </button>
-    </div>
-  );
-}
-
-
-function GenerateImageTile({ onAdd, server, imgStyle, showToast }) {
-  const [prompt, setPrompt] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const handleGenerate = async () => {
-    if (!prompt.trim()) return;
-    setLoading(true);
-    try {
-      const fullPrompt = `${prompt.trim()}, ${imgStyle.prompt}`;
-      const dataUrl = await generateImageWithGemini(fullPrompt, server);
-      onAdd(dataUrl, `AI: ${prompt.trim().slice(0, 40)}`);
-      showToast("✅ Image generated!");
-      setPrompt("");
-    } catch (err) {
-      showToast(`Generation failed: ${err.message}`, "err");
-    }
-    setLoading(false);
-  };
-
-  return (
-    <div style={{
-      marginTop: 10,
-      padding: "12px 14px",
-      borderRadius: 12,
-      border: "1px solid rgba(124,58,237,0.35)",
-      background: "linear-gradient(135deg,#f5f3ff,#faf5ff)",
-    }}>
-      <div style={{
-        fontFamily: "var(--mono)",
-        fontSize: 10,
-        letterSpacing: 2,
-        textTransform: "uppercase",
-        color: "var(--purple)",
-        marginBottom: 8,
-        display: "flex",
-        alignItems: "center",
-        gap: 6,
-      }}>
-        <span>✨</span> AI Image Generation · Gemini Imagen
-      </div>
-      <div style={{ display: "flex", gap: 7 }}>
-        <input
-          className="vs-prompt-input"
-          placeholder="Describe an image… e.g. 'sunset over mountains with fog'"
-          value={prompt}
-          onChange={e => setPrompt(e.target.value)}
-          onKeyDown={e => { if (e.key === "Enter" && !loading) handleGenerate(); }}
-          disabled={loading}
-          style={{ borderColor: "rgba(124,58,237,0.4)", flex: 1 }}
-        />
-        <button
-          className="vs-btn vs-btn-purple vs-btn-sm"
-          style={{ flexShrink: 0, minWidth: 80 }}
-          onClick={handleGenerate}
-          disabled={loading || !prompt.trim()}
-        >
-          {loading ? (
-            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              <span style={{ animation: "spin 1s linear infinite", display: "inline-block" }}>⏳</span>
-              Generating…
-            </span>
-          ) : "✨ Generate"}
-        </button>
-      </div>
-      <div style={{
-        fontFamily: "var(--mono)",
-        fontSize: 10,
-        color: "rgba(124,58,237,0.6)",
-        marginTop: 6,
-      }}>
-        Style applied: {imgStyle.label} · Press Enter or click Generate
-      </div>
     </div>
   );
 }
