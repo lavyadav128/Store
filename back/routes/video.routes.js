@@ -150,4 +150,50 @@ router.post("/tts", auth, async (req, res) => {
   }
 });
 
+
+
+// ─────────────────────────────────────────
+// POST /api/video-studio/generate-image
+// ─────────────────────────────────────────
+router.post("/generate-image", auth, async (req, res) => {
+  const { prompt } = req.body;
+  if (!prompt) return res.status(400).json({ message: "prompt is required" });
+
+  try {
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-001:predict?key=${process.env.GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          instances: [{ prompt }],
+          parameters: {
+            sampleCount: 1,
+            aspectRatio: "16:9",
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      return res.status(response.status).json({
+        message: err?.error?.message || `Imagen error ${response.status}`,
+      });
+    }
+
+    const data = await response.json();
+    const base64Image = data?.predictions?.[0]?.bytesBase64Encoded;
+
+    if (!base64Image) {
+      return res.status(500).json({ message: "No image in response" });
+    }
+
+    res.json({ image: `data:image/png;base64,${base64Image}` });
+  } catch (err) {
+    console.error("Image generation error:", err.message);
+    res.status(500).json({ message: err.message });
+  }
+});
+
 export default router;
