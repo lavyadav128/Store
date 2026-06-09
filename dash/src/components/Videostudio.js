@@ -712,10 +712,18 @@ const addVideoUrl = (si, url) => {
   });
 };
 
+    const delScene = (si) => { setScenes(prev => prev.filter((_, i) => i !== si)); if (previewIdx >= si && previewIdx > 0) setPreviewIdx(p => p - 1); };
+    const addScene  = () => setScenes(prev => [...prev, { id: Date.now(), text: "", images: [], selected: 0, autoMatched: false }]);
+    const updateScene = (si, field, val) => setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], [field]: val }; return u; });
+    const delImg = (si, ii) => {
+      setScenes(prev => {
+        const u = [...prev];
+        const imgs = u[si].images.filter((_, idx) => idx !== ii);
+        u[si] = { ...u[si], images: imgs, selected: Math.min(u[si].selected, Math.max(0, imgs.length - 1)) };
+        return u;
+      });
+    };
 
-  const delScene = (si) => { setScenes(prev => prev.filter((_, i) => i !== si)); if (previewIdx >= si && previewIdx > 0) setPreviewIdx(p => p - 1); };
-  const addScene  = () => setScenes(prev => [...prev, { id: Date.now(), text: "", images: [], selected: 0, autoMatched: false }]);
-  const updateScene = (si, field, val) => setScenes(prev => { const u = [...prev]; u[si] = { ...u[si], [field]: val }; return u; });
 
   const handleAutoMatch = async () => {
     const seen = new Set(), allImages = [];
