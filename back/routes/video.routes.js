@@ -61,90 +61,86 @@ router.post("/save-to-cloudinary", auth, upload.single("video"), async (req, res
 // POST /api/video-studio/tts
 // ─────────────────────────────────────────
 router.post("/tts", auth, async (req, res) => {
-  const { text, voiceId } = req.body;
+  const { text, voiceId, apiKey } = req.body;
   if (!text || !voiceId)
     return res.status(400).json({ message: "text and voiceId are required" });
 
-  console.log("✅ EL Key present:", !!process.env.ELEVENLABS_API_KEY);
-  console.log("✅ Voice ID:", voiceId);
-  console.log("✅ Text length:", text?.length);
+  // Use key from request body (frontend-provided), fallback to server env
+  const key = apiKey || process.env.ELEVENLABS_API_KEY;
+  if (!key)
+    return res.status(400).json({ message: "No ElevenLabs API key provided" });
 
   try {
-    const resp = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
-      method: "POST",
-      headers: {
-        "xi-api-key": "sk_c14e598f87595351917068d3ab4465db1d69633555602923",
-        "Content-Type": "application/json",
-        "Accept": "audio/mpeg",
-      },
-      body: JSON.stringify({
-        text,
-        model_id: "eleven_multilingual_v2",
-        voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-      }),
-    });
-
-    console.log("✅ ElevenLabs response status:", resp.status);
+    const resp = await fetch(
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+      {
+        method: "POST",
+        headers: {
+          "xi-api-key": key,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          model_id: "eleven_multilingual_v2",
+          voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+        }),
+      }
+    );
 
     if (!resp.ok) {
-      const err = await resp.json().catch(() => ({}));
-      console.error("❌ ElevenLabs error body:", err);
-      return res.status(resp.status).json({ message: err?.detail?.message || `ElevenLabs error ${resp.status}` });
+      const errText = await resp.text();
+      console.error("ElevenLabs error:", resp.status, errText);
+      return res.status(resp.status).json({ message: errText });
     }
 
     res.setHeader("Content-Type", "audio/mpeg");
     resp.body.pipe(res);
   } catch (err) {
-    console.error("❌ TTS fetch error:", err.message);
+    console.error("TTS error:", err.message);
     res.status(500).json({ message: err.message });
   }
 });
 
-
 // router.post("/tts", auth, async (req, res) => {
-//   const { text, voiceId } = req.body;
+//   const { text, voiceId, apiKey } = req.body;
 //   if (!text || !voiceId)
 //     return res.status(400).json({ message: "text and voiceId are required" });
 
+//   // Use key from request body (frontend-provided), fallback to server env
+//   const key = apiKey || process.env.ELEVENLABS_API_KEY;
+//   if (!key)
+//     return res.status(400).json({ message: "No ElevenLabs API key provided" });
+
 //   try {
-//     const resp = await fetch("https://api.v7.unrealspeech.com/speech", {
-//       method: "POST",
-//       headers: {
-//         "Authorization": `Bearer ${process.env.UNREALSPEECH_API_KEY}`,
-//         "Content-Type": "application/json",
-//       },
-//       body: JSON.stringify({
-//         text,
-//         model_id: "eleven_multilingual_v2",
-//         voice_settings: { stability: 0.5, similarity_boost: 0.75 },
-//       }),
-//     });
+//     const resp = await fetch(
+//       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}/stream`,
+//       {
+//         method: "POST",
+//         headers: {
+//           "xi-api-key": key,
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           text,
+//           model_id: "eleven_multilingual_v2",
+//           voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+//         }),
+//       }
+//     );
 
 //     if (!resp.ok) {
-//       const err = await resp.json().catch(() => ({}));
-//       return res.status(resp.status).json({ message: err?.message || `TTS error ${resp.status}` });
-//     }
-
-//     const data = await resp.json();
-//     const audioUrl = data.OutputUri;
-
-//     if (!audioUrl) {
-//       return res.status(500).json({ message: "No audio URL in response" });
-//     }
-
-//     const audioResp = await fetch(audioUrl);
-//     if (!audioResp.ok) {
-//       return res.status(500).json({ message: "Failed to fetch audio file" });
+//       const errText = await resp.text();
+//       console.error("ElevenLabs error:", resp.status, errText);
+//       return res.status(resp.status).json({ message: errText });
 //     }
 
 //     res.setHeader("Content-Type", "audio/mpeg");
-//     audioResp.body.pipe(res);
+//     resp.body.pipe(res);
 //   } catch (err) {
 //     console.error("TTS error:", err.message);
 //     res.status(500).json({ message: err.message });
 //   }
 // });
-
 
 
 export default router;

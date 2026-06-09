@@ -392,7 +392,7 @@ Return ONLY a JSON array: [{"sceneIndex":0,"imageIndex":2},...]`;
 // ─────────────────────────────────────────────────────────────
 // ELEVENLABS TTS — returns ArrayBuffer (XHR for mobile compat)
 // ─────────────────────────────────────────────────────────────
-const elevenLabsTTS = (text, voiceId) => new Promise((resolve, reject) => {
+const elevenLabsTTS = (text, voiceId, apiKey) => new Promise((resolve, reject) => {
   const xhr = new XMLHttpRequest();
   xhr.open("POST", `${server}/api/video-studio/tts`);
   xhr.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
@@ -406,9 +406,9 @@ const elevenLabsTTS = (text, voiceId) => new Promise((resolve, reject) => {
       reject(new Error(`TTS error ${xhr.status}`));
     }
   };
-  xhr.onerror = () => reject(new Error("Network error on TTS request"));
+  xhr.onerror  = () => reject(new Error("Network error on TTS request"));
   xhr.ontimeout = () => reject(new Error("TTS request timed out"));
-  xhr.send(JSON.stringify({ text, voiceId }));
+  xhr.send(JSON.stringify({ text, voiceId, apiKey }));  // <-- added apiKey
 });
 
 // ─────────────────────────────────────────────────────────────
@@ -516,6 +516,8 @@ export default function VideoStudio() {
   const [videoMode, setVideoMode]         = useState("story");
   const [script, setScript]               = useState("");
   const [elVoice, setElVoice]             = useState(EL_VOICES[0]);
+  const [elApiKey, setElApiKey]           = useState(() => localStorage.getItem("el_api_key") || "");
+  const [elKeyVisible, setElKeyVisible]   = useState(false);
   const [elStatus, setElStatus]           = useState("idle");
   const [elStatusMsg, setElStatusMsg]     = useState("");
   const [format, setFormat]               = useState("landscape");
@@ -557,7 +559,14 @@ export default function VideoStudio() {
   };
 
   const testElKey = () => {
+    if (!elApiKey.trim()) {
+      showToast("Enter your ElevenLabs API key first!", "err");
+      return;
+    }
+    // Save to localStorage
+    localStorage.setItem("el_api_key", elApiKey.trim());
     setElStatus("idle"); setElStatusMsg("Testing…");
+  
     const xhr = new XMLHttpRequest();
     xhr.open("POST", `${server}/api/video-studio/tts`);
     xhr.setRequestHeader("Authorization", `Bearer ${localStorage.getItem("token")}`);
@@ -566,16 +575,21 @@ export default function VideoStudio() {
     xhr.timeout = 30000;
     xhr.onload = () => {
       if (xhr.status >= 200 && xhr.status < 300) {
-        setElStatus("ok"); setElStatusMsg("✓ Connected to ElevenLabs");
-        showToast("✅ ElevenLabs connected!");
+        setElStatus("ok"); setElStatusMsg("✓ ElevenLabs Connected!");
+        showToast("✅ ElevenLabs key works!");
       } else {
-        setElStatus("err"); setElStatusMsg(`✗ HTTP ${xhr.status}`);
-        showToast(`ElevenLabs error: HTTP ${xhr.status}`, "err");
+        setElStatus("err");
+        setElStatusMsg(`✗ HTTP ${xhr.status} — check your key`);
+        showToast(`Key error: HTTP ${xhr.status}`, "err");
       }
     };
-    xhr.onerror = () => { setElStatus("err"); setElStatusMsg("✗ Network error"); showToast("Network error — check connection", "err"); };
-    xhr.ontimeout = () => { setElStatus("err"); setElStatusMsg("✗ Timeout"); showToast("Connection timed out", "err"); };
-    xhr.send(JSON.stringify({ text: "Connection test.", voiceId: EL_VOICES[0].id }));
+    xhr.onerror  = () => { setElStatus("err"); setElStatusMsg("✗ Network error"); showToast("Network error", "err"); };
+    xhr.ontimeout = () => { setElStatus("err"); setElStatusMsg("✗ Timeout"); showToast("Timed out", "err"); };
+    xhr.send(JSON.stringify({
+      text: "Connection test.",
+      voiceId: EL_VOICES[0].id,
+      apiKey: elApiKey.trim(),   // <-- send key to backend
+    }));
   };
 
   const previewElVoice = async (v) => {
@@ -583,8 +597,7 @@ export default function VideoStudio() {
     showToast(`🔊 Loading ${v.name}…`);
     try {
       const sampleText = script ? script.slice(0, 100) : `Hi, I'm ${v.name}. This is how I sound when narrating your video.`;
-      const ab = await elevenLabsTTS(sampleText, v.id);
-
+      const ab = await elevenLabsTTS(sampleText, v.id, elApiKey);
       // ── MOBILE FIX: decode and play via AudioContext instead of
       //    Audio element, which can silently fail on iOS for ArrayBuffers ──
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
@@ -778,8 +791,7 @@ const addVideoUrl = (si, url) => {
         setRecProg(Math.round((i / scenes.length) * 40));
         setRecStatus(`🎙️ Generating voice ${i + 1}/${scenes.length}…`);
         try {
-          const ab = await elevenLabsTTS(scenes[i].text, elVoice.id);
-          // ── MOBILE FIX: slice() to get a fresh copy before decode
+          const ab = await elevenLabsTTS(scenes[i].text, elVoice.id, elApiKey);          // ── MOBILE FIX: slice() to get a fresh copy before decode
           //    (WebKit on iOS sometimes transfers the buffer, making it detached) ──
           const decoded = await audioCtx.decodeAudioData(ab.slice(0));
           sceneAudioBuffers.push(decoded);
@@ -1052,16 +1064,41 @@ const addVideoUrl = (si, url) => {
 
             {step === 2 && videoMode === "story" && (<>
               <div className="vs-apikey-box mb-3">
-                <div className="title">
-                  <div className={`dot ${elStatus === "ok" ? "" : elStatus === "err" ? "off" : ""}`} />
-                  {elStatus === "ok" ? "ElevenLabs Connected" : elStatus === "err" ? "Connection Error" : "ElevenLabs (Server)"}
+                  <div className="title">
+                    <div className={`dot ${elStatus === "ok" ? "" : elStatus === "err" ? "off" : ""}`} />
+                    {elStatus === "ok" ? "ElevenLabs Connected" : elStatus === "err" ? "Connection Error" : "ElevenLabs API Key"}
+                  </div>
+                  <div className="vs-hint" style={{ marginBottom: 8 }}>
+                    Get your key at <a href="https://elevenlabs.io" target="_blank" rel="noopener noreferrer" style={{ color: "var(--blue)" }}>elevenlabs.io</a> → Profile → API Key
+                  </div>
+                  <div className="vs-apikey-input-wrap mb-2">
+                    <input
+                      type={elKeyVisible ? "text" : "password"}
+                      placeholder="sk-..."
+                      value={elApiKey}
+                      onChange={e => {
+                        setElApiKey(e.target.value);
+                        localStorage.setItem("el_api_key", e.target.value);
+                        setElStatus("idle");
+                        setElStatusMsg("");
+                      }}
+                    />
+                    <button className="vs-btn vs-btn-soft vs-btn-sm"
+                      onClick={() => setElKeyVisible(v => !v)}>
+                      {elKeyVisible ? "🙈" : "👁"}
+                    </button>
+                  </div>
+                  {elStatusMsg && (
+                    <div className={`el-status ${elStatus}`} style={{ marginBottom: 8 }}>{elStatusMsg}</div>
+                  )}
+                  <button
+                    className="vs-btn vs-btn-outline vs-btn-block"
+                    style={{ fontSize: 11 }}
+                    onClick={testElKey}
+                    disabled={!elApiKey.trim()}>
+                    Test Connection
+                  </button>
                 </div>
-                {elStatusMsg && (
-                  <div className={`el-status ${elStatus}`} style={{ marginTop: 8 }}>{elStatusMsg}</div>
-                )}
-                <button className="vs-btn vs-btn-outline vs-btn-block" style={{ marginTop: 8, fontSize: 11 }}
-                  onClick={testElKey}>Test Connection</button>
-              </div>
               <span className="vs-lbl">Voice</span>
               <div className="vs-voices mb-3">
                 {EL_VOICES.map(v => (
