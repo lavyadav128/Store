@@ -177,7 +177,7 @@ const AdminFileUpload = () => {
     else {
       setViewerContent(
         <iframe
-          src={url}
+          src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(url)}`}
           title="Viewer"
           style={{
             width: "100%",

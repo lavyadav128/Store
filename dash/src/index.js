@@ -2,14 +2,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import './index.css';
+// import './index.css';
 
 import Home from "./components/Home";
 import Dsa from './components/Algorithms/Dsa';
 import DtopicPage from './components/Algorithms/dtopic'; // Practice Page Component
 import DpractisePage from './components/Algorithms/dpractise';
 
-import ProtectedRoute from "./components/ProtectedRoute";
 
 import Revision from './components/Revision/concept'; // Revision Page Component
 import College from './components/College/Top'; // College Page Component
