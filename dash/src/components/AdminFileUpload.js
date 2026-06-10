@@ -5,6 +5,7 @@ import {
   Dialog, DialogTitle, DialogContent, Fade, LinearProgress,
   useMediaQuery, useTheme, Drawer, AppBar, Toolbar,
 } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import InsertDriveFileIcon from "@mui/icons-material/InsertDriveFile";
@@ -347,24 +348,43 @@ const AdminFileUpload = () => {
                         {r.category}
                       </Typography>
                     </Box>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                   <Button
-                    onClick={() => openFileViewer(r.fileUrl,r.fileType)}
+                    onClick={() => openFileViewer(r.fileUrl, r.fileType)}
                     size="small"
                     sx={{
-                    fontFamily: "'DM Sans'",
-                    fontWeight: 700,
-                    fontSize: 12,
-                    color: "#1a1a2e",
-                    textTransform: "none",
-                    p: 0,
-                    "&:hover": {
-                    background: "transparent",
-                    textDecoration: "underline",
-                },
-              }}
-            >
-           View File →
-                </Button>
+                      fontFamily: "'DM Sans'",
+                      fontWeight: 700,
+                      fontSize: 12,
+                      color: "#1a1a2e",
+                      textTransform: "none",
+                      p: 0,
+                      "&:hover": {
+                        background: "transparent",
+                        textDecoration: "underline",
+                      },
+                    }}
+                  >
+                    View File →
+                  </Button>
+
+                  <IconButton
+                    size="small"
+                    component="a"
+                    href={r.fileUrl}
+                    download
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{
+                      color: "#aaa",
+                      p: 0.5,
+                      borderRadius: "8px",
+                      "&:hover": { color: "#1a1a2e", background: "#f4f4f6" },
+                    }}
+                  >
+                    <DownloadIcon sx={{ fontSize: 16 }} />
+                  </IconButton>
+                </Box>
                   </Box>
                 </Box>
               ))}
