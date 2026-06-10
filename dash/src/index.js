@@ -2,7 +2,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-// import './index.css';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 import Home from "./components/Home";
 import Dsa from './components/Algorithms/Dsa';
@@ -62,6 +62,7 @@ import TestAttemptPage from "./components/Batches/testattempt";
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
+    <GoogleOAuthProvider clientId="738xxxxxxxxxxxx-abcdef.apps.googleusercontent.329565102343-1fom4l27tdc9shurgtokgrv2kej6eaje.apps.googleusercontent.com">
     <BrowserRouter>
       {/* <AuthProvider> */}
         <>
@@ -171,5 +172,6 @@ root.render(
         </>
       {/* </AuthProvider> */}
     </BrowserRouter>
+  </GoogleOAuthProvider>
   </React.StrictMode>
 );
