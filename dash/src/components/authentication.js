@@ -334,14 +334,40 @@ export default function Authentication() {
           }
           .sidebar-pill:hover { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
           @media (max-width: 600px) {
-            .auth-layout { flex-direction: column !important; max-width: 100% !important; border-radius: 20px !important; }
-           .auth-left-panel { width: 100% !important; padding: 8px 16px 6px !important;             
-           .auth-right-panel { padding: 12px 14px 14px !important; }
-            .left-panel-text { text-align: left !important; }
-            .left-avatar { width: 36px !important; height: 36px !important; min-width: 56px; border-radius: 16px !important; }
-            .left-avatar svg { font-size: 28px !important; }
-            .left-title { font-size: 18px !important; margin-bottom: 4px !important; }
-            .left-subtitle { font-size: 12px !important; }
+            .auth-layout {
+              flex-direction: column !important;
+              max-width: 100% !important;
+              border-radius: 20px !important;
+            }
+
+            .auth-left-panel {
+              width: 100% !important;
+              padding: 4px 12px 4px !important;   /* reduce more */
+            }
+
+            .auth-right-panel {
+              padding: 8px 12px 10px !important;  /* reduce more */
+            }
+
+            .left-avatar {
+              width: 30px !important;
+              height: 30px !important;
+              min-width: 30px !important;
+              border-radius: 10px !important;
+            }
+
+            .left-avatar svg {
+              font-size: 18px !important;
+            }
+
+            .left-title {
+              font-size: 16px !important;
+              margin-bottom: 2px !important;
+            }
+
+            .left-subtitle {
+              font-size: 11px !important;
+            }
           }
         `}</style>
 
