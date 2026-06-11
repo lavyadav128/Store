@@ -9,12 +9,14 @@ import {
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import AdminFileUpload from "./AdminFileUpload";
+import Companydata from "./Companydata";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import PaymentIcon from "@mui/icons-material/Payment";
 import VideoIcon from "@mui/icons-material/VideoLibrary";
+import CompanyIcon from "@mui/icons-material/Business";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -55,6 +57,7 @@ const VIEW_DOUBTS        = "doubts";
 const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
 const VIEW_VIDEO         = "video";
+const VIEW_COMPANY       = "company"
 const VIEW_FILES = "files";
 
 const SECTIONS = [
@@ -82,7 +85,8 @@ const QUICK_COURSES = [
 const ADMIN_NAV = [
   { icon: DashboardIcon,     title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: UploadFileIcon,    title: "File Manager",    view: VIEW_FILES },  // ← add this
-  { icon: VideoIcon,         title: "Video Pro",    view: VIEW_VIDEO },  // ← add this
+  { icon: VideoIcon,         title: "Video Pro",       view: VIEW_VIDEO },  // ← add this
+  { icon: CompanyIcon,       title: "Company",         view: VIEW_COMPANY },
   { icon: SchoolIcon,        title: "My Batches",      view: VIEW_MYBATCHES },
   { icon: NotificationsIcon, title: "Notifications",   view: VIEW_NOTIFICATIONS },
   { icon: HelpOutlineIcon,   title: "Doubts",          view: VIEW_DOUBTS },
@@ -1054,6 +1058,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_VIDEO && (
                     <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
+                  )}
+                  {activeView === VIEW_COMPANY && (
+                    <Fade in timeout={400}><Box><Companydata /></Box></Fade>
                   )}
                   {activeView === VIEW_MYBATCHES && (
                     <Fade in timeout={400}><Box><SubViewHeader title="My Batches" /><MyBatchesPage /></Box></Fade>

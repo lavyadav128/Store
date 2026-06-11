@@ -16,7 +16,8 @@ import userListRoutes from './routes/userList.routes.js';
 import resourceRoutes from './routes/resource.routes.js';
 import videoStudioRouter from "./routes/video.routes.js";
 
-
+import jobRoutes from "./routes/job.routes.js";
+import companyRoutes from "./routes/company.routes.js";
 
 
 // Load environment variables from .env file
@@ -57,6 +58,10 @@ app.use("/api/resources", resourceRoutes);
 app.use("/api/admin/list", userListRoutes);
 
 app.use("/api/video-studio", videoStudioRouter);
+
+app.use("/api/jobs", jobRoutes);
+
+app.use("/api/companies", companyRoutes);
 
 // Mount user-related routes at /api
 app.use('/api', userRoutes);
