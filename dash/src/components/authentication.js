@@ -278,7 +278,7 @@ export default function Authentication() {
           @media (max-width: 600px) {
             .auth-layout {
               flex-direction: column !important;
-              max-width: 100% !important;
+              max-width: 90% !important;
               border-radius: 20px !important;
             }
 
