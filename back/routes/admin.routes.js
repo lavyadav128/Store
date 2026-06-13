@@ -20,7 +20,7 @@ const adminAuth = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     // 👇 ONLY adminbrand allowed
-    if (decoded.username !== "adminbrand") {
+    if (decoded.username !== "adminbrand@gmail.com") {
       return res.status(403).json({ message: "Access denied" });
     }
 
@@ -35,7 +35,7 @@ const adminAuth = (req, res, next) => {
 router.get("/users", adminAuth, async (req, res) => {
   try {
     const users = await User.find(
-      { username: { $ne: "adminbrand" } }, // exclude admin
+      { username: { $ne: "adminbrand@gmail.com" } }, // exclude admin
       { username: 1, _id: 0 }
     );
 
@@ -55,7 +55,7 @@ router.post("/send-message", adminAuth, async (req, res) => {
     // Save message to Message collection
     const message = new Message({
       text,
-      from: "adminbrand",
+      from: "adminbrand@gmail.com",
       to: toUsername || null,
     });
 
@@ -72,7 +72,7 @@ router.post("/send-message", adminAuth, async (req, res) => {
       });
     } else {
       // All users
-      const users = await User.find({ username: { $ne: "adminbrand" } }, "username");
+      const users = await User.find({ username: { $ne: "adminbrand@gmail.com" } }, "username");
       const notifications = users.map((u) => ({
         username: u.username,
         type: "ADMIN_MESSAGE",

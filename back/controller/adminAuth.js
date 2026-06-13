@@ -6,7 +6,7 @@ export const adminAuth = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (decoded.username !== "adminbrand") {
+    if (decoded.username !== "adminbrand@gmail.com") {
       return res.status(403).json({ message: "Admin only" });
     }
     req.user = decoded;

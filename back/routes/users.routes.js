@@ -122,7 +122,7 @@ router.get("/notifications/:username", async (req, res) => {
 
 
 // GET /api/user/profile
-router.get("/user/profile", auth, async (req, res) => {
+router.get("/admin/profile", auth, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.user.username }).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
