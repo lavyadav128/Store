@@ -11,7 +11,7 @@
 //
 // Make sure your package.json has:  "type": "module"
 // ─────────────────────────────────────────────────────────────────────────────
-
+import ffmpegStatic from "ffmpeg-static";
 import express             from "express";
 import multer              from "multer";
 import path                from "path";
@@ -20,6 +20,9 @@ import { v4 as uuidv4 }   from "uuid";
 import { execSync, spawn } from "child_process";
 import { fileURLToPath }   from "url";
 
+
+// Tell spawn to use the bundled ffmpeg binary
+const FFMPEG_PATH = ffmpegStatic;
 // ES Modules don't have __dirname — recreate it
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
@@ -56,32 +59,32 @@ const upload = multer({
 const jobs = {};
 
 // ── Probe helper ──────────────────────────────────────────────────────────────
-const probeVideo = (filePath) => {
-  try {
-    const raw     = execSync(
-      `ffprobe -v quiet -print_format json -show_streams "${filePath}"`,
-      { encoding: "utf8" }
-    );
-    const streams = JSON.parse(raw).streams;
-    const video   = streams.find((s) => s.codec_type === "video");
-    const audio   = streams.find((s) => s.codec_type === "audio");
-    return {
-      width:    video?.width,
-      height:   video?.height,
-      fps:      video?.r_frame_rate,
-      codec:    video?.codec_name,
-      hasAudio: !!audio,
-      duration: parseFloat(video?.duration || 0),
-    };
-  } catch {
-    return null;
-  }
-};
+// const probeVideo = (filePath) => {
+//   try {
+//     const raw     = execSync(
+//       `ffprobe -v quiet -print_format json -show_streams "${filePath}"`,
+//       { encoding: "utf8" }
+//     );
+//     const streams = JSON.parse(raw).streams;
+//     const video   = streams.find((s) => s.codec_type === "video");
+//     const audio   = streams.find((s) => s.codec_type === "audio");
+//     return {
+//       width:    video?.width,
+//       height:   video?.height,
+//       fps:      video?.r_frame_rate,
+//       codec:    video?.codec_name,
+//       hasAudio: !!audio,
+//       duration: parseFloat(video?.duration || 0),
+//     };
+//   } catch {
+//     return null;
+//   }
+// };
 
 // ── FFmpeg promise wrapper ────────────────────────────────────────────────────
 const runFFmpeg = (args) =>
   new Promise((resolve, reject) => {
-    const proc = spawn("ffmpeg", args);
+    const proc = spawn(FFMPEG_PATH, args);
     let stderr  = "";
     proc.stderr.on("data", (d) => (stderr += d.toString()));
     proc.on("close", (code) =>
