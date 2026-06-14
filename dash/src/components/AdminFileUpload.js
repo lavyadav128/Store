@@ -15,7 +15,7 @@ import axios from "axios";
 import server from "../environment";
 import { Modal } from "@mui/material";
 
-const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos", "Motivation", "Projects"];
+const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos", "motivation", "projects"];
 
 const AdminFileUpload = () => {
   const theme = useTheme();

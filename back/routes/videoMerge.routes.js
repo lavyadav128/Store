@@ -19,6 +19,9 @@ import fs                    from "fs";
 import { v4 as uuidv4 }     from "uuid";
 import { spawn }             from "child_process";
 import { fileURLToPath }     from "url";
+import { v2 as cloudinary }  from "cloudinary";
+import streamifier           from "streamifier";
+import auth                  from "../controller/authh.js";
 
 const FFMPEG_PATH = ffmpegStatic;
 const __filename  = fileURLToPath(import.meta.url);
@@ -33,6 +36,13 @@ const OUTPUT_DIR = path.join(__dirname, "../video_outputs");
 
 // Serve finished videos as static files
 router.use("/outputs", express.static(OUTPUT_DIR));
+
+// ── Cloudinary config ─────────────────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
 
 // ── Multer ────────────────────────────────────────────────────────────────────
 const storage = multer.diskStorage({
@@ -51,6 +61,9 @@ const upload = multer({
       ? cb(null, true)
       : cb(new Error("Only video files are allowed")),
 });
+
+// Separate multer instance for Cloudinary upload (memory storage)
+const memUpload = multer({ storage: multer.memoryStorage() });
 
 // ── In-memory job store ───────────────────────────────────────────────────────
 const jobs = {};
@@ -218,6 +231,53 @@ router.delete("/file/:filename", (req, res) => {
   const fp   = path.join(UPLOAD_DIR, safe);
   if (fs.existsSync(fp)) fs.unlinkSync(fp);
   res.json({ success: true });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/video-merge/save-to-cloudinary
+// Body: { filename: string }  — filename of the merged output on disk
+// ─────────────────────────────────────────────────────────────────────────────
+router.post("/save-to-cloudinary", auth, express.json(), async (req, res) => {
+  try {
+    const { filename } = req.body;
+    if (!filename) return res.status(400).json({ message: "filename is required" });
+
+    const safe = path.basename(filename); // prevent path traversal
+    const filePath = path.join(OUTPUT_DIR, safe);
+    if (!fs.existsSync(filePath))
+      return res.status(404).json({ message: "Merged video file not found on server" });
+
+    const publicId = `video_merger_${req.user?.id || "user"}_${Date.now()}`;
+
+    const uploadResult = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type: "video",
+          folder: "video_merger",
+          public_id: publicId,
+          overwrite: true,
+          format: "mp4",
+          transformation: [{ quality: "auto" }],
+        },
+        (error, result) => {
+          if (error) return reject(error);
+          resolve(result);
+        }
+      );
+      fs.createReadStream(filePath).pipe(stream);
+    });
+
+    res.json({
+      url: uploadResult.secure_url,
+      secure_url: uploadResult.secure_url,
+      public_id: uploadResult.public_id,
+      duration: uploadResult.duration,
+      format: uploadResult.format,
+    });
+  } catch (err) {
+    console.error("Cloudinary upload error (video-merge):", err.message);
+    res.status(500).json({ message: err.message });
+  }
 });
 
 export default router;

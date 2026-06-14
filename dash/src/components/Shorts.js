@@ -12,6 +12,7 @@ import DragIndicatorIcon from "@mui/icons-material/DragIndicator";
 import VideoFileIcon from "@mui/icons-material/VideoFile";
 import MergeIcon from "@mui/icons-material/Merge";
 import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import axios from "axios";
 import server from "../environment";
 
@@ -54,6 +55,11 @@ const VideoMerger = () => {
   const [resultFilename, setResultFilename] = useState("");
   const [resultOpen, setResultOpen] = useState(false);
   const [errorMsg, setErrorMsg]     = useState("");
+
+  // ── NEW: Cloudinary save state ──────────────────────────────────────────────
+  const [savingToCloud, setSavingToCloud]   = useState(false);
+  const [cloudUrl, setCloudUrl]             = useState(null);
+  const [cloudError, setCloudError]         = useState("");
 
   const dragSrc = useRef(null);
   const fileInputRef = useRef(null);
@@ -156,6 +162,9 @@ const VideoMerger = () => {
     setMergeProgress(0);
     setErrorMsg("");
     setActiveStep("upload");
+    // Reset cloudinary state for new merge
+    setCloudUrl(null);
+    setCloudError("");
 
     try {
       const res = await axios.post(
@@ -208,6 +217,26 @@ const VideoMerger = () => {
     }, 900);
   };
 
+  // ── NEW: Save merged video to Cloudinary ────────────────────────────────────
+  const saveToCloudinary = async () => {
+    if (!resultFilename) return;
+    setSavingToCloud(true);
+    setCloudError("");
+    try {
+      const res = await axios.post(
+        `${VIDEO_API}/api/video-merge/save-to-cloudinary`,
+        { filename: resultFilename },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      setCloudUrl(res.data.secure_url);
+    } catch (err) {
+      setCloudError(
+        err?.response?.data?.message || err.message || "Cloudinary save failed."
+      );
+    }
+    setSavingToCloud(false);
+  };
+
   // ── Reset ───────────────────────────────────────────────────────────────────
   const resetAll = () => {
     clips.forEach((c) => {
@@ -225,6 +254,8 @@ const VideoMerger = () => {
     setActiveStep(null);
     setErrorMsg("");
     setResultOpen(false);
+    setCloudUrl(null);
+    setCloudError("");
   };
 
   const allReady  = clips.length >= 2 && clips.every((c) => c.status === "ready");
@@ -687,6 +718,71 @@ const VideoMerger = () => {
               Merge new clips
             </Button>
           </Box>
+
+          {/* ── NEW: Save to Cloudinary ── */}
+          {!cloudUrl ? (
+            <>
+              <Button
+                variant="contained"
+                fullWidth
+                disabled={savingToCloud}
+                onClick={saveToCloudinary}
+                startIcon={<CloudUploadIcon />}
+                sx={{
+                  background: savingToCloud ? "#e8e8e8" : "#1565c0",
+                  borderRadius: "14px",
+                  fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 14,
+                  py: 1.4, textTransform: "none", boxShadow: "none",
+                  "&:hover": { background: "#1976d2", boxShadow: "0 6px 20px rgba(21,101,192,0.3)" },
+                  "&:disabled": { background: "#e8e8e8", color: "#aaa" },
+                }}
+              >
+                {savingToCloud ? "Uploading to Cloudinary…" : "☁️ Save to Cloudinary"}
+              </Button>
+              {savingToCloud && (
+                <LinearProgress
+                  sx={{
+                    borderRadius: "4px", height: 3, mt: -1,
+                    backgroundColor: "#e3f2fd",
+                    "& .MuiLinearProgress-bar": { background: "#1565c0" },
+                  }}
+                />
+              )}
+              {cloudError && (
+                <Box sx={{
+                  background: "#fff8f8", border: "1px solid #ffcdd2",
+                  borderRadius: "10px", px: 2, py: 1.2,
+                }}>
+                  <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 12, color: "#c62828", fontWeight: 600 }}>
+                    {cloudError}
+                  </Typography>
+                </Box>
+              )}
+            </>
+          ) : (
+            <Box sx={{
+              background: "#f0faf4", border: "1px solid #c8e6c9",
+              borderRadius: "14px", px: 2, py: 1.5,
+              display: "flex", flexDirection: "column", gap: 0.8,
+            }}>
+              <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 12, fontWeight: 700, color: "#2e7d32" }}>
+                ✅ Saved to Cloudinary
+              </Typography>
+              <Typography
+                component="a"
+                href={cloudUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  fontFamily: "'DM Sans'", fontSize: 11, color: "#1565c0",
+                  wordBreak: "break-all", textDecoration: "none",
+                  "&:hover": { textDecoration: "underline" },
+                }}
+              >
+                {cloudUrl}
+              </Typography>
+            </Box>
+          )}
         </DialogContent>
       </Dialog>
 
