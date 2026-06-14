@@ -11,21 +11,18 @@
 //
 // Make sure your package.json has:  "type": "module"
 // ─────────────────────────────────────────────────────────────────────────────
-import ffmpegStatic from "ffmpeg-static";
-import express             from "express";
-import multer              from "multer";
-import path                from "path";
-import fs                  from "fs";
-import { v4 as uuidv4 }   from "uuid";
-import { execSync, spawn } from "child_process";
-import { fileURLToPath }   from "url";
+import ffmpegStatic          from "ffmpeg-static";
+import express               from "express";
+import multer                from "multer";
+import path                  from "path";
+import fs                    from "fs";
+import { v4 as uuidv4 }     from "uuid";
+import { spawn }             from "child_process";
+import { fileURLToPath }     from "url";
 
-
-// Tell spawn to use the bundled ffmpeg binary
 const FFMPEG_PATH = ffmpegStatic;
-// ES Modules don't have __dirname — recreate it
-const __filename = fileURLToPath(import.meta.url);
-const __dirname  = path.dirname(__filename);
+const __filename  = fileURLToPath(import.meta.url);
+const __dirname   = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -107,7 +104,7 @@ router.post("/upload", upload.array("videos", 50), (req, res) => {
     filename:     f.filename,
     originalName: f.originalname,
     size:         f.size,
-    info:         probeVideo(f.path),
+    info:         null,
   }));
 
   res.json({ success: true, files });
