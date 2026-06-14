@@ -8,6 +8,7 @@ import {
   Snackbar, Alert, Button, Drawer,
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
+import ShortsIcon from "@mui/icons-material/SmartDisplay";
 import AdminFileUpload from "./AdminFileUpload";
 import Companydata from "./Companydata";
 import Videostudio from "./Videostudio";
@@ -34,6 +35,8 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
+
+import Shorts from "./Shorts";
 import Dsaclass from "./Algorithms/dsaclass";
 import Courses from "./Batches/Courses";
 import PreBatch from "./Batches/PreBatch";
@@ -58,7 +61,8 @@ const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
 const VIEW_VIDEO         = "video";
 const VIEW_COMPANY       = "company"
-const VIEW_FILES = "files";
+const VIEW_SHORTS        = "shorts";
+const VIEW_FILES         = "files";
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -86,6 +90,7 @@ const ADMIN_NAV = [
   { icon: DashboardIcon,     title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: UploadFileIcon,    title: "File Manager",    view: VIEW_FILES },  // ← add this
   { icon: VideoIcon,         title: "Video Pro",       view: VIEW_VIDEO },  // ← add this
+  { icon: ShortsIcon,         title: "Shorts Pro",     view: VIEW_SHORTS },  // ← add this
   { icon: CompanyIcon,       title: "Company",         view: VIEW_COMPANY },
   { icon: SchoolIcon,        title: "My Batches",      view: VIEW_MYBATCHES },
   { icon: NotificationsIcon, title: "Notifications",   view: VIEW_NOTIFICATIONS },
@@ -1058,6 +1063,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_VIDEO && (
                     <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
+                  )}
+                  {activeView === VIEW_SHORTS && (
+                    <Fade in timeout={400}><Box><Shorts /></Box></Fade>
                   )}
                   {activeView === VIEW_COMPANY && (
                     <Fade in timeout={400}><Box><Companydata /></Box></Fade>

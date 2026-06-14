@@ -19,6 +19,9 @@ import videoStudioRouter from "./routes/video.routes.js";
 import jobRoutes from "./routes/job.routes.js";
 import companyRoutes from "./routes/company.routes.js";
 
+import videoMergeRouter from"./routes/videoMerge.routes.js";
+
+
 
 // Load environment variables from .env file
 dotenv.config();
@@ -62,6 +65,9 @@ app.use("/api/video-studio", videoStudioRouter);
 app.use("/api/jobs", jobRoutes);
 
 app.use("/api/companies", companyRoutes);
+
+app.use("/api/video-merge", videoMergeRouter);
+
 
 // Mount user-related routes at /api
 app.use('/api', userRoutes);
