@@ -102,35 +102,35 @@ router.post('/register', async (req, res) => {
 
 
 // Fetch all notifications for this user
-router.get("/notifications/:username", async (req, res) => {
-  const username = req.params.username;
+// router.get("/notifications/:username", async (req, res) => {
+//   const username = req.params.username;
 
-  try {
-    const messages = await Message.find({
-      $or: [
-        { to: username }, // messages to this user
-        { to: null },     // broadcast messages
-      ],
-    }).sort({ createdAt: -1 });
+//   try {
+//     const messages = await Message.find({
+//       $or: [
+//         { to: username }, // messages to this user
+//         { to: null },     // broadcast messages
+//       ],
+//     }).sort({ createdAt: -1 });
 
-    res.json(messages);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Failed to fetch notifications" });
-  }
-});
+//     res.json(messages);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Failed to fetch notifications" });
+//   }
+// });
 
 
 // GET /api/user/profile
-router.get("/admin/profile", auth, async (req, res) => {
-  try {
-    const user = await User.findOne({ username: req.user.username }).select("-password");
-    if (!user) return res.status(404).json({ message: "User not found" });
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
-  }
-});
+// router.get("/admin/profile", auth, async (req, res) => {
+//   try {
+//     const user = await User.findOne({ username: req.user.username }).select("-password");
+//     if (!user) return res.status(404).json({ message: "User not found" });
+//     res.json(user);
+//   } catch (err) {
+//     res.status(500).json({ message: "Server error" });
+//   }
+// });
 
 export default router;
 
