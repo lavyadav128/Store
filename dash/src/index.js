@@ -33,11 +33,7 @@ import PtopicPage from './components/Aptitude/ptopic'; // Practice Page Componen
 import PpractisePage from './components/Aptitude/ppractise';
 
 
-
-
-
 import Authentication from './components/authentication';
-// import { AuthProvider } from './contexts/AuthContext';
 import MentorshipPage from './components/Batches/mentorship'; // adjust the path as needed
 
 
@@ -57,6 +53,10 @@ import TestAttemptPage from "./components/Batches/testattempt";
 
 
 
+import PrivateRoute from './components/PrivateRoute';
+import AdminRoute   from './components/AdminRoute';
+
+
 
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -64,113 +64,71 @@ root.render(
   <React.StrictMode>
     <GoogleOAuthProvider clientId="738xxxxxxxxxxxx-abcdef.apps.googleusercontent.329565102343-1fom4l27tdc9shurgtokgrv2kej6eaje.apps.googleusercontent.com">
     <BrowserRouter>
-      {/* <AuthProvider> */}
         <>
-          <Routes>
+        <Routes>
+            {/* ── PUBLIC ── */}
             <Route path="/" element={<Authentication />} />
 
+            {/* ── ADMIN ONLY ── */}
+            <Route element={<AdminRoute />}>
+              <Route path="/admin-dashboard" element={<Home />} />
+            </Route>
 
-            {/* <Route element={<ProtectedRoute />}> */}
+            {/* ── ALL LOGGED-IN USERS ── */}
+            <Route element={<PrivateRoute />}>
+              <Route path="*" element={<Home />} />
 
-            
-            <Route path="/dsa" element={<Dsa />} />
-            <Route path="/dtopic" element={<DtopicPage />} />
-            <Route path="/dpractice/:topicId" element={<DpractisePage />} />
+              <Route path="/dsa"                                     element={<Dsa />} />
+              <Route path="/dtopic"                                  element={<DtopicPage />} />
+              <Route path="/dpractice/:topicId"                      element={<DpractisePage />} />
 
+              <Route path="/web"                                     element={<Web />} />
+              <Route path="/wtopic"                                  element={<WtopicPage />} />
+              <Route path="/wpractice/:topicId"                      element={<WpractisePage />} />
 
-            {/* CDS Details */}
+              <Route path="/data-analysis"                           element={<Data />} />
+              <Route path="/atopic"                                  element={<AtopicPage />} />
+              <Route path="/apractice/:topicId"                      element={<ApractisePage />} />
 
+              <Route path="/aptitude"                                element={<Prac />} />
+              <Route path="/ptopic"                                  element={<PtopicPage />} />
+              <Route path="/ppractice/:topicId"                      element={<PpractisePage />} />
 
+              <Route path="/revision/:classId/:subject/:chapterSlug" element={<Revision />} />
+              <Route path="/college/:classId/:subject/:chapterSlug"  element={<College />} />
 
-            
-            {/* Deveopment Details */}
-            <Route path="/web" element={<Web />} />
-            <Route path="/wtopic" element={<WtopicPage />} />
-            <Route path="/wpractice/:topicId" element={<WpractisePage />} />
+              <Route path="/class/:classId/:subject/:slug"           element={<ChapterDetail />} />
+              <Route path="/explore/:classId/:subject/:slug"         element={<ChapterDetail />} />
+              <Route path="/premium/class/:classId/:subject/:slug"   element={<ChapterDetail />} />
 
+              <Route path="/class/:classId/:subject"                 element={<Subjectpage />} />
+              <Route path="/premium/class/:classId/:subject"         element={<Subjectpage />} />
+              <Route path="/revision/class/:classId/:subject"        element={<Subjectpage />} />
+              <Route path="/college/class/:classId/:subject"         element={<Subjectpage />} />
+              <Route path="/cds/class/:classId/:subject"             element={<Subjectpage />} />
 
-               {/* Analysis Details */}
-            <Route path="/data-analysis" element={<Data />} />
-            <Route path="/atopic" element={<AtopicPage />} />
-            <Route path="/apractice/:topicId" element={<ApractisePage />} />
+              <Route path="/class/:classId"                          element={<Classpage />} />
+              <Route path="/premium/class/:classId"                  element={<Classpage />} />
+              <Route path="/revision/class/:classId"                 element={<Classpage />} />
+              <Route path="/college/class/:classId"                  element={<Classpage />} />
+              <Route path="/cds/class/:classId"                      element={<Classpage />} />
 
+              <Route path="/class/:classId/explore"                  element={<Explore />} />
+              <Route path="/premium/class/:classId/explore"          element={<Explore />} />
+              <Route path="/revision/class/:classId/explore"         element={<Explore />} />
+              <Route path="/college/class/:classId/explore"          element={<Explore />} />
 
-               {/* Aptitude Details */}
-            <Route path="/aptitude" element={<Prac />} />
-            <Route path="/ptopic" element={<PtopicPage />} />
-            <Route path="/ppractice/:topicId" element={<PpractisePage />} />
-
-
-
-            {/* Revision Details */}
-            <Route path="/revision/:classId/:subject/:chapterSlug" element={<Revision />} />
-
-
-            {/* College Page */}
-            <Route path="/college/:classId/:subject/:chapterSlug" element={<College />} />
-
-
-
-
-
-
-            {/* Chapter Details */}
-            <Route path="/class/:classId/:subject/:slug" element={<ChapterDetail />} />
-            <Route path="/explore/:classId/:subject/:slug" element={<ChapterDetail />} />
-            <Route path="/premium/class/:classId/:subject/:slug" element={<ChapterDetail />} />
-
-
-            {/* Subject Page */}
-            <Route path="/class/:classId/:subject" element={<Subjectpage />} />
-            <Route path="/premium/class/:classId/:subject" element={<Subjectpage />} />
-            <Route path="/revision/class/:classId/:subject" element={<Subjectpage />} />
-            <Route path="/college/class/:classId/:subject" element={<Subjectpage />} />  {/* ✅ New route */}
-            <Route path="/cds/class/:classId/:subject" element={<Subjectpage />} />  {/* ✅ New route */}
-
-
-
-            {/* Class Page */}
-            <Route path="/class/:classId" element={<Classpage />} />
-            <Route path="/premium/class/:classId" element={<Classpage />} />
-            <Route path="/revision/class/:classId" element={<Classpage />} />  {/* ✅ New route */}
-            <Route path="/college/class/:classId" element={<Classpage />} />  {/* ✅ New route */}
-            <Route path="/cds/class/:classId" element={<Classpage />} />  {/* ✅ New route */}
-
-
-
-
-            {/* Explore Page */}
-            <Route path="/class/:classId/explore" element={<Explore />} />
-            <Route path="/premium/class/:classId/explore" element={<Explore />} />
-            <Route path="/revision/class/:classId/explore" element={<Explore />} />
-            <Route path="/college/class/:classId/explore" element={<Explore />} />  {/* ✅ New route */}
-
-
-            {/* Test Series Pages */}
-            <Route path="/premium/class/:classId/test" element={<TestSeries />} />
-            <Route path="/attempt-test" element={<TestAttemptPage />} />
-
-
-
-
-            {/* PYQ Series Pages */}
-            <Route path="/premium/class/:classId/pyq" element={<PYQSeries />} />
-
-
-            <Route path="premium/class/:classId/mentorship" element={<MentorshipPage />} />
-            
-            
-            {/* </Route> */}
-
-
-            {/* Fallback route */}
-            <Route path="*" element={<Home />} />
+              <Route path="/premium/class/:classId/test"             element={<TestSeries />} />
+              <Route path="/attempt-test"                            element={<TestAttemptPage />} />
+              <Route path="/premium/class/:classId/pyq"              element={<PYQSeries />} />
+              <Route path="premium/class/:classId/mentorship"        element={<MentorshipPage />} />
+            </Route>
           </Routes>
+
 
           {/* ChatBot on all pages */}
           <ChatBot />
         </>
-      {/* </AuthProvider> */}
     </BrowserRouter>
   </GoogleOAuthProvider>
   </React.StrictMode>

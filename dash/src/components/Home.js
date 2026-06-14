@@ -259,17 +259,26 @@ const Home = () => {
                 }} />
               </Box>
             )}
-            {menuItems.filter(m => m.isLogout).map(({ to, idx }) => (
-              <Button key={idx} className="logout-btn" component={Link} to={to}
-                onClick={() => handleMenuClick(idx)}
-                startIcon={<LogoutIcon sx={{ fontSize: "13px !important" }} />}
-                sx={{
-                  background: "#f5f5f7", color: "#444", fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 700, fontSize: 13, textTransform: "none",
-                  borderRadius: "40px", px: 2.2, py: 0.85, border: "1.5px solid #e4e4e4",
-                  letterSpacing: "0.1px",
-                }}>Logout</Button>
-            ))}
+                {menuItems.filter(m => m.isLogout).map(({ to, idx }) => (
+                  <Button
+                    key={idx}
+                    className="logout-btn"
+                    onClick={() => {
+                      localStorage.clear();
+                      sessionStorage.clear();
+                      window.location.replace("/");
+                    }}
+                    startIcon={<LogoutIcon sx={{ fontSize: "13px !important" }} />}
+                    sx={{
+                      background: "#f5f5f7", color: "#444", fontFamily: "'DM Sans', sans-serif",
+                      fontWeight: 700, fontSize: 13, textTransform: "none",
+                      borderRadius: "40px", px: 2.2, py: 0.85, border: "1.5px solid #e4e4e4",
+                      letterSpacing: "0.1px",
+                    }}
+                  >
+                    Logout
+                  </Button>
+                ))}
           </Box>
         )}
 
