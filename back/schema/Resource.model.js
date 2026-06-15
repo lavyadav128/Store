@@ -14,14 +14,12 @@ const resourceSchema = new mongoose.Schema(
       required: true,
       enum: [
         "pyq",
-        "mindmap",
-        "shortnotes",
-        "fullstack",
-        "dsa_files",
         "completenotes",
         "videos",
         "motivation",
         "projects",
+        "reels",
+        "shorts",
       ],
     },
 
