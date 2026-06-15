@@ -15,7 +15,7 @@ import axios from "axios";
 import server from "../environment";
 import { Modal } from "@mui/material";
 
-const CATEGORIES = ["pyq", "completenotes", "videos", "motivation", "projects", "reels", "shorts"];
+const CATEGORIES = ["pyq", "mindmap", "shortnotes", "fullstack", "dsa_files", "completenotes", "videos", "motivation", "projects", "reels", "shorts"];
 
 const AdminFileUpload = () => {
   const theme = useTheme();
@@ -28,7 +28,7 @@ const AdminFileUpload = () => {
   const [uploading,       setUploading]       = useState(false);
   const [progress,        setProgress]        = useState(0);
   const [resources,       setResources]       = useState([]);
-  const [filterCat,       setFilterCat]       = useState("");
+  const [filterCat,       setFilterCat]       = useState("all");
   const [filterDrawer,    setFilterDrawer]    = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
   const [viewerContent, setViewerContent] = useState(null);
@@ -90,7 +90,7 @@ const AdminFileUpload = () => {
     } catch { alert("Delete failed"); }
   };
 
-  const filtered = filterCat === "" ? resources : resources.filter(r => r.category === filterCat);
+  const filtered = filterCat === "all" ? resources : resources.filter(r => r.category === filterCat);
 
 
   const getYoutubeEmbedUrl = (url) => {
@@ -246,7 +246,7 @@ const AdminFileUpload = () => {
           {isMobile ? (
             <Box sx={{ display: "flex", gap: 1, mb: 3, overflowX: "auto", pb: 1, mx: -2, px: 2,
               scrollbarWidth: "none", "&::-webkit-scrollbar": { display: "none" } }}>
-              {CATEGORIES.map((cat) => (
+              {["all", ...CATEGORIES].map((cat) => (
                 <Button key={cat} onClick={() => setFilterCat(cat)}
                   sx={{
                     borderRadius: "10px", fontFamily: "'DM Sans'", fontWeight: 600,
@@ -265,7 +265,7 @@ const AdminFileUpload = () => {
             </Box>
           ) : (
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mb: 3 }}>
-              {CATEGORIES.map((cat) => (
+              {["all", ...CATEGORIES].map((cat) => (
                 <Button key={cat} onClick={() => setFilterCat(cat)}
                   sx={{
                     borderRadius: "10px", fontFamily: "'DM Sans'", fontWeight: 600,
