@@ -61,7 +61,7 @@ const batches = [
   {
     id: "data-analysis",
     title: "Data Analysis",
-    description: "Learn data analysis, visualization, and business insights using real-world datasets and tools.",
+    description: "Learn data analysis, visualization, and business insights.",
     imageUrl: "/images/dsa_files/data.png",
     screenshot: "/images/dsa_files/dataanalysisss.png",
     price: 0,
@@ -83,7 +83,7 @@ const batches = [
   {
     id: "aptitude",
     title: "Aptitude Preparation",
-    description: "Master quantitative aptitude, logical reasoning, and problem-solving for placements and competitive exams.",
+    description: "Master quantitative aptitude, logical reasoning, and problem-solving.",
     imageUrl: "/images/dsa_files/apt.png",
     screenshot: "/images/dsa_files/aptitudess.png",
     price: 0,
@@ -225,7 +225,7 @@ const CombinedClassPage = () => {
   };
 
   return (
-    <Box sx={{ flexGrow: 1, py: isMobile ? 2 : 0, px: isMobile ? 1.5 : 15 }}>
+    <Box sx={{ flexGrow: 1, py: isMobile ? 2 : 0, px: isMobile ? 1.5 : 5 }}>
       <Typography
         variant={isMobile ? "h5" : "h4"}
         fontWeight={700}

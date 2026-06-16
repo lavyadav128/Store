@@ -77,6 +77,9 @@ const MyBatchesPage = () => {
               overflow: 'hidden',
               boxShadow: 6,
               backgroundColor: '#fdfdfd',
+              height: '100%',           // ← ADD THIS
+              display: 'flex',          // ← ADD THIS
+              flexDirection: 'column',
               transition: 'transform 0.3s ease, box-shadow 0.3s ease',
               '&:hover': {
                 transform: 'translateY(-5px)',
@@ -91,7 +94,7 @@ const MyBatchesPage = () => {
               alt={batch.title}
             />
             <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+              <Typography variant="h6" sx={{ fontWeight: 700,flexGrow: 1 }}>
                 {batch.title}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ minHeight: 40 }}>
@@ -147,7 +150,7 @@ const MyBatchesPage = () => {
   const displayBatches = tab === 0 ? freeBatches : paidBatches;
 
   return (
-    <Box sx={{ px: { xs: 1, md: 17 }, py: 0 }}>
+    <Box sx={{ px: { xs: 1, md: 8 }, py: 0 }}>
       <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 800, color: '#1976d2' }}>
         My Batches
       </Typography>
