@@ -26,6 +26,9 @@ import httpStatus from 'http-status';
 // User is our MongoDB database model (defined in a separate schema file)
 // we use it to find, create, and save users in the database
 import { User } from '../schema/user.model.js';
+
+import auth from '../controller/authh.js'; // Custom auth middleware for protecting routes
+
  
  
 // ─────────────────────────────────────────────────────────────
@@ -209,7 +212,7 @@ router.post('/register', async (req, res) => {
  
 
 //GET /api/user/profile
-router.get("/admin/profile", auth, async (req, res) => {
+router.get("/user/profile", auth, async (req, res) => {
   try {
     const user = await User.findOne({ username: req.user.username }).select("-password");
     if (!user) return res.status(404).json({ message: "User not found" });
