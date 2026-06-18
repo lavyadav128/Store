@@ -147,3 +147,17 @@ export const makeAuthenticatedRequest = async (url, method = 'GET', body = null,
     throw err;
   }
 };
+
+
+
+// 1. Get JWT token from localStorage
+// 2. Add token in Authorization header
+// 3. Create timeout protection
+// 4. Build fetch configuration
+// 5. Add body if needed
+// 6. Send request
+// 7. Stop timeout if response comes
+// 8. Ensure response is JSON
+// 9. Check for HTTP errors
+// 10. Return parsed JSON data
+// 11. Handle timeout/network errors nicely
