@@ -5,7 +5,6 @@ import {
   Snackbar, Alert, Button, Drawer,
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
-import ShortsIcon from "@mui/icons-material/SmartDisplay";
 import AdminFileUpload from "./AdminFileUpload";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
@@ -31,7 +30,6 @@ import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
 
-import Shorts from "./Shorts";
 import Dsaclass from "./Algorithms/dsaclass";
 import Courses from "./Batches/Courses";
 import PreBatch from "./Batches/PreBatch";
@@ -55,7 +53,6 @@ const VIEW_DOUBTS        = "doubts";
 const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
 const VIEW_VIDEO         = "video";
-const VIEW_SHORTS        = "shorts";
 const VIEW_FILES         = "files";
 
 const SECTIONS = [
@@ -84,7 +81,6 @@ const ADMIN_NAV = [
   { icon: DashboardIcon,  title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: UploadFileIcon, title: "File Manager",    view: VIEW_FILES },
   { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
-  { icon: ShortsIcon,     title: "Shorts Pro",      view: VIEW_SHORTS },
 ];
 
 const SIDEBAR_W = 248;
@@ -998,9 +994,7 @@ const Dashboard = () => {
                   {activeView === VIEW_VIDEO && (
                     <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
                   )}
-                  {activeView === VIEW_SHORTS && (
-                    <Fade in timeout={400}><Box><Shorts /></Box></Fade>
-                  )}
+
                 </>
               )}
 

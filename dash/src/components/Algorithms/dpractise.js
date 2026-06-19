@@ -17,64 +17,25 @@ import questionsData from "./ddata";
 const PracticePage = () => {
   const { topicId } = useParams();
   const navigate = useNavigate();
+
   const questions = questionsData[topicId] || [];
 
   const [currentQIndex, setCurrentQIndex] = useState(0);
-  const [showCode, setShowCode] = useState(false);
+
+  const [showBruteCode, setShowBruteCode] = useState(false);
+  const [showOptimalCode, setShowOptimalCode] = useState(false);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const q = questions[currentQIndex];
-
-  const formatAnswerText = (text) => {
-    const headings = [
-      "APPROACH",
-      "ALGORITHM",
-      "TIME & SPACE COMPLEXITY",
-      "TIME COMPLEXITY",
-      "SPACE COMPLEXITY",
-      "DRY RUN",
-      "EXAMPLE",
-      "STEP",
-      "KEY LOOP",
-      "EXPLANATION",
-      "OPTIMIZED APPROACH",
-      "MOORE’S VOTING ALGORITHM",
-      "FINAL OUTPUT",
-      "PASS",
-    ];
-
-    return text.split("\n").map((line, index) => {
-      const trimmedLine = line.trim();
-      const matchedHeading = headings.find((heading) =>
-        trimmedLine.toUpperCase().startsWith(heading)
-      );
-
-      if (matchedHeading) {
-        const parts = line.split(/:(.+)/); // Split on first colon
-        return (
-          <React.Fragment key={index}>
-            <strong>{parts[0]}:</strong>
-            {parts[1] && <span>{parts[1]}</span>}
-            <br />
-          </React.Fragment>
-        );
-      } else {
-        return (
-          <React.Fragment key={index}>
-            {line}
-            <br />
-          </React.Fragment>
-        );
-      }
-    });
-  };
 
   return (
     <Box
       sx={{
-        py: 4,
+        py: { xs: 3, sm: 5 },
         px: { xs: 2, sm: 4, md: 8 },
-        backgroundColor: "#ffffff", // ✅ plain white background
+        backgroundColor: "#f5f5f5",
         minHeight: "100vh",
         width: "100%",
         maxWidth: "1300px",
@@ -84,50 +45,70 @@ const PracticePage = () => {
       {/* Back Button */}
       <Button
         onClick={() => navigate(-1)}
-        startIcon={<ArrowBackIosNewIcon />}
+        startIcon={<ArrowBackIosNewIcon sx={{ fontSize: 14 }} />}
         sx={{
-          alignSelf: "flex-start",
-          mb: 3,
+          mb: 4,
           fontWeight: 600,
-          backgroundColor: "#fff",
-          border: "1px solid #ccc",
-          borderRadius: 2,
+          fontSize: "0.8rem",
+          backgroundColor: "#ffffff",
+          border: "1.5px solid #d0d0d0",
+          borderRadius: "8px",
           textTransform: "none",
           px: 2.5,
-          py: 1,
-          boxShadow: 1,
+          py: 0.9,
+          color: "#444",
+          letterSpacing: "0.02em",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.06)",
           "&:hover": {
             backgroundColor: "#f0f0f0",
-            boxShadow: 2,
+            borderColor: "#b0b0b0",
+            boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
           },
         }}
       >
         Back
       </Button>
 
+      {/* Page Title */}
       <Typography
         variant={isMobile ? "h6" : "h5"}
-        fontWeight={700}
-        gutterBottom
+        fontWeight={800}
         align="center"
-        sx={{ color: "#333", textAlign: "center" }}
+        gutterBottom
+        sx={{
+          color: "#111",
+          letterSpacing: "0.08em",
+          textTransform: "uppercase",
+          fontSize: { xs: "1rem", sm: "1.25rem" },
+          mb: 1,
+        }}
       >
-        Practice: {topicId.replace(/-/g, " ").toUpperCase()}
+        {topicId.replace(/-/g, " ")}
       </Typography>
 
-      {/* Circular Question Buttons Row */}
+      {/* Thin accent line under title */}
+      <Box
+        sx={{
+          width: 48,
+          height: 3,
+          backgroundColor: "#333",
+          borderRadius: 2,
+          mx: "auto",
+          mb: 4,
+        }}
+      />
+
+      {/* Question Navigation */}
       {questions.length > 0 && (
         <Box
           sx={{
             overflowX: "auto",
-            py: 2,
-            mb: 3,
+            py: 1.5,
+            mb: 4,
             px: 1,
-            scrollbarWidth: "none", // Firefox
-            msOverflowStyle: "none", // IE/Edge
-            "&::-webkit-scrollbar": {
-              display: "none", // Chrome, Safari, Opera
-            },
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            "&::-webkit-scrollbar": { display: "none" },
           }}
         >
           <Box
@@ -143,22 +124,27 @@ const PracticePage = () => {
                 key={index}
                 onClick={() => {
                   setCurrentQIndex(index);
-                  setShowCode(false);
+                  setShowBruteCode(false);
+                  setShowOptimalCode(false);
                 }}
                 sx={{
-                  minWidth: 45,
-                  height: 45,
+                  minWidth: 42,
+                  height: 42,
                   flexShrink: 0,
                   borderRadius: "50%",
-                  border: "2px solid #1976d2",
-                  backgroundColor:
-                    index === currentQIndex ? "#1976d2" : "#ffffff",
-                  color: index === currentQIndex ? "#fff" : "#1976d2",
-                  fontWeight: 600,
-                  transition: "0.3s",
+                  border: "2px solid #333",
+                  backgroundColor: index === currentQIndex ? "#222" : "#ffffff",
+                  color: index === currentQIndex ? "#fff" : "#333",
+                  fontWeight: 700,
+                  fontSize: "0.82rem",
+                  boxShadow:
+                    index === currentQIndex
+                      ? "0 2px 8px rgba(0,0,0,0.18)"
+                      : "none",
+                  transition: "all 0.15s ease",
                   "&:hover": {
                     backgroundColor:
-                      index === currentQIndex ? "#1565c0" : "#e3f2fd",
+                      index === currentQIndex ? "#111" : "#ebebeb",
                   },
                 }}
               >
@@ -171,95 +157,272 @@ const PracticePage = () => {
 
       {q ? (
         <>
+          {/* Question Number */}
           <Typography
-            variant="h6"
-            fontWeight={600}
-            gutterBottom
-            mt={3}
-            sx={{ fontSize: isMobile ? "1rem" : "1.25rem" }}
+            variant="overline"
+            sx={{
+              fontWeight: 700,
+              fontSize: "0.7rem",
+              color: "#888",
+              letterSpacing: "0.12em",
+              display: "block",
+              mb: 0.5,
+            }}
           >
-            Q{currentQIndex + 1}. {q.title}
+            Question {currentQIndex + 1} of {questions.length}
           </Typography>
 
-          <Box mt={2} p={2} borderRadius={2} bgcolor="#f9f9f9">
+          {/* Question Box */}
+          <Box
+            mt={0.5}
+            p={{ xs: 2.5, sm: 3 }}
+            sx={{
+              borderRadius: "12px",
+              bgcolor: "#ffffff",
+              border: "1.5px solid #e0e0e0",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+            }}
+          >
             <Typography
-              fontWeight={600}
-              color="text.secondary"
-              gutterBottom
-              sx={{ fontSize: isMobile ? "0.9rem" : "1rem" }}
+              whiteSpace="pre-line"
+              sx={{
+                fontSize: isMobile ? "1rem" : "1.08rem",
+                lineHeight: 1.75,
+                color: "#0a0a0a",
+                fontWeight: 700,
+                letterSpacing: "0.01em",
+              }}
             >
-              Answer:
+              {q.title}
+            </Typography>
+          </Box>
+
+          {/* Brute Force Section */}
+          <Box
+            mt={3}
+            p={{ xs: 2.5, sm: 3 }}
+            sx={{
+              borderRadius: "12px",
+              bgcolor: "#ffffff",
+              border: "1.5px solid #e0e0e0",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 4,
+                  height: 22,
+                  borderRadius: 2,
+                  backgroundColor: "#999",
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{ color: "#222", fontSize: { xs: "1rem", sm: "1.1rem" } }}
+              >
+                Brute Force
+              </Typography>
+            </Box>
+
+            <Typography
+              whiteSpace="pre-line"
+              sx={{ color: "#444", fontSize: "0.95rem", lineHeight: 1.7 }}
+            >
+              {q.bruteForceComplexity}
             </Typography>
 
-            {q.type === "code" ? (
-              <SyntaxHighlighter language="java" style={oneDark}>
-                {q.answer}
-              </SyntaxHighlighter>
-            ) : (
-              <Typography whiteSpace="pre-line">
-                {formatAnswerText(q.answer)}
-              </Typography>
-            )}
-
-            {q.code && !showCode && (
+            {q.bruteForceCode && (
               <Button
                 variant="outlined"
-                sx={{ mt: 2 }}
-                onClick={() => setShowCode(true)}
+                sx={{
+                  mt: 2.5,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  fontSize: "0.82rem",
+                  borderColor: "#bbb",
+                  color: "#333",
+                  borderRadius: "8px",
+                  px: 2.5,
+                  "&:hover": {
+                    borderColor: "#888",
+                    backgroundColor: "#f5f5f5",
+                  },
+                }}
+                onClick={() => setShowBruteCode(!showBruteCode)}
               >
-                Show Code
+                {showBruteCode ? "Hide Code" : "Show Code"}
               </Button>
             )}
 
-            {q.code && showCode && (
-              <Box mt={2}>
+            {showBruteCode && (
+              <Box
+                mt={2.5}
+                sx={{
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                  border: "1px solid #2a2a2a",
+                }}
+              >
                 <SyntaxHighlighter language="java" style={oneDark}>
-                  {q.code}
+                  {q.bruteForceCode}
                 </SyntaxHighlighter>
-                <Button
-                  variant="text"
-                  color="error"
-                  onClick={() => setShowCode(false)}
-                  sx={{ mt: 1 }}
-                >
-                  Close Code
-                </Button>
               </Box>
             )}
           </Box>
 
-          <Grid container spacing={2} justifyContent="center" mt={3}>
-            <Grid item xs={12} sm={6} md={3}>
+          {/* Optimal Section */}
+          <Box
+            mt={3}
+            p={{ xs: 2.5, sm: 3 }}
+            sx={{
+              borderRadius: "12px",
+              bgcolor: "#ffffff",
+              border: "1.5px solid #e0e0e0",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 1.5 }}>
+              <Box
+                sx={{
+                  width: 4,
+                  height: 22,
+                  borderRadius: 2,
+                  backgroundColor: "#333",
+                  flexShrink: 0,
+                }}
+              />
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{ color: "#111", fontSize: { xs: "1rem", sm: "1.1rem" } }}
+              >
+                Optimal Approach
+              </Typography>
+            </Box>
+
+            <Typography
+              whiteSpace="pre-line"
+              sx={{ color: "#444", fontSize: "0.95rem", lineHeight: 1.7 }}
+            >
+              {q.optimalComplexity}
+            </Typography>
+
+            {q.optimalCode && (
               <Button
-                onClick={() =>
-                  setCurrentQIndex((prev) => Math.max(prev - 1, 0))
-                }
-                disabled={currentQIndex === 0}
+                variant="contained"
+                sx={{
+                  mt: 2.5,
+                  textTransform: "none",
+                  fontWeight: 600,
+                  fontSize: "0.82rem",
+                  backgroundColor: "#222",
+                  borderRadius: "8px",
+                  px: 2.5,
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "#111",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                  },
+                }}
+                onClick={() => setShowOptimalCode(!showOptimalCode)}
+              >
+                {showOptimalCode ? "Hide Code" : "Show Code"}
+              </Button>
+            )}
+
+            {showOptimalCode && (
+              <Box
+                mt={2.5}
+                sx={{
+                  borderRadius: "10px",
+                  overflow: "hidden",
+                  border: "1px solid #2a2a2a",
+                }}
+              >
+                <SyntaxHighlighter language="java" style={oneDark}>
+                  {q.optimalCode}
+                </SyntaxHighlighter>
+              </Box>
+            )}
+          </Box>
+
+          {/* Navigation Buttons */}
+          <Grid container spacing={2} justifyContent="center" mt={4} mb={2}>
+            <Grid item xs={6} sm={4} md={2.5}>
+              <Button
                 fullWidth
                 variant="outlined"
+                disabled={currentQIndex === 0}
+                onClick={() => {
+                  setCurrentQIndex((prev) => Math.max(prev - 1, 0));
+                  setShowBruteCode(false);
+                  setShowOptimalCode(false);
+                }}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                  borderColor: "#ccc",
+                  color: "#333",
+                  py: 1.2,
+                  "&:hover": {
+                    borderColor: "#888",
+                    backgroundColor: "#f5f5f5",
+                  },
+                  "&.Mui-disabled": {
+                    borderColor: "#e5e5e5",
+                    color: "#ccc",
+                  },
+                }}
               >
-                Previous
+                ← Previous
               </Button>
             </Grid>
 
-            <Grid item xs={12} sm={6} md={3}>
+            <Grid item xs={6} sm={4} md={2.5}>
               <Button
-                onClick={() =>
-                  setCurrentQIndex((prev) =>
-                    Math.min(prev + 1, questions.length - 1)
-                  )
-                }
-                disabled={currentQIndex === questions.length - 1}
                 fullWidth
                 variant="contained"
+                disabled={currentQIndex === questions.length - 1}
+                onClick={() => {
+                  setCurrentQIndex((prev) =>
+                    Math.min(prev + 1, questions.length - 1)
+                  );
+                  setShowBruteCode(false);
+                  setShowOptimalCode(false);
+                }}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                  backgroundColor: "#222",
+                  py: 1.2,
+                  boxShadow: "none",
+                  "&:hover": {
+                    backgroundColor: "#111",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
+                  },
+                  "&.Mui-disabled": {
+                    backgroundColor: "#e0e0e0",
+                    color: "#aaa",
+                  },
+                }}
               >
-                Next
+                Next →
               </Button>
             </Grid>
           </Grid>
         </>
       ) : (
-        <Typography variant="h6" color="text.secondary" mt={5}>
+        <Typography
+          variant="h6"
+          color="text.secondary"
+          mt={5}
+          align="center"
+        >
           No questions available for this topic.
         </Typography>
       )}

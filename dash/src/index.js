@@ -60,7 +60,7 @@ import AdminRoute   from './components/AdminRoute';
 const PingServer = () => {
   useEffect(() => {
     const ping = () => {
-      fetch("https://notess-ucwp.onrender.com/")
+      fetch("https://storee-6wri.onrender.com/")
         .catch(() => {}); // silent fail, we don't care about errors
     };
     ping();

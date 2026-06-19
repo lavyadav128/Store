@@ -13,33 +13,13 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 const topics = [
-  { id: "concepts", name: "Concepts" },
-  { id: "java-basics", name: "Java Basics" },
-  { id: "control-flow", name: "Control Flow Statements" },
-  { id: "patterns", name: "Patterns" },
-  { id: "functions-methods", name: "Functions and Methods" },
-  { id: "bit-manipulation", name: "Bit Manipulation" },
-  { id: "binary-search-sorting", name: "Binary Search and Sorting" },
-  { id: "oop", name: "Object-Oriented Programming" },
-  { id: "java-arrays-strings", name: "Java (Arrays and Strings)" },
-  { id: "divide-conquer-and-two-pointer", name: "Two Pointer and Divide Conquer" },
-  { id: "collections", name: "Collections Framework" },
-  { id: "queen-suduko", name: "Queen and suduko" },
-
-
-
-
-  { id: "complexity", name: "Time and Space Complexity" },
-  { id: "recursion-and-backtracking", name: "Recursion and Backtracking" },
-  { id: "arrays-and-strings", name: "Arrays and Strings" },
+  { id: "arrays", name: "Arrays" },
+  { id: "binary-search", name: "Binary Search" },
+  { id: "strings", name: "Strings" },
   { id: "linked-list", name: "Linked List" },
-  { id: "stack-and-queue", name: "Stack ans Queue" },
-  { id: "greedy", name: "Greedy Algorithms" },
-  { id: "binary-and-BST", name: "Binary Tree and BST" },
-  { id: "trie", name: "Trie" },
-  { id: "hashing-and-heaps", name: "Hashing and Heaps" },
+  { id: "bit-manipulation", name: "Bit Manipulation" },
+  { id: "sliding-and-two-pointer", name: "Sliding and two pointer" },
   { id: "graphs", name: "Graphs" },
-  { id: "disjoint-set", name: "Disjoint Set (Union-Find)" },
   { id: "dp", name: "Dynamic Programming" },
 ];
 

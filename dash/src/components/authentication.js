@@ -108,6 +108,7 @@ export default function Authentication() {
   // ── HELPER: Redirect after login/register ────────────────
   // Takes the logged-in username and decides which page to go to
   const redirectUser = (username) => {
+    const email = localStorage.getItem("email"); // ← read saved email
     // If the user is the admin, send them to the admin dashboard
     if (username === "adminbrand@gmail.com") navigate("/admin-dashboard");
     // Everyone else goes to the regular dashboard
@@ -160,6 +161,9 @@ export default function Authentication() {
         localStorage.setItem("token", token);
         // Save the username in localStorage as well
         localStorage.setItem("username", registeredUsername);
+
+        localStorage.setItem("email", username);              // ← ADD THIS (email typed by user)
+
         // Send the user to their correct dashboard
         redirectUser(registeredUsername);
         // Return the success message from the server (e.g. "Account created!")
@@ -186,6 +190,9 @@ export default function Authentication() {
         localStorage.setItem("token", token);
         // Save username in browser storage
         localStorage.setItem("username", loggedInUsername);
+
+        localStorage.setItem("email", username);            // ← ADD THIS (email typed by user)
+
         // Redirect to the correct page
         redirectUser(loggedInUsername);
       }
