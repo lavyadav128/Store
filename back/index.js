@@ -1,7 +1,7 @@
 // ─────────────────────────────────────────────────────────────
 // IMPORTS — bring in all the tools/libraries this file needs
 // ─────────────────────────────────────────────────────────────
-
+  
 // express is the main web framework — it lets us create a server,
 // define routes (URLs), and handle incoming requests & responses
 import express from 'express';
@@ -55,16 +55,13 @@ import resourceRoutes from './routes/resource.routes.js';
 // handles the video studio feature (recording, uploading videos)
 import videoStudioRouter from "./routes/video.routes.js";
 
-// handles job listings shown to students
-import jobRoutes from "./routes/job.routes.js";
-
-// handles company profiles tied to job listings
-import companyRoutes from "./routes/company.routes.js";
-
 // handles merging multiple video segments into one
 import videoMergeRouter from "./routes/videoMerge.routes.js";
 
+import dns from 'node:dns';
 
+dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
+// dns.setServers(['1.1.1.1']);        // Cloudflare alternative
 // ─────────────────────────────────────────────────────────────
 // LOAD ENVIRONMENT VARIABLES
 // ─────────────────────────────────────────────────────────────
@@ -150,11 +147,6 @@ app.use("/api/admin/list", userListRoutes);
 // Video studio routes — e.g. POST /api/video-studio/upload
 app.use("/api/video-studio", videoStudioRouter);
 
-// Job listing routes — e.g. GET /api/jobs, POST /api/jobs
-app.use("/api/jobs", jobRoutes);
-
-// Company routes — e.g. GET /api/companies/:id
-app.use("/api/companies", companyRoutes);
 
 // Video merge routes — e.g. POST /api/video-merge
 app.use("/api/video-merge", videoMergeRouter);
@@ -242,30 +234,12 @@ app.post('/api/create-order', async (req, res) => {
 //  DATABASE CONNECTION
 // ═════════════════════════════════════════════════════════════
 
-// Read the MongoDB connection string from .env
-// looks like: mongodb+srv://username:password@cluster.mongodb.net/dbname
-const dbUrl = process.env.MONGO_URI;
-
-// connectDB is an async function that connects to MongoDB
-// we define it as a function so we can call it before starting the server
 async function connectDB() {
   try {
-    // mongoose.connect() establishes the connection to MongoDB Atlas (or local MongoDB)
-    // useNewUrlParser: true — use the new MongoDB URL string parser (avoids deprecation warning)
-    // useUnifiedTopology: true — use the new server discovery and monitoring engine
-    await mongoose.connect(dbUrl, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-    // If connection succeeds, log a confirmation
-    console.log(" Connected to MongoDB");
-
+    await mongoose.connect(process.env.MONGO_URI);  // ✅ No extra options needed
+    console.log("✅ Connected to MongoDB");
   } catch (err) {
-    // If connection fails (wrong URI, network issue, wrong password):
-    // log the error so we can see what went wrong
-    console.error(" MongoDB connection error:", err);
-    // process.exit(1) forcefully stops the Node.js process with error code 1
-    // we do this because the app is useless without a database connection
+    console.error("❌ MongoDB connection error:", err);
     process.exit(1);
   }
 }
@@ -277,7 +251,7 @@ async function connectDB() {
 
 // Read the port number from .env, or default to 3000 if not set
 // process.env.PORT is usually set automatically by hosting platforms like Render or Railway
-const PORT = process.env.PORT || 3000;
+const PORT = 3000;
 
 // connectDB() returns a Promise — .then() runs AFTER the database connects successfully
 // This ensures the server only starts AFTER we have a working DB connection

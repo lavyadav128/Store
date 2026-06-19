@@ -1,6 +1,3 @@
-
-
-
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Box, Typography, IconButton, createTheme, ThemeProvider,
@@ -10,14 +7,12 @@ import {
 import SchoolIcon from "@mui/icons-material/School";
 import ShortsIcon from "@mui/icons-material/SmartDisplay";
 import AdminFileUpload from "./AdminFileUpload";
-import Companydata from "./Companydata";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import PaymentIcon from "@mui/icons-material/Payment";
 import VideoIcon from "@mui/icons-material/VideoLibrary";
-import CompanyIcon from "@mui/icons-material/Business";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -60,7 +55,6 @@ const VIEW_DOUBTS        = "doubts";
 const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
 const VIEW_VIDEO         = "video";
-const VIEW_COMPANY       = "company"
 const VIEW_SHORTS        = "shorts";
 const VIEW_FILES         = "files";
 
@@ -87,15 +81,10 @@ const QUICK_COURSES = [
 ];
 
 const ADMIN_NAV = [
-  { icon: DashboardIcon,     title: "Admin Dashboard", view: VIEW_ADMIN },
-  { icon: UploadFileIcon,    title: "File Manager",    view: VIEW_FILES },  // ← add this
-  { icon: VideoIcon,         title: "Video Pro",       view: VIEW_VIDEO },  // ← add this
-  { icon: ShortsIcon,         title: "Shorts Pro",     view: VIEW_SHORTS },  // ← add this
-  { icon: CompanyIcon,       title: "Company",         view: VIEW_COMPANY },
-  { icon: SchoolIcon,        title: "My Batches",      view: VIEW_MYBATCHES },
-  { icon: NotificationsIcon, title: "Notifications",   view: VIEW_NOTIFICATIONS },
-  { icon: HelpOutlineIcon,   title: "Doubts",          view: VIEW_DOUBTS },
-  { icon: PaymentIcon,       title: "Payments",        view: VIEW_PAYMENTS },
+  { icon: DashboardIcon,  title: "Admin Dashboard", view: VIEW_ADMIN },
+  { icon: UploadFileIcon, title: "File Manager",    view: VIEW_FILES },
+  { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
+  { icon: ShortsIcon,     title: "Shorts Pro",      view: VIEW_SHORTS },
 ];
 
 const SIDEBAR_W = 248;
@@ -146,20 +135,15 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
       display: "flex", alignItems: "center", justifyContent: "space-between",
       gap: 3, mb: 4, flexWrap: { xs: "wrap", sm: "nowrap" },
     }}>
-      {/*
-        ── GREETING ROW ──
-        Mobile:  flex row-reverse → greeting text on LEFT, menu button on RIGHT
-        Desktop: normal block layout
-      */}
       <Box sx={{
         display: { xs: "flex", sm: "block" },
         alignItems: "flex-start",
         justifyContent: "space-between",
-        flexDirection: { xs: "row-reverse", sm: "row" }, // ← KEY CHANGE: swaps sides on mobile
+        flexDirection: { xs: "row-reverse", sm: "row" },
         width: { xs: "100%", sm: "auto" },
         flexShrink: 0,
       }}>
-        {/* Mobile-only menu button — now on the RIGHT (row-reverse pushes it right) */}
+        {/* Mobile-only menu button */}
         <Box sx={{ display: { xs: "flex", sm: "none" }, alignItems: "center", pt: 0.5, flexShrink: 0 }}>
           <IconButton
             onClick={() => onOpenDrawer()}
@@ -177,8 +161,8 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
           </IconButton>
         </Box>
 
-        {/* Greeting text — now on the LEFT on mobile (row-reverse puts this first visually) */}
-        <Box sx={{ textAlign: { xs: "left", sm: "left" } }}> {/* ← changed xs from "right" to "left" */}
+        {/* Greeting text */}
+        <Box sx={{ textAlign: { xs: "left", sm: "left" } }}>
           <Typography sx={{
             fontFamily: "'DM Serif Display', serif", fontWeight: 400, fontStyle: "italic",
             fontSize: { xs: 11, sm: 13 }, color: "#aaa",
@@ -271,8 +255,6 @@ const Dashboard = () => {
   const muiTheme  = useTheme();
   const isMobile  = useMediaQuery(muiTheme.breakpoints.down("md"));
 
-  // ── FIX: persist admin state in localStorage so deep navigation never loses it ──
-  // Only set when actually on admin-dashboard; clear it when on normal dashboard
   if (location.pathname === "/admin-dashboard") {
     localStorage.setItem("isAdmin", "true");
   } else if (location.pathname === "/dashboard") {
@@ -365,7 +347,6 @@ const Dashboard = () => {
   const goRoute = useCallback((route) => { navigate(route); setMobileDrawer(false); }, [navigate]);
 
   const goBackToDashboard = () => {
-    // ── FIX: use localStorage flag instead of fragile ref ──
     if (localStorage.getItem("isAdmin") === "true") {
       navigate("/admin-dashboard");
       setActiveView(VIEW_ADMIN);
@@ -377,10 +358,10 @@ const Dashboard = () => {
 
   /* ─────────── COMPLETE LOGOUT HANDLER ─────────── */
   const handleLogout = () => {
-    localStorage.clear();       // wipe ALL localStorage (token, username, everything)
-    sessionStorage.clear();     // wipe session storage too
+    localStorage.clear();
+    sessionStorage.clear();
     setMobileDrawer(false);
-    window.location.replace("/"); // hard full-page redirect, clears all React state, no back history
+    window.location.replace("/");
   };
 
   /* ─────────── ADMIN SIDEBAR (DESKTOP) ─────────── */
@@ -392,55 +373,9 @@ const Dashboard = () => {
       borderRight: "1.5px solid #f0f0f5",
       py: 0, overflow: "hidden",
     }}>
-      <Box sx={{ px: 3, pt: 3, pb: 2, borderBottom: "1px solid #f0f0f5" }}>
-        <Typography sx={{
-          fontFamily: "'Playfair Display', serif", fontWeight: 800,
-          fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.5px",
-        }}>EduPortal</Typography>
-        <Typography sx={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700,
-          color: "#aaa", letterSpacing: "1.4px", textTransform: "uppercase", mt: 0.3,
-        }}>Admin Panel</Typography>
-      </Box>
-
-      <Box sx={{ px: 3, mt: 2, mb: 1 }}>
-        <Typography sx={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
-          color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase",
-        }}>My Courses</Typography>
-      </Box>
-      <Box sx={{ px: 1.5, pb: 1 }}>
-        {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }) => (
-          <Box key={route} onClick={() => goRoute(route)}
-            sx={{
-              display: "flex", alignItems: "center", gap: 1.5,
-              px: 1.5, py: 1.2, borderRadius: "14px", cursor: "pointer", mb: 0.5,
-              transition: "all 0.18s ease",
-              "&:hover": { background: "#f7f7fb", transform: "translateX(4px)" },
-            }}>
-            <Box sx={{
-              width: 34, height: 34, borderRadius: "11px", background: iconBg,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, boxShadow: "0 3px 10px rgba(0,0,0,0.12)",
-            }}>
-              <Icon sx={{ fontSize: 16, color: "#fff" }} />
-            </Box>
-            <Box sx={{ overflow: "hidden", flex: 1 }}>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#aaa" }}>{sublabel}</Typography>
-            </Box>
-            <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ccc", transform: "rotate(180deg)", flexShrink: 0 }} />
-          </Box>
-        ))}
-      </Box>
-
-      <Box sx={{ mx: 2, my: 1, height: "1px", background: "#f0f0f5" }} />
-
-      <Box sx={{ px: 3, mb: 1 }}>
-        <Typography sx={{
-          fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
-          color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase",
-        }}>Management</Typography>
+      <Box sx={{ px: 3, pt: 2.5, mb: 1.5, display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800, color: "#c0c0cc", letterSpacing: "1.6px", textTransform: "uppercase" }}>Management</Typography>
+        <Box sx={{ flex: 1, height: "1px", background: "#f0f0f5" }} />
       </Box>
       <Box sx={{ px: 1.5, flex: 1, overflowY: "auto", pb: 2 }}>
         {ADMIN_NAV.map(({ icon: Icon, title, view }) => {
@@ -649,7 +584,7 @@ const Dashboard = () => {
           </Box>
         </Box>
 
-        {/* MOBILE ONLY: Social Connect strip — centered at bottom */}
+        {/* MOBILE ONLY: Social Connect strip */}
         <Box sx={{ display: { xs: "flex", sm: "none" }, flexDirection: "column", alignItems: "center", mt: 4, mb: 2, px: 3 }}>
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 800,
@@ -757,44 +692,50 @@ const Dashboard = () => {
       <Box sx={{ height: 2, background: "linear-gradient(90deg, #1a1a2e, #4a4a8e44, #1a1a2e)", opacity: 0.2 }} />
 
       <Box sx={{ flex: 1, overflowY: "auto", pb: 3, "&::-webkit-scrollbar": { display: "none" } }}>
-        <Box sx={{ px: 3, pt: 2.5, pb: 1 }}>
-          <Typography sx={{
-            fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
-            color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
-          }}>My Courses</Typography>
-        </Box>
-        <Box sx={{ px: 1.5 }}>
-          {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }, i) => (
-            <Box key={route} onClick={() => goRoute(route)}
-              className="drawer-item-in"
-              style={{ animationDelay: `${0.05 + i * 0.04}s` }}
-              sx={{
-                display: "flex", alignItems: "center", gap: 1.5,
-                px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mb: 0.4,
-                background: "#fff",
-                border: "1.5px solid #f0f0f4",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-                transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-                "&:active": { transform: "scale(0.97)", background: "#f7f7fb" },
-              }}>
-              <Box sx={{
-                width: 36, height: 36, borderRadius: "11px", background: iconBg,
-                display: "flex", alignItems: "center", justifyContent: "center",
-                flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
-              }}>
-                <Icon sx={{ fontSize: 17, color: "#fff" }} />
-              </Box>
-              <Box sx={{ overflow: "hidden", flex: 1 }}>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#bbb" }}>{sublabel}</Typography>
-              </Box>
-              <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ddd", transform: "rotate(180deg)", flexShrink: 0 }} />
-            </Box>
-          ))}
-        </Box>
 
-        <Box sx={{ mx: 2, my: 2, height: "1px", background: "#f0f0f4" }} />
-        <Box sx={{ px: 3, mb: 1 }}>
+        {/* My Courses — shown only for non-admin */}
+        {!isAdminRoute && (
+          <>
+            <Box sx={{ px: 3, pt: 2.5, pb: 1 }}>
+              <Typography sx={{
+                fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
+                color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
+              }}>My Courses</Typography>
+            </Box>
+            <Box sx={{ px: 1.5 }}>
+              {QUICK_COURSES.map(({ label, sublabel, route, icon: Icon, iconBg }, i) => (
+                <Box key={route} onClick={() => goRoute(route)}
+                  className="drawer-item-in"
+                  style={{ animationDelay: `${0.05 + i * 0.04}s` }}
+                  sx={{
+                    display: "flex", alignItems: "center", gap: 1.5,
+                    px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mb: 0.4,
+                    background: "#fff",
+                    border: "1.5px solid #f0f0f4",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+                    "&:active": { transform: "scale(0.97)", background: "#f7f7fb" },
+                  }}>
+                  <Box sx={{
+                    width: 36, height: 36, borderRadius: "11px", background: iconBg,
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    flexShrink: 0, boxShadow: "0 4px 10px rgba(0,0,0,0.16)",
+                  }}>
+                    <Icon sx={{ fontSize: 17, color: "#fff" }} />
+                  </Box>
+                  <Box sx={{ overflow: "hidden", flex: 1 }}>
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{label}</Typography>
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10.5, color: "#bbb" }}>{sublabel}</Typography>
+                  </Box>
+                  <ArrowBackIosNewIcon sx={{ fontSize: 9, color: "#ddd", transform: "rotate(180deg)", flexShrink: 0 }} />
+                </Box>
+              ))}
+            </Box>
+            <Box sx={{ mx: 2, my: 2, height: "1px", background: "#f0f0f4" }} />
+          </>
+        )}
+
+        <Box sx={{ px: 3, mb: 1, pt: isAdminRoute ? 2.5 : 0 }}>
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 800,
             color: "#bbbbc8", letterSpacing: "2px", textTransform: "uppercase",
@@ -833,34 +774,32 @@ const Dashboard = () => {
           })}
 
           {/* ── LOGOUT BUTTON — mobile drawer only ── */}
-          {(
-            <Box
-              onClick={handleLogout}
-              className="drawer-item-in"
-              style={{ animationDelay: "0.45s" }}
-              sx={{
-                display: "flex", alignItems: "center", gap: 1.5,
-                px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mt: 0.8,
-                background: "#fff5f5",
-                border: "1.5px solid #fde8e8",
-                boxShadow: "0 2px 8px rgba(220,50,50,0.06)",
-                transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
-                "&:active": { transform: "scale(0.97)", background: "#ffe0e0" },
-              }}
-            >
-              <Box sx={{
-                width: 36, height: 36, borderRadius: "11px",
-                background: "#fff0f0",
-                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-              }}>
-                <LogoutIcon sx={{ fontSize: 17, color: "#e05050" }} />
-              </Box>
-              <Typography sx={{
-                fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
-                fontWeight: 700, color: "#e05050", flex: 1,
-              }}>Logout</Typography>
+          <Box
+            onClick={handleLogout}
+            className="drawer-item-in"
+            style={{ animationDelay: "0.45s" }}
+            sx={{
+              display: "flex", alignItems: "center", gap: 1.5,
+              px: 1.5, py: 1.3, borderRadius: "14px", cursor: "pointer", mt: 0.8,
+              background: "#fff5f5",
+              border: "1.5px solid #fde8e8",
+              boxShadow: "0 2px 8px rgba(220,50,50,0.06)",
+              transition: "all 0.2s cubic-bezier(0.34,1.56,0.64,1)",
+              "&:active": { transform: "scale(0.97)", background: "#ffe0e0" },
+            }}
+          >
+            <Box sx={{
+              width: 36, height: 36, borderRadius: "11px",
+              background: "#fff0f0",
+              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+            }}>
+              <LogoutIcon sx={{ fontSize: 17, color: "#e05050" }} />
             </Box>
-          )}
+            <Typography sx={{
+              fontFamily: "'DM Sans', sans-serif", fontSize: 13.5,
+              fontWeight: 700, color: "#e05050", flex: 1,
+            }}>Logout</Typography>
+          </Box>
         </Box>
 
         {!isAdminRoute && (
@@ -984,7 +923,7 @@ const Dashboard = () => {
           {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
 
-            {/* ── ADMIN MOBILE TOPBAR — sticky bar above scrollable content, mobile + admin only ── */}
+            {/* ── ADMIN MOBILE TOPBAR ── */}
             {isAdminRoute && isMobile && !isCourseRoute && (
               <Box sx={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -995,14 +934,11 @@ const Dashboard = () => {
                 flexShrink: 0,
                 zIndex: 100,
               }}>
-                {/* spacer to keep title centered */}
                 <Box sx={{ width: 38 }} />
-
                 <Typography sx={{
                   fontFamily: "'Playfair Display', serif", fontWeight: 800,
                   fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.5px",
                 }}>Admin Panel</Typography>
-
                 <IconButton
                   onClick={() => setMobileDrawer(true)}
                   sx={{
@@ -1022,7 +958,6 @@ const Dashboard = () => {
             {/* Scrollable content */}
             <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>
 
-              {/* ── BACK BUTTON inside content area when on a course route ── */}
               {isCourseRoute && (
                 <Box sx={{ mb: 2 }}>
                   <Button
@@ -1054,7 +989,6 @@ const Dashboard = () => {
               {/* Admin views */}
               {isAdminRoute && !isCourseRoute && (
                 <>
-                  
                   {activeView === VIEW_ADMIN && (
                     <Fade in timeout={400}><Box><AdminDashboard /></Box></Fade>
                   )}
@@ -1066,21 +1000,6 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_SHORTS && (
                     <Fade in timeout={400}><Box><Shorts /></Box></Fade>
-                  )}
-                  {activeView === VIEW_COMPANY && (
-                    <Fade in timeout={400}><Box><Companydata /></Box></Fade>
-                  )}
-                  {activeView === VIEW_MYBATCHES && (
-                    <Fade in timeout={400}><Box><SubViewHeader title="My Batches" /><MyBatchesPage /></Box></Fade>
-                  )}
-                  {activeView === VIEW_NOTIFICATIONS && (
-                    <Fade in timeout={400}><Box><SubViewHeader title="Notifications" /><NotificationPage /></Box></Fade>
-                  )}
-                  {activeView === VIEW_DOUBTS && (
-                    <Fade in timeout={400}><Box><SubViewHeader title="Doubt / Issue" /><DoubtPage /></Box></Fade>
-                  )}
-                  {activeView === VIEW_PAYMENTS && (
-                    <Fade in timeout={400}><Box><SubViewHeader title="Payments" /><PaymentsPage /></Box></Fade>
                   )}
                 </>
               )}
@@ -1118,4 +1037,3 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
-
