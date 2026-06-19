@@ -462,7 +462,7 @@ export default function Authentication() {
             /* Stack panels vertically on small screens */
             .auth-layout {
               flex-direction: column !important;
-              max-width: 90% !important;   /* card takes 90% of the phone screen width */
+              max-width: 94% !important;   /* card takes 90% of the phone screen width */
               border-radius: 20px !important;
             }
 
