@@ -55,9 +55,6 @@ import resourceRoutes from './routes/resource.routes.js';
 // handles the video studio feature (recording, uploading videos)
 import videoStudioRouter from "./routes/video.routes.js";
 
-// handles merging multiple video segments into one
-import videoMergeRouter from "./routes/videoMerge.routes.js";
-
 import dns from 'node:dns';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
@@ -146,10 +143,6 @@ app.use("/api/admin/list", userListRoutes);
 
 // Video studio routes — e.g. POST /api/video-studio/upload
 app.use("/api/video-studio", videoStudioRouter);
-
-
-// Video merge routes — e.g. POST /api/video-merge
-app.use("/api/video-merge", videoMergeRouter);
 
 // User auth routes — e.g. POST /api/login, POST /api/register
 app.use('/api', userRoutes);
