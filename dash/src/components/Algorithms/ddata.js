@@ -2011,7 +2011,7 @@ const questionsData = {
         public double minmaxGasDist(int[] stations, int k) {
             double low = 0, high = 0;
             for (int i = 1; i < stations.length; i++) {
-                high = Math.max(high, stations[i] - stations[i-1]);
+                high = Math.max(high, stations[i] - stations[i-1]);           // highest gap btwn stations 
             }
             
             while (high - low > 1e-6) {
@@ -2227,10 +2227,10 @@ Space Complexity: O(1)`,
         int m = matrix[0].length;
         int low = 0, high = n * m - 1;
         
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            int row = mid / m;
-            int col = mid % m;
+        while (low <= high) {                         // considering as 1D array
+            int mid = low + (high - low) / 2;         // here considering mid as index pos
+            int row = mid / m;                        // row index
+            int col = mid % m;                        // col index
             if (matrix[row][col] == target) return true;
             else if (matrix[row][col] < target) low = mid + 1;
             else high = mid - 1;
@@ -2325,7 +2325,7 @@ Space Complexity: O(1)`,
         int low = 0, high = m - 1;
         
         while (low <= high) {
-            int mid = low + (high - low) / 2;
+            int mid = low + (high - low) / 2;           // Find Maximum Element in Column (mid)
             int maxRow = 0;
             for (int i = 0; i < n; i++) {
                 if (mat[i][mid] > mat[maxRow][mid]) {
@@ -2334,10 +2334,10 @@ Space Complexity: O(1)`,
             }
             
             boolean isPeak = true;
-            if (mid > 0 && mat[maxRow][mid] < mat[maxRow][mid-1]) {
+            if (mid > 0 && mat[maxRow][mid] < mat[maxRow][mid-1]) {         // if left > than mid (peak emement)
                 high = mid - 1;
                 isPeak = false;
-            } else if (mid < m-1 && mat[maxRow][mid] < mat[maxRow][mid+1]) {
+            } else if (mid < m-1 && mat[maxRow][mid] < mat[maxRow][mid+1]) {     // if right > than mid (peak emement)
                 low = mid + 1;
                 isPeak = false;
             }
@@ -2402,7 +2402,7 @@ Space Complexity: O(1)`,
     
     private int countSmallerEquals(int[][] mat, int x) {
         int count = 0;
-        for (int[] row : mat) {
+        for (int[] row : mat) {                             // here we r chaecking that how many no. r <= x
             int low = 0, high = row.length - 1;
             while (low <= high) {
                 int mid = low + (high - low) / 2;
