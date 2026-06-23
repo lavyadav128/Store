@@ -2047,7 +2047,61 @@ Output: 2.0`,
   bruteForceComplexity: `Time Complexity: O(m + n)
 Space Complexity: O(m + n)`,
 
-  bruteForceCode: `// Merge both arrays and find median`,
+  bruteForceCode: `class Solution {
+    public double findMedianSortedArrays(int[] nums1, int[] nums2) {
+
+        int m = nums1.length;              // size of first array
+        int n = nums2.length;              // size of second array
+
+        int[] merged = new int[m + n];     // new array to store merged elements
+
+        int i = 0;                         // pointer for nums1
+        int j = 0;                         // pointer for nums2
+        int k = 0;                         // pointer for merged array
+
+        // Merge both sorted arrays
+        while (i < m && j < n) {
+
+            // If current element in nums1 is smaller
+            if (nums1[i] <= nums2[j]) {
+                merged[k] = nums1[i];      // put nums1 element into merged
+                i++;                       // move nums1 pointer
+            } else {
+                merged[k] = nums2[j];      // put nums2 element into merged
+                j++;                       // move nums2 pointer
+            }
+
+            k++;                           // move merged pointer
+        }
+
+        // Copy remaining elements from nums1
+        while (i < m) {
+            merged[k] = nums1[i];
+            i++;
+            k++;
+        }
+
+        // Copy remaining elements from nums2
+        while (j < n) {
+            merged[k] = nums2[j];
+            j++;
+            k++;
+        }
+
+        int total = m + n;                 // total number of elements
+
+        // If total elements are odd
+        if (total % 2 == 1) {
+            return merged[total / 2];      // middle element is median
+        }
+
+        // If total elements are even
+        int mid1 = merged[total / 2 - 1];  // first middle element
+        int mid2 = merged[total / 2];      // second middle element
+
+        return (mid1 + mid2) / 2.0;        // average of both middles
+    }
+}`,
 
   optimalComplexity: `Time Complexity: O(log(min(m,n)))
 Space Complexity: O(1)`,
@@ -3521,25 +3575,24 @@ Space Complexity: O(1)`,
     // ====================================
     
     // 1. Basic Operators
-    // &   -> AND (both 1)
-    // |   -> OR  (at least one 1)
-    // ^   -> XOR (different bits)
-    // ~   -> NOT (invert all bits)
-    // <<  -> Left Shift  (multiply by 2^k)
-    // >>  -> Right Shift (divide by 2^k, preserves sign)
-    // >>> -> Unsigned Right Shift
+    &   -> AND (both 1)
+    |   -> OR  (at least one 1)
+    ^   -> XOR (different bits)  (when same then 0 and when diff then 1)
+    ~   -> NOT (invert all bits)
+    <<  -> Left Shift  (multiply by 2^k)  (12=1100,  12<<1 = 11000(24)  or  12*2^1=24)
+    >>  -> Right Shift (divide by 2^k, preserves sign)    (12=1100,  12>>1=0110(6)  or  12/2^1=6)
+    >>> -> Unsigned Right Shift
     
     // 2. Key Properties
-    // x ^ x = 0
-    // x ^ 0 = x
-    // x & (x-1) = removes rightmost set bit
-    // x & -x = gives rightmost set bit
-    // x | (x-1) = sets all bits after rightmost set bit
+    x ^ x = 0
+    x ^ 0 = x
+    x & (x-1) = removes rightmost set bit
+    x & -x = gives rightmost set bit
+    x | (x-1) = sets all bits after rightmost set bit
     
     // 3. Important Techniques
-    
-    // Check if power of 2
-    // bool isPowerOf2 = (n > 0) && (n & (n-1)) == 0;
+    Check if power of 2
+    bool isPowerOf2 = (n > 0) && (n & (n-1)) == 0;
     
     // Count set bits (Brian Kernighan)
     int countSetBits(int n) {
@@ -3626,12 +3679,12 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(1)  // Brian Kernighan
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `class Solution {              //Number of flips required = Number of 1s in (start ^ goal)
         public int minBitFlips(int start, int goal) {
-            int xor = start ^ goal;
+            int xor = start ^ goal;                // 10=1010 and 7=0111   ans=3 diff bits
             int count = 0;
             while (xor > 0) {
-                xor = xor & (xor - 1);   // Remove rightmost set bit
+                xor = xor & (xor - 1);   // 12 to 11 (xor=12 (1100) then xor-1=11 (1011))
                 count++;
             }
             return count;
@@ -3766,8 +3819,8 @@ Space Complexity: O(1)`,
             for (int num : nums) xor ^= num;
             
             // Find rightmost set bit
-            int rightmost = xor & -xor;
-            
+            int rightmost = xor & -xor;        // for -xor  1. 1's complement then add 1 
+                                              // ex: -6(0110)= 1001(9) + 1 =1010
             int num1 = 0, num2 = 0;
             for (int num : nums) {
                 if ((num & rightmost) != 0) {
@@ -3787,7 +3840,7 @@ Space Complexity: O(1)`,
     Given a number n, print all its prime factors in ascending order.
     
     EXAMPLE:
-    Input: n = 12
+    Input: n = 12 (2x6=2x2x3)
     Output: 2 2 3`,
     
       bruteForceComplexity: `Time Complexity: O(N)
@@ -4991,41 +5044,47 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
     
-      optimalCode: `class Solution {
-        public int orangesRotting(int[][] grid) {
-            int n = grid.length, m = grid[0].length;
-            Queue<int[]> q = new LinkedList<>();
-            int fresh = 0;
-            
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    if (grid[i][j] == 2) q.offer(new int[]{i, j});
-                    else if (grid[i][j] == 1) fresh++;
-                }
-            }
-            
-            int minutes = 0;
-            int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
-            
-            while (!q.isEmpty() && fresh > 0) {
-                int size = q.size();
-                minutes++;
-                for (int i = 0; i < size; i++) {
-                    int[] curr = q.poll();
-                    for (int[] dir : dirs) {
-                        int x = curr[0] + dir[0];
-                        int y = curr[1] + dir[1];
-                        if (x >= 0 && x < n && y >= 0 && y < m && grid[x][y] == 1) {
-                            grid[x][y] = 2;
-                            fresh--;
-                            q.offer(new int[]{x, y});
-                        }
-                    }
-                }
-            }
-            return fresh == 0 ? minutes : -1;
-        }
-    }`
+      optimalCode: `
+      class Solution {
+          public int orangesRotting(int[][] grid) {
+              int n = grid.length;
+              int m = grid[0].length;
+              Queue<int[]> q = new LinkedList<>();
+              int fresh = 0;
+
+              // Add all rotten oranges and count fresh oranges
+              for(int i=0;i<n;i++){
+                  for(int j=0;j<m;j++){
+                      if(grid[i][j]==2)
+                          q.offer(new int[]{i,j,0}); // row, col, time
+                      else if(grid[i][j]==1)
+                          fresh++;
+                  }
+              }
+              int minutes = 0;
+
+              int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
+              while(!q.isEmpty()){
+                  int[] curr = q.poll();
+                  int row = curr[0];
+                  int col = curr[1];
+                  int time = curr[2];
+                  minutes = Math.max(minutes,time);
+
+                  for(int[] dir : dirs){
+                      int x = row + dir[0];
+                      int y = col + dir[1];
+
+                      if(x>=0 && x<n && y>=0 && y<m && grid[x][y]==1){
+                          grid[x][y] = 2;
+                          fresh--;
+                          q.offer(new int[]{x,y,time+1});
+                      }
+                  }
+              }
+              return fresh==0 ? minutes : -1;
+          }
+      }`
     },
 
 
@@ -5147,43 +5206,54 @@ Space Complexity: O(1)`,
 
     {
       title: `QUESTION:
-    Given a matrix of 0s and 1s, update each cell to contain the distance to the nearest 1.
+        Given a binary grid of N x M. Find the distance of the nearest 1 in the grid for each cell.
     
-    EXAMPLE:
-    Input: mat = [[0,0,0],[0,1,0],[1,0,0]]
-    Output: [[1,1,1],[1,0,1],[0,1,2]]`,
+        EXAMPLE:
+        Input: grid = [[0,1,1,0],[1,1,0,0],[0,0,1,1]]
+        Output: [[1,0,0,1],[0,0,1,1],[1,1,0,0]]`,
     
       optimalComplexity: `Time Complexity: O(N * M)
-    Space Complexity: O(N * M)`,
+        Space Complexity: O(N * M)`,
     
       optimalCode: `class Solution {
-        public int[][] nearest(int[][] mat) {
-            int n = mat.length, m = mat[0].length;
+        public int[][] nearest(int[][] grid) {
+            int n = grid.length;
+            int m = grid[0].length;
             int[][] dist = new int[n][m];
+            boolean[][] vis = new boolean[n][m];
+    
             Queue<int[]> q = new LinkedList<>();
-            
-            for (int i = 0; i < n; i++) {
-                for (int j = 0; j < m; j++) {
-                    if (mat[i][j] == 1) {
-                        q.offer(new int[]{i, j});
-                        dist[i][j] = 0;
-                    } else {
-                        dist[i][j] = Integer.MAX_VALUE;
+    
+            // Push all 1's into queue
+            for(int i=0;i<n;i++){
+                for(int j=0;j<m;j++){
+    
+                    if(grid[i][j]==1){
+                        q.offer(new int[]{i,j,0});
+                        vis[i][j] = true;
                     }
                 }
             }
-            
+    
             int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
-            while (!q.isEmpty()) {
+    
+            while(!q.isEmpty()){
                 int[] curr = q.poll();
-                for (int[] d : dirs) {
-                    int x = curr[0] + d[0], y = curr[1] + d[1];
-                    if (x >= 0 && x < n && y >= 0 && y < m && dist[x][y] > dist[curr[0]][curr[1]] + 1) {
-                        dist[x][y] = dist[curr[0]][curr[1]] + 1;
-                        q.offer(new int[]{x, y});
+                int row = curr[0];
+                int col = curr[1];
+                int steps = curr[2];
+    
+                dist[row][col] = steps;
+                for(int[] dir : dirs){
+                    int x = row + dir[0];
+                    int y = col + dir[1];
+                    if(x>=0 && x<n && y>=0 && y<m && !vis[x][y]){
+                        vis[x][y] = true;
+                        q.offer(new int[]{x,y,steps+1});
                     }
                 }
             }
+    
             return dist;
         }
     }`
@@ -5286,46 +5356,108 @@ Space Complexity: O(1)`,
     EXAMPLE:
     Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
     Output: 5`,
+
+
+    bruteForceCode:`
+    class Pair {
+    String word;
+    int level;
+
+    Pair(String word, int level) {
+        this.word = word;
+        this.level = level;
+    }
+}
+
+class Solution {
+    public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+
+        Set<String> wordSet = new HashSet<>(wordList);
+
+        if (!wordSet.contains(endWord))
+            return 0;
+
+        Queue<Pair> q = new LinkedList<>();
+        q.offer(new Pair(beginWord, 1));
+
+        Set<String> visited = new HashSet<>();
+        visited.add(beginWord);
+
+        while (!q.isEmpty()) {
+
+            Pair curr = q.poll();
+
+            if (curr.word.equals(endWord))
+                return curr.level;
+
+            char[] chars = curr.word.toCharArray();
+
+            for (int i = 0; i < chars.length; i++) {
+
+                char original = chars[i];
+
+                for (char c = 'a'; c <= 'z'; c++) {
+
+                    chars[i] = c;
+
+                    String next = new String(chars);
+
+                    if (wordSet.contains(next) && !visited.contains(next)) {
+                        visited.add(next);
+                        q.offer(new Pair(next, curr.level + 1));
+                    }
+                }
+
+                chars[i] = original;
+            }
+        }
+
+        return 0;
+    }
+}`,
     
       optimalComplexity: `Time Complexity: O(N * L²) where L is word length
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
-        public int ladderLength(String beginWord, String endWord, List<String> wordList) {
-            Set<String> wordSet = new HashSet<>(wordList);
-            if (!wordSet.contains(endWord)) return 0;
-            
-            Queue<String> q = new LinkedList<>();
-            q.offer(beginWord);
-            int level = 1;
-            Set<String> visited = new HashSet<>();
-            visited.add(beginWord);
-            
-            while (!q.isEmpty()) {
-                int size = q.size();
-                for (int i = 0; i < size; i++) {
-                    String curr = q.poll();
-                    if (curr.equals(endWord)) return level;
-                    
-                    char[] chars = curr.toCharArray();
-                    for (int j = 0; j < chars.length; j++) {
-                        char original = chars[j];
-                        for (char c = 'a'; c <= 'z'; c++) {
-                            chars[j] = c;
-                            String next = new String(chars);
-                            if (wordSet.contains(next) && !visited.contains(next)) {
-                                visited.add(next);
-                                q.offer(next);
-                            }
-                        }
-                        chars[j] = original;
-                    }
-                }
-                level++;
-            }
-            return 0;
-        }
-    }`
+      optimalCode: `
+      class Solution {
+          public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+              Set<String> wordSet = new HashSet<>(wordList);
+              if(!wordSet.contains(endWord))
+                  return 0;
+              Queue<Object[]> q = new LinkedList<>();
+              q.offer(new Object[]{beginWord, 1});
+              Set<String> visited = new HashSet<>();
+              visited.add(beginWord);
+
+              while(!q.isEmpty()){
+                  Object[] curr = q.poll();
+                  String word = (String) curr[0];
+                  int level = (int) curr[1];
+
+                  if(word.equals(endWord))
+                      return level;
+
+                  char[] chars = word.toCharArray();
+                  for(int i=0;i<chars.length;i++){
+                      char original = chars[i];
+                      for(char c='a'; c<='z'; c++){
+                          chars[i] = c;
+                          String next = new String(chars);
+                          if(wordSet.contains(next) && !visited.contains(next)){
+
+                              visited.add(next);
+                              q.offer(new Object[]{next, level + 1});
+                          }
+                      }
+
+                      chars[i] = original;
+                  }
+              }
+
+              return 0;
+          }
+      }`
     },
 
 
@@ -5685,7 +5817,7 @@ Space Complexity: O(1)`,
                 adj.get(pre[1]).add(pre[0]);
             }
             
-            return !isCyclic(numCourses, adj);
+            return !isCyclic(numCourses, adj);         // if no cycle then all courses can be finished 
         }
         
         private boolean isCyclic(int V, ArrayList<ArrayList<Integer>> adj) {
@@ -5720,6 +5852,50 @@ Space Complexity: O(1)`,
     EXAMPLE:
     Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
     Output: [0,2,1,3]`,
+
+    bruteForceCode:`
+    class Solution {
+        public int[] findOrder(int numCourses, int[][] prerequisites) {
+            ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
+            for(int i=0;i<numCourses;i++)
+                adj.add(new ArrayList<>());
+
+            for(int[] pre : prerequisites)
+                adj.get(pre[1]).add(pre[0]);
+
+            boolean[] visited = new boolean[numCourses];
+            boolean[] recStack = new boolean[numCourses];
+            Stack<Integer> st = new Stack<>();
+            for(int i=0;i<numCourses;i++){
+                if(!visited[i]){
+                    if(dfs(i,adj,visited,recStack,st))
+                        return new int[0]; // cycle found
+                }
+            }
+            int[] ans = new int[numCourses];
+            int idx = 0;
+            while(!st.isEmpty())
+                ans[idx++] = st.pop();
+            return ans;
+        }
+
+        private boolean dfs(int node, ArrayList<ArrayList<Integer>> adj, boolean[] visited, boolean[] recStack, Stack<Integer> st){
+            visited[node] = true;
+            recStack[node] = true;
+            for(int nei : adj.get(node)){
+                if(!visited[nei]){
+                    if(dfs(nei,adj,visited,recStack,st))
+                        return true;
+                }
+                else if(recStack[nei]){
+                    return true;
+                }
+            }
+            recStack[node] = false;
+            st.push(node); // Topological Sort step
+            return false;
+        }
+    }`,
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -5754,7 +5930,7 @@ Space Complexity: O(1)`,
                 }
             }
             
-            return idx == numCourses ? order : new int[0];
+            return idx == numCourses ? order : new int[0];     // return empty array
         }
     }`
     },
@@ -6218,7 +6394,7 @@ Space Complexity: O(1)`,
 
     {
       title: `QUESTION:
-    Return the number of ways to arrive at destination with the shortest time. Return answer modulo 10^9 + 7.
+    Return the number of ways to arrive at destination (0 to n-1) with the shortest time. Return answer modulo 10^9 + 7.
     
     EXAMPLE:
     Input: n = 7, roads = [[0,6,7],[0,1,2],[1,2,3],[1,3,3],[6,3,3],[3,5,1],[6,5,1],[2,5,1],[0,4,5],[4,6,2]]
@@ -6315,8 +6491,8 @@ Space Complexity: O(1)`,
       title: `QUESTION:
     Given a graph with negative weights, find the shortest path from source to all vertices using Bellman Ford Algorithm. Detect negative weight cycle if present.
     
-    EXAMPLE:
-    Input: edges with negative weights`,
+    EXAMPLE:  Input : V = 6, Edges = [[3, 2, 6], [5, 3, 1], [0, 1, 5], [1, 5, -3], [1, 2, -2], [3, 4, -2], [2, 4, 3]], S = 0
+    Output: 0 5 3 3 1 2`,
     
       optimalComplexity: `Time Complexity: O(V * E)
     Space Complexity: O(V)`,
@@ -6351,10 +6527,10 @@ Space Complexity: O(1)`,
 
     {
       title: `QUESTION:
-    Find the shortest distance between every pair of vertices in a weighted graph.
-    
-    EXAMPLE:
-    Input: adjacency matrix with weights`,
+    Given a graph of V vertices numbered from 0 to V-1. Find the shortest distances between every pair of vertices in a given edge-weighted directed graph. The graph is represented as an adjacency matrix of size n x n. Matrix[i][j] denotes the weight of the edge from i to j. If matrix[i][j]=-1, it means there is no edge from i to j.    
+    EXAMPLE:  Input: matrix = [[0, 2, -1, -1],[1, 0, 3, -1],[-1, -1, 0, 1],[3, 5, 4, 0]]
+    Output: [[0, 2, 5, 6], [1, 0, 3, 4], [4, 6, 0, 1], [3, 5, 4, 0]] 
+    Explanation: matrix[0][0] is storing the distance from vertex 0 to vertex 0, the distance from vertex 0 to vertex 1 is 2 and so on.`,
     
       optimalComplexity: `Time Complexity: O(V³)
     Space Complexity: O(V²)`,
@@ -6536,9 +6712,16 @@ Space Complexity: O(1)`,
       title: `QUESTION:
     Given a weighted undirected graph, find the weight of the Minimum Spanning Tree using Kruskal's Algorithm.
     
-    EXAMPLE:
-    Input: V = 5, edges with weights
-    Output: MST Weight`,
+    EXAMPLE:  Input: V = 4, adj = [[[1, 1], [3, 4]], [[0, 1], [2, 2]], [[1, 2], [3, 3]], [[0, 4], [2, 3]]]
+    Output: 6
+
+    Explanation: 
+    Edges included in the MST:
+    From node 0 → [1, 1] (weight 1)
+    From node 1 → [2, 2] (weight 2)
+    From node 2 → [3, 3] (weight 3)
+    The total MST weight is 1 + 2 + 3 = 6.
+    These edges connect all vertices (0, 1, 2, 3) with minimum cost.`,
     
       optimalComplexity: `Time Complexity: O(E log E)
     Space Complexity: O(V)`,
