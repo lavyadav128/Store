@@ -55,8 +55,6 @@ import resourceRoutes from './routes/resource.routes.js';
 // handles the video studio feature (recording, uploading videos)
 import videoStudioRouter from "./routes/video.routes.js";
 
-import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
-
 
 import dns from 'node:dns';
 
@@ -155,8 +153,6 @@ app.use('/api', purchaseRoutes);
 
 // Chatbot routes — e.g. POST /api/chat
 app.use('/api', chatbotRoutes);
-
-app.use("/api/video-splitter", videoSplitterRoutes);
 
 
 // ── HEALTH CHECK ROUTE ──
