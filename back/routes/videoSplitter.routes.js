@@ -331,169 +331,56 @@ router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
 
+  const COBALT = process.env.COBALT_API_URL;
+  if (!COBALT) return res.status(500).json({ error: "COBALT_API_URL not configured" });
+
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
-  // ── Shared: stream any http URL → tmpPath ─────────────────────────────────
-  const streamToDisk = async (downloadUrl, extraHeaders = {}) => {
-    const response = await axios({
+  try {
+    console.log("⬇️  Resolving via Cobalt:", url);
+
+    const cobaltRes = await axios.post(
+      `${COBALT}/`,
+      { url, videoQuality: "720" },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
+        timeout: 30_000,
+      }
+    );
+
+    const { status, url: downloadUrl, filename } = cobaltRes.data;
+    console.log("Cobalt status:", status);
+
+    if (!["tunnel", "redirect", "stream"].includes(status))
+      throw new Error(`Cobalt error: ${JSON.stringify(cobaltRes.data)}`);
+
+    if (!downloadUrl) throw new Error("Cobalt returned no download URL");
+
+    // Stream to temp file
+    const fileStream = await axios({
       url: downloadUrl,
       method: "GET",
       responseType: "stream",
       timeout: 180_000,
-      headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Referer":    "https://www.youtube.com/",
-        ...extraHeaders,
-      },
-      maxRedirects: 10,
     });
+
     await new Promise((resolve, reject) => {
       const writer = fs.createWriteStream(tmpPath);
-      response.data.pipe(writer);
+      fileStream.data.pipe(writer);
       writer.on("finish", resolve);
       writer.on("error", reject);
     });
+
     const { size } = fs.statSync(tmpPath);
-    if (size < 50_000) throw new Error("Downloaded file too small — URL likely expired or invalid");
-  };
+    if (size < 50_000) throw new Error("Downloaded file too small");
 
-  try {
-    let downloadUrl = null;
-    let title       = "Video";
-
-    // ── Strategy 1: YTStream (existing API — fixed response parsing) ──────────
-    try {
-      console.log("🔵 Trying YTStream API...");
-      const apiRes = await axios.get(
-        "https://ytstream-download-youtube-videos.p.rapidapi.com/dl",
-        {
-          params:  { id: url },
-          headers: {
-            "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
-            "X-RapidAPI-Host": "ytstream-download-youtube-videos.p.rapidapi.com",
-          },
-          timeout: 20_000,
-        }
-      );
-
-      const data    = apiRes.data;
-      title         = data?.title || "Video";
-      const formats = data?.formats || {};
-
-      console.log("YTStream format keys:", Object.keys(formats));
-
-      // Scan every key — pick first entry that has a real http URL
-      const preferred = ["137", "22", "298", "18", "135", "134", "133", "160"];
-      for (const key of [...preferred, ...Object.keys(formats)]) {
-        const entry = formats[key];
-        const u     = entry?.url || (typeof entry === "string" ? entry : null);
-        if (u && u.startsWith("http")) { downloadUrl = u; break; }
-      }
-
-      // Also try top-level fields
-      if (!downloadUrl) downloadUrl = data?.link || data?.url || data?.mp4 || null;
-
-      if (downloadUrl) console.log("✅ YTStream gave a URL");
-      else console.warn("⚠️  YTStream returned no usable URL — response:", JSON.stringify(data).slice(0, 300));
-
-    } catch (e) { console.warn("⚠️  YTStream failed:", e.message); }
-
-    // ── Strategy 2: YouTube Media Downloader (DataFanatic) ───────────────────
-    // Subscribe free at: https://rapidapi.com/DataFanatic/api/youtube-media-downloader
-    // Response: { medias: [{ url, quality, extension, requiresMerge, audioUrl }] }
-    if (!downloadUrl) {
-      try {
-        console.log("🔵 Trying YouTube Media Downloader API...");
-        const res2 = await axios.get(
-          "https://youtube-media-downloader.p.rapidapi.com/v2/video/details",
-          {
-            params:  { videoId: extractYoutubeId(url) },
-            headers: {
-              "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
-              "X-RapidAPI-Host": "youtube-media-downloader.p.rapidapi.com",
-            },
-            timeout: 20_000,
-          }
-        );
-
-        const medias = res2.data?.videos?.items || res2.data?.medias || [];
-        title        = res2.data?.title || title;
-
-        console.log(`YouTube Media Downloader: ${medias.length} formats found`);
-
-        // Pick best non-merge mp4 first, then fall back to any mp4
-        const best =
-          medias.find(m => m.extension === "mp4" && !m.requiresMerge) ||
-          medias.find(m => m.extension === "mp4") ||
-          medias[0];
-
-        if (best?.url) {
-          downloadUrl = best.url;
-          console.log(`✅ YouTube Media Downloader: using quality=${best.quality}`);
-        }
-      } catch (e) { console.warn("⚠️  YouTube Media Downloader failed:", e.message); }
-    }
-
-    // ── Strategy 3: @distube/ytdl-core — pure Node.js, no Python ────────────
-    // Install: npm install @distube/ytdl-core
-    if (!downloadUrl) {
-      try {
-        console.log("🔵 Trying @distube/ytdl-core (pure Node.js)...");
-        const ytdl = (await import("@distube/ytdl-core")).default;
-
-        const info    = await ytdl.getInfo(url);
-        title         = info.videoDetails.title || title;
-
-        // Pick best mp4 format that has both video + audio (no merge needed)
-        const format =
-          ytdl.chooseFormat(info.formats, { quality: "highestvideo", filter: "videoandaudio" }) ||
-          ytdl.chooseFormat(info.formats, { quality: "highest" });
-
-        if (format?.url) {
-          downloadUrl = format.url;
-          console.log(`✅ ytdl-core: ${format.qualityLabel} ${format.container}`);
-        } else {
-          // Stream directly to disk using ytdl pipe
-          console.log("📥 ytdl-core: streaming directly to disk...");
-          await new Promise((resolve, reject) => {
-            const stream = ytdl(url, { quality: "highestvideo", filter: "videoandaudio" });
-            const writer = fs.createWriteStream(tmpPath);
-            stream.pipe(writer);
-            stream.on("error", reject);
-            writer.on("finish", resolve);
-            writer.on("error", reject);
-          });
-
-          const { size } = fs.statSync(tmpPath);
-          if (size < 50_000) throw new Error("ytdl-core stream too small");
-
-          // Skip the streamToDisk step — file already written
-          const duration    = await getDuration(tmpPath);
-          const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
-          return res.json({
-            success: true, publicId: cloudResult.public_id, url: cloudResult.secure_url,
-            originalName: title, duration: Math.floor(duration),
-            durationFormatted: formatTime(duration), size, source: "ytdl-core",
-          });
-        }
-      } catch (e) { console.warn("⚠️  ytdl-core failed:", e.message); }
-    }
-
-    if (!downloadUrl)
-      throw new Error(
-        "All download strategies failed. The video may be age-restricted, private, or region-blocked. " +
-        "Try subscribing to 'YouTube Media Downloader' on RapidAPI as a fallback."
-      );
-
-    // ── Stream resolved URL → disk → Cloudinary ───────────────────────────────
-    console.log(`⬇️  Streaming to disk from resolved URL...`);
-    await streamToDisk(downloadUrl);
-
-    const { size }    = fs.statSync(tmpPath);
     const duration    = await getDuration(tmpPath);
     const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
+    const title       = filename?.replace(/\.[^.]+$/, "") || "Video";
 
-    console.log("✅ Upload complete:", title);
     res.json({
       success:           true,
       publicId:          cloudResult.public_id,
@@ -502,7 +389,7 @@ router.post("/upload-url", async (req, res) => {
       duration:          Math.floor(duration),
       durationFormatted: formatTime(duration),
       size,
-      source:            "url",
+      source:            "cobalt",
     });
 
   } catch (err) {
@@ -512,7 +399,6 @@ router.post("/upload-url", async (req, res) => {
     cleanupFiles(tmpPath);
   }
 });
-
 // ── Helper: extract YouTube video ID from any URL format ─────────────────────
 function extractYoutubeId(url) {
   const match = url.match(
