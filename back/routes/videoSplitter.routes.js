@@ -1,16 +1,15 @@
 /**
- * videoSplitter.routes.js  —  FULL AI CLIP DETECTION VERSION
+ * videoSplitter.routes.js  —  CLOUDINARY STORAGE VERSION
  *
  * IMPORT IN MAIN SERVER:
  *   import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
  *   app.use("/api/video-splitter", videoSplitterRoutes);
  *
- * INSTALL:
- *   npm install fluent-ffmpeg @ffmpeg-installer/ffmpeg multer uuid axios form-data
- *   pip install yt-dlp faster-whisper
- *
  * ENV (.env):
  *   OPENROUTER_API_KEY=sk-or-v1-xxxx
+ *   CLOUDINARY_CLOUD_NAME=your_cloud_name
+ *   CLOUDINARY_API_KEY=your_api_key
+ *   CLOUDINARY_API_SECRET=your_api_secret
  *
  * ENDPOINTS:
  *   POST   /api/video-splitter/upload            → upload video file
@@ -19,12 +18,10 @@
  *   POST   /api/video-splitter/split/parts       → split into N equal parts
  *   POST   /api/video-splitter/split/summarize   → smart summary clip
  *   POST   /api/video-splitter/ai-clips          → AI detects top 5 viral moments ⭐
- *   DELETE /api/video-splitter/upload/:filename  → cleanup upload
- *   GET    /api/video-splitter/outputs/*         → serve finished clips
+ *   DELETE /api/video-splitter/upload/:publicId  → delete from Cloudinary
  */
 
 import { Router }        from "express";
-import express           from "express";
 import multer            from "multer";
 import ffmpegFluent      from "fluent-ffmpeg";
 import ffmpegInstaller   from "@ffmpeg-installer/ffmpeg";
@@ -35,7 +32,9 @@ import fs                from "fs";
 import { v4 as uuidv4 }  from "uuid";
 import { fileURLToPath } from "url";
 import axios             from "axios";
-import ytDlpExec         from "yt-dlp-exec";   // npm install yt-dlp-exec
+import ytDlpExec         from "yt-dlp-exec";
+import { v2 as cloudinary } from "cloudinary";
+import os                from "os";
 
 const router    = Router();
 const execAsync = promisify(exec);
@@ -44,29 +43,25 @@ const execAsync = promisify(exec);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname  = path.dirname(__filename);
 
+// ── Cloudinary config ─────────────────────────────────────────────────────────
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key:    process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
 // ── FFmpeg setup ──────────────────────────────────────────────────────────────
 ffmpegFluent.setFfmpegPath(ffmpegInstaller.path);
 const FFMPEG_PATH = ffmpegInstaller.path;
 
-// ── faster-whisper command ────────────────────────────────────────────────────
-const WHISPER_CMD = process.platform === "win32" ? "python -m faster_whisper" : "python3 -m faster_whisper";
+// ── Temp directory (OS temp — auto-cleaned, no persistence needed) ────────────
+const TMP_DIR = path.join(os.tmpdir(), "video_splitter");
+fs.mkdirSync(TMP_DIR, { recursive: true });
 
-// ── Directories ───────────────────────────────────────────────────────────────
-const UPLOADS_DIR = path.join(__dirname, "..", "video_uploads");
-const OUTPUTS_DIR = path.join(__dirname, "..", "video_outputs");
-[UPLOADS_DIR, OUTPUTS_DIR].forEach((d) => fs.mkdirSync(d, { recursive: true }));
-
-router.use("/outputs", express.static(OUTPUTS_DIR));
-
-// ── Multer ────────────────────────────────────────────────────────────────────
-const storage = multer.diskStorage({
-  destination: UPLOADS_DIR,
-  filename: (req, file, cb) =>
-    cb(null, `${uuidv4()}${path.extname(file.originalname)}`),
-});
+// ── Multer — memory storage (file goes straight to Cloudinary) ────────────────
 const upload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB per upload via multer
   fileFilter: (req, file, cb) =>
     /mp4|mov|avi|mkv|webm|flv|wmv/i.test(path.extname(file.originalname))
       ? cb(null, true)
@@ -74,8 +69,68 @@ const upload = multer({
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
+// CLOUDINARY HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Upload a local file path to Cloudinary as a video resource.
+ * Returns { url, public_id, duration }
+ */
+const uploadToCloudinary = (localPath, folder = "video_splitter/outputs") =>
+  new Promise((resolve, reject) =>
+    cloudinary.uploader.upload(
+      localPath,
+      {
+        resource_type: "video",
+        folder,
+        use_filename:  false,
+        unique_filename: true,
+        // Keep original quality — no Cloudinary transformations
+        overwrite: false,
+      },
+      (err, result) => (err ? reject(err) : resolve(result))
+    )
+  );
+
+/**
+ * Upload a Buffer (from multer memoryStorage) to Cloudinary.
+ * Returns { url, public_id, duration }
+ */
+const uploadBufferToCloudinary = (buffer, folder = "video_splitter/uploads") =>
+  new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        resource_type:   "video",
+        folder,
+        use_filename:    false,
+        unique_filename: true,
+        overwrite:       false,
+      },
+      (err, result) => (err ? reject(err) : resolve(result))
+    );
+    stream.end(buffer);
+  });
+
+/**
+ * Download a Cloudinary video URL to a local temp file.
+ * Returns the local temp file path.
+ */
+const downloadFromCloudinary = async (url, ext = ".mp4") => {
+  const tmpPath = path.join(TMP_DIR, `${uuidv4()}${ext}`);
+  const response = await axios({ url, method: "GET", responseType: "stream" });
+  await new Promise((resolve, reject) => {
+    const writer = fs.createWriteStream(tmpPath);
+    response.data.pipe(writer);
+    writer.on("finish", resolve);
+    writer.on("error", reject);
+  });
+  return tmpPath;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FFMPEG HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
 const getDuration = (filePath) =>
   new Promise((resolve, reject) =>
     ffmpegFluent.ffprobe(filePath, (err, meta) =>
@@ -100,7 +155,7 @@ const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
       .audioCodec("aac")
       .outputOptions([
         "-crf 18",
-        "-preset slow",
+        "-preset fast",          // "slow" is too heavy for cloud servers; "fast" is fine
         "-profile:v high",
         "-level 4.1",
         "-pix_fmt yuv420p",
@@ -129,16 +184,15 @@ const extractAudio = (videoPath, audioPath) =>
       .run()
   );
 
-// ── Transcribe with faster-whisper via Python script ──────────────────────────
-// We write a small Python script, run it, and read JSON output
+// ─────────────────────────────────────────────────────────────────────────────
+// WHISPER TRANSCRIPTION
+// ─────────────────────────────────────────────────────────────────────────────
 const transcribeWithWhisper = async (audioPath) => {
-  const scriptPath = path.join(UPLOADS_DIR, `whisper_${uuidv4()}.py`);
-  const outputJson = path.join(UPLOADS_DIR, `transcript_${uuidv4()}.json`);
+  const scriptPath = path.join(TMP_DIR, `whisper_${uuidv4()}.py`);
+  const outputJson = path.join(TMP_DIR, `transcript_${uuidv4()}.json`);
 
-  // Inline Python script — uses faster-whisper, outputs JSON with segments
   const pythonScript = `
 import json
-import sys
 from faster_whisper import WhisperModel
 
 model = WhisperModel("base", device="cpu", compute_type="int8")
@@ -162,27 +216,22 @@ print("done")
 
   try {
     const pyCmd = process.platform === "win32" ? "python" : "python3";
-    await execAsync(`${pyCmd} "${scriptPath}"`, { timeout: 10 * 60 * 1000 }); // 10 min
+    await execAsync(`${pyCmd} "${scriptPath}"`, { timeout: 10 * 60 * 1000 });
     const raw = fs.readFileSync(outputJson, "utf-8");
-    return JSON.parse(raw); // array of { start, end, text }
+    return JSON.parse(raw);
   } finally {
     if (fs.existsSync(scriptPath)) fs.unlinkSync(scriptPath);
     if (fs.existsSync(outputJson)) fs.unlinkSync(outputJson);
   }
 };
 
-// ── Ask GPT-4o (via OpenRouter) to pick top 5 viral moments ──────────────────
-const detectViralMoments = async ({
-  segments,
-  totalDuration,
-  clipLength,   // "ai_decide" | "30" | "60" | "90" | "120"
-  contentType,  // e.g. "educational", "motivational", "coding", "general"
-  clipCount,    // how many clips to detect (default 5)
-}) => {
+// ─────────────────────────────────────────────────────────────────────────────
+// GPT-4o VIRAL MOMENT DETECTION
+// ─────────────────────────────────────────────────────────────────────────────
+const detectViralMoments = async ({ segments, totalDuration, clipLength, contentType, clipCount }) => {
   const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
   if (!OPENROUTER_API_KEY) throw new Error("OPENROUTER_API_KEY not set in .env");
 
-  // Build a readable transcript with timestamps
   const transcriptText = segments
     .map((s) => `[${s.start}s - ${s.end}s]: ${s.text}`)
     .join("\n");
@@ -223,8 +272,7 @@ RESPOND ONLY with a valid JSON array — no explanation, no markdown, no extra t
     "title": "Short punchy clip title",
     "reason": "Why this moment is viral",
     "hook": "The opening line or moment that grabs attention"
-  },
-  ...
+  }
 ]
 
 Make sure start and end times are within 0 and ${Math.floor(totalDuration)}.
@@ -250,74 +298,76 @@ Return exactly ${clipCount} clips ranked by viral potential.
     }
   );
 
-  const raw = response.data.choices[0].message.content.trim();
-
-  // Strip markdown fences if GPT wraps in ```json
+  const raw     = response.data.choices[0].message.content.trim();
   const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
   return JSON.parse(cleaned);
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+// UTILITY: delete a list of local temp files safely
+// ─────────────────────────────────────────────────────────────────────────────
+const cleanupFiles = (...paths) =>
+  paths.forEach((p) => { try { if (p && fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {} });
+
+// ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/upload
+// Accepts multipart video → uploads to Cloudinary → returns public_id + metadata
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload", upload.single("video"), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: "No video file provided" });
+
+  // Write buffer to temp file so ffprobe can read duration
+  const tmpPath = path.join(TMP_DIR, `${uuidv4()}${path.extname(req.file.originalname)}`);
+  fs.writeFileSync(tmpPath, req.file.buffer);
+
   try {
-    const duration = await getDuration(req.file.path);
+    const duration    = await getDuration(tmpPath);
+    const cloudResult = await uploadBufferToCloudinary(req.file.buffer, "video_splitter/uploads");
+
     res.json({
-      success: true,
-      filename: req.file.filename,
-      originalName: req.file.originalname,
-      duration: Math.floor(duration),
+      success:           true,
+      publicId:          cloudResult.public_id,   // ← use this as "filename" in subsequent calls
+      url:               cloudResult.secure_url,
+      originalName:      req.file.originalname,
+      duration:          Math.floor(duration),
       durationFormatted: formatTime(duration),
-      size: req.file.size,
+      size:              req.file.size,
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(tmpPath);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/upload-url
-// Body: { url }
-//
-// Uses yt-dlp-exec (npm package — bundles yt-dlp binary, works on Render)
-// Extra flags to bypass YouTube bot detection on cloud server IPs
+// Body: { url }  — downloads via yt-dlp, uploads to Cloudinary
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
 
-  const filename   = `${uuidv4()}.mp4`;
-  const outputPath = path.join(UPLOADS_DIR, filename);
+  const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
   try {
     console.log("⬇️  Downloading:", url);
 
-    // yt-dlp-exec with flags that bypass Render/cloud IP blocks
     await ytDlpExec(url, {
       ffmpegLocation:  FFMPEG_PATH,
       format:          "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-      output:          outputPath,
-
-      // ── Bot-detection bypass flags ──────────────────────────────────────
-      // Pretend to be a real browser
+      output:          tmpPath,
       addHeaders: [
         "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language:en-US,en;q=0.9",
       ],
-      // Use Android client — YouTube doesn't throttle/block it as aggressively
-      extractor_args: "youtube:player_client=android",
-      // Sleep between requests to look human
-      sleepInterval:  1,
-      // No playlist — just the single video
-      noPlaylist:     true,
-      // Retry on failure
-      retries:        5,
-      // Ignore errors on fragments
-      ignorErrors:    true,
+      extractor_args:  "youtube:player_client=android",
+      sleepInterval:   1,
+      noPlaylist:      true,
+      retries:         5,
+      ignoreErrors:    true,
     });
 
-    // Get video title separately
     let title = "Video";
     try {
       const info = await ytDlpExec(url, {
@@ -327,305 +377,307 @@ router.post("/upload-url", async (req, res) => {
         extractor_args: "youtube:player_client=android",
       });
       title = info.title || "Video";
-    } catch (_) { /* title is optional */ }
+    } catch (_) {}
 
-    const duration = await getDuration(outputPath);
-    const stat     = fs.statSync(outputPath);
+    const duration    = await getDuration(tmpPath);
+    const stat        = fs.statSync(tmpPath);
+    const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
 
-    console.log("✅ Downloaded:", title, `(${formatTime(duration)})`);
+    console.log("✅ Uploaded to Cloudinary:", cloudResult.public_id);
 
     res.json({
-      success: true,
-      filename,
-      originalName: title,
+      success:           true,
+      publicId:          cloudResult.public_id,
+      url:               cloudResult.secure_url,
+      originalName:      title,
       duration:          Math.floor(duration),
       durationFormatted: formatTime(duration),
       size:              stat.size,
       source:            "url",
     });
-
   } catch (err) {
-    if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-    console.error("❌ yt-dlp-exec error:", err.message);
-    res.status(500).json({
-      success: false,
-      error:   err.message || "Failed to download video.",
-    });
+    console.error("❌ upload-url error:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(tmpPath);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/ai-clips  ⭐ MAIN AI FEATURE
-//
-// Body: {
-//   filename,
-//   clipLength:   "ai_decide" | "30" | "60" | "90" | "120"  (seconds)
-//   contentType:  "educational" | "motivational" | "coding" | "entertainment" | "general"
-//   clipCount:    number (default 5, max 10)
-// }
-//
-// Flow: extract audio → faster-whisper → GPT-4o → FFmpeg cuts → HD clips
+// SHARED: download source video from Cloudinary, run a splitter fn, upload clips
+// ─────────────────────────────────────────────────────────────────────────────
+const withSourceVideo = async (publicId, cloudinaryUrl, handler) => {
+  // Download the source video from Cloudinary to a local temp file
+  const srcPath = await downloadFromCloudinary(cloudinaryUrl);
+  try {
+    return await handler(srcPath);
+  } finally {
+    cleanupFiles(srcPath);
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// POST /api/video-splitter/ai-clips  ⭐
+// Body: { publicId, url, clipLength, contentType, clipCount }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/ai-clips", async (req, res) => {
   const {
-    filename,
+    publicId,
+    url:         videoUrl,
     clipLength   = "ai_decide",
     contentType  = "general",
     clipCount    = 5,
   } = req.body;
 
-  if (!filename) return res.status(400).json({ error: "filename is required" });
+  if (!publicId || !videoUrl)
+    return res.status(400).json({ error: "publicId and url are required" });
 
-  const inputPath  = path.join(UPLOADS_DIR, filename);
-  if (!fs.existsSync(inputPath))
-    return res.status(404).json({ error: "Video file not found. Please upload again." });
-
-  const sessionId  = uuidv4();
-  const sessionDir = path.join(OUTPUTS_DIR, sessionId);
-  fs.mkdirSync(sessionDir);
-
-  const audioPath = path.join(sessionDir, "audio.wav");
+  const audioPath = path.join(TMP_DIR, `audio_${uuidv4()}.wav`);
+  const tmpClips  = [];
 
   try {
-    // ── Step 1: Extract audio ──────────────────────────────────────────────
-    console.log("📢 Extracting audio...");
-    await extractAudio(inputPath, audioPath);
+    await withSourceVideo(publicId, videoUrl, async (srcPath) => {
+      // Step 1: Extract audio
+      console.log("📢 Extracting audio...");
+      await extractAudio(srcPath, audioPath);
 
-    // ── Step 2: Transcribe with faster-whisper ─────────────────────────────
-    console.log("📝 Transcribing with faster-whisper (first run downloads model ~150MB)...");
-    const segments = await transcribeWithWhisper(audioPath);
+      // Step 2: Transcribe
+      console.log("📝 Transcribing with faster-whisper...");
+      const segments = await transcribeWithWhisper(audioPath);
+      cleanupFiles(audioPath);
 
-    if (!segments || segments.length === 0)
-      throw new Error("Transcription returned empty. Video may have no speech.");
+      if (!segments || segments.length === 0)
+        throw new Error("Transcription returned empty. Video may have no speech.");
 
-    // ── Step 3: GPT-4o detects viral moments ──────────────────────────────
-    console.log("🤖 Asking GPT-4o to find viral moments...");
-    const totalDuration = await getDuration(inputPath);
-    const moments = await detectViralMoments({
-      segments,
-      totalDuration,
-      clipLength,
-      contentType,
-      clipCount: Math.min(parseInt(clipCount) || 5, 10),
-    });
-
-    // ── Step 4: Cut HD clips with FFmpeg ──────────────────────────────────
-    console.log(`✂️  Cutting ${moments.length} clips...`);
-    const clips = [];
-
-    for (let i = 0; i < moments.length; i++) {
-      const moment = moments[i];
-
-      // Safety clamp — never go outside video bounds
-      const start    = Math.max(0, parseFloat(moment.start));
-      const end      = Math.min(totalDuration, parseFloat(moment.end));
-      const duration = end - start;
-
-      if (duration < 5) continue; // skip if AI hallucinated a tiny clip
-
-      const clipName = `clip_${String(i + 1).padStart(2, "0")}_rank${moment.rank}.mp4`;
-      const clipPath = path.join(sessionDir, clipName);
-
-      await extractClip({
-        inputPath,
-        outputPath: clipPath,
-        startTime:  start,
-        duration,
+      // Step 3: GPT-4o detects viral moments
+      console.log("🤖 Asking GPT-4o to find viral moments...");
+      const totalDuration = await getDuration(srcPath);
+      const moments = await detectViralMoments({
+        segments,
+        totalDuration,
+        clipLength,
+        contentType,
+        clipCount: Math.min(parseInt(clipCount) || 5, 10),
       });
 
-      clips.push({
-        rank:      moment.rank,
-        index:     i + 1,
-        filename:  clipName,
-        url:       `/api/video-splitter/outputs/${sessionId}/${clipName}`,
-        startTime: formatTime(start),
-        endTime:   formatTime(end),
-        duration:  formatTime(duration),
-        durationSeconds: Math.round(duration),
-        title:     moment.title,
-        reason:    moment.reason,
-        hook:      moment.hook,
-      });
-    }
+      // Step 4: Cut clips locally, then upload each to Cloudinary
+      console.log(`✂️  Cutting ${moments.length} clips...`);
+      const clips = [];
 
-    // Cleanup audio file
-    if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
+      for (let i = 0; i < moments.length; i++) {
+        const moment   = moments[i];
+        const start    = Math.max(0, parseFloat(moment.start));
+        const end      = Math.min(totalDuration, parseFloat(moment.end));
+        const duration = end - start;
 
-    res.json({
-      success:     true,
-      totalClips:  clips.length,
-      contentType,
-      clipLength,
-      clips,
+        if (duration < 5) continue;
+
+        const clipName = `clip_${String(i + 1).padStart(2, "0")}_rank${moment.rank}.mp4`;
+        const clipPath = path.join(TMP_DIR, `${uuidv4()}_${clipName}`);
+        tmpClips.push(clipPath);
+
+        await extractClip({ inputPath: srcPath, outputPath: clipPath, startTime: start, duration });
+
+        const cloudClip = await uploadToCloudinary(clipPath, "video_splitter/outputs");
+
+        clips.push({
+          rank:            moment.rank,
+          index:           i + 1,
+          publicId:        cloudClip.public_id,
+          url:             cloudClip.secure_url,   // ← direct Cloudinary URL, no server needed
+          startTime:       formatTime(start),
+          endTime:         formatTime(end),
+          duration:        formatTime(duration),
+          durationSeconds: Math.round(duration),
+          title:           moment.title,
+          reason:          moment.reason,
+          hook:            moment.hook,
+        });
+      }
+
+      res.json({ success: true, totalClips: clips.length, contentType, clipLength, clips });
     });
-
   } catch (err) {
-    if (fs.existsSync(audioPath)) fs.unlinkSync(audioPath);
     console.error("AI clips error:", err.message);
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(audioPath, ...tmpClips);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/split/reels
-// Body: { filename, clipDuration }
+// Body: { publicId, url, clipDuration }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/split/reels", async (req, res) => {
-  const { filename, clipDuration } = req.body;
-  if (!filename || !clipDuration)
-    return res.status(400).json({ error: "filename and clipDuration required" });
+  const { publicId, url: videoUrl, clipDuration } = req.body;
+  if (!publicId || !videoUrl || !clipDuration)
+    return res.status(400).json({ error: "publicId, url, and clipDuration required" });
+
+  const tmpClips = [];
 
   try {
-    const inputPath = path.join(UPLOADS_DIR, filename);
-    const total     = await getDuration(inputPath);
-    const clipSec   = parseInt(clipDuration);
-    const count     = Math.ceil(total / clipSec);
+    await withSourceVideo(publicId, videoUrl, async (srcPath) => {
+      const total   = await getDuration(srcPath);
+      const clipSec = parseInt(clipDuration);
+      const count   = Math.ceil(total / clipSec);
+      const clips   = [];
 
-    const sessionId  = uuidv4();
-    const sessionDir = path.join(OUTPUTS_DIR, sessionId);
-    fs.mkdirSync(sessionDir);
+      for (let i = 0; i < count; i++) {
+        const start   = i * clipSec;
+        const dur     = Math.min(clipSec, total - start);
+        const tmpPath = path.join(TMP_DIR, `${uuidv4()}_reel_${i + 1}.mp4`);
+        tmpClips.push(tmpPath);
 
-    const clips = [];
-    for (let i = 0; i < count; i++) {
-      const start = i * clipSec;
-      const dur   = Math.min(clipSec, total - start);
-      const name  = `reel_${String(i + 1).padStart(3, "0")}.mp4`;
-      const out   = path.join(sessionDir, name);
-      await extractClip({ inputPath, outputPath: out, startTime: start, duration: dur });
-      clips.push({
-        index: i + 1,
-        filename: name,
-        url: `/api/video-splitter/outputs/${sessionId}/${name}`,
-        startTime: formatTime(start),
-        duration: formatTime(dur),
-      });
-    }
+        await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
+        const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
 
-    res.json({ success: true, totalClips: clips.length, clips });
+        clips.push({
+          index:     i + 1,
+          publicId:  cloudClip.public_id,
+          url:       cloudClip.secure_url,
+          startTime: formatTime(start),
+          duration:  formatTime(dur),
+        });
+      }
+
+      res.json({ success: true, totalClips: clips.length, clips });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(...tmpClips);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/split/parts
-// Body: { filename, parts }
+// Body: { publicId, url, parts }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/split/parts", async (req, res) => {
-  const { filename, parts } = req.body;
-  if (!filename || !parts)
-    return res.status(400).json({ error: "filename and parts required" });
+  const { publicId, url: videoUrl, parts } = req.body;
+  if (!publicId || !videoUrl || !parts)
+    return res.status(400).json({ error: "publicId, url, and parts required" });
+
+  const tmpClips = [];
 
   try {
-    const inputPath = path.join(UPLOADS_DIR, filename);
-    const total     = await getDuration(inputPath);
-    const n         = parseInt(parts);
-    const dur       = total / n;
+    await withSourceVideo(publicId, videoUrl, async (srcPath) => {
+      const total = await getDuration(srcPath);
+      const n     = parseInt(parts);
+      const dur   = total / n;
+      const clips = [];
 
-    const sessionId  = uuidv4();
-    const sessionDir = path.join(OUTPUTS_DIR, sessionId);
-    fs.mkdirSync(sessionDir);
+      for (let i = 0; i < n; i++) {
+        const start   = i * dur;
+        const tmpPath = path.join(TMP_DIR, `${uuidv4()}_part_${i + 1}.mp4`);
+        tmpClips.push(tmpPath);
 
-    const clips = [];
-    for (let i = 0; i < n; i++) {
-      const start = i * dur;
-      const name  = `part_${String(i + 1).padStart(3, "0")}.mp4`;
-      const out   = path.join(sessionDir, name);
-      await extractClip({ inputPath, outputPath: out, startTime: start, duration: dur });
-      clips.push({
-        index: i + 1,
-        filename: name,
-        url: `/api/video-splitter/outputs/${sessionId}/${name}`,
-        startTime: formatTime(start),
-        duration: formatTime(dur),
-      });
-    }
+        await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
+        const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
 
-    res.json({ success: true, totalClips: clips.length, clips });
+        clips.push({
+          index:     i + 1,
+          publicId:  cloudClip.public_id,
+          url:       cloudClip.secure_url,
+          startTime: formatTime(start),
+          duration:  formatTime(dur),
+        });
+      }
+
+      res.json({ success: true, totalClips: clips.length, clips });
+    });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(...tmpClips);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/split/summarize
-// Body: { filename, targetDuration }
+// Body: { publicId, url, targetDuration }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/split/summarize", async (req, res) => {
-  const { filename, targetDuration } = req.body;
-  if (!filename || !targetDuration)
-    return res.status(400).json({ error: "filename and targetDuration required" });
+  const { publicId, url: videoUrl, targetDuration } = req.body;
+  if (!publicId || !videoUrl || !targetDuration)
+    return res.status(400).json({ error: "publicId, url, and targetDuration required" });
+
+  const tmpSegs    = [];
+  let   listPath   = null;
+  let   summaryPath = null;
 
   try {
-    const inputPath = path.join(UPLOADS_DIR, filename);
-    const total     = await getDuration(inputPath);
-    const target    = parseInt(targetDuration);
+    await withSourceVideo(publicId, videoUrl, async (srcPath) => {
+      const total  = await getDuration(srcPath);
+      const target = parseInt(targetDuration);
 
-    if (target >= total)
-      return res.status(400).json({ error: "Target duration must be shorter than the video." });
+      if (target >= total)
+        return res.status(400).json({ error: "Target duration must be shorter than the video." });
 
-    const SEGMENTS   = 10;
-    const segDur     = target / SEGMENTS;
-    const step       = (total - segDur) / (SEGMENTS - 1);
+      const SEGMENTS = 10;
+      const segDur   = target / SEGMENTS;
+      const step     = (total - segDur) / (SEGMENTS - 1);
+      const sessionId = uuidv4();
 
-    const sessionId  = uuidv4();
-    const sessionDir = path.join(OUTPUTS_DIR, sessionId);
-    fs.mkdirSync(sessionDir);
+      for (let i = 0; i < SEGMENTS; i++) {
+        const segPath = path.join(TMP_DIR, `${sessionId}_seg_${i}.mp4`);
+        tmpSegs.push(segPath);
+        await extractClip({ inputPath: srcPath, outputPath: segPath, startTime: i * step, duration: segDur });
+      }
 
-    const segPaths = [];
-    for (let i = 0; i < SEGMENTS; i++) {
-      const start  = i * step;
-      const segOut = path.join(sessionDir, `seg_${i}.mp4`);
-      await extractClip({ inputPath, outputPath: segOut, startTime: start, duration: segDur });
-      segPaths.push(segOut);
-    }
+      listPath    = path.join(TMP_DIR, `${sessionId}_list.txt`);
+      summaryPath = path.join(TMP_DIR, `${sessionId}_summary.mp4`);
 
-    const listPath = path.join(sessionDir, "list.txt");
-    fs.writeFileSync(listPath, segPaths.map((p) => `file '${p}'`).join("\n"));
+      fs.writeFileSync(listPath, tmpSegs.map((p) => `file '${p}'`).join("\n"));
 
-    const summaryName = "summary.mp4";
-    const summaryPath = path.join(sessionDir, summaryName);
+      await new Promise((resolve, reject) =>
+        ffmpegFluent()
+          .input(listPath)
+          .inputOptions(["-f concat", "-safe 0"])
+          .videoCodec("libx264")
+          .audioCodec("aac")
+          .outputOptions([
+            "-crf 18", "-preset fast", "-profile:v high", "-level 4.1",
+            "-pix_fmt yuv420p", "-movflags +faststart", "-b:a 192k", "-ar 44100", "-ac 2",
+          ])
+          .output(summaryPath)
+          .on("end", resolve)
+          .on("error", reject)
+          .run()
+      );
 
-    await new Promise((resolve, reject) =>
-      ffmpegFluent()
-        .input(listPath)
-        .inputOptions(["-f concat", "-safe 0"])
-        .videoCodec("libx264")
-        .audioCodec("aac")
-        .outputOptions([
-          "-crf 18", "-preset slow", "-profile:v high", "-level 4.1",
-          "-pix_fmt yuv420p", "-movflags +faststart", "-b:a 192k", "-ar 44100", "-ac 2",
-        ])
-        .output(summaryPath)
-        .on("end", resolve)
-        .on("error", reject)
-        .run()
-    );
+      const cloudResult = await uploadToCloudinary(summaryPath, "video_splitter/outputs");
 
-    segPaths.forEach((p) => fs.unlinkSync(p));
-    fs.unlinkSync(listPath);
-
-    res.json({
-      success: true,
-      summary: {
-        filename: summaryName,
-        url: `/api/video-splitter/outputs/${sessionId}/${summaryName}`,
-        originalDuration: formatTime(total),
-        summaryDuration: formatTime(target),
-      },
+      res.json({
+        success: true,
+        summary: {
+          publicId:         cloudResult.public_id,
+          url:              cloudResult.secure_url,
+          originalDuration: formatTime(total),
+          summaryDuration:  formatTime(target),
+        },
+      });
     });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(...tmpSegs, listPath, summaryPath);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// DELETE /api/video-splitter/upload/:filename
+// DELETE /api/video-splitter/upload/:publicId
+// Deletes a video from Cloudinary by public_id (URL-encoded)
 // ─────────────────────────────────────────────────────────────────────────────
-router.delete("/upload/:filename", (req, res) => {
-  const p = path.join(UPLOADS_DIR, req.params.filename);
-  if (fs.existsSync(p)) fs.unlinkSync(p);
-  res.json({ success: true });
+router.delete("/upload/:publicId(*)", async (req, res) => {
+  try {
+    const publicId = req.params.publicId;
+    await cloudinary.uploader.destroy(publicId, { resource_type: "video" });
+    res.json({ success: true, deleted: publicId });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
 });
 
 export default router;

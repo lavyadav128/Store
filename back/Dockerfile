@@ -1,20 +1,14 @@
-# Use Node image
 FROM node:20
 
-# Create app directory
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip ffmpeg \
+    && ln -s /usr/bin/python3 /usr/bin/python \
+    && apt-get clean
+
 WORKDIR /app
-
-# Copy package files
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
-
-# Copy all files
+RUN pip3 install faster-whisper --break-system-packages
 COPY . .
-
-# Expose backend port
 EXPOSE 5000
-
-# Start backend
 CMD ["node", "index.js"]
