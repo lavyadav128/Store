@@ -167,7 +167,6 @@ export default function AdminVideoSplitter() {
         { url: youtubeUrl },
         { headers: authHeaders() }
       );
-      console.log("uploadInfo received:", res.data); // ← add this
       setUploadInfo(res.data);
       setVideoFile({ name: res.data.originalName });
       setYoutubeUrl("");
@@ -273,7 +272,8 @@ export default function AdminVideoSplitter() {
 
   const handleRemove = async () => {
     if (uploadInfo) {
-      await axios.delete(`${API}/upload/${encodeURIComponent(uploadInfo.publicId)}`, { headers: authHeaders() }).catch(() => {});    }
+      await axios.delete(`${API}/upload/${uploadInfo.filename}`, { headers: authHeaders() }).catch(() => {});
+    }
     setVideoFile(null);
     setUploadInfo(null);
     setResults(null);

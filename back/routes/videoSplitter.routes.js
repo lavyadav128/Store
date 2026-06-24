@@ -1,4 +1,25 @@
-
+/**
+ * videoSplitter.routes.js  —  CLOUDINARY STORAGE VERSION
+ *
+ * IMPORT IN MAIN SERVER:
+ *   import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
+ *   app.use("/api/video-splitter", videoSplitterRoutes);
+ *
+ * ENV (.env):
+ *   OPENROUTER_API_KEY=sk-or-v1-xxxx
+ *   CLOUDINARY_CLOUD_NAME=your_cloud_name
+ *   CLOUDINARY_API_KEY=your_api_key
+ *   CLOUDINARY_API_SECRET=your_api_secret
+ *
+ * ENDPOINTS:
+ *   POST   /api/video-splitter/upload            → upload video file
+ *   POST   /api/video-splitter/upload-url        → download from YouTube URL
+ *   POST   /api/video-splitter/split/reels       → split by clip duration
+ *   POST   /api/video-splitter/split/parts       → split into N equal parts
+ *   POST   /api/video-splitter/split/summarize   → smart summary clip
+ *   POST   /api/video-splitter/ai-clips          → AI detects top 5 viral moments ⭐
+ *   DELETE /api/video-splitter/upload/:publicId  → delete from Cloudinary
+ */
 
 import { Router }        from "express";
 import multer            from "multer";
@@ -11,6 +32,7 @@ import fs                from "fs";
 import { v4 as uuidv4 }  from "uuid";
 import { fileURLToPath } from "url";
 import axios             from "axios";
+import ytDlpExec         from "yt-dlp-exec";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
 
@@ -322,73 +344,39 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 // POST /api/video-splitter/upload-url
 // Body: { url }  — downloads via yt-dlp, uploads to Cloudinary
 // ─────────────────────────────────────────────────────────────────────────────
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/upload-url
-// Multi-API waterfall: YTStream → YouTube Media Downloader → ytdl-core (Node)
-// No Python, no yt-dlp — works on Render free tier
-// ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
 
-  const COBALT = process.env.COBALT_API_URL;
-  if (!COBALT) return res.status(500).json({ error: "COBALT_API_URL not configured" });
-
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
   try {
-    console.log("⬇️  Resolving via Cobalt:", url);
+    console.log("⬇️  Downloading via yt-dlp:", url);
 
-    const cobaltRes = await axios.post(
-      `${COBALT}/`,
-      { url, videoQuality: "720" },
-      {
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-        },
-        timeout: 30_000,
-      }
-    );
-
-    const { status, url: downloadUrl, filename } = cobaltRes.data;
-    console.log("Cobalt status:", status, "filename:", filename);
-
-    if (!["tunnel", "redirect", "stream"].includes(status))
-      throw new Error(`Cobalt error: ${JSON.stringify(cobaltRes.data)}`);
-
-    if (!downloadUrl) throw new Error("Cobalt returned no download URL");
-
-    // ⚡ Stream IMMEDIATELY — tunnel URLs expire fast
-    console.log("⬇️  Streaming to disk...");
-    const fileStream = await axios({
-      url: downloadUrl,
-      method: "GET",
-      responseType: "stream",
-      timeout: 300_000, // 5 min for large videos
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-      },
-      maxRedirects: 10,
+    await ytDlpExec(url, {
+      ffmpegLocation: FFMPEG_PATH,
+      format:         "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+      output:         tmpPath,
+      noPlaylist:     true,
+      retries:        3,
     });
 
-    await new Promise((resolve, reject) => {
-      const writer = fs.createWriteStream(tmpPath);
-      fileStream.data.pipe(writer);
-      writer.on("finish", resolve);
-      writer.on("error", reject);
-    });
-
-    const { size } = fs.statSync(tmpPath);
-    console.log("✅ Downloaded size:", size);
-
-    if (size < 50_000) throw new Error("Downloaded file too small — tunnel may have expired");
+    // Get title separately
+    let title = "Video";
+    try {
+      const info = await ytDlpExec(url, {
+        dumpSingleJson: true,
+        noWarnings:     true,
+        noPlaylist:     true,
+      });
+      title = info.title || "Video";
+    } catch (_) {}
 
     const duration    = await getDuration(tmpPath);
+    const stat        = fs.statSync(tmpPath);
     const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
-    const title       = filename?.replace(/\.[^.]+$/, "") || "Video";
 
-    console.log("✅ Uploaded to Cloudinary:", cloudResult.secure_url);
+    console.log("✅ Done:", title);
 
     res.json({
       success:           true,
@@ -397,8 +385,8 @@ router.post("/upload-url", async (req, res) => {
       originalName:      title,
       duration:          Math.floor(duration),
       durationFormatted: formatTime(duration),
-      size,
-      source:            "cobalt",
+      size:              stat.size,
+      source:            "yt-dlp",
     });
 
   } catch (err) {
@@ -408,7 +396,6 @@ router.post("/upload-url", async (req, res) => {
     cleanupFiles(tmpPath);
   }
 });
-
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED: download source video from Cloudinary, run a splitter fn, upload clips
 // ─────────────────────────────────────────────────────────────────────────────
