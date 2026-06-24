@@ -1,25 +1,4 @@
-/**
- * videoSplitter.routes.js  —  CLOUDINARY STORAGE VERSION
- *
- * IMPORT IN MAIN SERVER:
- *   import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
- *   app.use("/api/video-splitter", videoSplitterRoutes);
- *
- * ENV (.env):
- *   OPENROUTER_API_KEY=sk-or-v1-xxxx
- *   CLOUDINARY_CLOUD_NAME=your_cloud_name
- *   CLOUDINARY_API_KEY=your_api_key
- *   CLOUDINARY_API_SECRET=your_api_secret
- *
- * ENDPOINTS:
- *   POST   /api/video-splitter/upload            → upload video file
- *   POST   /api/video-splitter/upload-url        → download from YouTube URL
- *   POST   /api/video-splitter/split/reels       → split by clip duration
- *   POST   /api/video-splitter/split/parts       → split into N equal parts
- *   POST   /api/video-splitter/split/summarize   → smart summary clip
- *   POST   /api/video-splitter/ai-clips          → AI detects top 5 viral moments ⭐
- *   DELETE /api/video-splitter/upload/:publicId  → delete from Cloudinary
- */
+
 
 import { Router }        from "express";
 import multer            from "multer";
@@ -32,7 +11,6 @@ import fs                from "fs";
 import { v4 as uuidv4 }  from "uuid";
 import { fileURLToPath } from "url";
 import axios             from "axios";
-import ytDlpExec         from "yt-dlp-exec";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
 
@@ -54,14 +32,14 @@ cloudinary.config({
 ffmpegFluent.setFfmpegPath(ffmpegInstaller.path);
 const FFMPEG_PATH = ffmpegInstaller.path;
 
-// ── Temp directory (OS temp — auto-cleaned, no persistence needed) ────────────
+// ── Temp directory ────────────────────────────────────────────────────────────
 const TMP_DIR = path.join(os.tmpdir(), "video_splitter");
 fs.mkdirSync(TMP_DIR, { recursive: true });
 
-// ── Multer — memory storage (file goes straight to Cloudinary) ────────────────
+// ── Multer — memory storage ───────────────────────────────────────────────────
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 500 * 1024 * 1024 }, // 500 MB per upload via multer
+  limits: { fileSize: 500 * 1024 * 1024 },
   fileFilter: (req, file, cb) =>
     /mp4|mov|avi|mkv|webm|flv|wmv/i.test(path.extname(file.originalname))
       ? cb(null, true)
@@ -69,33 +47,92 @@ const upload = multer({
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CLOUDINARY HELPERS
+// YT-DLP HELPERS  ⭐ FIXED
 // ─────────────────────────────────────────────────────────────────────────────
 
 /**
- * Upload a local file path to Cloudinary as a video resource.
- * Returns { url, public_id, duration }
+ * Returns the full path to the Node.js executable (e.g. C:\Program Files\nodejs\node.exe)
+ * Used to tell yt-dlp where to find the Node JS runtime.
  */
+const NODE_EXEC_PATH = process.execPath;
+
+/**
+ * Returns cookies flag if a cookies.txt file exists in the project root.
+ * Place cookies.txt (Netscape format) exported from your browser in:
+ *   <project_root>/cookies.txt
+ *
+ * This is the most reliable fix for "Video not available" errors on YouTube.
+ */
+const getCookiesFlag = () => {
+  // Walk up from routes/ to project root
+  const projectRoot  = path.resolve(__dirname, "../../");
+  const cookiesPath  = path.join(projectRoot, "cookies.txt");
+  if (fs.existsSync(cookiesPath)) {
+    console.log("🍪 Using cookies.txt for yt-dlp");
+    return `--cookies "${cookiesPath}"`;
+  }
+  return "";
+};
+
+/**
+ * Build the yt-dlp command with all fixes applied:
+ *  - Full Node.js path as JS runtime
+ *  - Cookies file (if present)
+ *  - Improved format fallback chain
+ *  - User-agent to avoid bot detection
+ */
+const buildYtDlpCommand = (url, outputPath) => {
+  const cookiesFlag = getCookiesFlag();
+
+  // Escape backslashes in paths for shell (important on Windows)
+  const escapedOutput  = outputPath.replace(/\\/g, "\\\\");
+  const escapedFfmpeg  = FFMPEG_PATH.replace(/\\/g, "\\\\");
+  const escapedNode    = NODE_EXEC_PATH.replace(/\\/g, "\\\\");
+
+  return [
+    `yt-dlp`,
+    `"${url}"`,
+    // Format: prefer mp4, fallback to best available
+    `-f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best[ext=mp4]/best"`,
+    `--merge-output-format mp4`,
+    `-o "${escapedOutput}"`,
+    `--no-playlist`,
+    `--retries 5`,
+    `--fragment-retries 5`,
+    // ⭐ FIX 1: Pass full path to Node.js as the JS runtime
+    `--js-runtimes "node:${escapedNode}"`,
+    // ⭐ FIX 2: Cookies (only added if cookies.txt exists)
+    cookiesFlag,
+    // FFmpeg location
+    `--ffmpeg-location "${escapedFfmpeg}"`,
+    // Extra reliability flags
+    `--no-warnings`,
+    `--prefer-free-formats`,
+    `--add-header "Accept-Language:en-US,en;q=0.9"`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CLOUDINARY HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
 const uploadToCloudinary = (localPath, folder = "video_splitter/outputs") =>
   new Promise((resolve, reject) =>
     cloudinary.uploader.upload(
       localPath,
       {
-        resource_type: "video",
+        resource_type:   "video",
         folder,
-        use_filename:  false,
+        use_filename:    false,
         unique_filename: true,
-        // Keep original quality — no Cloudinary transformations
-        overwrite: false,
+        overwrite:       false,
       },
       (err, result) => (err ? reject(err) : resolve(result))
     )
   );
 
-/**
- * Upload a Buffer (from multer memoryStorage) to Cloudinary.
- * Returns { url, public_id, duration }
- */
 const uploadBufferToCloudinary = (buffer, folder = "video_splitter/uploads") =>
   new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
@@ -111,10 +148,6 @@ const uploadBufferToCloudinary = (buffer, folder = "video_splitter/uploads") =>
     stream.end(buffer);
   });
 
-/**
- * Download a Cloudinary video URL to a local temp file.
- * Returns the local temp file path.
- */
 const downloadFromCloudinary = async (url, ext = ".mp4") => {
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}${ext}`);
   const response = await axios({ url, method: "GET", responseType: "stream" });
@@ -145,7 +178,6 @@ const formatTime = (seconds) => {
   return [h, m, s].map((v) => String(v).padStart(2, "0")).join(":");
 };
 
-// HD clip extraction — CRF 18, H.264 High, AAC 192k stereo
 const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
   new Promise((resolve, reject) =>
     ffmpegFluent(inputPath)
@@ -155,7 +187,7 @@ const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
       .audioCodec("aac")
       .outputOptions([
         "-crf 18",
-        "-preset fast",          // "slow" is too heavy for cloud servers; "fast" is fine
+        "-preset fast",
         "-profile:v high",
         "-level 4.1",
         "-pix_fmt yuv420p",
@@ -170,7 +202,6 @@ const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
       .run()
   );
 
-// Extract audio from video → WAV for Whisper
 const extractAudio = (videoPath, audioPath) =>
   new Promise((resolve, reject) =>
     ffmpegFluent(videoPath)
@@ -282,17 +313,17 @@ Return exactly ${clipCount} clips ranked by viral potential.
   const response = await axios.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
-      model: "openai/gpt-4o",
-      messages: [{ role: "user", content: prompt }],
+      model:       "openai/gpt-4o",
+      messages:    [{ role: "user", content: prompt }],
       temperature: 0.4,
-      max_tokens: 2000,
+      max_tokens:  2000,
     },
     {
       headers: {
-        Authorization: `Bearer ${OPENROUTER_API_KEY}`,
+        Authorization:  `Bearer ${OPENROUTER_API_KEY}`,
         "Content-Type": "application/json",
         "HTTP-Referer": "https://notenova.app",
-        "X-Title": "NoteNova Video Splitter",
+        "X-Title":      "NoteNova Video Splitter",
       },
       timeout: 60000,
     }
@@ -304,19 +335,19 @@ Return exactly ${clipCount} clips ranked by viral potential.
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UTILITY: delete a list of local temp files safely
+// UTILITY
 // ─────────────────────────────────────────────────────────────────────────────
 const cleanupFiles = (...paths) =>
-  paths.forEach((p) => { try { if (p && fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {} });
+  paths.forEach((p) => {
+    try { if (p && fs.existsSync(p)) fs.unlinkSync(p); } catch (_) {}
+  });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/upload
-// Accepts multipart video → uploads to Cloudinary → returns public_id + metadata
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload", upload.single("video"), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: "No video file provided" });
 
-  // Write buffer to temp file so ffprobe can read duration
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}${path.extname(req.file.originalname)}`);
   fs.writeFileSync(tmpPath, req.file.buffer);
 
@@ -326,7 +357,7 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 
     res.json({
       success:           true,
-      publicId:          cloudResult.public_id,   // ← use this as "filename" in subsequent calls
+      publicId:          cloudResult.public_id,
       url:               cloudResult.secure_url,
       originalName:      req.file.originalname,
       duration:          Math.floor(duration),
@@ -341,8 +372,8 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/upload-url
-// Body: { url }  — downloads via yt-dlp, uploads to Cloudinary
+// POST /api/video-splitter/upload-url  ⭐ FIXED
+// Body: { url }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
@@ -352,25 +383,33 @@ router.post("/upload-url", async (req, res) => {
 
   try {
     console.log("⬇️  Downloading via yt-dlp:", url);
+    console.log("🟢 Node.js runtime path:", NODE_EXEC_PATH);
 
-    await ytDlpExec(url, {
-      ffmpegLocation: FFMPEG_PATH,
-      format:         "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-      output:         tmpPath,
-      noPlaylist:     true,
-      retries:        3,
-    });
+    // ⭐ Use the fixed command builder
+    const command = buildYtDlpCommand(url, tmpPath);
+    console.log("📟 yt-dlp command:", command);
 
-    // Get title separately
+    await execAsync(command, { timeout: 5 * 60 * 1000 });
+
+    // Verify the file was actually downloaded
+    if (!fs.existsSync(tmpPath) || fs.statSync(tmpPath).size === 0) {
+      throw new Error(
+        "yt-dlp ran but no output file was created. " +
+        "Try adding a cookies.txt file to your project root (see top of this file)."
+      );
+    }
+
     let title = "Video";
     try {
-      const info = await ytDlpExec(url, {
-        dumpSingleJson: true,
-        noWarnings:     true,
-        noPlaylist:     true,
-      });
-      title = info.title || "Video";
-    } catch (_) {}
+      const escapedNode = NODE_EXEC_PATH.replace(/\\/g, "\\\\");
+      const cookiesFlag = getCookiesFlag();
+      const { stdout } = await execAsync(
+        `yt-dlp "${url}" --get-title --no-playlist --js-runtimes "node:${escapedNode}" ${cookiesFlag}`
+      );
+      title = stdout.trim() || "Video";
+    } catch (_) {
+      // Non-fatal — title is optional
+    }
 
     const duration    = await getDuration(tmpPath);
     const stat        = fs.statSync(tmpPath);
@@ -391,16 +430,25 @@ router.post("/upload-url", async (req, res) => {
 
   } catch (err) {
     console.error("❌ upload-url error:", err.message);
-    res.status(500).json({ success: false, error: err.message });
+
+    // ⭐ Friendly error hints
+    let hint = "";
+    if (err.message.includes("not available")) {
+      hint = " | HINT: Add a cookies.txt file to your project root — see file header for instructions.";
+    } else if (err.message.includes("JS runtime")) {
+      hint = ` | HINT: Node.js runtime not found. Detected path: ${NODE_EXEC_PATH}`;
+    }
+
+    res.status(500).json({ success: false, error: err.message + hint });
   } finally {
     cleanupFiles(tmpPath);
   }
 });
+
 // ─────────────────────────────────────────────────────────────────────────────
-// SHARED: download source video from Cloudinary, run a splitter fn, upload clips
+// SHARED: download source from Cloudinary, run handler, cleanup
 // ─────────────────────────────────────────────────────────────────────────────
 const withSourceVideo = async (publicId, cloudinaryUrl, handler) => {
-  // Download the source video from Cloudinary to a local temp file
   const srcPath = await downloadFromCloudinary(cloudinaryUrl);
   try {
     return await handler(srcPath);
@@ -416,10 +464,10 @@ const withSourceVideo = async (publicId, cloudinaryUrl, handler) => {
 router.post("/ai-clips", async (req, res) => {
   const {
     publicId,
-    url:         videoUrl,
-    clipLength   = "ai_decide",
-    contentType  = "general",
-    clipCount    = 5,
+    url:        videoUrl,
+    clipLength  = "ai_decide",
+    contentType = "general",
+    clipCount   = 5,
   } = req.body;
 
   if (!publicId || !videoUrl)
@@ -430,11 +478,9 @@ router.post("/ai-clips", async (req, res) => {
 
   try {
     await withSourceVideo(publicId, videoUrl, async (srcPath) => {
-      // Step 1: Extract audio
       console.log("📢 Extracting audio...");
       await extractAudio(srcPath, audioPath);
 
-      // Step 2: Transcribe
       console.log("📝 Transcribing with faster-whisper...");
       const segments = await transcribeWithWhisper(audioPath);
       cleanupFiles(audioPath);
@@ -442,7 +488,6 @@ router.post("/ai-clips", async (req, res) => {
       if (!segments || segments.length === 0)
         throw new Error("Transcription returned empty. Video may have no speech.");
 
-      // Step 3: GPT-4o detects viral moments
       console.log("🤖 Asking GPT-4o to find viral moments...");
       const totalDuration = await getDuration(srcPath);
       const moments = await detectViralMoments({
@@ -453,7 +498,6 @@ router.post("/ai-clips", async (req, res) => {
         clipCount: Math.min(parseInt(clipCount) || 5, 10),
       });
 
-      // Step 4: Cut clips locally, then upload each to Cloudinary
       console.log(`✂️  Cutting ${moments.length} clips...`);
       const clips = [];
 
@@ -477,7 +521,7 @@ router.post("/ai-clips", async (req, res) => {
           rank:            moment.rank,
           index:           i + 1,
           publicId:        cloudClip.public_id,
-          url:             cloudClip.secure_url,   // ← direct Cloudinary URL, no server needed
+          url:             cloudClip.secure_url,
           startTime:       formatTime(start),
           endTime:         formatTime(end),
           duration:        formatTime(duration),
@@ -596,8 +640,8 @@ router.post("/split/summarize", async (req, res) => {
   if (!publicId || !videoUrl || !targetDuration)
     return res.status(400).json({ error: "publicId, url, and targetDuration required" });
 
-  const tmpSegs    = [];
-  let   listPath   = null;
+  const tmpSegs     = [];
+  let   listPath    = null;
   let   summaryPath = null;
 
   try {
@@ -608,15 +652,20 @@ router.post("/split/summarize", async (req, res) => {
       if (target >= total)
         return res.status(400).json({ error: "Target duration must be shorter than the video." });
 
-      const SEGMENTS = 10;
-      const segDur   = target / SEGMENTS;
-      const step     = (total - segDur) / (SEGMENTS - 1);
+      const SEGMENTS  = 10;
+      const segDur    = target / SEGMENTS;
+      const step      = (total - segDur) / (SEGMENTS - 1);
       const sessionId = uuidv4();
 
       for (let i = 0; i < SEGMENTS; i++) {
         const segPath = path.join(TMP_DIR, `${sessionId}_seg_${i}.mp4`);
         tmpSegs.push(segPath);
-        await extractClip({ inputPath: srcPath, outputPath: segPath, startTime: i * step, duration: segDur });
+        await extractClip({
+          inputPath:  srcPath,
+          outputPath: segPath,
+          startTime:  i * step,
+          duration:   segDur,
+        });
       }
 
       listPath    = path.join(TMP_DIR, `${sessionId}_list.txt`);
@@ -661,7 +710,6 @@ router.post("/split/summarize", async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DELETE /api/video-splitter/upload/:publicId
-// Deletes a video from Cloudinary by public_id (URL-encoded)
 // ─────────────────────────────────────────────────────────────────────────────
 router.delete("/upload/:publicId(*)", async (req, res) => {
   try {
