@@ -332,13 +332,8 @@ router.post("/upload-url", async (req, res) => {
   if (!url) return res.status(400).json({ error: "url is required" });
 
   const COBALT = process.env.COBALT_API_URL;
-  if (!COBALT) return res.status(500).json({ error: "COBALT_API_URL not configured" });
-
-  const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
   try {
-    console.log("⬇️  Resolving via Cobalt:", url);
-
     const cobaltRes = await axios.post(
       `${COBALT}/`,
       { url, videoQuality: "720" },
@@ -351,61 +346,15 @@ router.post("/upload-url", async (req, res) => {
       }
     );
 
-    const { status, url: downloadUrl, filename } = cobaltRes.data;
-    console.log("Cobalt status:", status);
-
-    if (!["tunnel", "redirect", "stream"].includes(status))
-      throw new Error(`Cobalt error: ${JSON.stringify(cobaltRes.data)}`);
-
-    if (!downloadUrl) throw new Error("Cobalt returned no download URL");
-
-    // Stream to temp file
-    const fileStream = await axios({
-      url: downloadUrl,
-      method: "GET",
-      responseType: "stream",
-      timeout: 180_000,
-    });
-
-    await new Promise((resolve, reject) => {
-      const writer = fs.createWriteStream(tmpPath);
-      fileStream.data.pipe(writer);
-      writer.on("finish", resolve);
-      writer.on("error", reject);
-    });
-
-    const { size } = fs.statSync(tmpPath);
-    if (size < 50_000) throw new Error("Downloaded file too small");
-
-    const duration    = await getDuration(tmpPath);
-    const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
-    const title       = filename?.replace(/\.[^.]+$/, "") || "Video";
-
-    res.json({
-      success:           true,
-      publicId:          cloudResult.public_id,
-      url:               cloudResult.secure_url,
-      originalName:      title,
-      duration:          Math.floor(duration),
-      durationFormatted: formatTime(duration),
-      size,
-      source:            "cobalt",
-    });
+    // Return full Cobalt response so we can see what it's sending
+    console.log("Cobalt full response:", JSON.stringify(cobaltRes.data));
+    return res.json({ debug: true, cobaltResponse: cobaltRes.data });
 
   } catch (err) {
-    console.error("❌ upload-url error:", err.message);
-    res.status(500).json({ success: false, error: err.message });
-  } finally {
-    cleanupFiles(tmpPath);
+    console.error("❌ error:", err.message);
+    res.status(500).json({ error: err.message });
   }
 });
-// ── Helper: extract YouTube video ID from any URL format ─────────────────────
-function extractYoutubeId(url) {
-  const match = url.match(
-    /(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|shorts\/|embed\/|v\/))([a-zA-Z0-9_-]{11})/
-  );
-  return match ? match[1] : url; // fallback: pass the raw value
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED: download source video from Cloudinary, run a splitter fn, upload clips
