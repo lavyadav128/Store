@@ -57,17 +57,6 @@ import PrivateRoute from './components/PrivateRoute';
 import AdminRoute   from './components/AdminRoute';
 
 
-const PingServer = () => {
-  useEffect(() => {
-    const ping = () => {
-      fetch("https://storee-6wri.onrender.com/")
-        .catch(() => {}); // silent fail, we don't care about errors
-    };
-    ping();
-    const interval = setInterval(ping, 10 * 60 * 1000); // every 10 mins
-    return () => clearInterval(interval);
-  }, []);
-};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -138,7 +127,6 @@ root.render(
 
           {/* ChatBot on all pages */}
           <ChatBot />
-          <PingServer />
         </>
     </BrowserRouter>
   </GoogleOAuthProvider>

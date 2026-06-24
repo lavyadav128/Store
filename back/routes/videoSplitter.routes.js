@@ -23,18 +23,19 @@
  *   GET    /api/video-splitter/outputs/*         → serve finished clips
  */
 
-import { Router }       from "express";
-import express          from "express";
-import multer           from "multer";
-import ffmpegFluent     from "fluent-ffmpeg";
-import ffmpegInstaller  from "@ffmpeg-installer/ffmpeg";
-import { exec }         from "child_process";
-import { promisify }    from "util";
-import path             from "path";
-import fs               from "fs";
-import { v4 as uuidv4 } from "uuid";
+import { Router }        from "express";
+import express           from "express";
+import multer            from "multer";
+import ffmpegFluent      from "fluent-ffmpeg";
+import ffmpegInstaller   from "@ffmpeg-installer/ffmpeg";
+import { exec }          from "child_process";
+import { promisify }     from "util";
+import path              from "path";
+import fs                from "fs";
+import { v4 as uuidv4 }  from "uuid";
 import { fileURLToPath } from "url";
-import axios            from "axios";
+import axios             from "axios";
+import ytDlpExec         from "yt-dlp-exec";   // npm install yt-dlp-exec
 
 const router    = Router();
 const execAsync = promisify(exec);
@@ -47,10 +48,7 @@ const __dirname  = path.dirname(__filename);
 ffmpegFluent.setFfmpegPath(ffmpegInstaller.path);
 const FFMPEG_PATH = ffmpegInstaller.path;
 
-// ── yt-dlp command (Windows & Linux) ─────────────────────────────────────────
-const YT_DLP = process.platform === "win32" ? "python -m yt_dlp" : "yt-dlp";
-
-// ── faster-whisper command (Windows & Linux) ──────────────────────────────────
+// ── faster-whisper command ────────────────────────────────────────────────────
 const WHISPER_CMD = process.platform === "win32" ? "python -m faster_whisper" : "python3 -m faster_whisper";
 
 // ── Directories ───────────────────────────────────────────────────────────────
@@ -281,6 +279,9 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // POST /api/video-splitter/upload-url
 // Body: { url }
+//
+// Uses yt-dlp-exec (npm package — bundles yt-dlp binary, works on Render)
+// Extra flags to bypass YouTube bot detection on cloud server IPs
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
@@ -290,35 +291,65 @@ router.post("/upload-url", async (req, res) => {
   const outputPath = path.join(UPLOADS_DIR, filename);
 
   try {
-    await execAsync(
-      `${YT_DLP} --ffmpeg-location "${FFMPEG_PATH}" -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" -o "${outputPath}" "${url}"`,
-      { timeout: 10 * 60 * 1000 }
-    );
+    console.log("⬇️  Downloading:", url);
 
+    // yt-dlp-exec with flags that bypass Render/cloud IP blocks
+    await ytDlpExec(url, {
+      ffmpegLocation:  FFMPEG_PATH,
+      format:          "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+      output:          outputPath,
+
+      // ── Bot-detection bypass flags ──────────────────────────────────────
+      // Pretend to be a real browser
+      addHeaders: [
+        "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language:en-US,en;q=0.9",
+      ],
+      // Use Android client — YouTube doesn't throttle/block it as aggressively
+      extractor_args: "youtube:player_client=android",
+      // Sleep between requests to look human
+      sleepInterval:  1,
+      // No playlist — just the single video
+      noPlaylist:     true,
+      // Retry on failure
+      retries:        5,
+      // Ignore errors on fragments
+      ignorErrors:    true,
+    });
+
+    // Get video title separately
     let title = "Video";
     try {
-      const { stdout } = await execAsync(`${YT_DLP} --get-title "${url}"`, { timeout: 15000 });
-      title = stdout.trim() || "Video";
-    } catch (_) {}
+      const info = await ytDlpExec(url, {
+        dumpSingleJson: true,
+        noWarnings:     true,
+        noPlaylist:     true,
+        extractor_args: "youtube:player_client=android",
+      });
+      title = info.title || "Video";
+    } catch (_) { /* title is optional */ }
 
     const duration = await getDuration(outputPath);
     const stat     = fs.statSync(outputPath);
+
+    console.log("✅ Downloaded:", title, `(${formatTime(duration)})`);
 
     res.json({
       success: true,
       filename,
       originalName: title,
-      duration: Math.floor(duration),
+      duration:          Math.floor(duration),
       durationFormatted: formatTime(duration),
-      size: stat.size,
-      source: "url",
+      size:              stat.size,
+      source:            "url",
     });
+
   } catch (err) {
     if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath);
-    console.error("yt-dlp error:", err.message);
+    console.error("❌ yt-dlp-exec error:", err.message);
     res.status(500).json({
       success: false,
-      error: "Failed to download video. Make sure the URL is public.",
+      error:   err.message || "Failed to download video.",
     });
   }
 });

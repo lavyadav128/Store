@@ -171,8 +171,8 @@ export default function AdminVideoSplitter() {
       setVideoFile({ name: res.data.originalName });
       setYoutubeUrl("");
       setUploadDialog(false);
-    } catch {
-      setError("Could not fetch video. Make sure the URL is public.");
+    } catch (err) {
+      setError(err?.response?.data?.error || "Could not fetch video.");
     } finally {
       setUrlLoading(false);
     }
