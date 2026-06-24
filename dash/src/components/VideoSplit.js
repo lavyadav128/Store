@@ -214,29 +214,46 @@ export default function AdminVideoSplitter() {
 
     try {
       let res;
-
       if (mode === "ai") {
         res = await axios.post(
           `${API}/ai-clips`,
-          { filename: uploadInfo.filename, clipLength, contentType, clipCount },
-          { headers: authHeaders(), timeout: 15 * 60 * 1000 } // 15 min
+          {
+            publicId:    uploadInfo.publicId,
+            url:         uploadInfo.url,
+            clipLength,
+            contentType,
+            clipCount,
+          },
+          { headers: authHeaders(), timeout: 15 * 60 * 1000 }
         );
       } else if (mode === "reels") {
         res = await axios.post(
           `${API}/split/reels`,
-          { filename: uploadInfo.filename, clipDuration },
+          {
+            publicId:    uploadInfo.publicId,
+            url:         uploadInfo.url,
+            clipDuration,
+          },
           { headers: authHeaders() }
         );
       } else if (mode === "parts") {
         res = await axios.post(
           `${API}/split/parts`,
-          { filename: uploadInfo.filename, parts: partsCount },
+          {
+            publicId:    uploadInfo.publicId,
+            url:         uploadInfo.url,
+            parts:       partsCount,
+          },
           { headers: authHeaders() }
         );
       } else {
         res = await axios.post(
           `${API}/split/summarize`,
-          { filename: uploadInfo.filename, targetDuration: summaryDuration },
+          {
+            publicId:        uploadInfo.publicId,
+            url:             uploadInfo.url,
+            targetDuration:  summaryDuration,
+          },
           { headers: authHeaders() }
         );
       }
@@ -255,8 +272,7 @@ export default function AdminVideoSplitter() {
 
   const handleRemove = async () => {
     if (uploadInfo) {
-      await axios.delete(`${API}/upload/${uploadInfo.filename}`, { headers: authHeaders() }).catch(() => {});
-    }
+      await axios.delete(`${API}/upload/${encodeURIComponent(uploadInfo.publicId)}`, { headers: authHeaders() }).catch(() => {});    }
     setVideoFile(null);
     setUploadInfo(null);
     setResults(null);

@@ -92,7 +92,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3001',              // local frontend during development
-    'https://note-vevp.onrender.com',     // deployed frontend on Render
+    // 'https://note-vevp.onrender.com',     // deployed frontend on Render
     'http://localhost:3000',           // ✅ local Docker frontend
   ],
   // List of HTTP methods we allow from those origins

@@ -11,7 +11,6 @@ import fs                from "fs";
 import { v4 as uuidv4 }  from "uuid";
 import { fileURLToPath } from "url";
 import axios             from "axios";
-import ytDlpExec         from "yt-dlp-exec";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
 
