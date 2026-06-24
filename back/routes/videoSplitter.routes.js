@@ -1,25 +1,4 @@
-/**
- * videoSplitter.routes.js  —  CLOUDINARY STORAGE VERSION
- *
- * IMPORT IN MAIN SERVER:
- *   import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
- *   app.use("/api/video-splitter", videoSplitterRoutes);
- *
- * ENV (.env):
- *   OPENROUTER_API_KEY=sk-or-v1-xxxx
- *   CLOUDINARY_CLOUD_NAME=your_cloud_name
- *   CLOUDINARY_API_KEY=your_api_key
- *   CLOUDINARY_API_SECRET=your_api_secret
- *
- * ENDPOINTS:
- *   POST   /api/video-splitter/upload            → upload video file
- *   POST   /api/video-splitter/upload-url        → download from YouTube URL
- *   POST   /api/video-splitter/split/reels       → split by clip duration
- *   POST   /api/video-splitter/split/parts       → split into N equal parts
- *   POST   /api/video-splitter/split/summarize   → smart summary clip
- *   POST   /api/video-splitter/ai-clips          → AI detects top 5 viral moments ⭐
- *   DELETE /api/video-splitter/upload/:publicId  → delete from Cloudinary
- */
+
 
 import { Router }        from "express";
 import multer            from "multer";
@@ -361,7 +340,7 @@ router.post("/upload-url", async (req, res) => {
         "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         "Accept-Language:en-US,en;q=0.9",
       ],
-      extractor_args:  "youtube:player_client=android",
+      extractorArgs:   "youtube:player_client=android",   // ← fixed key
       sleepInterval:   1,
       noPlaylist:      true,
       retries:         5,
@@ -374,7 +353,7 @@ router.post("/upload-url", async (req, res) => {
         dumpSingleJson: true,
         noWarnings:     true,
         noPlaylist:     true,
-        extractor_args: "youtube:player_client=android",
+        extractorArgs:  "youtube:player_client=android",   // ← fixed key
       });
       title = info.title || "Video";
     } catch (_) {}
