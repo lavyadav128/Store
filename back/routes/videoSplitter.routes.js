@@ -14,7 +14,6 @@ import axios             from "axios";
 import ytDlpExec         from "yt-dlp-exec";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
-import youtubeDl from "youtube-dl-exec";
 
 const router    = Router();
 const execAsync = promisify(exec);
@@ -324,7 +323,6 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 // POST /api/video-splitter/upload-url
 // Body: { url }  — downloads via yt-dlp, uploads to Cloudinary
 // ─────────────────────────────────────────────────────────────────────────────
-
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
@@ -332,37 +330,62 @@ router.post("/upload-url", async (req, res) => {
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
   try {
-    console.log("⬇️  Downloading:", url);
+    console.log("⬇️  Getting download link for:", url);
 
-    // Get video info first (title)
-    const info = await youtubeDl(url, {
-      dumpSingleJson:  true,
-      noWarnings:      true,
-      noCallHome:      true,
-      noCheckCertificate: true,
-      preferFreeFormats: true,
-      youtubeSkipDashManifest: true,
+    // Step 1 — Ask YTStream API for a direct download link
+    const apiRes = await axios.get(
+      "https://ytstream-download-youtube-videos.p.rapidapi.com/dl",
+      {
+        params: { id: url },
+        headers: {
+          "X-RapidAPI-Key":  process.env.RAPIDAPI_KEY,
+          "X-RapidAPI-Host": "ytstream-download-youtube-videos.p.rapidapi.com",
+        },
+        timeout: 30000,
+      }
+    );
+
+    const data  = apiRes.data;
+    const title = data?.title || "Video";
+
+    // Pick best mp4 format from the formats list
+    const formats = data?.formats || {};
+    let downloadUrl = null;
+
+    // Try to get best quality mp4 — 720p → 480p → 360p fallback
+    for (const quality of ["137", "22", "18", "mp4"]) {
+      if (formats[quality]?.url) {
+        downloadUrl = formats[quality].url;
+        break;
+      }
+    }
+
+    // If no format found, use the direct link
+    if (!downloadUrl && data?.link) downloadUrl = data.link;
+    if (!downloadUrl && data?.url)  downloadUrl = data.url;
+    if (!downloadUrl) throw new Error("No download URL returned from YTStream API");
+
+    console.log("⬇️  Downloading video file...");
+
+    // Step 2 — Stream the video to a temp file
+    const videoStream = await axios({
+      url:          downloadUrl,
+      method:       "GET",
+      responseType: "stream",
+      timeout:      120000,
+      headers: {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+      },
     });
 
-    const title = info.title || "Video";
-
-    // Download the actual video
-    await youtubeDl(url, {
-      output:          tmpPath,
-      format:          "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-      noWarnings:      true,
-      noCallHome:      true,
-      noCheckCertificate: true,
-      addHeaders: [
-        "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-      ],
-      // Use po_token workaround for YouTube bot detection
-      extractor_args:  "youtube:player_client=android,web",
-      retries:         10,
-      fragmentRetries: 10,
-      noPlaylist:      true,
+    await new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(tmpPath);
+      videoStream.data.pipe(writer);
+      writer.on("finish", resolve);
+      writer.on("error", reject);
     });
 
+    // Step 3 — Upload to Cloudinary
     const duration    = await getDuration(tmpPath);
     const stat        = fs.statSync(tmpPath);
     const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
@@ -381,7 +404,7 @@ router.post("/upload-url", async (req, res) => {
     });
 
   } catch (err) {
-    console.error("❌ download error:", err.message);
+    console.error("❌ upload-url error:", err.message);
     res.status(500).json({ success: false, error: err.message });
   } finally {
     cleanupFiles(tmpPath);
