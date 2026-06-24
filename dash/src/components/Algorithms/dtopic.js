@@ -20,7 +20,7 @@ const topics = [
   { id: "bit-manipulation", name: "Bit Manipulation" },
   { id: "sliding-and-two-pointer", name: "Sliding and two pointer" },
   { id: "graphs", name: "Graphs" },
-  { id: "dp", name: "Dynamic Programming" },
+  { id: "dynamic-programming", name: "Dynamic Programming" },
 ];
 
 const TopicPage = () => {
