@@ -167,6 +167,7 @@ export default function AdminVideoSplitter() {
         { url: youtubeUrl },
         { headers: authHeaders() }
       );
+      console.log("uploadInfo received:", res.data); // ← add this
       setUploadInfo(res.data);
       setVideoFile({ name: res.data.originalName });
       setYoutubeUrl("");
