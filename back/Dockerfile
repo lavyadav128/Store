@@ -9,6 +9,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 RUN pip3 install faster-whisper --break-system-packages
+RUN python3 -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
 COPY . .
 EXPOSE 5000
 CMD ["node", "index.js"]
