@@ -332,8 +332,13 @@ router.post("/upload-url", async (req, res) => {
   if (!url) return res.status(400).json({ error: "url is required" });
 
   const COBALT = process.env.COBALT_API_URL;
+  if (!COBALT) return res.status(500).json({ error: "COBALT_API_URL not configured" });
+
+  const tmpPath = path.join(TMP_DIR, `${uuidv4()}.mp4`);
 
   try {
+    console.log("⬇️  Resolving via Cobalt:", url);
+
     const cobaltRes = await axios.post(
       `${COBALT}/`,
       { url, videoQuality: "720" },
@@ -346,13 +351,61 @@ router.post("/upload-url", async (req, res) => {
       }
     );
 
-    // Return full Cobalt response so we can see what it's sending
-    console.log("Cobalt full response:", JSON.stringify(cobaltRes.data));
-    return res.json({ debug: true, cobaltResponse: cobaltRes.data });
+    const { status, url: downloadUrl, filename } = cobaltRes.data;
+    console.log("Cobalt status:", status, "filename:", filename);
+
+    if (!["tunnel", "redirect", "stream"].includes(status))
+      throw new Error(`Cobalt error: ${JSON.stringify(cobaltRes.data)}`);
+
+    if (!downloadUrl) throw new Error("Cobalt returned no download URL");
+
+    // ⚡ Stream IMMEDIATELY — tunnel URLs expire fast
+    console.log("⬇️  Streaming to disk...");
+    const fileStream = await axios({
+      url: downloadUrl,
+      method: "GET",
+      responseType: "stream",
+      timeout: 300_000, // 5 min for large videos
+      headers: {
+        "User-Agent": "Mozilla/5.0",
+      },
+      maxRedirects: 10,
+    });
+
+    await new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(tmpPath);
+      fileStream.data.pipe(writer);
+      writer.on("finish", resolve);
+      writer.on("error", reject);
+    });
+
+    const { size } = fs.statSync(tmpPath);
+    console.log("✅ Downloaded size:", size);
+
+    if (size < 50_000) throw new Error("Downloaded file too small — tunnel may have expired");
+
+    const duration    = await getDuration(tmpPath);
+    const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
+    const title       = filename?.replace(/\.[^.]+$/, "") || "Video";
+
+    console.log("✅ Uploaded to Cloudinary:", cloudResult.secure_url);
+
+    res.json({
+      success:           true,
+      publicId:          cloudResult.public_id,
+      url:               cloudResult.secure_url,
+      originalName:      title,
+      duration:          Math.floor(duration),
+      durationFormatted: formatTime(duration),
+      size,
+      source:            "cobalt",
+    });
 
   } catch (err) {
-    console.error("❌ error:", err.message);
-    res.status(500).json({ error: err.message });
+    console.error("❌ upload-url error:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  } finally {
+    cleanupFiles(tmpPath);
   }
 });
 
