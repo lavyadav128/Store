@@ -14,6 +14,7 @@ import axios             from "axios";
 import ytDlpExec         from "yt-dlp-exec";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
+import youtubeDl from "youtube-dl-exec";
 
 const router    = Router();
 const execAsync = promisify(exec);
@@ -323,6 +324,7 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 // POST /api/video-splitter/upload-url
 // Body: { url }  — downloads via yt-dlp, uploads to Cloudinary
 // ─────────────────────────────────────────────────────────────────────────────
+
 router.post("/upload-url", async (req, res) => {
   const { url } = req.body;
   if (!url) return res.status(400).json({ error: "url is required" });
@@ -332,37 +334,40 @@ router.post("/upload-url", async (req, res) => {
   try {
     console.log("⬇️  Downloading:", url);
 
-    await ytDlpExec(url, {
-      ffmpegLocation:  FFMPEG_PATH,
-      format:          "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
-      output:          tmpPath,
-      addHeaders: [
-        "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        "Accept-Language:en-US,en;q=0.9",
-      ],
-      extractorArgs:   "youtube:player_client=android",   // ← fixed key
-      sleepInterval:   1,
-      noPlaylist:      true,
-      retries:         5,
-      ignoreErrors:    true,
+    // Get video info first (title)
+    const info = await youtubeDl(url, {
+      dumpSingleJson:  true,
+      noWarnings:      true,
+      noCallHome:      true,
+      noCheckCertificate: true,
+      preferFreeFormats: true,
+      youtubeSkipDashManifest: true,
     });
 
-    let title = "Video";
-    try {
-      const info = await ytDlpExec(url, {
-        dumpSingleJson: true,
-        noWarnings:     true,
-        noPlaylist:     true,
-        extractorArgs:  "youtube:player_client=android",   // ← fixed key
-      });
-      title = info.title || "Video";
-    } catch (_) {}
+    const title = info.title || "Video";
+
+    // Download the actual video
+    await youtubeDl(url, {
+      output:          tmpPath,
+      format:          "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
+      noWarnings:      true,
+      noCallHome:      true,
+      noCheckCertificate: true,
+      addHeaders: [
+        "User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      ],
+      // Use po_token workaround for YouTube bot detection
+      extractor_args:  "youtube:player_client=android,web",
+      retries:         10,
+      fragmentRetries: 10,
+      noPlaylist:      true,
+    });
 
     const duration    = await getDuration(tmpPath);
     const stat        = fs.statSync(tmpPath);
     const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
 
-    console.log("✅ Uploaded to Cloudinary:", cloudResult.public_id);
+    console.log("✅ Done:", title);
 
     res.json({
       success:           true,
@@ -374,8 +379,9 @@ router.post("/upload-url", async (req, res) => {
       size:              stat.size,
       source:            "url",
     });
+
   } catch (err) {
-    console.error("❌ upload-url error:", err.message);
+    console.error("❌ download error:", err.message);
     res.status(500).json({ success: false, error: err.message });
   } finally {
     cleanupFiles(tmpPath);
