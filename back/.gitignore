@@ -1,4 +1,3 @@
 .env
 node_modules/
 
-routes/videoSplitter.routes.js
