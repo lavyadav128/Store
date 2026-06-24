@@ -13,9 +13,55 @@ import { fileURLToPath } from "url";
 import axios             from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
+import https             from "https";
 
 const router    = Router();
 const execAsync = promisify(exec);
+
+// ── Persistent HTTPS agent — keeps TCP connections alive across requests ──────
+// Prevents "socket disconnected before TLS" on slow/unstable networks
+const httpsAgent = new https.Agent({
+  keepAlive:            true,
+  keepAliveMsecs:       10000, // send TCP keepalive every 10s
+  maxSockets:           20,    // max parallel sockets
+  maxFreeSockets:       5,
+  timeout:              120000, // socket idle timeout 2 min
+  rejectUnauthorized:   true,
+});
+
+// ── axios instance with keepAlive agent + sane timeouts ───────────────────────
+const axiosClient = axios.create({
+  httpsAgent,
+  timeout: 120000, // 2 min default; overridden per-call where needed
+});
+
+/**
+ * Retry wrapper — retries on TLS/socket errors up to `retries` times.
+ * Pass any async fn that may throw a network error.
+ */
+const withRetry = async (fn, retries = 3, delayMs = 1500) => {
+  let lastErr;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      lastErr = err;
+      const isNetworkErr =
+        err.code === "ECONNRESET" ||
+        err.code === "ECONNREFUSED" ||
+        err.code === "ETIMEDOUT"   ||
+        err.code === "ENOTFOUND"   ||
+        err.message?.includes("socket disconnected") ||
+        err.message?.includes("TLS") ||
+        err.message?.includes("EPROTO");
+
+      if (!isNetworkErr || attempt === retries) throw err;
+      console.warn(`⚠️  Network error (attempt ${attempt}/${retries}): ${err.message} — retrying in ${delayMs}ms`);
+      await new Promise((r) => setTimeout(r, delayMs * attempt)); // exponential backoff
+    }
+  }
+  throw lastErr;
+};
 
 // ── ES module __dirname fix ───────────────────────────────────────────────────
 const __filename = fileURLToPath(import.meta.url);
@@ -47,26 +93,14 @@ const upload = multer({
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// YT-DLP HELPERS  ⭐ FIXED
+// YT-DLP HELPERS  ⭐ OPTIMIZED
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Returns the full path to the Node.js executable (e.g. C:\Program Files\nodejs\node.exe)
- * Used to tell yt-dlp where to find the Node JS runtime.
- */
 const NODE_EXEC_PATH = process.execPath;
 
-/**
- * Returns cookies flag if a cookies.txt file exists in the project root.
- * Place cookies.txt (Netscape format) exported from your browser in:
- *   <project_root>/cookies.txt
- *
- * This is the most reliable fix for "Video not available" errors on YouTube.
- */
 const getCookiesFlag = () => {
-  // Walk up from routes/ to project root
-  const projectRoot  = path.resolve(__dirname, "../../");
-  const cookiesPath  = path.join(projectRoot, "cookies.txt");
+  const projectRoot = path.resolve(__dirname, "../../");
+  const cookiesPath = path.join(projectRoot, "cookies.txt");
   if (fs.existsSync(cookiesPath)) {
     console.log("🍪 Using cookies.txt for yt-dlp");
     return `--cookies "${cookiesPath}"`;
@@ -75,100 +109,126 @@ const getCookiesFlag = () => {
 };
 
 /**
- * Build the yt-dlp command with all fixes applied:
- *  - Full Node.js path as JS runtime
- *  - Cookies file (if present)
- *  - Improved format fallback chain
- *  - User-agent to avoid bot detection
+ * OPTIMIZED yt-dlp command:
+ *  - --concurrent-fragments 8: downloads 8 fragments simultaneously (huge speedup)
+ *  - Removed --prefer-free-formats: avoids slow VP9/Opus; prefers h264+aac (faster mux)
+ *  - --no-mtime: skips filesystem timestamp update (minor but free speedup)
+ *  - --print title: get title in the same invocation, eliminating 2nd network call
+ *  - --buffer-size 16K: larger read buffer for faster I/O
  */
 const buildYtDlpCommand = (url, outputPath) => {
-  const cookiesFlag = getCookiesFlag();
-
-  // Escape backslashes in paths for shell (important on Windows)
-  const escapedOutput  = outputPath.replace(/\\/g, "\\\\");
-  const escapedFfmpeg  = FFMPEG_PATH.replace(/\\/g, "\\\\");
-  const escapedNode    = NODE_EXEC_PATH.replace(/\\/g, "\\\\");
+  const cookiesFlag  = getCookiesFlag();
+  const escapedOutput = outputPath.replace(/\\/g, "\\\\");
+  const escapedFfmpeg = FFMPEG_PATH.replace(/\\/g, "\\\\");
+  const escapedNode   = NODE_EXEC_PATH.replace(/\\/g, "\\\\");
 
   return [
     `yt-dlp`,
     `"${url}"`,
-    // Format: prefer mp4, fallback to best available
-    `-f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best[ext=mp4]/best"`,
+    // Prefer mp4/h264 — avoids VP9 which is slower to mux
+    `-f "bestvideo[ext=mp4][vcodec^=avc]+bestaudio[ext=m4a]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best[ext=mp4]/best"`,
     `--merge-output-format mp4`,
     `-o "${escapedOutput}"`,
     `--no-playlist`,
     `--retries 5`,
     `--fragment-retries 5`,
-    // ⭐ FIX 1: Pass full path to Node.js as the JS runtime
+    // ⭐ OPTIMIZATION 1: download 8 fragments in parallel
+    `--concurrent-fragments 8`,
+    // ⭐ OPTIMIZATION 2: larger I/O buffer
+    `--buffer-size 16K`,
+    // ⭐ OPTIMIZATION 3: skip filesystem mtime update
+    `--no-mtime`,
     `--js-runtimes "node:${escapedNode}"`,
-    // ⭐ FIX 2: Cookies (only added if cookies.txt exists)
     cookiesFlag,
-    // FFmpeg location
     `--ffmpeg-location "${escapedFfmpeg}"`,
-    // Extra reliability flags
     `--no-warnings`,
-    `--prefer-free-formats`,
     `--add-header "Accept-Language:en-US,en;q=0.9"`,
   ]
     .filter(Boolean)
     .join(" ");
 };
 
+/**
+ * OPTIMIZED: Get title in same yt-dlp call using --print to avoid a second network round-trip.
+ * Returns [command, titlePromise] — title is extracted from stdout's first line.
+ */
+const buildYtDlpCommandWithTitle = (url, outputPath) => {
+  const base = buildYtDlpCommand(url, outputPath);
+  // --print title prints the title to stdout before downloading; we parse it from stdout
+  return base + ` --print title`;
+};
+
 // ─────────────────────────────────────────────────────────────────────────────
 // CLOUDINARY HELPERS
 // ─────────────────────────────────────────────────────────────────────────────
 
+// ⭐ TLS FIX: all Cloudinary uploads wrapped in withRetry to survive socket drops
 const uploadToCloudinary = (localPath, folder = "video_splitter/outputs") =>
-  new Promise((resolve, reject) =>
-    cloudinary.uploader.upload(
-      localPath,
-      {
-        resource_type:   "video",
-        folder,
-        use_filename:    false,
-        unique_filename: true,
-        overwrite:       false,
-      },
-      (err, result) => (err ? reject(err) : resolve(result))
+  withRetry(() =>
+    new Promise((resolve, reject) =>
+      cloudinary.uploader.upload(
+        localPath,
+        {
+          resource_type:   "video",
+          folder,
+          use_filename:    false,
+          unique_filename: true,
+          overwrite:       false,
+          chunk_size:      50 * 1024 * 1024, // 50 MB chunks — avoids one huge TCP connection
+          timeout:         10 * 60 * 1000,   // 10 min per upload
+        },
+        (err, result) => (err ? reject(err) : resolve(result))
+      )
     )
   );
 
 const uploadBufferToCloudinary = (buffer, folder = "video_splitter/uploads") =>
-  new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        resource_type:   "video",
-        folder,
-        use_filename:    false,
-        unique_filename: true,
-        overwrite:       false,
-      },
-      (err, result) => (err ? reject(err) : resolve(result))
-    );
-    stream.end(buffer);
-  });
+  withRetry(() =>
+    new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        {
+          resource_type:   "video",
+          folder,
+          use_filename:    false,
+          unique_filename: true,
+          overwrite:       false,
+          chunk_size:      50 * 1024 * 1024,
+          timeout:         10 * 60 * 1000,
+        },
+        (err, result) => (err ? reject(err) : resolve(result))
+      );
+      stream.end(buffer);
+    })
+  );
 
+/**
+ * OPTIMIZED + TLS FIX: keepAlive httpsAgent + retry on socket drop.
+ */
 const downloadFromCloudinary = async (url, ext = ".mp4") => {
   const tmpPath = path.join(TMP_DIR, `${uuidv4()}${ext}`);
-  const response = await axios({ url, method: "GET", responseType: "stream" });
-  await new Promise((resolve, reject) => {
-    const writer = fs.createWriteStream(tmpPath);
-    response.data.pipe(writer);
-    writer.on("finish", resolve);
-    writer.on("error", reject);
+  await withRetry(async () => {
+    const response = await axiosClient({ url, method: "GET", responseType: "stream", timeout: 10 * 60 * 1000 });
+    await new Promise((resolve, reject) => {
+      const writer = fs.createWriteStream(tmpPath, { highWaterMark: 2 * 1024 * 1024 });
+      response.data.pipe(writer);
+      writer.on("finish", resolve);
+      writer.on("error", reject);
+    });
   });
   return tmpPath;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FFMPEG HELPERS
+// FFMPEG HELPERS  ⭐ OPTIMIZED
 // ─────────────────────────────────────────────────────────────────────────────
 
 const getDuration = (filePath) =>
   new Promise((resolve, reject) =>
-    ffmpegFluent.ffprobe(filePath, (err, meta) =>
-      err ? reject(err) : resolve(meta.format.duration)
-    )
+    ffmpegFluent.ffprobe(filePath, (err, meta) => {
+      if (err) return reject(new Error(`ffprobe failed on "${path.basename(filePath)}": ${err.message}`));
+      if (!meta?.format?.duration) return reject(new Error(`ffprobe returned no duration for "${path.basename(filePath)}"`));
+      resolve(meta.format.duration);
+    })
   );
 
 const formatTime = (seconds) => {
@@ -178,7 +238,78 @@ const formatTime = (seconds) => {
   return [h, m, s].map((v) => String(v).padStart(2, "0")).join(":");
 };
 
+/**
+ * extractClip — TWO-PASS STRATEGY for maximum speed:
+ *
+ *  PASS 1 — stream copy (-c copy): INSTANT. No re-encoding at all.
+ *    FFmpeg just cuts bytes from the source. A 60s clip from a 1hr video takes < 1 second.
+ *    Downside: cut points snap to the nearest keyframe (may be off by up to ~2s).
+ *    Fine for reels/parts splits where exact frame accuracy isn't needed.
+ *
+ *  PASS 2 — re-encode fallback: only triggered if stream copy fails (codec mismatch etc.)
+ *    Uses ultrafast + crf 23 as before, but this is now the exception not the rule.
+ *
+ *  NOTE: for ai-clips, we use extractClipAccurate() which forces a re-encode so the
+ *  hook/start point is frame-accurate (important when GPT picks a specific timestamp).
+ */
 const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
+  new Promise((resolve, reject) => {
+    ffmpegFluent(inputPath)
+      .inputOptions([`-ss ${startTime}`])
+      .inputPath(inputPath)
+      .outputOptions([
+        `-t ${duration}`,
+        "-c copy",
+        "-movflags +faststart",
+        "-avoid_negative_ts make_zero",
+      ])
+      .output(outputPath)
+      .on("end", resolve)
+      .on("error", (streamCopyErr) => {
+        // Stream copy failed — log the real reason and fall back to re-encode
+        console.warn(`⚠️  Stream copy failed (${streamCopyErr.message}), falling back to re-encode`);
+        // Delete partial output before retry
+        try { if (fs.existsSync(outputPath)) fs.unlinkSync(outputPath); } catch (_) {}
+
+        ffmpegFluent(inputPath)
+          .setStartTime(startTime)
+          .setDuration(duration)
+          .videoCodec("libx264")
+          .audioCodec("aac")
+          .outputOptions([
+            "-crf 23",
+            "-preset ultrafast",
+            "-threads 0",
+            "-profile:v high",
+            "-level 4.1",
+            "-pix_fmt yuv420p",
+            "-movflags +faststart",
+            "-b:a 192k",
+            "-ar 44100",
+            "-ac 2",
+          ])
+          .output(outputPath)
+          .on("end", resolve)
+          .on("error", (reencodeErr) => {
+            // Both strategies failed — surface a clear combined error
+            reject(new Error(
+              `FFmpeg failed.\n` +
+              `  Stream copy error: ${streamCopyErr.message}\n` +
+              `  Re-encode error:   ${reencodeErr.message}\n` +
+              `  Input: ${inputPath} | Start: ${startTime}s | Duration: ${duration}s`
+            ));
+          })
+          .run();
+      })
+      .run();
+  });
+
+/**
+ * extractClipAccurate — frame-accurate re-encode for AI clips.
+ * Used when GPT picks a precise timestamp and we need the hook to start exactly there.
+ * Slower than stream copy but still uses ultrafast preset.
+ */
+const extractClipAccurate = ({ inputPath, outputPath, startTime, duration }) =>
   new Promise((resolve, reject) =>
     ffmpegFluent(inputPath)
       .setStartTime(startTime)
@@ -186,8 +317,9 @@ const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
       .videoCodec("libx264")
       .audioCodec("aac")
       .outputOptions([
-        "-crf 18",
-        "-preset fast",
+        "-crf 23",
+        "-preset ultrafast",
+        "-threads 0",
         "-profile:v high",
         "-level 4.1",
         "-pix_fmt yuv420p",
@@ -216,7 +348,7 @@ const extractAudio = (videoPath, audioPath) =>
   );
 
 // ─────────────────────────────────────────────────────────────────────────────
-// WHISPER TRANSCRIPTION
+// WHISPER TRANSCRIPTION  ⭐ OPTIMIZED
 // ─────────────────────────────────────────────────────────────────────────────
 const transcribeWithWhisper = async (audioPath) => {
   const scriptPath = path.join(TMP_DIR, `whisper_${uuidv4()}.py`);
@@ -226,8 +358,9 @@ const transcribeWithWhisper = async (audioPath) => {
 import json
 from faster_whisper import WhisperModel
 
+# ⭐ OPTIMIZATION: beam_size=1 is ~2x faster with minimal accuracy loss for viral detection
 model = WhisperModel("base", device="cpu", compute_type="int8")
-segments, info = model.transcribe("${audioPath.replace(/\\/g, "\\\\")}", beam_size=5)
+segments, info = model.transcribe("${audioPath.replace(/\\/g, "\\\\")}", beam_size=1, vad_filter=True)
 
 result = []
 for segment in segments:
@@ -310,7 +443,7 @@ Make sure start and end times are within 0 and ${Math.floor(totalDuration)}.
 Return exactly ${clipCount} clips ranked by viral potential.
 `;
 
-  const response = await axios.post(
+  const response = await withRetry(() => axiosClient.post(
     "https://openrouter.ai/api/v1/chat/completions",
     {
       model:       "openai/gpt-4o",
@@ -325,9 +458,9 @@ Return exactly ${clipCount} clips ranked by viral potential.
         "HTTP-Referer": "https://notenova.app",
         "X-Title":      "NoteNova Video Splitter",
       },
-      timeout: 60000,
+      timeout: 120000, // ⭐ increased to 2 min; 60s was too short on slow connections
     }
-  );
+  ));
 
   const raw     = response.data.choices[0].message.content.trim();
   const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/i, "").trim();
@@ -352,8 +485,11 @@ router.post("/upload", upload.single("video"), async (req, res) => {
   fs.writeFileSync(tmpPath, req.file.buffer);
 
   try {
-    const duration    = await getDuration(tmpPath);
-    const cloudResult = await uploadBufferToCloudinary(req.file.buffer, "video_splitter/uploads");
+    // ⭐ OPTIMIZATION: getDuration and uploadBufferToCloudinary run in parallel
+    const [duration, cloudResult] = await Promise.all([
+      getDuration(tmpPath),
+      uploadBufferToCloudinary(req.file.buffer, "video_splitter/uploads"),
+    ]);
 
     res.json({
       success:           true,
@@ -372,7 +508,7 @@ router.post("/upload", upload.single("video"), async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/upload-url  ⭐ FIXED
+// POST /api/video-splitter/upload-url  ⭐ OPTIMIZED
 // Body: { url }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/upload-url", async (req, res) => {
@@ -385,13 +521,13 @@ router.post("/upload-url", async (req, res) => {
     console.log("⬇️  Downloading via yt-dlp:", url);
     console.log("🟢 Node.js runtime path:", NODE_EXEC_PATH);
 
-    // ⭐ Use the fixed command builder
-    const command = buildYtDlpCommand(url, tmpPath);
+    // ⭐ OPTIMIZATION: --print title emits title to stdout before downloading,
+    // so we parse it from the same exec call — no second network round-trip.
+    const command = buildYtDlpCommandWithTitle(url, tmpPath);
     console.log("📟 yt-dlp command:", command);
 
-    await execAsync(command, { timeout: 5 * 60 * 1000 });
+    const { stdout } = await execAsync(command, { timeout: 5 * 60 * 1000 });
 
-    // Verify the file was actually downloaded
     if (!fs.existsSync(tmpPath) || fs.statSync(tmpPath).size === 0) {
       throw new Error(
         "yt-dlp ran but no output file was created. " +
@@ -399,22 +535,16 @@ router.post("/upload-url", async (req, res) => {
       );
     }
 
-    let title = "Video";
-    try {
-      const escapedNode = NODE_EXEC_PATH.replace(/\\/g, "\\\\");
-      const cookiesFlag = getCookiesFlag();
-      const { stdout } = await execAsync(
-        `yt-dlp "${url}" --get-title --no-playlist --js-runtimes "node:${escapedNode}" ${cookiesFlag}`
-      );
-      title = stdout.trim() || "Video";
-    } catch (_) {
-      // Non-fatal — title is optional
-    }
+    // Title is the first line printed by --print title
+    const title = stdout.trim().split("\n")[0] || "Video";
 
-    const duration    = await getDuration(tmpPath);
-    const stat        = fs.statSync(tmpPath);
-    const cloudResult = await uploadToCloudinary(tmpPath, "video_splitter/uploads");
+    // ⭐ OPTIMIZATION: getDuration and uploadToCloudinary run in parallel
+    const [duration, cloudResult] = await Promise.all([
+      getDuration(tmpPath),
+      uploadToCloudinary(tmpPath, "video_splitter/uploads"),
+    ]);
 
+    const stat = fs.statSync(tmpPath);
     console.log("✅ Done:", title);
 
     res.json({
@@ -431,7 +561,6 @@ router.post("/upload-url", async (req, res) => {
   } catch (err) {
     console.error("❌ upload-url error:", err.message);
 
-    // ⭐ Friendly error hints
     let hint = "";
     if (err.message.includes("not available")) {
       hint = " | HINT: Add a cookies.txt file to your project root — see file header for instructions.";
@@ -448,17 +577,54 @@ router.post("/upload-url", async (req, res) => {
 // ─────────────────────────────────────────────────────────────────────────────
 // SHARED: download source from Cloudinary, run handler, cleanup
 // ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * ⭐ SOURCE VIDEO CACHE
+ * When the same publicId is used twice in quick succession (e.g. user runs ai-clips
+ * then split/reels on same video), the source file is already on disk — skip re-download.
+ * Cache entries expire after 10 minutes to avoid stale disk usage.
+ */
+const srcVideoCache = new Map(); // publicId → { path, expiresAt }
+const SRC_CACHE_TTL = 10 * 60 * 1000; // 10 minutes
+
 const withSourceVideo = async (publicId, cloudinaryUrl, handler) => {
-  const srcPath = await downloadFromCloudinary(cloudinaryUrl);
+  const now    = Date.now();
+  const cached = srcVideoCache.get(publicId);
+
+  let srcPath;
+  let isCached = false;
+
+  if (cached && cached.expiresAt > now && fs.existsSync(cached.path)) {
+    console.log("⚡ Using cached source video for:", publicId);
+    srcPath  = cached.path;
+    isCached = true;
+  } else {
+    console.log("⬇️  Downloading source from Cloudinary...");
+    srcPath = await downloadFromCloudinary(cloudinaryUrl);
+    srcVideoCache.set(publicId, { path: srcPath, expiresAt: now + SRC_CACHE_TTL });
+    // Auto-expire: delete from cache and disk after TTL
+    setTimeout(() => {
+      const entry = srcVideoCache.get(publicId);
+      if (entry) {
+        cleanupFiles(entry.path);
+        srcVideoCache.delete(publicId);
+      }
+    }, SRC_CACHE_TTL);
+  }
+
   try {
     return await handler(srcPath);
-  } finally {
-    cleanupFiles(srcPath);
+  } catch (err) {
+    // If source was cached but the file got deleted externally, evict cache and rethrow
+    if (isCached && err.message?.includes(srcPath)) {
+      srcVideoCache.delete(publicId);
+    }
+    throw err;
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/ai-clips  ⭐
+// POST /api/video-splitter/ai-clips  ⭐ FULLY PARALLELIZED
 // Body: { publicId, url, clipLength, contentType, clipCount }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/ai-clips", async (req, res) => {
@@ -475,21 +641,27 @@ router.post("/ai-clips", async (req, res) => {
 
   const audioPath = path.join(TMP_DIR, `audio_${uuidv4()}.wav`);
   const tmpClips  = [];
+  let   step      = "initializing";
 
   try {
     await withSourceVideo(publicId, videoUrl, async (srcPath) => {
+      step = "extracting audio";
       console.log("📢 Extracting audio...");
       await extractAudio(srcPath, audioPath);
 
+      step = "transcribing";
       console.log("📝 Transcribing with faster-whisper...");
-      const segments = await transcribeWithWhisper(audioPath);
+      const [segments, totalDuration] = await Promise.all([
+        transcribeWithWhisper(audioPath),
+        getDuration(srcPath),
+      ]);
       cleanupFiles(audioPath);
 
       if (!segments || segments.length === 0)
-        throw new Error("Transcription returned empty. Video may have no speech.");
+        throw new Error("Transcription returned empty — video may have no speech or be too quiet.");
 
+      step = "detecting viral moments (GPT-4o)";
       console.log("🤖 Asking GPT-4o to find viral moments...");
-      const totalDuration = await getDuration(srcPath);
       const moments = await detectViralMoments({
         segments,
         totalDuration,
@@ -498,52 +670,71 @@ router.post("/ai-clips", async (req, res) => {
         clipCount: Math.min(parseInt(clipCount) || 5, 10),
       });
 
-      console.log(`✂️  Cutting ${moments.length} clips...`);
-      const clips = [];
+      if (!Array.isArray(moments) || moments.length === 0)
+        throw new Error("GPT-4o returned no clip suggestions. Try a different video or content type.");
 
-      for (let i = 0; i < moments.length; i++) {
-        const moment   = moments[i];
-        const start    = Math.max(0, parseFloat(moment.start));
-        const end      = Math.min(totalDuration, parseFloat(moment.end));
-        const duration = end - start;
+      console.log(`✂️  Cutting ${moments.length} clips in PARALLEL (frame-accurate)...`);
+      step = "cutting clips";
 
-        if (duration < 5) continue;
+      const clipResults = await Promise.all(
+        moments.map(async (moment, i) => {
+          const start    = Math.max(0, parseFloat(moment.start));
+          const end      = Math.min(totalDuration, parseFloat(moment.end));
+          const duration = end - start;
 
-        const clipName = `clip_${String(i + 1).padStart(2, "0")}_rank${moment.rank}.mp4`;
-        const clipPath = path.join(TMP_DIR, `${uuidv4()}_${clipName}`);
-        tmpClips.push(clipPath);
+          if (duration < 5) {
+            console.warn(`Clip ${i + 1} skipped — duration ${duration.toFixed(1)}s is too short`);
+            return null;
+          }
 
-        await extractClip({ inputPath: srcPath, outputPath: clipPath, startTime: start, duration });
+          const clipName = `clip_${String(i + 1).padStart(2, "0")}_rank${moment.rank}.mp4`;
+          const clipPath = path.join(TMP_DIR, `${uuidv4()}_${clipName}`);
+          tmpClips.push(clipPath);
 
-        const cloudClip = await uploadToCloudinary(clipPath, "video_splitter/outputs");
+          try {
+            await extractClipAccurate({ inputPath: srcPath, outputPath: clipPath, startTime: start, duration });
+          } catch (clipErr) {
+            throw new Error(`Clip ${i + 1} cut failed (start=${start}s, dur=${duration}s): ${clipErr.message}`);
+          }
 
-        clips.push({
-          rank:            moment.rank,
-          index:           i + 1,
-          publicId:        cloudClip.public_id,
-          url:             cloudClip.secure_url,
-          startTime:       formatTime(start),
-          endTime:         formatTime(end),
-          duration:        formatTime(duration),
-          durationSeconds: Math.round(duration),
-          title:           moment.title,
-          reason:          moment.reason,
-          hook:            moment.hook,
-        });
-      }
+          try {
+            const cloudClip = await uploadToCloudinary(clipPath, "video_splitter/outputs");
+            return {
+              rank:            moment.rank,
+              index:           i + 1,
+              publicId:        cloudClip.public_id,
+              url:             cloudClip.secure_url,
+              startTime:       formatTime(start),
+              endTime:         formatTime(end),
+              duration:        formatTime(duration),
+              durationSeconds: Math.round(duration),
+              title:           moment.title,
+              reason:          moment.reason,
+              hook:            moment.hook,
+            };
+          } catch (uploadErr) {
+            throw new Error(`Clip ${i + 1} upload failed: ${uploadErr.message}`);
+          }
+        })
+      );
+
+      const clips = clipResults.filter(Boolean);
+      if (clips.length === 0)
+        throw new Error("All clips were skipped (durations too short). Check GPT timestamps vs video length.");
 
       res.json({ success: true, totalClips: clips.length, contentType, clipLength, clips });
     });
   } catch (err) {
-    console.error("AI clips error:", err.message);
-    res.status(500).json({ success: false, error: err.message });
+    const msg = `[ai-clips] Failed at step "${step}": ${err.message}`;
+    console.error("❌", msg);
+    res.status(500).json({ success: false, error: msg, step });
   } finally {
     cleanupFiles(audioPath, ...tmpClips);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/split/reels
+// POST /api/video-splitter/split/reels  ⭐ PARALLELIZED
 // Body: { publicId, url, clipDuration }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/split/reels", async (req, res) => {
@@ -558,37 +749,47 @@ router.post("/split/reels", async (req, res) => {
       const total   = await getDuration(srcPath);
       const clipSec = parseInt(clipDuration);
       const count   = Math.ceil(total / clipSec);
-      const clips   = [];
 
-      for (let i = 0; i < count; i++) {
-        const start   = i * clipSec;
-        const dur     = Math.min(clipSec, total - start);
-        const tmpPath = path.join(TMP_DIR, `${uuidv4()}_reel_${i + 1}.mp4`);
-        tmpClips.push(tmpPath);
+      const clips = await Promise.all(
+        Array.from({ length: count }, async (_, i) => {
+          const start   = i * clipSec;
+          const dur     = Math.min(clipSec, total - start);
+          const tmpPath = path.join(TMP_DIR, `${uuidv4()}_reel_${i + 1}.mp4`);
+          tmpClips.push(tmpPath);
 
-        await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
-        const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
-
-        clips.push({
-          index:     i + 1,
-          publicId:  cloudClip.public_id,
-          url:       cloudClip.secure_url,
-          startTime: formatTime(start),
-          duration:  formatTime(dur),
-        });
-      }
+          try {
+            await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
+          } catch (e) {
+            throw new Error(`Reel ${i + 1} cut failed (start=${formatTime(start)}, dur=${formatTime(dur)}): ${e.message}`);
+          }
+          try {
+            const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
+            return {
+              index:     i + 1,
+              publicId:  cloudClip.public_id,
+              url:       cloudClip.secure_url,
+              startTime: formatTime(start),
+              duration:  formatTime(dur),
+            };
+          } catch (e) {
+            throw new Error(`Reel ${i + 1} upload failed: ${e.message}`);
+          }
+        })
+      );
 
       res.json({ success: true, totalClips: clips.length, clips });
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const msg = `[split/reels] ${err.message}`;
+    console.error("❌", msg);
+    res.status(500).json({ success: false, error: msg });
   } finally {
     cleanupFiles(...tmpClips);
   }
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// POST /api/video-splitter/split/parts
+// POST /api/video-splitter/split/parts  ⭐ PARALLELIZED
 // Body: { publicId, url, parts }
 // ─────────────────────────────────────────────────────────────────────────────
 router.post("/split/parts", async (req, res) => {
@@ -603,29 +804,39 @@ router.post("/split/parts", async (req, res) => {
       const total = await getDuration(srcPath);
       const n     = parseInt(parts);
       const dur   = total / n;
-      const clips = [];
 
-      for (let i = 0; i < n; i++) {
-        const start   = i * dur;
-        const tmpPath = path.join(TMP_DIR, `${uuidv4()}_part_${i + 1}.mp4`);
-        tmpClips.push(tmpPath);
+      const clips = await Promise.all(
+        Array.from({ length: n }, async (_, i) => {
+          const start   = i * dur;
+          const tmpPath = path.join(TMP_DIR, `${uuidv4()}_part_${i + 1}.mp4`);
+          tmpClips.push(tmpPath);
 
-        await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
-        const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
-
-        clips.push({
-          index:     i + 1,
-          publicId:  cloudClip.public_id,
-          url:       cloudClip.secure_url,
-          startTime: formatTime(start),
-          duration:  formatTime(dur),
-        });
-      }
+          try {
+            await extractClip({ inputPath: srcPath, outputPath: tmpPath, startTime: start, duration: dur });
+          } catch (e) {
+            throw new Error(`Part ${i + 1}/${n} cut failed (start=${formatTime(start)}): ${e.message}`);
+          }
+          try {
+            const cloudClip = await uploadToCloudinary(tmpPath, "video_splitter/outputs");
+            return {
+              index:     i + 1,
+              publicId:  cloudClip.public_id,
+              url:       cloudClip.secure_url,
+              startTime: formatTime(start),
+              duration:  formatTime(dur),
+            };
+          } catch (e) {
+            throw new Error(`Part ${i + 1}/${n} upload failed: ${e.message}`);
+          }
+        })
+      );
 
       res.json({ success: true, totalClips: clips.length, clips });
     });
   } catch (err) {
-    res.status(500).json({ success: false, error: err.message });
+    const msg = `[split/parts] ${err.message}`;
+    console.error("❌", msg);
+    res.status(500).json({ success: false, error: msg });
   } finally {
     cleanupFiles(...tmpClips);
   }
@@ -657,16 +868,19 @@ router.post("/split/summarize", async (req, res) => {
       const step      = (total - segDur) / (SEGMENTS - 1);
       const sessionId = uuidv4();
 
-      for (let i = 0; i < SEGMENTS; i++) {
-        const segPath = path.join(TMP_DIR, `${sessionId}_seg_${i}.mp4`);
-        tmpSegs.push(segPath);
-        await extractClip({
-          inputPath:  srcPath,
-          outputPath: segPath,
-          startTime:  i * step,
-          duration:   segDur,
-        });
-      }
+      // ⭐ OPTIMIZATION: extract all segments in parallel
+      await Promise.all(
+        Array.from({ length: SEGMENTS }, async (_, i) => {
+          const segPath = path.join(TMP_DIR, `${sessionId}_seg_${i}.mp4`);
+          tmpSegs.push(segPath);
+          await extractClip({
+            inputPath:  srcPath,
+            outputPath: segPath,
+            startTime:  i * step,
+            duration:   segDur,
+          });
+        })
+      );
 
       listPath    = path.join(TMP_DIR, `${sessionId}_list.txt`);
       summaryPath = path.join(TMP_DIR, `${sessionId}_summary.mp4`);
@@ -680,8 +894,16 @@ router.post("/split/summarize", async (req, res) => {
           .videoCodec("libx264")
           .audioCodec("aac")
           .outputOptions([
-            "-crf 18", "-preset fast", "-profile:v high", "-level 4.1",
-            "-pix_fmt yuv420p", "-movflags +faststart", "-b:a 192k", "-ar 44100", "-ac 2",
+            "-crf 23",           // ⭐ optimized
+            "-preset ultrafast", // ⭐ optimized
+            "-threads 0",        // ⭐ use all cores
+            "-profile:v high",
+            "-level 4.1",
+            "-pix_fmt yuv420p",
+            "-movflags +faststart",
+            "-b:a 192k",
+            "-ar 44100",
+            "-ac 2",
           ])
           .output(summaryPath)
           .on("end", resolve)
