@@ -4881,7 +4881,7 @@ Space Complexity: O(1)`,
                 i++;
             }
     
-            return j == t.length();
+            return j == t.length();            // j value == t.length()  then true
         }
     }`,
     
@@ -4891,19 +4891,13 @@ Space Complexity: O(1)`,
       optimalCode: `class Solution {
     
         public String minWindow(String s1, String s2) {
-    
             int n = s1.length();
             int m = s2.length();
-    
             int minLen = Integer.MAX_VALUE;
             int start = -1;
-    
             int i = 0;
-    
             while(i < n) {
-    
                 int j = 0;
-    
                 while(i < n) {
                     if(s1.charAt(i) == s2.charAt(j)) {
                         j++;
@@ -4911,13 +4905,9 @@ Space Complexity: O(1)`,
                     }
                     i++;
                 }
-    
                 if(i == n) break;
-    
                 int end = i + 1;
-    
                 j = m - 1;
-    
                 while(i >= 0) {
                     if(s1.charAt(i) == s2.charAt(j)) {
                         j--;
@@ -4925,20 +4915,14 @@ Space Complexity: O(1)`,
                     }
                     i--;
                 }
-    
                 int windowLen = end - i;
-    
                 if(windowLen < minLen) {
                     minLen = windowLen;
                     start = i;
                 }
-    
                 i++;
             }
-    
-            return start == -1
-                   ? ""
-                   : s1.substring(start, start + minLen);
+            return start == -1 ? "": s1.substring(start, start + minLen);
         }
     }`
     },

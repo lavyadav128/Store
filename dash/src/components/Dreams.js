@@ -177,6 +177,22 @@ const isVideo = (url = "") =>
 
   const step = !selectedFile ? 1 : !ratio ? 2 : 3;
 
+
+  const handleVideoPlay = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.pause();
+    setMusicOn(false);
+  }, []);
+  
+  const handleVideoStop = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+    audio.play()
+      .then(() => setMusicOn(true))
+      .catch(() => {});
+  }, []);
+  
   return (
     <div className="vp-fullscreen">
       <style>{CSS}</style>
@@ -275,11 +291,13 @@ const isVideo = (url = "") =>
         <div style={s.wall} className="vp-masonry">
           {media.map((item, i) => (
             <MediaCard
-              key={item._id}
-              item={item}
-              index={i}
-              onDelete={() => handleDelete(item._id)}
-            />
+            key={item._id}
+            item={item}
+            index={i}
+            onDelete={() => handleDelete(item._id)}
+            onVideoPlay={handleVideoPlay}
+            onVideoStop={handleVideoStop}
+          />
           ))}
 
           {/* Add card */}
@@ -461,24 +479,49 @@ const isVideo = (url = "") =>
 }
 
 // ── Media Card ────────────────────────────────────────────────────────────────
-function MediaCard({ item, onDelete, index }) {
+function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop }) {
   const url       = item.fileUrl || item.resourceUrl || "";
   const cardRatio = item.ratio || localStorage.getItem(`ratio_${item._id}`) || "9/16";
   const isGif     = url.toLowerCase().endsWith(".gif");
   const isVid     = !isGif && isVideo(url);
 
-  const badgeClass =
-    cardRatio === "9/16" ? "vp-bp" :
-    cardRatio === "16/9" ? "vp-bl" : "vp-bs";
+  const [muted,   setMuted]   = useState(true);
+  const [playing, setPlaying] = useState(false);
+  const videoRef              = useRef(null);
 
-  const badgeLabel =
-    cardRatio === "9/16" ? "9:16" :
-    cardRatio === "16/9" ? "16:9" : "1:1";
+  const badgeClass = cardRatio === "9/16" ? "vp-bp" : cardRatio === "16/9" ? "vp-bl" : "vp-bs";
+  const badgeLabel = cardRatio === "9/16" ? "9:16"  : cardRatio === "16/9" ? "16:9"  : "1:1";
+  const subLabel   = isGif ? "Animated · Loop" : isVid ? (cardRatio === "16/9" ? "Landscape" : "Portrait") : "Image";
 
-  const subLabel =
-    isGif ? "Animated · Loop" :
-    isVid ? (cardRatio === "16/9" ? "Landscape" : "Portrait") :
-    "Image";
+  const handleMuteToggle = (e) => {
+    e.stopPropagation();
+    const newMuted = !muted;
+    setMuted(newMuted);
+    if (videoRef.current) videoRef.current.muted = newMuted;
+    // When unmuting, treat as "playing with audio" → stop bg music
+    if (!newMuted) onVideoPlay?.();
+    else           onVideoStop?.();
+  };
+
+  const handleVideoClick = (e) => {
+    e.stopPropagation();
+    const vid = videoRef.current;
+    if (!vid) return;
+    if (vid.paused) {
+      vid.play();
+      setPlaying(true);
+      if (!muted) onVideoPlay?.();
+    } else {
+      vid.pause();
+      setPlaying(false);
+      onVideoStop?.();
+    }
+  };
+
+  const handleVideoEnded = () => {
+    setPlaying(false);
+    onVideoStop?.();
+  };
 
   return (
     <div
@@ -487,18 +530,21 @@ function MediaCard({ item, onDelete, index }) {
     >
       {isVid ? (
         <video
+          ref={videoRef}
           src={url}
           style={s.cardMedia}
-          autoPlay loop muted playsInline
+          autoPlay
+          loop
+          muted={muted}
+          playsInline
+          onClick={handleVideoClick}
+          onEnded={handleVideoEnded}
         />
       ) : (
         <img
           src={url}
           alt=""
-          style={{
-            ...s.cardMedia,
-            filter: isGif ? "none" : s.cardMedia.filter,
-          }}
+          style={{ ...s.cardMedia, filter: isGif ? "none" : s.cardMedia.filter }}
           loading={isGif ? "eager" : "lazy"}
         />
       )}
@@ -508,6 +554,17 @@ function MediaCard({ item, onDelete, index }) {
       <div className="vp-corner-br" />
 
       <span className={`vp-badge ${badgeClass}`}>{badgeLabel}</span>
+
+      {/* Mute / Unmute button — only for videos */}
+      {isVid && (
+        <button
+          className="vp-mute-btn"
+          title={muted ? "Unmute" : "Mute"}
+          onClick={handleMuteToggle}
+        >
+          {muted ? "🔇" : "🔊"}
+        </button>
+      )}
 
       <div className="vp-card-label">
         <div className="vp-label-title">
@@ -729,6 +786,35 @@ const s = {
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
 
+/* mute button on video cards */
+.vp-mute-btn {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
+  background: rgba(0,0,0,0.6);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  color: #fff;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.vp-mute-btn:hover {
+  background: rgba(124,58,237,0.7);
+}
+
+/* always visible on mobile */
+@media (max-width: 768px) {
+  .vp-mute-btn { opacity: 1 !important; }
+}
+
+  
 /* ── Spinner ── */
 .vp-spin {
   width: 24px; height: 24px;
