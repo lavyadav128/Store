@@ -496,6 +496,7 @@ const s = {
     background: "#000",
     minHeight: "100vh",
     minHeight: "100dvh",
+    width: "100%",          // ← add this
     position: "relative",
     fontFamily: "'DM Sans', sans-serif",
     overflowX: "hidden",
@@ -565,6 +566,9 @@ const s = {
     columnGap: 3,
     padding: 3,
     background: "#000",
+    width: "100%",          // ← add this
+    minHeight: "100dvh",    // ← add this
+    boxSizing: "border-box", // ← add this
     // mobile override via CSS class .vp-masonry
   },
 
@@ -837,6 +841,7 @@ const CSS = `
     min-height: 100vh !important;
     min-height: 100dvh !important;
     background: #000 !important;
+    box-sizing: border-box !important;  /* ← add this */
   }
 
   /* Every card spans full width and shows full image at its chosen ratio */
