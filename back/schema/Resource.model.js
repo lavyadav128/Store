@@ -46,6 +46,7 @@ const resourceSchema = new mongoose.Schema(
       type: String,
       default: "admin",
     },
+    order: { type: Number, default: 0 }
   },
   {
     timestamps: true,

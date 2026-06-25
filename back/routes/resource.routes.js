@@ -100,10 +100,30 @@ router.get("/:category", async (req, res) => {
 // ── GET all files ──
 router.get("/", async (req, res) => {
   try {
-    const files = await Resource.find().sort({ createdAt: -1 });
+    const files = await Resource.find().sort({ order: 1, createdAt: -1 });
     res.json(files);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+// ── SAVE order ──
+router.post("/reorder", auth, async (req, res) => {
+  try {
+    const { ids } = req.body; // array of ids in new order
+    if (!Array.isArray(ids)) {
+      return res.status(400).json({ message: "ids must be an array" });
+    }
+    // update each resource's order field
+    await Promise.all(
+      ids.map((id, index) =>
+        Resource.findByIdAndUpdate(id, { order: index })
+      )
+    );
+    res.json({ message: "Order saved" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
