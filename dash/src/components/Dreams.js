@@ -244,28 +244,26 @@ export default function VideosPage() {
       {/* ── Wall ── */}
       {!loading && media.length > 0 && (
         <div style={s.wall} className="vp-masonry">
-          {media.map((item, i) => (
+            {media.map((item, i) => (
             <MediaCard
-              key={item._id}
-              item={item}
-              index={i}
-              onDelete={() => handleDelete(item._id)}
+                key={item._id}
+                item={item}
+                index={i}
+                onDelete={() => handleDelete(item._id)}
             />
-          ))}
-
-          {/* Add card */}
-          <div
+            ))}
+            <div
             style={s.addCard}
             className="vp-add-card"
             onClick={() => setDialogOpen(true)}
-          >
+            >
             <div className="vp-add-icon">
-              <AddIcon style={{ fontSize: 26 }} />
+                <AddIcon style={{ fontSize: 26 }} />
             </div>
             <span style={s.addText}>ADD MEDIA</span>
-          </div>
+            </div>
         </div>
-      )}
+        )}
 
       {/* ── Upload Dialog ── */}
       {dialogOpen && ReactDOM.createPortal(
@@ -575,6 +573,7 @@ const s = {
   cardMedia: {
     width: "100%",
     display: "block",
+    borderRadius: 2,        // ← add this
     transition: "transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.5s",
     filter: "brightness(0.88) saturate(1.1)",
   },
@@ -700,6 +699,32 @@ const s = {
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
+
+
+/* ── Animated rotating rainbow border on every card ── */
+.vp-card {
+  padding: 2px;
+  background: conic-gradient(from var(--vp-angle, 0deg), #7c3aed, #06b6d4, #f59e0b, #ec4899, #10b981, #7c3aed) !important;
+  animation: vp-card-in 0.5s cubic-bezier(0.23,1,0.32,1) both, vp-rainbow 3s linear infinite;
+}
+
+@property --vp-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes vp-rainbow {
+  to { --vp-angle: 360deg; }
+}
+
+.vp-card .thumb,
+.vp-card img,
+.vp-card video {
+  border-radius: 2px;
+  background: #0a0a0a;
+}
+
 
 /* ── Spinner ── */
 .vp-spin {
@@ -834,59 +859,56 @@ const CSS = `
 /* ── MOBILE: single full-width column ── */
 @media (max-width: 768px) {
   .vp-masonry {
-    columns: 1 !important;
-    column-gap: 0 !important;
-    padding: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    columns: unset !important;
     width: 100vw !important;
-    min-height: 100vh !important;
     min-height: 100dvh !important;
     background: #000 !important;
-    box-sizing: border-box !important;  /* ← add this */
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 2px !important;
+    box-sizing: border-box !important;
   }
 
-  /* Every card spans full width and shows full image at its chosen ratio */
   .vp-card {
-    width: 100% !important;
-    margin-bottom: 2px !important;
-    break-inside: avoid;
+    width: 100vw !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
+    break-inside: unset !important;
   }
 
-  /* Media fills full width and shows complete image using contain (no cropping) */
   .vp-card img,
   .vp-card video {
-    width: 100% !important;
+    width: 100vw !important;
     height: auto !important;
     object-fit: contain !important;
     display: block !important;
-    background: #000;
+    background: #000 !important;
   }
 
-  /* Add media card: full width on mobile too */
   .vp-add-card {
-    width: 100% !important;
-    margin-bottom: 2px !important;
-    height: 100px !important;
+    width: 100vw !important;
+    min-height: 100px !important;
+    flex-shrink: 0 !important;
+    margin: 0 !important;
   }
 
-  /* Delete btn always visible on mobile (no hover) */
   .vp-del-btn {
     opacity: 1 !important;
     transform: scale(1) translateY(0) !important;
   }
 
-  /* Card label always visible on mobile */
   .vp-card-label {
     opacity: 1 !important;
     transform: translateY(0) !important;
   }
 
-  /* Badge always visible on mobile */
   .vp-badge {
     opacity: 1 !important;
     transform: translateY(0) !important;
   }
 
-  /* Ring sizes for empty state on mobile */
   .vp-ring-wrap { width: 100px; height: 100px; }
   .vp-ring-outer { width: 100px; height: 100px; }
   .vp-ring-mid   { width: 74px;  height: 74px;  }
