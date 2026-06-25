@@ -11,8 +11,8 @@ const SONG_PATH = "/images/songs/song.mp3";
 const CATEGORY  = "videos";
 
 const isVideo = (url = "") =>
-  /\.(mp4|mov|webm|avi|mkv|gif)$/i.test(url) ||
-  url.includes("/video/upload/");
+  /\.(mp4|mov|webm|avi|mkv)$/i.test(url) ||
+  (url.includes("/video/upload/") && !url.toLowerCase().endsWith(".gif"));
 
 export default function VideosPage() {
   const audioRef     = useRef(null);
@@ -435,8 +435,8 @@ export default function VideosPage() {
 function MediaCard({ item, onDelete, index }) {
   const url       = item.fileUrl || item.resourceUrl || "";
   const cardRatio = item.ratio || localStorage.getItem(`ratio_${item._id}`) || "9/16";
-  const isVid     = isVideo(url);
   const isGif     = url.toLowerCase().endsWith(".gif");
+  const isVid     = !isGif && isVideo(url);
 
   const badgeClass =
     cardRatio === "9/16" ? "vp-bp" :
@@ -463,7 +463,15 @@ function MediaCard({ item, onDelete, index }) {
           autoPlay loop muted playsInline
         />
       ) : (
-        <img src={url} alt="" style={s.cardMedia} loading="lazy" />
+        <img
+          src={url}
+          alt=""
+          style={{
+            ...s.cardMedia,
+            filter: isGif ? "none" : s.cardMedia.filter,
+          }}
+          loading={isGif ? "eager" : "lazy"}
+        />
       )}
 
       <div className="vp-card-overlay" />
@@ -499,6 +507,7 @@ const s = {
     position: "relative",
     fontFamily: "'DM Sans', sans-serif",
     overflowX: "hidden",
+    overflowY: "auto",   // ADD THIS
     marginLeft: "calc(-1 * var(--page-px, 16px))",
     marginRight: "calc(-1 * var(--page-px, 16px))",
     marginTop: "calc(-1 * var(--page-py, 20px))",
@@ -937,12 +946,12 @@ const CSS = `
 }
 
 /* overlay */
+/* overlay */
 .vp-card-overlay {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
   background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.08) 35%, transparent 60%);
-  transition: opacity 0.4s;
+  opacity: 1;
 }
-.vp-card:hover .vp-card-overlay { opacity: 0.45; }
 
 /* corner accents */
 .vp-corner-tl, .vp-corner-br {
@@ -962,6 +971,7 @@ const CSS = `
 .vp-card:hover .vp-corner-br { opacity: 1; }
 
 /* badge */
+/* badge */
 .vp-badge {
   position: absolute; top: 8px; right: 8px; z-index: 4;
   background: rgba(0,0,0,0.55);
@@ -969,22 +979,19 @@ const CSS = `
   border-radius: 5px; padding: 3px 7px;
   font-size: 8px; font-weight: 800; letter-spacing: 1.5px;
   font-family: 'DM Sans', sans-serif;
-  opacity: 0; transform: translateY(-4px);
-  transition: opacity 0.3s 0.04s, transform 0.3s 0.04s;
+  opacity: 1; transform: translateY(0);
 }
-.vp-card:hover .vp-badge { opacity: 1; transform: translateY(0); }
 .vp-bp { color: rgba(124,58,237,0.9); }
 .vp-bl { color: rgba(6,182,212,0.9); }
 .vp-bs { color: rgba(245,158,11,0.9); }
 
 /* label */
+/* label */
 .vp-card-label {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
   padding: 14px 10px 10px;
-  transform: translateY(5px); opacity: 0;
-  transition: transform 0.4s cubic-bezier(0.23,1,0.32,1), opacity 0.35s;
+  transform: translateY(0); opacity: 1;
 }
-.vp-card:hover .vp-card-label { transform: translateY(0); opacity: 1; }
 .vp-label-title {
   font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
   color: #fff; text-transform: uppercase;
@@ -997,6 +1004,7 @@ const CSS = `
 }
 
 /* delete btn */
+/* delete btn */
 .vp-del-btn {
   position: absolute; bottom: 9px; right: 9px; z-index: 5;
   width: 28px; height: 28px; border-radius: 7px;
@@ -1005,10 +1013,9 @@ const CSS = `
   color: rgba(255,255,255,0.4);
   display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  opacity: 0; transform: scale(0.7) translateY(4px);
-  transition: opacity 0.3s 0.06s, transform 0.3s 0.06s, background 0.2s, color 0.2s;
+  opacity: 1; transform: scale(1) translateY(0);
+  transition: background 0.2s, color 0.2s;
 }
-.vp-card:hover .vp-del-btn { opacity: 1; transform: scale(1) translateY(0); }
 .vp-del-btn:hover { background: rgba(160,0,0,0.75) !important; color: #fff !important; }
 
 /* add card */
