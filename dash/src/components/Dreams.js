@@ -210,18 +210,18 @@ const isVideo = (url = "") =>
       .catch(() => {});
   }, []);
 
-    // CHANGE 1: In your useSensors config
-    const sensors = useSensors(
-      useSensor(PointerSensor, {
-        activationConstraint: { distance: 8 },
-      }),
-      useSensor(TouchSensor, {
-        activationConstraint: { 
-          delay: 250,      // shorter delay is fine since tolerance is the real guard
-          tolerance: 20,   // was 8 — now needs 20px of movement before drag activates
-        },
-      })
-    );
+  // CHANGE 1: In your useSensors config
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { 
+        delay: 250,      // shorter delay is fine since tolerance is the real guard
+        tolerance: 20,   // was 8 — now needs 20px of movement before drag activates
+      },
+    })
+  );
 
   const handleDragStart = ({ active }) => {
     setActiveId(active.id);
