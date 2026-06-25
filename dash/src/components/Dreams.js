@@ -56,8 +56,20 @@ const isVideo = (url = "") =>
     try {
       const res = await axios.get(`${server}/api/resources`, authHeader());
       const all = Array.isArray(res.data) ? res.data : [];
-      setMedia(all.filter((r) => r.category === CATEGORY));
-    } catch (e) {
+      const filtered = all.filter((r) => r.category === CATEGORY);
+      const savedOrder = localStorage.getItem("dreams_order");
+      if (savedOrder) {
+        const ids = JSON.parse(savedOrder);
+        const sorted = ids
+          .map((id) => filtered.find((m) => m._id === id))
+          .filter(Boolean);
+        // add any new items not yet in saved order at the end
+        const rest = filtered.filter((m) => !ids.includes(m._id));
+        setMedia([...sorted, ...rest]);
+      } else {
+        setMedia(filtered);
+      }
+      } catch (e) {
       console.error("Fetch error:", e?.response?.data || e.message);
     } finally {
       setLoading(false);
@@ -175,8 +187,12 @@ const isVideo = (url = "") =>
     try {
       await axios.delete(`${server}/api/resources/${id}`, authHeader());
       localStorage.removeItem(`ratio_${id}`);
-      setMedia((prev) => prev.filter((m) => m._id !== id));
-    } catch (err) {
+      setMedia((prev) => {
+        const updated = prev.filter((m) => m._id !== id);
+        localStorage.setItem("dreams_order", JSON.stringify(updated.map((m) => m._id)));
+        return updated;
+      });
+      } catch (err) {
       alert("Delete failed: " + (err?.response?.data?.message || err.message));
     }
   };
@@ -212,10 +228,10 @@ const isVideo = (url = "") =>
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      activationConstraint: { distance: 6 }, // prevents accidental drags on tap
+      activationConstraint: { distance: 8 },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 200, tolerance: 6 }, // hold 200ms to start drag on mobile
+      activationConstraint: { delay: 500, tolerance: 8 }, // 500ms hold required on mobile
     })
   );
 
@@ -229,7 +245,10 @@ const isVideo = (url = "") =>
     setMedia((prev) => {
       const oldIndex = prev.findIndex((m) => m._id === active.id);
       const newIndex = prev.findIndex((m) => m._id === over.id);
-      return arrayMove(prev, oldIndex, newIndex);
+      const updated = arrayMove(prev, oldIndex, newIndex);
+      // save order to localStorage
+      localStorage.setItem("dreams_order", JSON.stringify(updated.map((m) => m._id)));
+      return updated;
     });
   };
   
