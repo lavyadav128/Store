@@ -833,7 +833,10 @@ const CSS = `
     columns: 1 !important;
     column-gap: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
+    width: 100vw !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    background: #000 !important;
   }
 
   /* Every card spans full width and shows full image at its chosen ratio */
