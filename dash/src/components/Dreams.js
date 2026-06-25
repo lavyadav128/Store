@@ -210,16 +210,13 @@ const isVideo = (url = "") =>
       .catch(() => {});
   }, []);
 
-  // CHANGE 1: In your useSensors config
+  // ── FIX: increased tolerance so normal scroll doesn't trigger drag ──
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 8 },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: { 
-        delay: 250,      // shorter delay is fine since tolerance is the real guard
-        tolerance: 20,   // was 8 — now needs 20px of movement before drag activates
-      },
+      activationConstraint: { delay: 250, tolerance: 20 },
     })
   );
 
@@ -552,6 +549,7 @@ const isVideo = (url = "") =>
 }
 
 
+// ── FIX: removed touchAction:"none" from wrapper, moved to drag handle only ──
 function SortableCard({ item, index, onDelete, onVideoPlay, onVideoStop }) {
   const {
     attributes,
@@ -567,17 +565,18 @@ function SortableCard({ item, index, onDelete, onVideoPlay, onVideoStop }) {
     transition,
     opacity: isDragging ? 0.35 : 1,
     zIndex: isDragging ? 999 : "auto",
-    touchAction: "none", // required for touch drag to work
+    // touchAction:"none" intentionally removed — now lives only on the drag handle
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+    <div ref={setNodeRef} style={style} {...attributes}>
       <MediaCard
         item={item}
         index={index}
         onDelete={onDelete}
         onVideoPlay={onVideoPlay}
         onVideoStop={onVideoStop}
+        dragListeners={listeners}
       />
     </div>
   );
@@ -586,7 +585,7 @@ function SortableCard({ item, index, onDelete, onVideoPlay, onVideoStop }) {
 
 
 // ── Media Card ────────────────────────────────────────────────────────────────
-function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop }) {
+function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop, dragListeners }) {
   const url       = item.fileUrl || item.resourceUrl || "";
   const cardRatio = item.ratio || localStorage.getItem(`ratio_${item._id}`) || "9/16";
   const isGif     = url.toLowerCase().endsWith(".gif");
@@ -605,7 +604,6 @@ function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop }) {
     const newMuted = !muted;
     setMuted(newMuted);
     if (videoRef.current) videoRef.current.muted = newMuted;
-    // When unmuting, treat as "playing with audio" → stop bg music
     if (!newMuted) onVideoPlay?.();
     else           onVideoStop?.();
   };
@@ -672,6 +670,15 @@ function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop }) {
           {muted ? "🔇" : "🔊"}
         </button>
       )}
+
+      {/* ── FIX: Dedicated drag handle — touchAction:"none" only here ── */}
+      <div
+        {...dragListeners}
+        className="vp-drag-handle"
+        onClick={(e) => e.stopPropagation()}
+      >
+        ⠿
+      </div>
 
       <div className="vp-card-label">
         <div className="vp-label-title">
@@ -895,15 +902,48 @@ const STYLES = `
 
 
 /* drag cursor */
-.vp-card { cursor: grab; }
-.vp-card:active { cursor: grabbing; }
+.vp-card { cursor: default; }
+
+/* ── Drag handle ── */
+.vp-drag-handle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 6;
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  background: rgba(0,0,0,0.55);
+  border: 0.5px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.45);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  transition: background 0.2s, color 0.2s;
+}
+.vp-drag-handle:active {
+  cursor: grabbing;
+}
+.vp-card:hover .vp-drag-handle {
+  background: rgba(124,58,237,0.5);
+  color: #fff;
+}
+
+/* always visible on mobile */
+@media (max-width: 768px) {
+  .vp-drag-handle { opacity: 1 !important; }
+}
 
 
 /* mute button on video cards */
 .vp-mute-btn {
   position: absolute;
   top: 8px;
-  left: 8px;
+  left: 44px;
   z-index: 5;
   width: 30px;
   height: 30px;
@@ -1064,8 +1104,9 @@ const STYLES = `
     columns: 1 !important;
     column-gap: 0 !important;
     padding: 0 !important;
-    width: 100vw !important;        /* ADD THIS */
-    margin-left: calc(-50vw + 50%) !important;  /* ADD THIS - breaks out of parent padding */  }
+    width: 100vw !important;
+    margin-left: calc(-50vw + 50%) !important;
+  }
 
   /* Every card spans full width and shows full image at its chosen ratio */
   .vp-card {
@@ -1164,7 +1205,6 @@ const STYLES = `
 }
 
 /* overlay */
-/* overlay */
 .vp-card-overlay {
   position: absolute; inset: 0; z-index: 2; pointer-events: none;
   background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.08) 35%, transparent 60%);
@@ -1189,7 +1229,6 @@ const STYLES = `
 .vp-card:hover .vp-corner-br { opacity: 1; }
 
 /* badge */
-/* badge */
 .vp-badge {
   position: absolute; top: 8px; right: 8px; z-index: 4;
   background: rgba(0,0,0,0.55);
@@ -1203,7 +1242,6 @@ const STYLES = `
 .vp-bl { color: rgba(6,182,212,0.9); }
 .vp-bs { color: rgba(245,158,11,0.9); }
 
-/* label */
 /* label */
 .vp-card-label {
   position: absolute; bottom: 0; left: 0; right: 0; z-index: 4;
@@ -1221,7 +1259,6 @@ const STYLES = `
   color: rgba(255,255,255,0.35); margin-top: 2px;
 }
 
-/* delete btn */
 /* delete btn */
 .vp-del-btn {
   position: absolute; bottom: 9px; right: 9px; z-index: 5;
