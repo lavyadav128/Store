@@ -47,15 +47,12 @@ export default function VideosPage() {
     }
   };
 
-  // ── Music: browsers block autoplay until user interaction ──────────────────
-  // Strategy: try immediately, if blocked wait for first touch/click then retry
   const tryPlayMusic = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || musicOn) return;
     audio.play()
       .then(() => setMusicOn(true))
       .catch(() => {
-        // Autoplay blocked — attach one-time interaction listener
         const resume = () => {
           audio.play()
             .then(() => setMusicOn(true))
@@ -76,7 +73,6 @@ export default function VideosPage() {
     audio.volume = 0.6;
     audioRef.current = audio;
 
-    // Small delay gives the browser a chance after navigation
     const t = setTimeout(tryPlayMusic, 400);
 
     return () => {
@@ -133,7 +129,6 @@ export default function VideosPage() {
           setUploadPct(Math.round((e.loaded * 100) / e.total)),
       });
 
-      // Fetch fresh list, find newest, persist ratio to localStorage
       const res = await axios.get(`${server}/api/resources`, authHeader());
       const all = Array.isArray(res.data) ? res.data : [];
       const newest = all
@@ -205,20 +200,15 @@ export default function VideosPage() {
         </div>
       )}
 
-      {/* ── Beautiful empty state (full screen on mobile) ── */}
+      {/* ── Beautiful empty state ── */}
       {!loading && media.length === 0 && (
         <div style={s.emptyWrap}>
-          {/* Ambient orbs */}
           <div className="vp-orb vp-orb1" />
           <div className="vp-orb vp-orb2" />
           <div className="vp-orb vp-orb3" />
-
-          {/* Animated grid lines */}
           <div className="vp-grid" />
 
-          {/* Centre content */}
           <div style={s.emptyInner}>
-            {/* Animated icon ring */}
             <div className="vp-ring-wrap">
               <div className="vp-ring vp-ring-outer" />
               <div className="vp-ring vp-ring-mid" />
@@ -242,7 +232,6 @@ export default function VideosPage() {
               ADD FIRST MEDIA
             </button>
 
-            {/* Decorative floating pills */}
             <div className="vp-pills">
               <span className="vp-pill vp-pill1">VIDEO</span>
               <span className="vp-pill vp-pill2">IMAGE</span>
@@ -252,7 +241,7 @@ export default function VideosPage() {
         </div>
       )}
 
-      {/* ── Masonry Wall ── */}
+      {/* ── Wall ── */}
       {!loading && media.length > 0 && (
         <div style={s.wall} className="vp-masonry">
           {media.map((item, i) => (
@@ -311,7 +300,7 @@ export default function VideosPage() {
               )}
             </div>
 
-            {/* STEP 1 — file picker */}
+            {/* STEP 1 */}
             {step === 1 && (
               <div
                 style={{ ...s.dropZone, ...(dragOver ? s.dropActive : {}) }}
@@ -341,7 +330,7 @@ export default function VideosPage() {
               </div>
             )}
 
-            {/* STEP 2 — ratio picker */}
+            {/* STEP 2 */}
             {step === 2 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                 <p style={{ margin: 0, fontSize: 11, color: "#444", letterSpacing: "0.5px" }}>
@@ -370,7 +359,7 @@ export default function VideosPage() {
               </div>
             )}
 
-            {/* STEP 3 — preview + confirm */}
+            {/* STEP 3 */}
             {step === 3 && (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <div style={{
@@ -529,7 +518,6 @@ const s = {
     background: "#000", zIndex: 5, pointerEvents: "none",
   },
 
-  // Empty state — full viewport
   emptyWrap: {
     position: "fixed", inset: 0,
     display: "flex", alignItems: "center", justifyContent: "center",
@@ -571,12 +559,13 @@ const s = {
     fontFamily: "'DM Sans', sans-serif",
   },
 
-  // Masonry wall
+  // Wall — masonry on desktop, single column on mobile (handled in CSS)
   wall: {
     columns: 3,
     columnGap: 3,
     padding: 3,
     background: "#000",
+    // mobile override via CSS class .vp-masonry
   },
 
   cardMedia: {
@@ -604,7 +593,6 @@ const s = {
     color: "rgba(255,255,255,0.13)", fontWeight: 700,
   },
 
-  // Dialog
   overlay: {
     position: "fixed", inset: 0,
     background: "rgba(0,0,0,0.94)", zIndex: 99999,
@@ -836,12 +824,69 @@ const CSS = `
   50%      { border-color: rgba(124,58,237,0.6); transform: scale(1.04); }
 }
 
-/* ── Masonry responsive ── */
+/* ── Masonry: 3 cols on desktop ── */
 .vp-masonry { columns: 3; column-gap: 3px; padding: 3px; }
-@media (max-width: 700px) { .vp-masonry { columns: 2; } }
-@media (max-width: 380px) { .vp-masonry { columns: 2; } }
 
-/* ── Media card ── */
+/* ── MOBILE: single full-width column ── */
+@media (max-width: 768px) {
+  .vp-masonry {
+    columns: 1 !important;
+    column-gap: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  /* Every card spans full width and shows full image at its chosen ratio */
+  .vp-card {
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    break-inside: avoid;
+  }
+
+  /* Media fills full width and shows complete image using contain (no cropping) */
+  .vp-card img,
+  .vp-card video {
+    width: 100% !important;
+    height: auto !important;
+    object-fit: contain !important;
+    display: block !important;
+    background: #000;
+  }
+
+  /* Add media card: full width on mobile too */
+  .vp-add-card {
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    height: 100px !important;
+  }
+
+  /* Delete btn always visible on mobile (no hover) */
+  .vp-del-btn {
+    opacity: 1 !important;
+    transform: scale(1) translateY(0) !important;
+  }
+
+  /* Card label always visible on mobile */
+  .vp-card-label {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  /* Badge always visible on mobile */
+  .vp-badge {
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+  }
+
+  /* Ring sizes for empty state on mobile */
+  .vp-ring-wrap { width: 100px; height: 100px; }
+  .vp-ring-outer { width: 100px; height: 100px; }
+  .vp-ring-mid   { width: 74px;  height: 74px;  }
+  .vp-ring-inner  { width: 50px;  height: 50px;  }
+  .vp-plus-icon   { width: 46px;  height: 46px;  }
+}
+
+/* ── Media card (desktop) ── */
 .vp-card {
   break-inside: avoid;
   margin-bottom: 3px;
@@ -988,13 +1033,4 @@ const CSS = `
 
 /* upload btn */
 .vp-upload-btn:hover { background: #6d28d9 !important; }
-
-/* mobile: empty state fills full screen height including notch */
-@media (max-width: 768px) {
-  .vp-ring-wrap { width: 100px; height: 100px; }
-  .vp-ring-outer { width: 100px; height: 100px; }
-  .vp-ring-mid   { width: 74px;  height: 74px;  }
-  .vp-ring-inner  { width: 50px;  height: 50px;  }
-  .vp-plus-icon   { width: 46px;  height: 46px;  }
-}
 `;
