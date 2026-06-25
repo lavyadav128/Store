@@ -4130,7 +4130,7 @@ Space Complexity: O(1)`,
             for(int right = 0; right < s.length(); right++) {
                 char ch = s.charAt(right);
     
-                if(lastIndex[ch] >= left) {
+                if(lastIndex[ch] >= left) {         // intially for any lastIndex['a']=-1
                     left = lastIndex[ch] + 1;
                 }
     
@@ -4208,8 +4208,8 @@ Space Complexity: O(1)`,
     You can pick fruits from a contiguous subarray containing at most 2 distinct fruit types.
     
     EXAMPLE:
-    Input: fruits = [1,2,1]
-    Output: 3`,
+    Input: fruits = [1,2,1,2,3]
+    Output: 4`,
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(2)`,
@@ -4249,7 +4249,7 @@ Space Complexity: O(1)`,
                 map.put(fruits[right],
                         map.getOrDefault(fruits[right],0)+1);
     
-                while(map.size() > 2) {
+                while(map.size() > 2) {                      // size means if >2 different fruits
                     map.put(fruits[left], map.get(fruits[left]) - 1);
     
                     if(map.get(fruits[left]) == 0) {
@@ -4290,7 +4290,7 @@ Space Complexity: O(1)`,
                 int maxFreq = 0;
     
                 for(int j = i; j < n; j++) {
-                    freq[s.charAt(j)-'A']++;
+                    freq[s.charAt(j)-'A']++;        // means freq[any char]=1
                     maxFreq = Math.max(maxFreq,
                                        freq[s.charAt(j)-'A']);
     
@@ -4344,7 +4344,7 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: nums = [1,0,1,0,1], goal = 2
-    Output: 4`,
+    Output: 4  =  [1,0,1],[1,0,1,0],[0,1,0,1],[1,0,1]`,
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -4392,7 +4392,7 @@ Space Complexity: O(1)`,
     
         public int numSubarraysWithSum(int[] nums, int goal) {
             return atMost(nums, goal)
-                 - atMost(nums, goal - 1);
+                 - atMost(nums, goal - 1);          // Exactly(2) = AtMost(2)-AtMost(1)  this logic is getting used
         }
     }`
     },

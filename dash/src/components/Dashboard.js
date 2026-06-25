@@ -9,6 +9,7 @@ import AdminFileUpload from "./AdminFileUpload";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import VideoClipIcon from "@mui/icons-material/Videocam";
+import DreamIcon from "@mui/icons-material/Psychology";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import PaymentIcon from "@mui/icons-material/Payment";
@@ -43,6 +44,7 @@ import NotificationPage from "./notification"
 import DoubtPage from "./doubt";
 import PaymentsPage from "./payment";
 import AdminDashboard from "./AdminDashboard";
+import Dreams from "./Dreams";
 import VideoSplit from "./VideoSplit";
 import LogoutIcon from "@mui/icons-material/Logout";
 
@@ -56,6 +58,7 @@ const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
 const VIEW_VIDEO         = "video";
 const VIEW_CLIP          = "clip";
+const VIEW_DREAMS        = "dreams";
 const VIEW_FILES         = "files";
 
 const SECTIONS = [
@@ -82,11 +85,11 @@ const QUICK_COURSES = [
 ];
 
 const ADMIN_NAV = [
+  { icon: DreamIcon,      title: "Ultimate Dreams", view: VIEW_DREAMS },
   { icon: DashboardIcon,  title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: UploadFileIcon, title: "File Manager",    view: VIEW_FILES },
   { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
   { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
-
 
 ];
 
@@ -1003,6 +1006,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_CLIP && (
                     <Fade in timeout={400}><Box><VideoSplit /></Box></Fade>
+                  )}
+                  {activeView === VIEW_DREAMS && (
+                    <Fade in timeout={400}><Box><Dreams /></Box></Fade>
                   )}
 
                 </>
