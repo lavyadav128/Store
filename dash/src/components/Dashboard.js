@@ -897,8 +897,7 @@ const Dashboard = () => {
       <ThemeProvider theme={theme}>
         <CssBaseline />
 
-        <Box sx={{ display: "flex", height: "100vh", background: activeView === VIEW_DREAMS ? "#000" : "#fafafa", overflow: "hidden" }}>
-          {/* ── SIDEBAR ── */}
+        <Box sx={{ display: "flex", height: "100vh", background: activeView === VIEW_VIDEO ? "#000" : "#fafafa", overflow: "hidden" }}>          {/* ── SIDEBAR ── */}
           {!isCourseRoute && (
             <>
               {!isMobile ? (
@@ -926,8 +925,7 @@ const Dashboard = () => {
           )}
 
           {/* ── MAIN CONTENT ── */}
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: activeView === VIEW_DREAMS ? "#000" : "transparent" }}>
-            {/* ── ADMIN MOBILE TOPBAR ── */}
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: activeView === VIEW_VIDEO ? "#000" : "transparent" }}>            {/* ── ADMIN MOBILE TOPBAR ── */}
             {isAdminRoute && isMobile && !isCourseRoute && (
               <Box sx={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -960,7 +958,8 @@ const Dashboard = () => {
             )}
 
             {/* Scrollable content */}
-            <Box sx={{ flex: 1, overflowY: "auto", px: { xs: activeView === VIEW_DREAMS ? 0 : 2, sm: 3, md: 4 }, py: { xs: activeView === VIEW_DREAMS ? 0 : 2.5, sm: 3 }, overflow: activeView === VIEW_DREAMS ? "hidden" : "auto" }}>              {isCourseRoute && (
+{/* Scrollable content */}
+<Box sx={{ flex: 1, overflowY: activeView === VIEW_VIDEO ? "hidden" : "auto", px: { xs: activeView === VIEW_VIDEO ? 0 : 2, sm: activeView === VIEW_VIDEO ? 0 : 3, md: activeView === VIEW_VIDEO ? 0 : 4 }, py: { xs: activeView === VIEW_VIDEO ? 0 : 2.5, sm: activeView === VIEW_VIDEO ? 0 : 3 } }}>              {isCourseRoute && (
                 <Box sx={{ mb: 2 }}>
                   <Button
                     onClick={goBackToDashboard}

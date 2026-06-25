@@ -502,16 +502,12 @@ function MediaCard({ item, onDelete, index }) {
 const s = {
   pg: {
     background: "#000",
-    minHeight: "100vh",
-    minHeight: "100dvh",
     position: "relative",
     fontFamily: "'DM Sans', sans-serif",
     overflowX: "hidden",
-    overflowY: "auto",   // ADD THIS
-    marginLeft: "calc(-1 * var(--page-px, 16px))",
-    marginRight: "calc(-1 * var(--page-px, 16px))",
-    marginTop: "calc(-1 * var(--page-py, 20px))",
-    width: "calc(100% + 2 * var(--page-px, 16px))",
+    overflowY: "auto",
+    minHeight: "100%",
+    width: "100%",
   },
 
   musicBtn: {
