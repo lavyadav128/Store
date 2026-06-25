@@ -178,8 +178,37 @@ export default function VideosPage() {
   const step = !selectedFile ? 1 : !ratio ? 2 : 3;
 
   return (
-    <div style={s.pg}>
+    <div className="vp-fullscreen">
       <style>{CSS}</style>
+  
+      {/* Floating Back Button */}
+      <button
+        onClick={() => window.history.back()}
+        style={{
+          position: "fixed",
+          top: 16,
+          left: 16,
+          zIndex: 9999,
+          width: 38,
+          height: 38,
+          borderRadius: "12px",
+          background: "rgba(10,10,10,0.85)",
+          border: "1px solid rgba(255,255,255,0.12)",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          cursor: "pointer",
+          backdropFilter: "blur(10px)",
+          WebkitBackdropFilter: "blur(10px)",
+          fontSize: 18,
+          lineHeight: 1,
+        }}
+      >
+        ‹
+      </button>
+  
+      {/* Music toggle */}
 
       {/* Music toggle */}
       <button
@@ -501,13 +530,7 @@ function MediaCard({ item, onDelete, index }) {
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
   pg: {
-    background: "#000",
-    position: "relative",
     fontFamily: "'DM Sans', sans-serif",
-    overflowX: "hidden",
-    overflowY: "auto",
-    minHeight: "100%",
-    width: "100%",
   },
 
   musicBtn: {
@@ -571,10 +594,10 @@ const s = {
   // Wall — masonry on desktop, single column on mobile (handled in CSS)
   wall: {
     columns: 3,
-    columnGap: 3,
-    padding: 3,
+    columnGap: 2,
+    padding: 2,
     background: "#000",
-    // mobile override via CSS class .vp-masonry
+    width: "100%",
   },
 
   cardMedia: {

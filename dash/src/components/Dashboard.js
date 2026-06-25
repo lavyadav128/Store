@@ -858,6 +858,7 @@ const Dashboard = () => {
         ::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
         input::placeholder { color: #bbb; font-weight: 400; }
 
+        
         @keyframes drawerShimmer {
           0%   { background-position: -300% center; }
           100% { background-position:  300% center; }
@@ -892,6 +893,21 @@ const Dashboard = () => {
           -webkit-backdrop-filter: blur(5px) !important;
           background: rgba(10,10,20,0.4) !important;
         }
+
+        .vp-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  height: 100dvh !important;
+  background: #000 !important;
+  z-index: 999 !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+}
       `}</style>
 
       <ThemeProvider theme={theme}>
@@ -996,9 +1012,9 @@ const Dashboard = () => {
                   {activeView === VIEW_FILES && (
                     <Fade in timeout={400}><Box><AdminFileUpload /></Box></Fade>
                   )}
-                  {activeView === VIEW_VIDEO && (
-                    <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
-                  )}
+{activeView === VIEW_VIDEO && (
+  <Videostudio />
+)}
                   {activeView === VIEW_CLIP && (
                     <Fade in timeout={400}><Box><VideoSplit /></Box></Fade>
                   )}
