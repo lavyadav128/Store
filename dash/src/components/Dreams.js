@@ -490,15 +490,15 @@ function MediaCard({ item, onDelete, index }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
-  pg: {
-    background: "#000",
-    minHeight: "100vh",
-    minHeight: "100dvh",
-    width: "100%",          // ← add this
-    position: "relative",
-    fontFamily: "'DM Sans', sans-serif",
-    overflowX: "hidden",
-  },
+    pg: {
+        background: "#000",
+        minHeight: "100vh",
+        minHeight: "100dvh",
+        width: "100vw",
+        position: "relative",
+        fontFamily: "'DM Sans', sans-serif",
+        overflowX: "hidden",
+      },
 
   musicBtn: {
     position: "fixed", bottom: 22, right: 22, zIndex: 500,
@@ -518,9 +518,21 @@ const s = {
   },
 
   emptyWrap: {
-    position: "fixed", inset: 0,
-    display: "flex", alignItems: "center", justifyContent: "center",
-    background: "#000", overflow: "hidden", zIndex: 1,
+    position: "fixed",
+    inset: 0,
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#000",
+    overflow: "hidden",
+    zIndex: 1,
+    width: "100vw",
+    height: "100vh",
+    height: "100dvh",
   },
 
   emptyInner: {
@@ -564,10 +576,9 @@ const s = {
     columnGap: 3,
     padding: 3,
     background: "#000",
-    width: "100%",          // ← add this
-    minHeight: "100dvh",    // ← add this
-    boxSizing: "border-box", // ← add this
-    // mobile override via CSS class .vp-masonry
+    width: "100vw",
+    minHeight: "100dvh",
+    boxSizing: "border-box",
   },
 
   cardMedia: {
@@ -575,7 +586,8 @@ const s = {
     display: "block",
     borderRadius: 2,        // ← add this
     transition: "transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.5s",
-    filter: "brightness(0.88) saturate(1.1)",
+    filter: "brightness(1.05) saturate(1.3) contrast(1.04)",  // ← was brightness(0.88)
+
   },
 
   addCard: {
@@ -700,6 +712,9 @@ const s = {
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
 
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body, html { width: 100%; overflow-x: hidden; background: #000; }
 
 /* ── Animated rotating rainbow border on every card ── */
 .vp-card {
@@ -854,7 +869,21 @@ const CSS = `
 }
 
 /* ── Masonry: 3 cols on desktop ── */
-.vp-masonry { columns: 3; column-gap: 3px; padding: 3px; }
+@media (max-width: 768px) {
+  .vp-masonry {
+    display: flex !important;
+    flex-direction: column !important;
+    columns: unset !important;
+    width: 100vw !important;
+    min-height: 100dvh !important;
+    background: #000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    gap: 2px !important;
+    box-sizing: border-box !important;
+    position: relative !important;
+  }
+
 
 /* ── MOBILE: single full-width column ── */
 @media (max-width: 768px) {
@@ -960,6 +989,12 @@ const CSS = `
 .vp-card:hover video {
   transform: scale(1.07);
   filter: brightness(1.05) saturate(1.3) contrast(1.04) !important;
+}
+
+.vp-card img,
+.vp-card video {
+  filter: brightness(1.05) saturate(1.3) contrast(1.04);
+  transition: transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.5s;
 }
 
 /* overlay */
