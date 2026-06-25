@@ -6,6 +6,22 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import AddIcon from "@mui/icons-material/Add";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import MusicOffIcon from "@mui/icons-material/MusicOff";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  rectSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const SONG_PATH = "/images/songs/song.mp3";
 const CATEGORY  = "videos";
@@ -29,6 +45,7 @@ const isVideo = (url = "") =>
   const [previewUrl,   setPreviewUrl]   = useState(null);
   const [uploadError,  setUploadError]  = useState("");
   const [ratio,        setRatio]        = useState(null);
+  const [activeId, setActiveId] = useState(null);
 
   const authHeader = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
@@ -192,11 +209,33 @@ const isVideo = (url = "") =>
       .then(() => setMusicOn(true))
       .catch(() => {});
   }, []);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 6 }, // prevents accidental drags on tap
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 200, tolerance: 6 }, // hold 200ms to start drag on mobile
+    })
+  );
+
+  const handleDragStart = ({ active }) => {
+    setActiveId(active.id);
+  };
+  
+  const handleDragEnd = ({ active, over }) => {
+    setActiveId(null);
+    if (!over || active.id === over.id) return;
+    setMedia((prev) => {
+      const oldIndex = prev.findIndex((m) => m._id === active.id);
+      const newIndex = prev.findIndex((m) => m._id === over.id);
+      return arrayMove(prev, oldIndex, newIndex);
+    });
+  };
   
   return (
     <div className="vp-fullscreen">
-      <style>{CSS}</style>
-  
+    <style>{STYLES}</style>  
       {/* Floating Back Button */}
       <button
         onClick={() => onBack && onBack()}
@@ -288,31 +327,51 @@ const isVideo = (url = "") =>
 
       {/* ── Wall ── */}
       {!loading && media.length > 0 && (
-        <div style={s.wall} className="vp-masonry">
-          {media.map((item, i) => (
-            <MediaCard
-            key={item._id}
-            item={item}
-            index={i}
-            onDelete={() => handleDelete(item._id)}
-            onVideoPlay={handleVideoPlay}
-            onVideoStop={handleVideoStop}
-          />
-          ))}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <SortableContext
+          items={media.map((m) => m._id)}
+          strategy={rectSortingStrategy}
+        >
+          <div style={s.wall} className="vp-masonry">
+            {media.map((item, i) => (
+              <SortableCard
+                key={item._id}
+                item={item}
+                index={i}
+                onDelete={() => handleDelete(item._id)}
+                onVideoPlay={handleVideoPlay}
+                onVideoStop={handleVideoStop}
+              />
+            ))}
 
-          {/* Add card */}
-          <div
-            style={s.addCard}
-            className="vp-add-card"
-            onClick={() => setDialogOpen(true)}
-          >
-            <div className="vp-add-icon">
-              <AddIcon style={{ fontSize: 26 }} />
+            {/* Add card */}
+            <div style={s.addCard} className="vp-add-card" onClick={() => setDialogOpen(true)}>
+              <div className="vp-add-icon">
+                <AddIcon style={{ fontSize: 26 }} />
+              </div>
+              <span style={s.addText}>ADD MEDIA</span>
             </div>
-            <span style={s.addText}>ADD MEDIA</span>
           </div>
-        </div>
-      )}
+        </SortableContext>
+
+        {/* Ghost card shown while dragging */}
+        <DragOverlay>
+          {activeId ? (() => {
+            const item = media.find((m) => m._id === activeId);
+            return item ? (
+              <div style={{ opacity: 0.85, borderRadius: 10, overflow: "hidden" }}>
+                <MediaCard item={item} index={0} />
+              </div>
+            ) : null;
+          })() : null}
+        </DragOverlay>
+      </DndContext>
+    )}
 
       {/* ── Upload Dialog ── */}
       {dialogOpen && ReactDOM.createPortal(
@@ -477,6 +536,40 @@ const isVideo = (url = "") =>
     </div>
   );
 }
+
+
+function SortableCard({ item, index, onDelete, onVideoPlay, onVideoStop }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: item._id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.35 : 1,
+    zIndex: isDragging ? 999 : "auto",
+    touchAction: "none", // required for touch drag to work
+  };
+
+  return (
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <MediaCard
+        item={item}
+        index={index}
+        onDelete={onDelete}
+        onVideoPlay={onVideoPlay}
+        onVideoStop={onVideoStop}
+      />
+    </div>
+  );
+}
+
+
 
 // ── Media Card ────────────────────────────────────────────────────────────────
 function MediaCard({ item, onDelete, index, onVideoPlay, onVideoStop }) {
@@ -783,8 +876,14 @@ const s = {
 };
 
 // ── CSS ───────────────────────────────────────────────────────────────────────
-const CSS = `
+const STYLES = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
+
+
+/* drag cursor */
+.vp-card { cursor: grab; }
+.vp-card:active { cursor: grabbing; }
+
 
 /* mute button on video cards */
 .vp-mute-btn {
