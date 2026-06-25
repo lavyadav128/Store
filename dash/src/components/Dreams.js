@@ -215,7 +215,7 @@ const isVideo = (url = "") =>
       activationConstraint: { distance: 8 },
     }),
     useSensor(TouchSensor, {
-      activationConstraint: { delay: 500, tolerance: 8 }, // 500ms hold required on mobile
+      activationConstraint: { delay: 1000, tolerance: 8 }, // 500ms hold required on mobile
     })
   );
 
