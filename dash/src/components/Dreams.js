@@ -565,11 +565,11 @@ function SortableCard({ item, index, onDelete, onVideoPlay, onVideoStop }) {
     transition,
     opacity: isDragging ? 0.35 : 1,
     zIndex: isDragging ? 999 : "auto",
-    // touchAction:"none" intentionally removed — now lives only on the drag handle
+    touchAction: "none", // needed for PC drag
   };
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes}>
+    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       <MediaCard
         item={item}
         index={index}
@@ -924,6 +924,8 @@ const STYLES = `
   touch-action: none;
   user-select: none;
   transition: background 0.2s, color 0.2s;
+  -webkit-touch-callout: none;
+-webkit-user-select: none;
 }
 .vp-drag-handle:active {
   cursor: grabbing;
