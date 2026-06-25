@@ -243,26 +243,29 @@ export default function VideosPage() {
 
       {/* ── Wall ── */}
       {!loading && media.length > 0 && (
-        <div style={{...s.wall, position: "relative", minHeight: "100dvh", background: "#000"}} className="vp-masonry">            {media.map((item, i) => (
+        <div style={s.wall} className="vp-masonry">
+          {media.map((item, i) => (
             <MediaCard
-                key={item._id}
-                item={item}
-                index={i}
-                onDelete={() => handleDelete(item._id)}
+              key={item._id}
+              item={item}
+              index={i}
+              onDelete={() => handleDelete(item._id)}
             />
-            ))}
-            <div
+          ))}
+
+          {/* Add card */}
+          <div
             style={s.addCard}
             className="vp-add-card"
             onClick={() => setDialogOpen(true)}
-            >
+          >
             <div className="vp-add-icon">
-                <AddIcon style={{ fontSize: 26 }} />
+              <AddIcon style={{ fontSize: 26 }} />
             </div>
             <span style={s.addText}>ADD MEDIA</span>
-            </div>
+          </div>
         </div>
-        )}
+      )}
 
       {/* ── Upload Dialog ── */}
       {dialogOpen && ReactDOM.createPortal(
@@ -489,14 +492,14 @@ function MediaCard({ item, onDelete, index }) {
 
 // ── Styles ────────────────────────────────────────────────────────────────────
 const s = {
-    pg: {
-        background: "#000",
-        minHeight: "100dvh",
-        width: "100vw",
-        position: "relative",
-        fontFamily: "'DM Sans', sans-serif",
-        overflowX: "hidden",
-      },
+  pg: {
+    background: "#000",
+    minHeight: "100vh",
+    minHeight: "100dvh",
+    position: "relative",
+    fontFamily: "'DM Sans', sans-serif",
+    overflowX: "hidden",
+  },
 
   musicBtn: {
     position: "fixed", bottom: 22, right: 22, zIndex: 500,
@@ -516,21 +519,9 @@ const s = {
   },
 
   emptyWrap: {
-    position: "fixed",
-    inset: 0,
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    background: "#000",
-    overflow: "hidden",
-    zIndex: 1,
-    width: "100vw",
-    height: "100vh",
-    height: "100dvh",
+    position: "fixed", inset: 0,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    background: "#000", overflow: "hidden", zIndex: 1,
   },
 
   emptyInner: {
@@ -574,18 +565,14 @@ const s = {
     columnGap: 3,
     padding: 3,
     background: "#000",
-    width: "100vw",
-    minHeight: "100dvh",
-    boxSizing: "border-box",
+    // mobile override via CSS class .vp-masonry
   },
 
   cardMedia: {
     width: "100%",
     display: "block",
-    borderRadius: 2,        // ← add this
     transition: "transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.5s",
-    filter: "brightness(1.05) saturate(1.3) contrast(1.04)",  // ← was brightness(0.88)
-
+    filter: "brightness(0.88) saturate(1.1)",
   },
 
   addCard: {
@@ -709,35 +696,6 @@ const s = {
 // ── CSS ───────────────────────────────────────────────────────────────────────
 const CSS = `
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700;800&display=swap');
-
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body, html { width: 100%; overflow-x: hidden; background: #000; }
-
-/* ── Animated rotating rainbow border on every card ── */
-.vp-card {
-  padding: 2px;
-  background: conic-gradient(from var(--vp-angle, 0deg), #7c3aed, #06b6d4, #f59e0b, #ec4899, #10b981, #7c3aed) !important;
-  animation: vp-card-in 0.5s cubic-bezier(0.23,1,0.32,1) both, vp-rainbow 3s linear infinite;
-}
-
-@property --vp-angle {
-  syntax: '<angle>';
-  initial-value: 0deg;
-  inherits: false;
-}
-
-@keyframes vp-rainbow {
-  to { --vp-angle: 360deg; }
-}
-
-.vp-card .thumb,
-.vp-card img,
-.vp-card video {
-  border-radius: 2px;
-  background: #0a0a0a;
-}
-
 
 /* ── Spinner ── */
 .vp-spin {
@@ -867,75 +825,60 @@ body, html { width: 100%; overflow-x: hidden; background: #000; }
 }
 
 /* ── Masonry: 3 cols on desktop ── */
-@media (max-width: 768px) {
-  .vp-masonry {
-    display: flex !important;
-    flex-direction: column !important;
-    columns: unset !important;
-    width: 100vw !important;
-    min-height: 100dvh !important;
-    background: #000 !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    gap: 2px !important;
-    box-sizing: border-box !important;
-    position: relative !important;
-  }
-
+.vp-masonry { columns: 3; column-gap: 3px; padding: 3px; }
 
 /* ── MOBILE: single full-width column ── */
 @media (max-width: 768px) {
   .vp-masonry {
-    display: flex !important;
-    flex-direction: column !important;
-    columns: unset !important;
-    width: 100vw !important;
-    min-height: 100dvh !important;
-    background: #000 !important;
+    columns: 1 !important;
+    column-gap: 0 !important;
     padding: 0 !important;
-    margin: 0 !important;
-    gap: 2px !important;
-    box-sizing: border-box !important;
+    width: 100% !important;
   }
 
+  /* Every card spans full width and shows full image at its chosen ratio */
   .vp-card {
-    width: 100vw !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
-    break-inside: unset !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    break-inside: avoid;
   }
 
+  /* Media fills full width and shows complete image using contain (no cropping) */
   .vp-card img,
   .vp-card video {
-    width: 100vw !important;
+    width: 100% !important;
     height: auto !important;
     object-fit: contain !important;
     display: block !important;
-    background: #000 !important;
+    background: #000;
   }
 
+  /* Add media card: full width on mobile too */
   .vp-add-card {
-    width: 100vw !important;
-    min-height: 100px !important;
-    flex-shrink: 0 !important;
-    margin: 0 !important;
+    width: 100% !important;
+    margin-bottom: 2px !important;
+    height: 100px !important;
   }
 
+  /* Delete btn always visible on mobile (no hover) */
   .vp-del-btn {
     opacity: 1 !important;
     transform: scale(1) translateY(0) !important;
   }
 
+  /* Card label always visible on mobile */
   .vp-card-label {
     opacity: 1 !important;
     transform: translateY(0) !important;
   }
 
+  /* Badge always visible on mobile */
   .vp-badge {
     opacity: 1 !important;
     transform: translateY(0) !important;
   }
 
+  /* Ring sizes for empty state on mobile */
   .vp-ring-wrap { width: 100px; height: 100px; }
   .vp-ring-outer { width: 100px; height: 100px; }
   .vp-ring-mid   { width: 74px;  height: 74px;  }
@@ -987,12 +930,6 @@ body, html { width: 100%; overflow-x: hidden; background: #000; }
 .vp-card:hover video {
   transform: scale(1.07);
   filter: brightness(1.05) saturate(1.3) contrast(1.04) !important;
-}
-
-.vp-card img,
-.vp-card video {
-  filter: brightness(1.05) saturate(1.3) contrast(1.04);
-  transition: transform 0.6s cubic-bezier(0.23,1,0.32,1), filter 0.5s;
 }
 
 /* overlay */
