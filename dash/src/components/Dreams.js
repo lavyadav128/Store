@@ -499,6 +499,10 @@ const s = {
     position: "relative",
     fontFamily: "'DM Sans', sans-serif",
     overflowX: "hidden",
+    marginLeft: "calc(-1 * var(--page-px, 16px))",
+    marginRight: "calc(-1 * var(--page-px, 16px))",
+    marginTop: "calc(-1 * var(--page-py, 20px))",
+    width: "calc(100% + 2 * var(--page-px, 16px))",
   },
 
   musicBtn: {
@@ -833,8 +837,8 @@ const CSS = `
     columns: 1 !important;
     column-gap: 0 !important;
     padding: 0 !important;
-    width: 100% !important;
-  }
+    width: 100vw !important;        /* ADD THIS */
+    margin-left: calc(-50vw + 50%) !important;  /* ADD THIS - breaks out of parent padding */  }
 
   /* Every card spans full width and shows full image at its chosen ratio */
   .vp-card {
