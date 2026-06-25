@@ -243,8 +243,7 @@ export default function VideosPage() {
 
       {/* ── Wall ── */}
       {!loading && media.length > 0 && (
-        <div style={s.wall} className="vp-masonry">
-            {media.map((item, i) => (
+        <div style={{...s.wall, position: "relative", minHeight: "100dvh", background: "#000"}} className="vp-masonry">            {media.map((item, i) => (
             <MediaCard
                 key={item._id}
                 item={item}
@@ -492,7 +491,6 @@ function MediaCard({ item, onDelete, index }) {
 const s = {
     pg: {
         background: "#000",
-        minHeight: "100vh",
         minHeight: "100dvh",
         width: "100vw",
         position: "relative",
