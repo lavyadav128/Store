@@ -14,7 +14,7 @@ const isVideo = (url = "") =>
   /\.(mp4|mov|webm|avi|mkv)$/i.test(url) ||
   (url.includes("/video/upload/") && !url.toLowerCase().endsWith(".gif"));
 
-export default function VideosPage() {
+  export default function Dreams({ onBack }) {
   const audioRef     = useRef(null);
   const fileInputRef = useRef(null);
 
@@ -183,7 +183,7 @@ export default function VideosPage() {
   
       {/* Floating Back Button */}
       <button
-        onClick={() => window.history.back()}
+        onClick={() => onBack && onBack()}
         style={{
           position: "fixed",
           top: 16,

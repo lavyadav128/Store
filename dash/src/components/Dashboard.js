@@ -895,19 +895,19 @@ const Dashboard = () => {
         }
 
         .vp-fullscreen {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  height: 100dvh !important;
-  background: #000 !important;
-  z-index: 999 !important;
-  overflow-y: auto !important;
-  -webkit-overflow-scrolling: touch !important;
-}
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      height: 100dvh !important;
+      background: #000 !important;
+      z-index: 999 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
       `}</style>
 
       <ThemeProvider theme={theme}>
@@ -1012,15 +1012,15 @@ const Dashboard = () => {
                   {activeView === VIEW_FILES && (
                     <Fade in timeout={400}><Box><AdminFileUpload /></Box></Fade>
                   )}
-{activeView === VIEW_VIDEO && (
-  <Videostudio />
-)}
+                  {activeView === VIEW_VIDEO && (
+                    <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
+                  )}
                   {activeView === VIEW_CLIP && (
                     <Fade in timeout={400}><Box><VideoSplit /></Box></Fade>
                   )}
-                  {activeView === VIEW_DREAMS && (
-                    <Fade in timeout={400}><Box><Dreams /></Box></Fade>
-                  )}
+{activeView === VIEW_DREAMS && (
+  <Dreams onBack={() => goView(VIEW_ADMIN)} />
+)}
 
                 </>
               )}
