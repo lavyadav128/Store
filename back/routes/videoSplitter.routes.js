@@ -256,7 +256,6 @@ const extractClip = ({ inputPath, outputPath, startTime, duration }) =>
   new Promise((resolve, reject) => {
     ffmpegFluent(inputPath)
       .inputOptions([`-ss ${startTime}`])
-      .inputPath(inputPath)
       .outputOptions([
         `-t ${duration}`,
         "-c copy",
