@@ -15,3 +15,4 @@ build/
 # *.zipback/.env
 back/node_modules/
 node_modules/
+render.yaml
