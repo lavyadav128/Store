@@ -1084,7 +1084,6 @@ export default function AdminVideoSplitter() {
       await axios.post(`${server}/api/resources/upload`, formData, {
         headers: {
           Authorization:  `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
 
@@ -1121,13 +1120,12 @@ export default function AdminVideoSplitter() {
     try {
       const formData = new FormData();
       formData.append("title",       `Summary — ${results.summary.summaryDuration}`);
-      formData.append("category",    "videos");
+      formData.append("category",    "reels");
       formData.append("resourceUrl", results.summary.url);
 
       await axios.post(`${server}/api/resources/upload`, formData, {
         headers: {
           Authorization:  `Bearer ${localStorage.getItem("token")}`,
-          "Content-Type": "multipart/form-data",
         },
       });
       showSnack("Summary saved to library ✓");
