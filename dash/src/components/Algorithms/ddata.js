@@ -4658,7 +4658,7 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: nums = [1,2,1,2,3], k = 2
-    Output: 7`,
+    Output: 7 -> [1,2] [1,2,1] [1,2,1,2] [2,1] [2,1,2] [1,2] [2,3]`,
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(K)`,
@@ -4781,51 +4781,70 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(256)`,
     
-      optimalCode: `class Solution {
-        public String minWindow(String s, String t) {
-    
-            int[] freq = new int[256];
-    
-            for(char ch : t.toCharArray()) {
-                freq[ch]++;
-            }
-    
-            int left = 0;
-            int count = t.length();
-    
-            int minLen = Integer.MAX_VALUE;
-            int start = 0;
-    
-            for(int right = 0; right < s.length(); right++) {
-    
-                if(freq[s.charAt(right)] > 0) {
-                    count--;
-                }
-    
-                freq[s.charAt(right)]--;
-    
-                while(count == 0) {
-    
-                    if(right - left + 1 < minLen) {
-                        minLen = right - left + 1;
-                        start = left;
-                    }
-    
-                    freq[s.charAt(left)]++;
-    
-                    if(freq[s.charAt(left)] > 0) {
-                        count++;
-                    }
-    
-                    left++;
-                }
-            }
-    
-            return minLen == Integer.MAX_VALUE
-                   ? ""
-                   : s.substring(start, start + minLen);
-        }
-    }`
+      optimalCode: `
+      class Solution {
+          public String minWindow(String s, String t) {
+
+              // Stores frequency of characters required from t
+              int[] freq = new int[256];
+
+              // Build frequency map of t
+              for(char ch : t.toCharArray()) {
+                  freq[ch]++;
+              }
+
+              // Left pointer of sliding window
+              int left = 0;
+
+              // Number of required characters still missing
+              int count = t.length();
+
+              // Stores minimum window length found
+              int minLen = Integer.MAX_VALUE;
+
+              // Stores starting index of minimum window
+              int start = 0;
+
+              // Expand window by moving right pointer
+              for(int right = 0; right < s.length(); right++) {
+
+                  // If current character is still needed
+                  if(freq[s.charAt(right)] > 0) {
+                      count--;            // One required character found
+                  }
+
+                  // Include current character in window
+                  freq[s.charAt(right)]--;
+
+                  // Window is valid (contains all required characters)
+                  while(count == 0) {
+
+                      // Update answer if current window is smaller
+                      if(right - left + 1 < minLen) {
+                          minLen = right - left + 1;
+                          start = left;
+                      }
+
+                      // Remove left character from window
+                      freq[s.charAt(left)]++;
+
+                      // If removed character becomes required again
+                      if(freq[s.charAt(left)] > 0) {
+                          count++;        // Window becomes invalid
+                      }
+
+                      // Shrink window from left
+                      left++;
+                  }
+              }
+
+              // If no valid window found return ""
+              // Otherwise return minimum window substring
+              return minLen == Integer.MAX_VALUE
+                    ? ""
+                    : s.substring(start, start + minLen);   // if(2,2+3)-> (2,5) substring (excluding 5)
+          }
+      }`
     },
 
 
@@ -4896,9 +4915,9 @@ Space Complexity: O(1)`,
             int minLen = Integer.MAX_VALUE;
             int start = -1;
             int i = 0;
-            while(i < n) {
+            while(i < n) {                 // for finding the shortest one
                 int j = 0;
-                while(i < n) {
+                while(i < n) {              // for finding forward one ex- abcde
                     if(s1.charAt(i) == s2.charAt(j)) {
                         j++;
                         if(j == m) break;
@@ -4909,7 +4928,7 @@ Space Complexity: O(1)`,
                 int end = i + 1;
                 j = m - 1;
                 while(i >= 0) {
-                    if(s1.charAt(i) == s2.charAt(j)) {
+                    if(s1.charAt(i) == s2.charAt(j)) {       // to shrink forward if unnecessary there abcde -> bcde  using backward
                         j--;
                         if(j < 0) break;
                     }
@@ -9205,55 +9224,74 @@ class Solution {
     
     EXAMPLE:
     Input: n = 7, cuts = [1,3,4,5]
-    Output: 16`,
+    Output: 16 
+    1→3→4→5 = 7+6+4+3 = 20
+    4→3→5→1 = 7+4+3+3 = 17
+    3→5→1→4 = 7+4+3+2 = 16 ✅`,
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
-      bruteForceCode: `class Solution {
-        public int minCost(int n, int[] cuts) {
-            Arrays.sort(cuts);
-            return helper(cuts, 0, n, 0, cuts.length - 1);
-        }
-        
-        private int helper(int[] cuts, int start, int end, int left, int right) {
-            if (left > right) return 0;
-            int minCost = Integer.MAX_VALUE;
-            for (int i = left; i <= right; i++) {
-                int cost = (end - start) + helper(cuts, start, cuts[i], left, i-1) + 
-                           helper(cuts, cuts[i], end, i+1, right);
-                minCost = Math.min(minCost, cost);
-            }
-            return minCost;
-        }
-    }`,
+      bruteForceCode: `
+      class Solution {
+          public int minCost(int n, int[] cuts) {
+              Arrays.sort(cuts);
+              // Add boundaries
+              int[] arr = new int[cuts.length + 2];
+              arr[0] = 0;
+              arr[arr.length - 1] = n;
+              for (int i = 0; i < cuts.length; i++) {
+                  arr[i + 1] = cuts[i];
+              }
+              return helper(arr, 1, cuts.length);
+          }
+          private int helper(int[] arr, int i, int j) {
+              // No cuts left
+              if (i > j)
+                  return 0;
+              int minCost = Integer.MAX_VALUE;
+              // Try every cut as the first cut
+              for (int k = i; k <= j; k++) {
+                  int cost = helper(arr, i, k - 1)+ helper(arr, k + 1, j)+ (arr[j + 1] - arr[i - 1]);
+                  minCost = Math.min(minCost, cost);
+              }
+              return minCost;
+          }
+      }`,
     
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
-        public int minCost(int n, int[] cuts) {
-            Arrays.sort(cuts);
-            int m = cuts.length;
-            int[] newCuts = new int[m+2];
-            newCuts[0] = 0;
-            newCuts[m+1] = n;
-            for (int i = 0; i < m; i++) newCuts[i+1] = cuts[i];
-            
-            int[][] dp = new int[m+2][m+2];
-            
-            for (int len = 1; len <= m; len++) {
-                for (int i = 1; i <= m - len + 1; i++) {
-                    int j = i + len - 1;
-                    dp[i][j] = Integer.MAX_VALUE;
-                    for (int k = i; k <= j; k++) {
-                        int cost = newCuts[j+1] - newCuts[i-1] + dp[i][k-1] + dp[k+1][j];
-                        dp[i][j] = Math.min(dp[i][j], cost);
-                    }
-                }
-            }
-            return dp[1][m];
-        }
-    }`
+      optimalCode: `
+      class Solution {
+          public int minCost(int n, int[] cuts) {
+              Arrays.sort(cuts);
+              // Add boundaries 0 and n
+              int[] arr = new int[cuts.length + 2];
+              arr[0] = 0;
+              arr[arr.length - 1] = n;
+              for (int i = 0; i < cuts.length; i++) {
+                  arr[i + 1] = cuts[i];
+              }
+
+              int m = arr.length;
+              int[][] dp = new int[m][m];
+              // Same loops as Matrix Chain Multiplication
+              for (int len = 2; len < m; len++) {
+                  for (int i = 1; i < m - len + 1; i++) {
+                      int j = i + len - 1;
+                      dp[i][j] = Integer.MAX_VALUE;
+                      for (int k = i; k <= j; k++) {
+                          int cost = dp[i][k - 1]
+                                  + dp[k + 1][j]
+                                  + (arr[j + 1] - arr[i - 1]);
+                          dp[i][j] = Math.min(dp[i][j], cost);
+                      }
+                  }
+              }
+
+              return dp[1][m - 2];
+          }
+      }`
     },
 
 
@@ -9264,54 +9302,202 @@ class Solution {
     
     EXAMPLE:
     Input: nums = [3,1,5,8]
-    Output: 167`,
+    Output: 167
+    120 + 3 + 5 + 40 = 168`,
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
-      bruteForceCode: `class Solution {
-        public int maxCoins(int[] nums) {
-            int n = nums.length;
-            int[] newNums = new int[n+2];
-            newNums[0] = newNums[n+1] = 1;
-            for (int i = 0; i < n; i++) newNums[i+1] = nums[i];
-            return helper(newNums, 1, n);
-        }
-        
-        private int helper(int[] nums, int left, int right) {
-            if (left > right) return 0;
-            int max = 0;
-            for (int i = left; i <= right; i++) {
-                int coins = nums[left-1] * nums[i] * nums[right+1] + 
-                            helper(nums, left, i-1) + helper(nums, i+1, right);
-                max = Math.max(max, coins);
+      bruteForceCode: `
+        class Solution {
+            public int maxCoins(int[] nums) {
+                int n = nums.length;
+                // Add virtual balloons
+                int[] arr = new int[n + 2];
+                arr[0] = 1;
+                arr[n + 1] = 1;
+                for (int i = 0; i < n; i++) {
+                    arr[i + 1] = nums[i];
+                }
+                return helper(arr, 1, n);
             }
-            return max;
-        }
-    }`,
+
+            private int helper(int[] arr, int i, int j) {
+                if (i > j)
+                    return 0;
+                int maxCoins = 0;
+                for (int k = i; k <= j; k++) {
+                    int coins =helper(arr, i, k - 1)+ helper(arr, k + 1, j)+ arr[i - 1] * arr[k] * arr[j + 1];
+                    maxCoins = Math.max(maxCoins, coins);
+                }
+                return maxCoins;
+            }
+        }`,
     
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
-        public int maxCoins(int[] nums) {
-            int n = nums.length;
-            int[] newNums = new int[n+2];
-            newNums[0] = newNums[n+1] = 1;
-            for (int i = 0; i < n; i++) newNums[i+1] = nums[i];
-            
-            int[][] dp = new int[n+2][n+2];
-            
-            for (int len = 1; len <= n; len++) {
-                for (int i = 1; i <= n - len + 1; i++) {
-                    int j = i + len - 1;
-                    for (int k = i; k <= j; k++) {
-                        int coins = newNums[i-1] * newNums[k] * newNums[j+1] + 
-                                    dp[i][k-1] + dp[k+1][j];
-                        dp[i][j] = Math.max(dp[i][j], coins);
+      optimalCode: `
+        class Solution {
+            public int maxCoins(int[] nums) {
+                int n = nums.length;
+                int[] arr = new int[n + 2];
+                arr[0] = 1;
+                arr[n + 1] = 1;
+                for (int i = 0; i < n; i++) {
+                    arr[i + 1] = nums[i];
+                }
+                int[][] dp = new int[n + 2][n + 2];
+                for (int len = 2; len <= n + 1; len++) {
+                    for (int i = 1; i <= n - len + 2; i++) {
+                        int j = i + len - 2;
+                        for (int k = i; k <= j; k++) {
+                            int coins =
+                                    dp[i][k - 1]
+                                  + dp[k + 1][j]
+                                  + arr[i - 1] * arr[k] * arr[j + 1];
+                            dp[i][j] = Math.max(dp[i][j], coins);
+                        }
                     }
                 }
+                return dp[1][n];
             }
-            return dp[1][n];
+        }`
+    },
+
+    {
+      title: `QUESTION:
+    Given a string s, partition s such that every substring of the partition is a palindrome.
+    Return the minimum cuts needed for a palindrome partitioning of s.
+    
+    EXAMPLE:
+    Input: s = "aab"
+    Output: 1
+    Explanation: The palindrome partitioning ["aa", "b"] could be produced using 1 cut.`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N * N)
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int minCut(String s) {
+            return solve(0, s) - 1;
+        }
+    
+        private int solve(int start, String s) {
+            if (start == s.length()) return 0;
+    
+            int minCuts = Integer.MAX_VALUE;
+    
+            for (int end = start; end < s.length(); end++) {
+                if (isPalindrome(s, start, end)) {
+                    int cuts = 1 + solve(end + 1, s);
+                    minCuts = Math.min(minCuts, cuts);
+                }
+            }
+            return minCuts;
+        }
+    
+        private boolean isPalindrome(String s, int l, int r) {
+            while (l < r) {
+                if (s.charAt(l++) != s.charAt(r--)) return false;
+            }
+            return true;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N^2)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `
+      class Solution {
+          public int minCut(String s) {
+              int n = s.length();
+              int[] dp = new int[n];
+              for (int i = 0; i < n; i++) {
+                  int minCuts = i; // worst case: all single chars
+                  for (int j = 0; j <= i; j++) {
+                      if (isPalindrome(s, j, i)) {
+                          minCuts = (j == 0) ? 0 : Math.min(minCuts, dp[j - 1] + 1);
+                      }
+                  }
+                  dp[i] = minCuts;
+              }
+              return dp[n - 1];
+          }
+
+          // O(length) palindrome check using two pointers
+          private boolean isPalindrome(String s, int l, int r) {
+              while (l < r) {
+                  if (s.charAt(l) != s.charAt(r)) return false;
+                  l++;
+                  r--;
+              }
+              return true;
+          }
+      }`
+    },
+
+    {
+      title: `QUESTION:
+    You are given an integer array arr with length n, and an integer k.
+    You may partition arr into one or more contiguous sub-arrays, where each sub-array has length in the range 1 … k (inclusive).
+    After you pick a partition, replace every element in each sub-array with the maximum value found in that sub-array. The array is modified in-place for the purpose of computing the total.
+    Return the largest possible sum of the entire array after performing exactly one such partition-and-replace operation.
+    
+    EXAMPLE:
+    Input: arr = [1,15,7,9,2,5,10], k = 3
+    Output: 84
+    Explanation:
+    [1,15,7] → 15
+    [9] → 9
+    [2,5,10] → 10
+    Final array sum = 84`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N * N)
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int maxSumAfterPartitioning(int[] arr, int k) {
+            return solve(0, arr, k);
+        }
+    
+        private int solve(int i, int[] arr, int k) {
+            if (i == arr.length) return 0;
+    
+            int maxSum = 0;
+            int curMax = 0;
+    
+            for (int j = i; j < arr.length && j < i + k; j++) {
+                curMax = Math.max(curMax, arr[j]);
+                int len = j - i + 1;
+                maxSum = Math.max(maxSum, curMax * len + solve(j + 1, arr, k));
+            }
+    
+            return maxSum;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N * K)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public int maxSumAfterPartitioning(int[] arr, int k) {
+            int n = arr.length;
+            int[] dp = new int[n + 1];
+    
+            for (int i = n - 1; i >= 0; i--) {
+                int curMax = 0;
+                int best = 0;
+    
+                for (int j = i; j < n && j < i + k; j++) {
+                    curMax = Math.max(curMax, arr[j]);
+                    int len = j - i + 1;
+                    best = Math.max(best, curMax * len + dp[j + 1]);
+                }
+    
+                dp[i] = best;
+            }
+    
+            return dp[0];
         }
     }`
     },
@@ -9387,8 +9573,23 @@ class Solution {
         }
         
         private int largestRectangleFrom(int r, int c, char[][] matrix) {
-            // Brute force expansion - very slow
-            return 0; // Placeholder for full brute
+            int m = matrix.length, n = matrix[0].length;
+            int maxArea = 0;
+            int width = n;
+            // expand row by row downward
+            for (int i = r; i < m && matrix[i][c] == '1'; i++) {
+                // shrink width based on consecutive 1s
+                for (int j = c; j < n; j++) {
+                    if (matrix[i][j] == '0') {
+                        width = j - c;
+                        break;
+                    }
+                    width = Math.min(width, j - c + 1);
+                }
+                int height = i - r + 1;
+                maxArea = Math.max(maxArea, height * width);
+            }
+            return maxArea;
         }
     }`,
     
@@ -9458,8 +9659,28 @@ class Solution {
         }
         
         private int countSquaresFrom(int i, int j, int[][] matrix) {
-            // Brute force check all possible square sizes
-            return 0; // Placeholder
+            int m = matrix.length;
+            int n = matrix[0].length;
+            int count = 0;
+            // try all possible square sizes starting from (i, j)
+            for (int size = 1; i + size - 1 < m && j + size - 1 < n; size++) {
+                boolean allOnes = true;
+                for (int r = i; r < i + size; r++) {
+                    for (int c = j; c < j + size; c++) {
+                        if (matrix[r][c] == 0) {
+                            allOnes = false;
+                            break;
+                        }
+                    }
+                    if (!allOnes) break;
+                }
+                if (allOnes) {
+                    count++;
+                } else {
+                    break; // larger squares will also fail
+                }
+            }
+            return count;
         }
     }`,
     
