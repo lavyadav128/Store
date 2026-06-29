@@ -5668,7 +5668,7 @@ class Solution {
     },
 
     {
-      title: `QUESTION:
+      title: `QUESTION:     (NEW PATTERN)
     Given a Directed Acyclic Graph (DAG) with V vertices and E edges, return any valid topological ordering of its vertices. If the graph contains a cycle, topological sort is not possible.
     
     EXAMPLE:
@@ -6054,7 +6054,7 @@ class Solution {
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION:    (NEW PATTERN)
     Given an undirected graph with unit weights (all edges have weight 1) and a source vertex, find the shortest distance from source to all other vertices.
     
     EXAMPLE:
@@ -6617,7 +6617,7 @@ class Solution {
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION:      (NEW PATTERN)
     Minimum Spanning Tree (MST) is a subset of edges in a connected, undirected, weighted graph that connects all the vertices with the minimum possible total edge weight. No cycles are allowed in MST.`,
     
       optimalComplexity: `Prim's / Kruskal's - O(E log V)
@@ -6643,7 +6643,7 @@ class Solution {
       optimalCode: `class Solution {
         public int spanningTree(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj) {
             boolean[] visited = new boolean[V];
-            PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);
+            PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);       // Ascending (Min-Heap) — smallest weight polled first
             pq.offer(new int[]{0, 0}); // node, weight
             int sum = 0;
             
@@ -6651,14 +6651,14 @@ class Solution {
                 int[] curr = pq.poll();
                 int node = curr[0], wt = curr[1];
                 
-                if (visited[node]) continue;
+                if (visited[node]) continue;        // skip that node
                 visited[node] = true;
                 sum += wt;
                 
                 for (ArrayList<Integer> nei : adj.get(node)) {
                     int v = nei.get(0), weight = nei.get(1);
                     if (!visited[v]) {
-                        pq.offer(new int[]{v, weight});
+                        pq.offer(new int[]{v, weight});     // PQ = [{2,wt=1}, {1,wt=2}]   ← min-heap reorders, wt=1 on top
                     }
                 }
             }
@@ -6729,30 +6729,81 @@ class Solution {
       optimalComplexity: `Time Complexity: O(E log E)
     Space Complexity: O(V)`,
     
-      optimalCode: `class Solution {
-        public int spanningTree(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj) {
-            List<int[]> edges = new ArrayList<>();
-            for (int i = 0; i < V; i++) {
-                for (ArrayList<Integer> nei : adj.get(i)) {
-                    if (i < nei.get(0)) {
-                        edges.add(new int[]{i, nei.get(0), nei.get(1)});
-                    }
-                }
-            }
-            
-            edges.sort((a, b) -> a[2] - b[2]);
-            DisjointSet ds = new DisjointSet(V);
-            int mstWeight = 0;
-            
-            for (int[] edge : edges) {
-                if (ds.find(edge[0]) != ds.find(edge[1])) {
-                    ds.union(edge[0], edge[1]);
-                    mstWeight += edge[2];
-                }
-            }
-            return mstWeight;
-        }
-    }`
+      optimalCode: `
+          class DisjointSet {
+              int[] parent;  // parent[i] = parent of node i
+              int[] rank;    // rank[i]   = height of tree rooted at i
+
+              // Constructor — initialize DSU for V nodes
+              DisjointSet(int V) {
+                  parent = new int[V];   // create parent array of size V
+                  rank   = new int[V];   // create rank array of size V
+
+                  for (int i = 0; i < V; i++) {
+                      parent[i] = i;     // each node is its own parent (own group)
+                      rank[i]   = 0;     // each node starts with rank 0
+                  }
+              }
+              int find(int x) {
+                  if (parent[x] != x) {              // if x is NOT its own parent
+                      parent[x] = find(parent[x]);   // recursively find root + compress path
+                  }
+                  return parent[x];                  // return root of x's group
+              }
+              void union(int x, int y) {
+                  int rootX = find(x);   // find root of x's group
+                  int rootY = find(y);   // find root of y's group
+
+                  if (rootX == rootY) return;   // already in same group, nothing to do
+                  if (rank[rootX] < rank[rootY]) {
+                      parent[rootX] = rootY;        // rootX goes under rootY
+                  } else if (rank[rootX] > rank[rootY]) {
+                      parent[rootY] = rootX;        // rootY goes under rootX
+                  } else {
+                      parent[rootY] = rootX;        // equal rank — attach rootY under rootX
+                      rank[rootX]++;                // increase rank of rootX by 1
+                  }
+              }
+          }
+
+          class Solution {
+              public int spanningTree(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj) {
+                  List<int[]> edges = new ArrayList<>();
+                  for (int i = 0; i < V; i++) {
+                      for (ArrayList<Integer> nei : adj.get(i)) {
+                          if (i < nei.get(0)) {
+                              // only add edge from SMALLER node's side
+                              // avoids duplicate edges in undirected graph
+                              // e.g. edge 0--1 added when i=0, skipped when i=1
+
+                              edges.add(new int[]{i, nei.get(0), nei.get(1)});
+                              // add {currentNode, neighborNode, weight}
+                          }
+                      }
+                  }
+                  // edges = [{0,1,1}, {0,3,4}, {1,2,2}, {2,3,3}]
+                  edges.sort((a, b) -> a[2] - b[2]);
+                  // edges = [{0,1,1}, {1,2,2}, {2,3,3}, {0,3,4}]
+                  DisjointSet ds = new DisjointSet(V);
+                  int mstWeight = 0;
+                  for (int[] edge : edges) {
+                      if (ds.find(edge[0]) != ds.find(edge[1])) {
+                          // find(edge[0]) → root of node1's group
+                          // find(edge[1]) → root of node2's group
+                          // if roots are DIFFERENT → different groups → NO CYCLE
+
+                          ds.union(edge[0], edge[1]);
+                          // merge both groups together
+
+                          mstWeight += edge[2];
+                          // add edge weight to MST total
+                      }
+                      // if roots are SAME → same group → CYCLE → skip edge
+                  }
+                  return mstWeight;
+                  // return 6
+              }
+          }`
     },
 
 
@@ -6770,7 +6821,7 @@ class Solution {
     
       optimalCode: `class Solution {
         public int makeConnected(int n, int[][] connections) {
-            if (connections.length < n - 1) return -1;
+            if (connections.length < n - 1) return -1;           //To connect n nodes in a tree, you ALWAYS need exactly n-1 edges
             
             DisjointSet ds = new DisjointSet(n);
             for (int[] conn : connections) {
@@ -6804,7 +6855,8 @@ class Solution {
             DisjointSet ds = new DisjointSet(n);
             
             for (int i = 0; i < n; i++) {
-                for (int j = i + 1; j < n; j++) {
+                for (int j = i + 1; j < n; j++) {      //If two stones are in the SAME ROW (stones[i][0] == stones[j][0]) 
+                                                       //OR SAME COLUMN (stones[i][1] == stones[j][1]) → they are connected
                     if (stones[i][0] == stones[j][0] || stones[i][1] == stones[j][1]) {
                         ds.union(i, j);
                     }
@@ -6832,85 +6884,155 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N * α(N))
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
-        public List<List<String>> accountsMerge(List<List<String>> accounts) {
-            Map<String, Integer> emailToIndex = new HashMap<>();
-            DisjointSet ds = new DisjointSet(accounts.size());
-            
-            for (int i = 0; i < accounts.size(); i++) {
-                for (int j = 1; j < accounts.get(i).size(); j++) {
-                    String email = accounts.get(i).get(j);
-                    if (emailToIndex.containsKey(email)) {
-                        ds.union(i, emailToIndex.get(email));
-                    } else {
-                        emailToIndex.put(email, i);
-                    }
-                }
-            }
-            
-            Map<Integer, List<String>> rootToEmails = new HashMap<>();
-            for (String email : emailToIndex.keySet()) {
-                int root = ds.find(emailToIndex.get(email));
-                rootToEmails.computeIfAbsent(root, x -> new ArrayList<>()).add(email);
-            }
-            
-            List<List<String>> result = new ArrayList<>();
-            for (int root : rootToEmails.keySet()) {
-                List<String> emails = rootToEmails.get(root);
-                Collections.sort(emails);
-                emails.add(0, accounts.get(root).get(0));
-                result.add(emails);
-            }
-            return result;
-        }
-    }`
+      optimalCode: `
+          class Solution {
+              public List<List<String>> accountsMerge(List<List<String>> accounts) {
+                  Map<String, Integer> emailToIndex = new HashMap<>();
+                  DisjointSet ds = new DisjointSet(accounts.size());
+                  for (int i = 0; i < accounts.size(); i++) {
+                      for (int j = 1; j < accounts.get(i).size(); j++) {
+                          // j starts from 1 because index 0 is NAME not email
+                          String email = accounts.get(i).get(j);
+                          // get current email from account i
+
+                          if (emailToIndex.containsKey(email)) {
+                              // email already seen before in another account
+                              // means two accounts share this email → MERGE them
+
+                              ds.union(i, emailToIndex.get(email));
+                              // emailToIndex.get(email) = index of account
+                              //                          where email first appeared
+                              // union(i, firstAccount) → merge both accounts
+                              //                          into same group
+
+                          } else {
+                              emailToIndex.put(email, i);           //STEP 1 → emailToIndex = { "j@j.com"→0, "jj@j.com"→0, "jjj@j.com"→1, "m@m.com"→2 },  union(0,1) because jj@j.com shared
+                          }
+                      }
+                  }
+
+                  Map<Integer, List<String>> rootToEmails = new HashMap<>();
+                  for (String email : emailToIndex.keySet()) {
+                      // loop over every unique email we have
+
+                      int root = ds.find(emailToIndex.get(email));
+                      // emailToIndex.get(email) → account index of this email
+                      // ds.find(index)          → root/leader of that account's group
+
+                      rootToEmails.computeIfAbsent(root, x -> new ArrayList<>()).add(email);         //STEP 2 → rootToEmails = { 0→["j@j.com","jj@j.com","jjj@j.com"],  2→["m@m.com"] }
+                      // if root key doesn't exist in map → create new empty list for it
+                      // then add email to that root's list
+                  }
+                  List<List<String>> result = new ArrayList<>();
+                  for (int root : rootToEmails.keySet()) {
+                      List<String> emails = rootToEmails.get(root);
+                      Collections.sort(emails);
+                      // sort emails alphabetically (required by problem)
+
+                      emails.add(0, accounts.get(root).get(0));
+                      // accounts.get(root).get(0) = NAME of the account
+                      // add(0, name) → insert name at INDEX 0 (front of list)
+                      // so final list = [name, email1, email2, ...]
+
+                      result.add(emails);                          //STEP 3 → result = [ ["John","j@j.com","jj@j.com","jjj@j.com"], ["Mary","m@m.com"] ]
+                  }
+
+                  return result;
+              }
+          }`
     },
 
 
     {
       title: `QUESTION:
-    Given an m x n grid and positions where land appears sequentially, return the number of islands after each addition.
-    
+    You have an empty water grid. Land is added one by one at given positions. After each addition, count how many islands exist. Two land cells form one island if they are connected horizontally or vertically.    
     EXAMPLE:
     Input: m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]
-    Output: [1,1,2,3]`,
+    Output: [1,1,2,3] ->Return a list containing the number of islands after each land addition.`,
     
       optimalComplexity: `Time Complexity: O(K * α(M*N))
     Space Complexity: O(M*N)`,
     
-      optimalCode: `class Solution {
-        public List<Integer> numIslands2(int m, int n, int[][] positions) {
-            List<Integer> result = new ArrayList<>();
-            DisjointSet ds = new DisjointSet(m * n);
-            boolean[][] land = new boolean[m][n];
-            int islands = 0;
-            int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
-            
-            for (int[] pos : positions) {
-                int x = pos[0], y = pos[1];
-                int idx = x * n + y;
-                if (land[x][y]) {
-                    result.add(islands);
-                    continue;
-                }
-                land[x][y] = true;
-                islands++;
-                
-                for (int[] d : dirs) {
-                    int nx = x + d[0], ny = y + d[1];
-                    if (nx >= 0 && nx < m && ny >= 0 && ny < n && land[nx][ny]) {
-                        int nidx = nx * n + ny;
-                        if (ds.find(idx) != ds.find(nidx)) {
-                            ds.union(idx, nidx);
-                            islands--;
-                        }
-                    }
-                }
-                result.add(islands);
-            }
-            return result;
-        }
-    }`
+      optimalCode: `
+          class Solution {
+              public List<Integer> numIslands2(int m, int n, int[][] positions) {
+                  List<Integer> result = new ArrayList<>();
+                  // stores island count after each land addition
+                  // this is what we return at the end
+
+                  DisjointSet ds = new DisjointSet(m * n);
+                  // create DSU of size m*n (total cells in grid)
+                  // each cell treated as a node
+                  // m=3, n=3 → ds size = 9 nodes (0 to 8)
+
+                  boolean[][] land = new boolean[m][n];
+                  // tracks which cells are land
+                  // land[i][j] = true  → cell is land
+                  // land[i][j] = false → cell is water (default)
+
+                  int islands = 0;
+                  // current count of islands
+                  // starts at 0 (all water)
+
+                  int[][] dirs = {{-1,0},{1,0},{0,-1},{0,1}};
+                  for (int[] pos : positions) {
+                      int x = pos[0], y = pos[1];
+                      int idx = x * n + y;
+                      // convert 2D position to 1D index for DSU
+                      // formula: row * totalCols + col
+                      // e.g. (1,2) in 3x3 grid → 1*3+2 = 5
+                      if (land[x][y]) {                                     //positions = [[0,0],[0,0],[1,2],[2,1]]  for this
+                          // this cell is ALREADY land (duplicate position)
+                          // no change in islands count
+
+                          result.add(islands);
+                          // add current count as is
+                          continue;
+                          // skip to next position
+                      }
+                      land[x][y] = true;
+                      // mark this cell as land
+
+                      islands++;
+                      // new land = new island initially
+                      // assume it's isolated, increment count
+                      for (int[] d : dirs) {
+                          // check all 4 directions
+
+                          int nx = x + d[0], ny = y + d[1];
+                          // nx = neighbor row
+                          // ny = neighbor col
+                          // e.g. if d={-1,0} → nx=x-1, ny=y (UP neighbor)
+
+                          if (nx >= 0 && nx < m && ny >= 0 && ny < n && land[nx][ny]) {
+
+                              int nidx = nx * n + ny;
+                              // convert neighbor 2D position to 1D index
+                              // same formula: row * totalCols + col
+
+                              if (ds.find(idx) != ds.find(nidx)) {
+                                  // find(idx)  → root of current cell's group
+                                  // find(nidx) → root of neighbor cell's group
+                                  // if roots DIFFERENT → different islands → merge
+
+                                  ds.union(idx, nidx);
+                                  // merge current cell and neighbor into same island
+
+                                  islands--;
+                                  // two islands merged into one → decrease count
+                              }
+                              // if roots SAME → already same island → do nothing
+                          }
+                      }
+
+                      result.add(islands);
+                  }
+
+                  return result;
+                  // return list of island counts after each addition
+                  // e.g. [1, 1, 2, 3]
+              }
+          }`
     },
 
 
@@ -7278,25 +7400,36 @@ class Solution {
 
     {
       title: `QUESTION:
-    There is a frog on the 1st step of an array of n stairs. The frog can jump either 1 or 2 steps at a time. Find the minimum total cost to reach the top. Cost[i] is the cost of landing on step i.
+    A frog wants to climb a staircase with n steps. Given an integer array heights,
+    where heights[i] contains the height of the ith step.
+    To jump from the ith step to the jth step, the frog requires abs(heights[i] - heights[j]) energy.
+    The frog can jump either 1 or 2 steps at a time.
+    Return the minimum energy required to go from 0th step to (n-1)th step.
     
     EXAMPLE:
-    Input: cost = [10,15,20]
-    Output: 15`,
+    Input: heights = [2, 1, 3, 5, 4]
+    Output: 2`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
     
       bruteForceCode: `class Solution {
-        public int minCostClimbingStairs(int[] cost) {
-            int n = cost.length;
-            return Math.min(helper(cost, n-1), helper(cost, n-2));
+        public int frogJump(int[] heights) {
+            int n = heights.length;
+            return helper(heights, n - 1);
         }
-        
-        private int helper(int[] cost, int i) {
-            if (i < 0) return 0;
-            if (i == 0) return cost[0];
-            return cost[i] + Math.min(helper(cost, i-1), helper(cost, i-2));
+    
+        private int helper(int[] heights, int i) {
+            if (i == 0) return 0;
+    
+            int oneStep = helper(heights, i - 1)+ Math.abs(heights[i] - heights[i - 1]);
+    
+            int twoStep = Integer.MAX_VALUE;
+            if (i - 2 >= 0) {
+                twoStep = helper(heights, i - 2)+ Math.abs(heights[i] - heights[i - 2]);
+            }
+    
+            return Math.min(oneStep, twoStep);
         }
     }`,
     
@@ -7304,17 +7437,22 @@ class Solution {
     Space Complexity: O(N)`,
     
       optimalCode: `class Solution {
-        public int minCostClimbingStairs(int[] cost) {
-            int n = cost.length;
-            if (n == 1) return cost[0];
+        public int frogJump(int[] heights) {
+            int n = heights.length;
             int[] dp = new int[n];
-            dp[0] = cost[0];
-            dp[1] = cost[1];
-            
-            for (int i = 2; i < n; i++) {
-                dp[i] = cost[i] + Math.min(dp[i-1], dp[i-2]);
+            dp[0] = 0;
+    
+            for (int i = 1; i < n; i++) {
+                int oneStep = dp[i - 1]+ Math.abs(heights[i] - heights[i - 1]);
+    
+                int twoStep = Integer.MAX_VALUE;
+                if (i - 2 >= 0) {
+                    twoStep = dp[i - 2]+ Math.abs(heights[i] - heights[i - 2]);
+                }
+    
+                dp[i] = Math.min(oneStep, twoStep);
             }
-            return Math.min(dp[n-1], dp[n-2]);
+            return dp[n - 1];
         }
     }`
     },
@@ -7322,45 +7460,54 @@ class Solution {
 
     {
       title: `QUESTION:
-    Frog is at position 0. It can jump up to K steps. Find minimum cost to reach the last index. Cost of a jump from i to j is |height[i] - height[j]|.
+    A frog wants to climb a staircase with n steps. Given an integer array heights, where heights[i] contains the height of the ith step, and an integer k.
+    To jump from the ith step to the jth step, the frog requires abs(heights[i] - heights[j]) energy.
+    The frog can jump from the ith step to any step in the range [i+1, i+k].
+    Return the minimum energy required to go from 0th step to (n-1)th step.
     
     EXAMPLE:
-    Input: heights = [10,20,30,10], k = 2
-    Output: 20`,
+    Input: heights = [10, 5, 20, 0, 15], k = 2
+    Output: 15`,
     
-      bruteForceComplexity: `Time Complexity: O(K^N)
+      bruteForceComplexity: `Time Complexity: O(k^N)
     Space Complexity: O(N)`,
     
       bruteForceCode: `class Solution {
-        public int minimizeCost(int[] height, int k) {
-            return helper(height, height.length - 1, k);
+        public int frogJumpK(int[] heights, int k) {
+            int n = heights.length;
+            return helper(heights, n - 1, k);
         }
-        
-        private int helper(int[] h, int i, int k) {
+    
+        private int helper(int[] heights, int i, int k) {
             if (i == 0) return 0;
+    
             int minCost = Integer.MAX_VALUE;
-            for (int j = 1; j <= k && i - j >= 0; j++) {
-                int cost = Math.abs(h[i] - h[i - j]) + helper(h, i - j, k);
-                minCost = Math.min(minCost, cost);
+            for (int j = 1; j <= k; j++) {
+                if (i - j >= 0) {
+                    int cost = helper(heights, i - j, k)+ Math.abs(heights[i] - heights[i - j]);
+                    minCost = Math.min(minCost, cost);
+                }
             }
             return minCost;
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * K)
+      optimalComplexity: `Time Complexity: O(N*K)
     Space Complexity: O(N)`,
     
       optimalCode: `class Solution {
-        public int minimizeCost(int[] height, int k) {
-            int n = height.length;
+        public int frogJumpK(int[] heights, int k) {
+            int n = heights.length;
             int[] dp = new int[n];
             dp[0] = 0;
-            
+    
             for (int i = 1; i < n; i++) {
                 dp[i] = Integer.MAX_VALUE;
-                for (int j = 1; j <= k && i - j >= 0; j++) {
-                    int cost = dp[i - j] + Math.abs(height[i] - height[i - j]);
-                    dp[i] = Math.min(dp[i], cost);
+                for (int j = 1; j <= k; j++) {
+                    if (i - j >= 0) {
+                        int cost = dp[i - j]+ Math.abs(heights[i] - heights[i - j]);
+                        dp[i] = Math.min(dp[i], cost);
+                    }
                 }
             }
             return dp[n - 1];
@@ -7465,7 +7612,7 @@ class Solution {
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION: (NEW PATTERN)
     Ninja has to train for N days. Each day he can perform one of three activities (0,1,2) with given points. He cannot do the same activity on two consecutive days. Find the maximum points Ninja can earn.
     
     EXAMPLE:
@@ -7503,30 +7650,34 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
-        public int maximumPoints(int[][] points, int n) {
-            int[][] dp = new int[n][3];
-            
-            dp[0][0] = points[0][0];
-            dp[0][1] = points[0][1];
-            dp[0][2] = points[0][2];
-            
-            for (int day = 1; day < n; day++) {
-                for (int task = 0; task < 3; task++) {
-                    dp[day][task] = points[day][task];
-                    int maxPrev = 0;
-                    for (int prev = 0; prev < 3; prev++) {
-                        if (prev != task) {
-                            maxPrev = Math.max(maxPrev, dp[day-1][prev]);
+      optimalCode: `
+      class Solution {
+        class Solution {
+            public int maximumPoints(int[][] points, int n) {
+                int[][] dp = new int[n][3]; // dp[day][task] = max points till that day ending with that task
+
+                // base case: day 0, just take points as it is for each task
+                dp[0][0] = points[0][0]; // dp[0][0] = 1
+                dp[0][1] = points[0][1]; // dp[0][1] = 2
+                dp[0][2] = points[0][2]; // dp[0][2] = 5
+
+                // fill dp for each day from 1 to n-1
+                for (int day = 1; day < n; day++) {
+                    for (int task = 0; task < 3; task++) { // try each task for current day
+                        dp[day][task] = points[day][task];  // start with current day points
+                        int maxPrev = 0;
+                        for (int prev = 0; prev < 3; prev++) { // check all previous tasks
+                            if (prev != task) {                 // can't do same task on consecutive days
+                                maxPrev = Math.max(maxPrev, dp[day-1][prev]); // pick best prev task
+                            }
                         }
+                        dp[day][task] += maxPrev; // add best previous to current
                     }
-                    dp[day][task] += maxPrev;
                 }
+                // answer is max of all tasks on last day
+                return Math.max(dp[n-1][0], Math.max(dp[n-1][1], dp[n-1][2]));
             }
-            
-            return Math.max(dp[n-1][0], Math.max(dp[n-1][1], dp[n-1][2]));
-        }
-    }`
+        }`
     },
 
 
@@ -7814,49 +7965,62 @@ class Solution {
 
 
     {
-      title: `QUESTION:
-    Given an array of non-negative integers and a target sum, return true if there exists a subset with sum equal to target.
+      title: `QUESTION:   (NEW PATTERN)
+    Given an array of non-negative integers and a target sum,
+    return true if there exists a subset with sum equal to target.
     
     EXAMPLE:
-    Input: nums = [1,2,3,7], target = 6
+    Input: nums = [1, 2, 3, 7], target = 6
     Output: true`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
     
       bruteForceCode: `class Solution {
-        public boolean subsetSumToK(int n, int k, int[] arr) {
-            return helper(arr, n-1, k);
+        public boolean subsetSum(int[] nums, int target) {
+            int n = nums.length;
+            return solve(nums, n, target);
         }
-        
-        private boolean helper(int[] arr, int i, int target) {
-            if (target == 0) return true;
-            if (i < 0) return false;
-            boolean notTake = helper(arr, i-1, target);
-            boolean take = false;
-            if (arr[i] <= target) take = helper(arr, i-1, target - arr[i]);
-            return take || notTake;
+    
+        private boolean solve(int[] nums, int i, int j) {
+            // Base cases
+            if (j == 0) return true;   // sum achieved
+            if (i == 0) return false;  // no elements left
+    
+            if (nums[i-1] <= j && solve(nums, i - 1, j - nums[i-1]) == true) {
+                return true;           // include current element
+            } else {
+                return solve(nums, i - 1, j); // exclude current element
+            }
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * Target)
-    Space Complexity: O(N * Target)`,
+      optimalComplexity: `Time Complexity: O(N * target)
+    Space Complexity: O(N * target)`,
     
       optimalCode: `class Solution {
-        public boolean subsetSumToK(int n, int k, int[] arr) {
-            boolean[][] dp = new boolean[n+1][k+1];
-            
+        public boolean subsetSum(int[] nums, int target) {
+            int n = nums.length;
+            boolean[][] dp = new boolean[n + 1][target + 1];
+    
+            // base case: sum = 0 is always achievable (empty subset)
             for (int i = 0; i <= n; i++) dp[i][0] = true;
-            
+    
+            // base case: no elements, sum > 0 never achievable
+            for (int j = 1; j <= target; j++) dp[0][j] = false;
+    
             for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= k; j++) {
-                    boolean notTake = dp[i-1][j];
-                    boolean take = false;
-                    if (arr[i-1] <= j) take = dp[i-1][j - arr[i-1]];
-                    dp[i][j] = take || notTake;
+                for (int j = 1; j <= target; j++) {
+    
+                    if (nums[i-1] <= j && dp[i-1][j - nums[i-1]] == true) {
+                        dp[i][j] = true;      // include current element
+                    } else {
+                        dp[i][j] = dp[i-1][j]; // exclude current element
+                    }
                 }
             }
-            return dp[n][k];
+    
+            return dp[n][target];
         }
     }`
     },
@@ -7864,10 +8028,11 @@ class Solution {
 
     {
       title: `QUESTION:
-    Given an array, return true if it can be partitioned into two subsets with equal sum.
+    Given an array, return true if it can be partitioned into
+    two subsets with equal sum.
     
     EXAMPLE:
-    Input: nums = [1,5,11,5]
+    Input: nums = [1, 5, 11, 5]
     Output: true`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
@@ -7875,44 +8040,63 @@ class Solution {
     
       bruteForceCode: `class Solution {
         public boolean canPartition(int[] nums) {
-            int sum = 0;
-            for (int num : nums) sum += num;
-            if (sum % 2 != 0) return false;
-            return helper(nums, nums.length-1, sum/2);
+            int total = 0;
+            for (int x : nums) total += x;
+    
+            // if total is odd, can't split into equal halves
+            if (total % 2 != 0) return false;
+    
+            int target = total / 2; // just find if subset with sum = target exists
+            int n = nums.length;
+            return solve(nums, n, target);
         }
-        
-        private boolean helper(int[] nums, int i, int target) {
-            if (target == 0) return true;
-            if (i < 0) return false;
-            boolean notTake = helper(nums, i-1, target);
-            boolean take = false;
-            if (nums[i] <= target) take = helper(nums, i-1, target - nums[i]);
-            return take || notTake;
+    
+        private boolean solve(int[] nums, int i, int j) {
+            // Base cases
+            if (j == 0) return true;   // subset found
+            if (i == 0) return false;  // no elements left
+    
+            if (nums[i-1] <= j && solve(nums, i - 1, j - nums[i-1]) == true) {
+                return true;            // include current element
+            } else {
+                return solve(nums, i - 1, j); // exclude current element
+            }
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * Sum/2)
-    Space Complexity: O(N * Sum/2)`,
+      optimalComplexity: `Time Complexity: O(N * total/2)
+    Space Complexity: O(N * total/2)`,
     
       optimalCode: `class Solution {
         public boolean canPartition(int[] nums) {
-            int sum = 0;
-            for (int num : nums) sum += num;
-            if (sum % 2 != 0) return false;
-            int target = sum / 2;
-            boolean[][] dp = new boolean[nums.length + 1][target + 1];
-            
-            for (int i = 0; i <= nums.length; i++) dp[i][0] = true;
-            
-            for (int i = 1; i <= nums.length; i++) {
+            int total = 0;
+            for (int x : nums) total += x;
+    
+            // if total is odd, can't split into equal halves
+            if (total % 2 != 0) return false;
+    
+            int target = total / 2; // just find if subset with sum = target exists
+            int n = nums.length;
+            boolean[][] dp = new boolean[n + 1][target + 1];
+    
+            // base case: sum = 0 always achievable (empty subset)
+            for (int i = 0; i <= n; i++) dp[i][0] = true;
+    
+            // base case: no elements, sum > 0 never achievable
+            for (int j = 1; j <= target; j++) dp[0][j] = false;
+    
+            for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= target; j++) {
-                    boolean notTake = dp[i-1][j];
-                    boolean take = false;
-                    if (nums[i-1] <= j) take = dp[i-1][j - nums[i-1]];
-                    dp[i][j] = take || notTake;
+    
+                    if (nums[i-1] <= j && dp[i-1][j - nums[i-1]] == true) {
+                        dp[i][j] = true;       // include current element
+                    } else {
+                        dp[i][j] = dp[i-1][j]; // exclude current element
+                    }
                 }
             }
-            return dp[nums.length][target];
+    
+            return dp[n][target];
         }
     }`
     },
@@ -7920,43 +8104,80 @@ class Solution {
 
     {
       title: `QUESTION:
-    Partition the array into two subsets such that the absolute difference of their sums is minimized. Return that minimum difference.
+    Partition the array into two subsets such that the absolute
+    difference of their sums is minimized. Return that minimum difference.
     
     EXAMPLE:
-    Input: arr = [1,6,11,5]
+    Input: arr = [1, 6, 11, 5]
     Output: 1`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
     
-      bruteForceCode: `// Similar recursive approach as above`,
+      bruteForceCode: `class Solution {
+        public int minimumDifference(int[] arr) {
+            int n = arr.length;
+            int total = 0;
+            for (int x : arr) total += x;
+            return solve(arr, n, total, 0);
+        }
     
-      optimalComplexity: `Time Complexity: O(N * Sum)
-    Space Complexity: O(N * Sum)`,
+        private int solve(int[] arr, int i, int total, int currSum) {
+            // Base case: no elements left
+            if (i == 0) {
+                int s1 = currSum;
+                int s2 = total - currSum;
+                return Math.abs(s1 - s2);
+            }
+    
+            // include current element in subset 1
+            int include = solve(arr, i - 1, total, currSum + arr[i-1]);
+    
+            // exclude current element from subset 1
+            int exclude = solve(arr, i - 1, total, currSum);
+    
+            return Math.min(include, exclude);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N * total)
+    Space Complexity: O(N * total)`,
     
       optimalCode: `class Solution {
-        public int minDifference(int[] arr) {
-            int sum = 0;
-            for (int num : arr) sum += num;
-            
-            boolean[][] dp = new boolean[arr.length + 1][sum + 1];
-            for (int i = 0; i <= arr.length; i++) dp[i][0] = true;
-            
-            for (int i = 1; i <= arr.length; i++) {
-                for (int j = 1; j <= sum; j++) {
-                    boolean notTake = dp[i-1][j];
-                    boolean take = false;
-                    if (arr[i-1] <= j) take = dp[i-1][j - arr[i-1]];
-                    dp[i][j] = take || notTake;
+        public int minimumDifference(int[] arr) {
+            int n = arr.length;
+            int total = 0;
+            for (int x : arr) total += x;
+    
+            // step 1: fill subset sum dp table
+            boolean[][] dp = new boolean[n + 1][total + 1];
+    
+            // base case: sum = 0 always achievable
+            for (int i = 0; i <= n; i++) dp[i][0] = true;
+    
+            // base case: no elements, sum > 0 never achievable
+            for (int j = 1; j <= total; j++) dp[0][j] = false;
+    
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= total; j++) {
+    
+                    if (arr[i-1] <= j && dp[i-1][j - arr[i-1]] == true) {
+                        dp[i][j] = true;       // include current element
+                    } else {
+                        dp[i][j] = dp[i-1][j]; // exclude current element
+                    }
                 }
             }
-            
+    
+            // step 2: check last row for all achievable subset sums
+            // s1 = j, s2 = total - j, diff = |s2 - s1| = |total - 2*j|
             int minDiff = Integer.MAX_VALUE;
-            for (int j = 0; j <= sum/2; j++) {
-                if (dp[arr.length][j]) {
-                    minDiff = Math.min(minDiff, Math.abs(sum - 2 * j));
+            for (int j = 0; j <= total / 2; j++) {
+                if (dp[n][j] == true) {
+                    minDiff = Math.min(minDiff, Math.abs(total - 2 * j));
                 }
             }
+    
             return minDiff;
         }
     }`
@@ -7968,24 +8189,30 @@ class Solution {
     Count the number of subsets with sum equal to K.
     
     EXAMPLE:
-    Input: arr = [1,2,3,3], K = 6
+    Input: arr = [1, 2, 3, 3], K = 6
     Output: 3`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
     
       bruteForceCode: `class Solution {
-        public int countSubsets(int[] arr, int k) {
-            return helper(arr, arr.length-1, k);
+        public int countSubsets(int[] arr, int K) {
+            int n = arr.length;
+            return solve(arr, n, K);
         }
-        
-        private int helper(int[] arr, int i, int target) {
-            if (target == 0) return 1;
-            if (i < 0) return 0;
-            int notTake = helper(arr, i-1, target);
-            int take = 0;
-            if (arr[i] <= target) take = helper(arr, i-1, target - arr[i]);
-            return take + notTake;
+    
+        private int solve(int[] arr, int i, int j) {
+            // Base cases
+            if (j == 0) return 1;   // valid subset found
+            if (i == 0) return 0;   // no elements left, sum not achieved
+    
+            if (arr[i-1] <= j) {
+                int include = solve(arr, i - 1, j - arr[i-1]); // include current
+                int exclude = solve(arr, i - 1, j);             // exclude current
+                return include + exclude;                        // count both ways
+            } else {
+                return solve(arr, i - 1, j);                    // can't include
+            }
         }
     }`,
     
@@ -7993,21 +8220,30 @@ class Solution {
     Space Complexity: O(N * K)`,
     
       optimalCode: `class Solution {
-        public int countSubsets(int[] arr, int k) {
+        public int countSubsets(int[] arr, int K) {
             int n = arr.length;
-            int[][] dp = new int[n+1][k+1];
-            
+            int[][] dp = new int[n + 1][K + 1];
+    
+            // base case: sum = 0 has exactly 1 subset (empty subset)
             for (int i = 0; i <= n; i++) dp[i][0] = 1;
-            
+    
+            // base case: no elements, sum > 0 has 0 subsets
+            for (int j = 1; j <= K; j++) dp[0][j] = 0;
+    
             for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= k; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = 0;
-                    if (arr[i-1] <= j) take = dp[i-1][j - arr[i-1]];
-                    dp[i][j] = take + notTake;
+                for (int j = 0; j <= K; j++) {
+    
+                    if (arr[i-1] <= j) {
+                        int include = dp[i-1][j - arr[i-1]]; // count with current
+                        int exclude = dp[i-1][j];             // count without current
+                        dp[i][j] = include + exclude;         // total count
+                    } else {
+                        dp[i][j] = dp[i-1][j];               // can't include
+                    }
                 }
             }
-            return dp[n][k];
+    
+            return dp[n][K];
         }
     }`
     },
@@ -8016,41 +8252,82 @@ class Solution {
 
     {
       title: `QUESTION:
-    Count the number of ways to partition the array into two subsets with given difference d.
+    Count the number of ways to partition the array into two
+    subsets with given difference d.
     
     EXAMPLE:
-    Input: arr = [5,2,6,4], d = 3
+    Input: arr = [5, 2, 6, 4], d = 3
     Output: 1`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
     
-      bruteForceCode: `// Recursive count approach`,
+      bruteForceCode: `class Solution {
+        public int countPartitions(int[] arr, int d) {
+            int n = arr.length;
+            int total = 0;
+            for (int x : arr) total += x;
     
-      optimalComplexity: `Time Complexity: O(N * S)
-    Space Complexity: O(N * S)`,
+            // s1 - s2 = d and s1 + s2 = total
+            // solving → s1 = (total + d) / 2
+            if ((total + d) % 2 != 0) return 0;  // not possible
+            if ((total + d) < 0) return 0;        // invalid
+    
+            int target = (total + d) / 2;
+            return solve(arr, n, target);
+        }
+    
+        private int solve(int[] arr, int i, int j) {
+            // Base cases
+            if (j == 0) return 1;   // valid subset found
+            if (i == 0) return 0;   // no elements left
+    
+            if (arr[i-1] <= j) {
+                int include = solve(arr, i - 1, j - arr[i-1]); // include current
+                int exclude = solve(arr, i - 1, j);             // exclude current
+                return include + exclude;                        // count both ways
+            } else {
+                return solve(arr, i - 1, j);                    // can't include
+            }
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N * target)
+    Space Complexity: O(N * target)`,
     
       optimalCode: `class Solution {
-        public int countPartitions(int n, int d, int[] arr) {
+        public int countPartitions(int[] arr, int d) {
+            int n = arr.length;
             int total = 0;
-            for (int num : arr) total += num;
-            
-            if ((total - d) % 2 != 0) return 0;
-            int target = (total - d) / 2;
-            
-            if (target < 0) return 0;
-            
-            int[][] dp = new int[n+1][target+1];
+            for (int x : arr) total += x;
+    
+            // s1 - s2 = d and s1 + s2 = total
+            // solving → s1 = (total + d) / 2
+            if ((total + d) % 2 != 0) return 0;  // not possible
+            if ((total + d) < 0) return 0;        // invalid
+    
+            int target = (total + d) / 2;
+            int[][] dp = new int[n + 1][target + 1];
+    
+            // base case: sum = 0 has exactly 1 subset (empty subset)
             for (int i = 0; i <= n; i++) dp[i][0] = 1;
-            
+    
+            // base case: no elements, sum > 0 has 0 subsets
+            for (int j = 1; j <= target; j++) dp[0][j] = 0;
+    
             for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= target; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = 0;
-                    if (arr[i-1] <= j) take = dp[i-1][j - arr[i-1]];
-                    dp[i][j] = take + notTake;
+                for (int j = 0; j <= target; j++) {
+    
+                    if (arr[i-1] <= j) {
+                        int include = dp[i-1][j - arr[i-1]]; // count with current
+                        int exclude = dp[i-1][j];             // count without current
+                        dp[i][j] = include + exclude;         // total count
+                    } else {
+                        dp[i][j] = dp[i-1][j];               // can't include
+                    }
                 }
             }
+    
             return dp[n][target];
         }
     }`
@@ -8060,32 +8337,57 @@ class Solution {
 
     {
       title: `QUESTION:
-    Assign cookies to children such that each child gets at most one cookie and is content. Maximize number of content children.
+    Assign cookies to children such that each child gets at most
+    one cookie and is content. Maximize number of content children.
+    Each child i has greed factor g[i], each cookie j has size s[j].
+    Child i is content if s[j] >= g[i].
     
     EXAMPLE:
-    Input: g = [1,2,3], s = [1,1]
+    Input: g = [1, 2, 3], s = [1, 1]
     Output: 1`,
     
-      bruteForceComplexity: `Time Complexity: O(N*M)
+      bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `// Brute force matching`,
+      bruteForceCode: `class Solution {
+        public int findContentChildren(int[] g, int[] s) {
+            Arrays.sort(g); // sort greed factors
+            Arrays.sort(s); // sort cookie sizes
+            int count = 0;
+    
+            for (int i = 0; i < g.length; i++) {       // each child
+                for (int j = 0; j < s.length; j++) {   // each cookie
+                    if (s[j] >= g[i] && s[j] != -1) {  // cookie satisfies child
+                        count++;
+                        s[j] = -1;  // mark cookie as used
+                        break;
+                    }
+                }
+            }
+            return count;
+        }
+    }`,
     
       optimalComplexity: `Time Complexity: O(N log N + M log M)
     Space Complexity: O(1)`,
     
       optimalCode: `class Solution {
         public int findContentChildren(int[] g, int[] s) {
-            Arrays.sort(g);
-            Arrays.sort(s);
-            int i = 0, j = 0;
-            while (i < g.length && j < s.length) {
-                if (s[j] >= g[i]) {
-                    i++;
+            Arrays.sort(g); // sort greed factors  ascending
+            Arrays.sort(s); // sort cookie sizes   ascending
+    
+            int child  = 0; // pointer for children
+            int cookie = 0; // pointer for cookies
+    
+            while (child < g.length && cookie < s.length) {
+    
+                if (s[cookie] >= g[child]) { // cookie satisfies child
+                    child++;                 // move to next child
                 }
-                j++;
+                cookie++;                    // always move to next cookie
             }
-            return i;
+    
+            return child; // number of content children
         }
     }`
     },
@@ -8095,57 +8397,66 @@ class Solution {
 
     {
       title: `QUESTION:
-    Find the fewest number of coins needed to make up the amount. Return -1 if impossible.
+    Find the fewest number of coins needed to make up the amount.
+    Return -1 if impossible.
     
     EXAMPLE:
-    Input: coins = [1,2,5], amount = 11
-    Output: 3`,
+    Input: coins = [1, 2, 5], amount = 11
+    Output: 3  (5 + 5 + 1)`,
     
-      bruteForceComplexity: `Time Complexity: Exponential
-    Space Complexity: O(N)`,
+      bruteForceComplexity: `Time Complexity: O(amount^N)
+    Space Complexity: O(amount)`,
     
       bruteForceCode: `class Solution {
         public int coinChange(int[] coins, int amount) {
-            int res = helper(coins, coins.length-1, amount);
-            return res == Integer.MAX_VALUE ? -1 : res;
+            int n = coins.length;
+            int ans = solve(coins, n, amount);
+            return ans >= Integer.MAX_VALUE ? -1 : ans; // impossible case
         }
-        
-        private int helper(int[] coins, int i, int amt) {
-            if (amt == 0) return 0;
-            if (i < 0) return Integer.MAX_VALUE;
-            int notTake = helper(coins, i-1, amt);
-            int take = Integer.MAX_VALUE;
-            if (coins[i] <= amt) {
-                int sub = helper(coins, i, amt - coins[i]);
-                if (sub != Integer.MAX_VALUE) take = 1 + sub;
+    
+        private int solve(int[] coins, int i, int j) {
+            // Base cases
+            if (j == 0) return 0;                // no amount left, 0 coins needed
+            if (i == 0) return Integer.MAX_VALUE; // no coins left, impossible
+    
+            if (coins[i-1] <= j) {
+                int include = solve(coins, i, j - coins[i-1]); // reuse same coin (unbounded)
+                if (include != Integer.MAX_VALUE) include += 1; // add 1 for current coin
+                int exclude = solve(coins, i - 1, j);           // skip this coin
+                return Math.min(include, exclude);
+            } else {
+                return solve(coins, i - 1, j);                  // can't include
             }
-            return Math.min(take, notTake);
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * Amount)
-    Space Complexity: O(N * Amount)`,
+      optimalComplexity: `Time Complexity: O(N * amount)
+    Space Complexity: O(N * amount)`,
     
       optimalCode: `class Solution {
         public int coinChange(int[] coins, int amount) {
             int n = coins.length;
-            int[][] dp = new int[n+1][amount+1];
-            
+            int[][] dp = new int[n + 1][amount + 1];
+    
+            // base case: amount = 0 needs 0 coins
             for (int i = 0; i <= n; i++) dp[i][0] = 0;
+    
+            // base case: no coins, amount > 0 is impossible
             for (int j = 1; j <= amount; j++) dp[0][j] = Integer.MAX_VALUE;
-            
+    
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= amount; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = Integer.MAX_VALUE;
-                    if (coins[i-1] <= j) {
-                        if (dp[i][j - coins[i-1]] != Integer.MAX_VALUE) {
-                            take = 1 + dp[i][j - coins[i-1]];
-                        }
+    
+                    if (coins[i-1] <= j && dp[i][j - coins[i-1]] != Integer.MAX_VALUE) {
+                        int include = 1 + dp[i][j - coins[i-1]]; // reuse same coin (unbounded)
+                        int exclude = dp[i-1][j];                 // skip this coin
+                        dp[i][j] = Math.min(include, exclude);
+                    } else {
+                        dp[i][j] = dp[i-1][j];                   // can't include
                     }
-                    dp[i][j] = Math.min(take, notTake);
                 }
             }
+    
             return dp[n][amount] == Integer.MAX_VALUE ? -1 : dp[n][amount];
         }
     }`
@@ -8155,10 +8466,13 @@ class Solution {
 
     {
       title: `QUESTION:
-    You are given an integer array nums and an integer target. You can assign + or - sign to each number. Return the number of different ways to assign signs so that the sum equals target.
+    You are given an integer array nums and an integer target.
+    You can assign + or - sign to each number.
+    Return the number of different ways to assign signs
+    so that the sum equals target.
     
     EXAMPLE:
-    Input: nums = [1,1,1,1,1], target = 3
+    Input: nums = [1, 1, 1, 1, 1], target = 3
     Output: 5`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
@@ -8166,42 +8480,63 @@ class Solution {
     
       bruteForceCode: `class Solution {
         public int findTargetSumWays(int[] nums, int target) {
-            return helper(nums, nums.length - 1, target);
+            int n = nums.length;
+            return solve(nums, n, target);
         }
-        
-        private int helper(int[] nums, int i, int target) {
-            if (i < 0) return target == 0 ? 1 : 0;
-            int plus = helper(nums, i-1, target - nums[i]);
-            int minus = helper(nums, i-1, target + nums[i]);
+    
+        private int solve(int[] nums, int i, int j) {
+            // Base case
+            if (i == 0 && j == 0) return 1;  // valid assignment found
+            if (i == 0) return 0;             // no elements left, target not met
+    
+            // assign + to current element
+            int plus  = solve(nums, i - 1, j - nums[i-1]);
+    
+            // assign - to current element
+            int minus = solve(nums, i - 1, j + nums[i-1]);
+    
             return plus + minus;
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * Sum)
-    Space Complexity: O(N * Sum)`,
+      optimalComplexity: `Time Complexity: O(N * target)
+    Space Complexity: O(N * target)`,
     
       optimalCode: `class Solution {
         public int findTargetSumWays(int[] nums, int target) {
-            int sum = 0;
-            for (int num : nums) sum += num;
-            
-            if (Math.abs(target) > sum || (sum + target) % 2 != 0) return 0;
-            
-            int newTarget = (sum + target) / 2;
             int n = nums.length;
-            int[][] dp = new int[n+1][newTarget + 1];
-            
+            int total = 0;
+            for (int x : nums) total += x;
+    
+            // + subset = s1, - subset = s2
+            // s1 - s2 = target  and  s1 + s2 = total
+            // solving → s1 = (total + target) / 2
+            if (Math.abs(target) > total) return 0;       // impossible
+            if ((total + target) % 2 != 0) return 0;      // not integer
+    
+            int k = (total + target) / 2;                 // count subsets with sum k
+            int[][] dp = new int[n + 1][k + 1];
+    
+            // base case: sum = 0 has exactly 1 subset (empty subset)
             for (int i = 0; i <= n; i++) dp[i][0] = 1;
-            
+    
+            // base case: no elements, sum > 0 has 0 subsets
+            for (int j = 1; j <= k; j++) dp[0][j] = 0;
+    
             for (int i = 1; i <= n; i++) {
-                for (int j = 0; j <= newTarget; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = 0;
-                    if (nums[i-1] <= j) take = dp[i-1][j - nums[i-1]];
-                    dp[i][j] = take + notTake;
+                for (int j = 0; j <= k; j++) {
+    
+                    if (nums[i-1] <= j) {
+                        int include = dp[i-1][j - nums[i-1]]; // include in + subset
+                        int exclude = dp[i-1][j];              // exclude from + subset
+                        dp[i][j] = include + exclude;
+                    } else {
+                        dp[i][j] = dp[i-1][j];                // can't include
+                    }
                 }
             }
-            return dp[n][newTarget];
+    
+            return dp[n][k];
         }
     }`
     },
@@ -8209,48 +8544,64 @@ class Solution {
 
     {
       title: `QUESTION:
-    Given coins of different denominations and a total amount, return the number of combinations that make up that amount.
+    Given coins of different denominations and a total amount,
+    return the number of combinations that make up that amount.
     
     EXAMPLE:
-    Input: amount = 5, coins = [1,2,5]
-    Output: 4`,
+    Input: amount = 5, coins = [1, 2, 5]
+    Output: 4  (5), (1+2+2), (1+1+1+2), (1+1+1+1+1)`,
     
-      bruteForceComplexity: `Time Complexity: Exponential
-    Space Complexity: O(N)`,
+      bruteForceComplexity: `Time Complexity: O(amount^N)
+    Space Complexity: O(amount)`,
     
       bruteForceCode: `class Solution {
         public int change(int amount, int[] coins) {
-            return helper(coins, coins.length - 1, amount);
+            int n = coins.length;
+            return solve(coins, n, amount);
         }
-        
-        private int helper(int[] coins, int i, int amt) {
-            if (amt == 0) return 1;
-            if (i < 0) return 0;
-            int notTake = helper(coins, i-1, amt);
-            int take = 0;
-            if (coins[i] <= amt) take = helper(coins, i, amt - coins[i]);
-            return take + notTake;
+    
+        private int solve(int[] coins, int i, int j) {
+            // Base cases
+            if (j == 0) return 1;  // valid combination found
+            if (i == 0) return 0;  // no coins left, amount not met
+    
+            if (coins[i-1] <= j) {
+                int include = solve(coins, i, j - coins[i-1]); // reuse same coin (unbounded)
+                int exclude = solve(coins, i - 1, j);           // skip this coin
+                return include + exclude;
+            } else {
+                return solve(coins, i - 1, j);                  // can't include
+            }
         }
     }`,
     
-      optimalComplexity: `Time Complexity: O(N * Amount)
-    Space Complexity: O(N * Amount)`,
+      optimalComplexity: `Time Complexity: O(N * amount)
+    Space Complexity: O(N * amount)`,
     
       optimalCode: `class Solution {
         public int change(int amount, int[] coins) {
             int n = coins.length;
-            int[][] dp = new int[n+1][amount+1];
-            
+            int[][] dp = new int[n + 1][amount + 1];
+    
+            // base case: amount = 0 has exactly 1 combination (empty)
             for (int i = 0; i <= n; i++) dp[i][0] = 1;
-            
+    
+            // base case: no coins, amount > 0 has 0 combinations
+            for (int j = 1; j <= amount; j++) dp[0][j] = 0;
+    
             for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= amount; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = 0;
-                    if (coins[i-1] <= j) take = dp[i][j - coins[i-1]];
-                    dp[i][j] = take + notTake;
+                for (int j = 0; j <= amount; j++) {
+    
+                    if (coins[i-1] <= j) {
+                        int include = dp[i][j - coins[i-1]];  // reuse same coin (unbounded)
+                        int exclude = dp[i-1][j];              // skip this coin
+                        dp[i][j] = include + exclude;          // total combinations
+                    } else {
+                        dp[i][j] = dp[i-1][j];                // can't include
+                    }
                 }
             }
+    
             return dp[n][amount];
         }
     }`
@@ -8268,43 +8619,49 @@ class Solution {
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
     
-      bruteForceCode: `class Solution {
-        public int unboundedKnapsack(int n, int W, int[] val, int[] wt) {
-            return helper(val, wt, n-1, W);
-        }
-        
-        private int helper(int[] val, int[] wt, int i, int W) {
-            if (i == 0) return (W / wt[0]) * val[0];
-            if (W == 0) return 0;
-            
-            int notTake = helper(val, wt, i-1, W);
-            int take = 0;
-            if (wt[i] <= W) take = val[i] + helper(val, wt, i, W - wt[i]);
-            return Math.max(take, notTake);
-        }
-    }`,
+      bruteForceCode: `
+      public int knapsack(int[] wt, int[] val, int capacity) {
+          int n = wt.length;
+          return solve(wt, val, n, capacity);
+      }
+
+      private int solve(int[] wt, int[] val, int i, int j) {
+          // Base case
+          if (i == 0 || j == 0) return 0;
+
+          if (wt[i-1] <= j) {
+              int include = val[i-1] + solve(wt, val, i-1, j - wt[i-1]);
+              int exclude = solve(wt, val, i-1, j);
+              return Math.max(include, exclude);
+          } else {
+              return solve(wt, val, i-1, j);
+          }
+      }`,
     
       optimalComplexity: `Time Complexity: O(N * W)
     Space Complexity: O(N * W)`,
     
-      optimalCode: `class Solution {
-        public int unboundedKnapsack(int n, int W, int[] val, int[] wt) {
-            int[][] dp = new int[n+1][W+1];
-            
-            for (int i = 0; i <= n; i++) dp[i][0] = 0;
-            for (int j = 0; j <= W; j++) dp[0][j] = 0;
-            
+      optimalCode: `
+      class Solution {
+        public int knapsack(int[] wt, int[] val, int capacity) {
+            int n = wt.length;
+            int[][] dp = new int[n + 1][capacity + 1];
+
             for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= W; j++) {
-                    int notTake = dp[i-1][j];
-                    int take = 0;
-                    if (wt[i-1] <= j) take = val[i-1] + dp[i][j - wt[i-1]];
-                    dp[i][j] = Math.max(take, notTake);
+                for (int j = 1; j <= capacity; j++) {
+
+                    if (wt[i-1] <= j) {
+                        int include = val[i-1] + dp[i-1][j - wt[i-1]];
+                        int exclude = dp[i-1][j];
+                        dp[i][j] = Math.max(include, exclude);
+                    } else {
+                        dp[i][j] = dp[i-1][j];
+                    }
                 }
             }
-            return dp[n][W];
-        }
-    }`
+
+            return dp[n][capacity];
+        }`
     },
 
 
@@ -8319,45 +8676,54 @@ class Solution {
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
     
-      bruteForceCode: `class Solution {
-        public int cutRod(int[] price, int n) {
-            return helper(price, n, n);
+      bruteForceCode: `
+      class Solution {
+        public int rodCutting(int[] lengths, int[] prices, int n) {
+            return solve(lengths, prices, n, n);
         }
-        
-        private int helper(int[] price, int i, int rem) {
-            if (rem == 0) return 0;
-            if (i == 0) return 0;
-            int notCut = helper(price, i-1, rem);
-            int cut = 0;
-            if (i <= rem) cut = price[i-1] + helper(price, i, rem - i);
-            return Math.max(cut, notCut);
-        }
-    }`,
+
+        private int solve(int[] lengths, int[] prices, int i, int j) {
+            // Base case
+            if (i == 0 || j == 0) return 0;
+
+            if (lengths[i-1] <= j) {
+                int include = prices[i-1] + solve(lengths, prices, i, j - lengths[i-1]); // i not i-1 (reuse same piece)
+                int exclude = solve(lengths, prices, i-1, j);
+                return Math.max(include, exclude);
+            } else {
+                return solve(lengths, prices, i-1, j);
+            }
+        }`,
     
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
-        public int cutRod(int[] price, int n) {
-            int[][] dp = new int[n+1][n+1];
-            
+      optimalCode: `
+      class Solution {
+        public int rodCutting(int[] lengths, int[] prices, int n) {
+            int[][] dp = new int[n + 1][n + 1];
+
             for (int i = 1; i <= n; i++) {
                 for (int j = 1; j <= n; j++) {
-                    int notCut = dp[i-1][j];
-                    int cut = 0;
-                    if (i <= j) cut = price[i-1] + dp[i][j - i];
-                    dp[i][j] = Math.max(cut, notCut);
+
+                    if (lengths[i-1] <= j) {
+                        int include = prices[i-1] + dp[i][j - lengths[i-1]]; // i not i-1 (reuse same piece)
+                        int exclude = dp[i-1][j];
+                        dp[i][j] = Math.max(include, exclude);
+                    } else {
+                        dp[i][j] = dp[i-1][j];
+                    }
                 }
             }
+
             return dp[n][n];
-        }
-    }`
+        }`
     },
 
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION:         (NEW PATTERN)
     Given two strings text1 and text2, return the length of their longest common subsequence.
     
     EXAMPLE:
@@ -8460,7 +8826,7 @@ class Solution {
     
     EXAMPLE:
     Input: s1 = "abcde", s2 = "abfce"
-    Output: 3`,
+    Output: 2`,
     
       bruteForceComplexity: `Time Complexity: O(M * N * min(M,N))
     Space Complexity: O(1)`,
@@ -8519,26 +8885,23 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `
         public int longestPalindromeSubseq(String s) {
             int n = s.length();
-            int[][] dp = new int[n][n];
-            
-            for (int i = 0; i < n; i++) dp[i][i] = 1;
-            
-            for (int len = 2; len <= n; len++) {
-                for (int i = 0; i <= n - len; i++) {
-                    int j = i + len - 1;
-                    if (s.charAt(i) == s.charAt(j)) {
-                        dp[i][j] = 2 + dp[i+1][j-1];
+            String rev = new StringBuilder(s).reverse().toString();
+            int[][] dp = new int[n + 1][n + 1];
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    if (s.charAt(i - 1) == rev.charAt(j - 1)) {
+                        dp[i][j] = 1 + dp[i - 1][j - 1]; // ✅
                     } else {
-                        dp[i][j] = Math.max(dp[i+1][j], dp[i][j-1]);
+                        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]); // ✅
                     }
                 }
             }
-            return dp[0][n-1];
-        }
-    }`
+            return dp[n][n];
+        }`
     },
 
 
@@ -8558,24 +8921,26 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `
+      class Solution {
         public int minInsertions(String s) {
             int n = s.length();
-            int[][] dp = new int[n][n];
-            
-            for (int len = 2; len <= n; len++) {
-                for (int i = 0; i <= n - len; i++) {
-                    int j = i + len - 1;
-                    if (s.charAt(i) == s.charAt(j)) {
-                        dp[i][j] = dp[i+1][j-1];
+            String rev = new StringBuilder(s).reverse().toString();
+            int[][] dp = new int[n + 1][n + 1];
+
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    if (s.charAt(i - 1) == rev.charAt(j - 1)) {
+                        dp[i][j] = 1 + dp[i - 1][j - 1];
                     } else {
-                        dp[i][j] = 1 + Math.min(dp[i+1][j], dp[i][j-1]);
+                        dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
                     }
                 }
             }
-            return dp[0][n-1];
-        }
-    }`
+
+            int lps = dp[n][n];
+            return n - lps; // minimum insertions = total chars - longest palindromic subsequence
+        }`
     },
 
 
@@ -8835,7 +9200,7 @@ class Solution {
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION:       (NEW PATTERN)
     Given an integer array nums, return the length of the longest strictly increasing subsequence.
     
     EXAMPLE:
@@ -9150,7 +9515,7 @@ class Solution {
 
 
     {
-      title: `QUESTION:
+      title: `QUESTION:      (NEW PATTERN)
     Given a chain of matrices, find the minimum number of scalar multiplications needed to multiply them all together.
     
     EXAMPLE:
