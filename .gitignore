@@ -3,16 +3,3 @@ dist/
 build/
 .next/
 .env
-
-# # ❌ DO NOT TRACK CONTENT FILES
-# dash/public/images/completenotes/
-# dash/public/images/pyq/
-# dash/public/images/shortnotes/
-
-# *.pdf
-# *.mp3
-# *.mp4
-# *.zipback/.env
-back/node_modules/
-node_modules/
-render.yaml
