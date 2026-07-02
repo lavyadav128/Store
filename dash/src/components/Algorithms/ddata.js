@@ -8,15 +8,9 @@ const questionsData = {
     Return the indices (0-indexed) of two elements in nums such that they add up to target.
     
     EXAMPLE:
-    Input:
-    nums = [1, 6, 2, 10, 3]
-    target = 7
-    
-    Output:
-    [0, 1]
-    
-    Explanation:
-    nums[0] + nums[1] = 1 + 6 = 7`,
+    Input:  nums = [1, 6, 2, 10, 3]   target = 7
+    Output: [0, 1]
+    Explanation:  nums[0] + nums[1] = 1 + 6 = 7`,
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Two nested loops are used to check every possible pair.
@@ -24,22 +18,19 @@ const questionsData = {
     Space Complexity: O(1)
     - No extra data structure is used.`,
     
-      bruteForceCode: `class Solution {
-    
+      bruteForceCode: `  nested for loop and take care of return new int[]{i,j}
+
+
+      class Solution {
         public int[] twoSum(int[] nums, int target) {
-    
             int n = nums.length;
-    
             for (int i = 0; i < n; i++) {
-    
                 for (int j = i + 1; j < n; j++) {
-    
                     if (nums[i] + nums[j] == target) {
                         return new int[]{i, j};
                     }
                 }
             }
-    
             return new int[]{-1, -1};
         }
     }`,
@@ -50,25 +41,19 @@ const questionsData = {
     Space Complexity: O(N)
     - HashMap may store up to N elements.`,
     
-      optimalCode: `import java.util.*;
+      optimalCode: `check is complement is present in map if then return new int[]{map.get(complement),i}
     
+
     class Solution {
-    
         public int[] twoSum(int[] nums, int target) {
-    
             HashMap<Integer, Integer> map = new HashMap<>();
-    
             for (int i = 0; i < nums.length; i++) {
-    
                 int complement = target - nums[i];
-    
                 if (map.containsKey(complement)) {
                     return new int[]{map.get(complement), i};
                 }
-    
                 map.put(nums[i], i);
             }
-    
             return new int[]{-1, -1};
         }
     }`
@@ -76,7 +61,6 @@ const questionsData = {
     {
       title: `QUESTION:
     Given an array nums consisting of only 0, 1, or 2. Sort the array in non-decreasing order.
-    
     The sorting must be done in-place, without making a copy of the original array.
     
     EXAMPLE:
@@ -105,8 +89,10 @@ const questionsData = {
     Space Complexity: O(1)
     - Only uses constant extra space.`,
     
-      optimalCode: `class Solution {
-    
+      optimalCode: `get count of each num in count array of length largest+1 -> for loop on count array-> while count[i]>0-> nums[i]=j
+      BS  if num[mid] is 0 then swap num[low] and num[mid]-> else if 1 then mid++ ->  else swap num[high] and num[mid]
+      
+      class Solution {
         public void sortColors(int[] nums) {
             int low = 0;
             int mid = 0;
@@ -149,7 +135,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for loop if nums[i]==nums[j] count++ and in outer loop if(count>n/2) return nums[i]
+      
+      
+      class Solution {
         public int majorityElement(int[] nums) {
             int n = nums.length;
             for (int i = 0; i < n; i++) {
@@ -198,64 +187,17 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for loop sum+=nums[j] -> maxsum=max(maxsum,sum)
+      
+
+      class Solution {
         public int maxSubArray(int[] nums) {
             int maxSum = Integer.MIN_VALUE;
             int n = nums.length;
             for (int i = 0; i < n; i++) {
                 int sum = 0;
                 for (int j = i; j < n; j++) {
-                    sum += nums[j];
-                    maxSum = Math.max(maxSum, sum);
-                }
-            }
-            return maxSum;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    - Kadane's Algorithm - Single pass.
-    
-    Space Complexity: O(1)`,
-    
-      optimalCode: `class Solution {
-        public int maxSubArray(int[] nums) {
-            int maxSum = nums[0];
-            int currentSum = nums[0];
-            
-            for (int i = 1; i < nums.length; i++) {
-                currentSum = Math.max(nums[i], currentSum + nums[i]);
-                maxSum = Math.max(maxSum, currentSum);
-            }
-            return maxSum;
-        }
-    }`
-    },
-
-
-    {
-      title: `QUESTION:
-    Given an integer array nums, find the subarray with the largest sum and return its sum.
-    
-    EXAMPLE:
-    Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
-    Output: 6
-    Explanation: [4,-1,2,1] has the largest sum = 6.`,
-    
-      bruteForceComplexity: `Time Complexity: O(N³) or O(N²)
-    - Check all possible subarrays.
-    
-    Space Complexity: O(1)`,
-    
-      bruteForceCode: `class Solution {
-        public int maxSubArray(int[] nums) {
-            int maxSum = Integer.MIN_VALUE;
-            int n = nums.length;
-            for (int i = 0; i < n; i++) {
-                int sum = 0;
-                for (int j = i; j < n; j++) {
-                    sum += nums[j];
-                    maxSum = Math.max(maxSum, sum);
+                  maxSum = Math.max(maxSum, sum += nums[j]);
                 }
             }
             return maxSum;
@@ -296,7 +238,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `    maxProfit = Math.max(maxProfit, prices[j] - prices[i]);
+
+      
+      class Solution {
         public int maxProfit(int[] prices) {
             int maxProfit = 0;
             int n = prices.length;
@@ -314,7 +259,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: ` if(price <minprice(initially(INF)))-> minprice=price   else Maxprofit=max(maxprofit, price-minprice)
+      
+      
+      class Solution {
         public int maxProfit(int[] prices) {
             int minPrice = Integer.MAX_VALUE;
             int maxProfit = 0;
@@ -346,7 +294,10 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `two arraylist(why-> get desired length) pos and neg store both types and then fu=inal array till n/2 res[2*i]=pos.get(0)
+      
+      
+      class Solution {
         public int[] rearrangeArray(int[] nums) {
             List<Integer> pos = new ArrayList<>();
             List<Integer> neg = new ArrayList<>();
@@ -370,7 +321,10 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `if num[0]>0 res[posidx]=num then posidx+=2 else res[negidx]=num then negidx+=2
+      
+      
+      class Solution {
         public int[] rearrangeArray(int[] nums) {
             int[] result = new int[nums.length];
             int posIndex = 0, negIndex = 1;
@@ -410,7 +364,14 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Find i: scan from right, looking for where the sequence stops being non-increasing (i.e., find first nums[i] < nums[i+1] going backward).
+      Find j and swap: find the smallest number right of i that's still bigger than nums[i]=2.        
+      Reverse suffix after i: reverse everything from index i+1=2 to end.
+
+      nums:  [1, 2, 4, 3]->  Before reverse: [1, 3, 4, 2]->  After reverse:  [1, 3, 2, 4]
+      
+      
+      class Solution {
         public void nextPermutation(int[] nums) {
             int n = nums.length;
             int i = n - 2;
@@ -459,7 +420,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `   nested for loop if nums[j]>nums[i]  isLeader=false -> break
+      
+      
+      class Solution {
         public List<Integer> findLeaders(int[] nums) {
             List<Integer> leaders = new ArrayList<>();
             int n = nums.length;
@@ -482,7 +446,10 @@ const questionsData = {
     
     Space Complexity: O(1) (excluding output list)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `  if(nums[i]>maxRight)-> res.add(nums[i]) and maxRight=nums[i]
+      
+      
+      class Solution {
         public List<Integer> findLeaders(int[] nums) {
             List<Integer> leaders = new ArrayList<>();
             int n = nums.length;
@@ -514,7 +481,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `   while(contains(nums, curr+1))-> curr++ and len++ -> maxlen=max(maxlen,len)
+      
+      
+      class Solution {
         public int longestConsecutive(int[] nums) {
             int maxLen = 0;
             for (int num : nums) {
@@ -539,7 +509,10 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `put all num in set -> if (!set.contains(num - 1)) {  -> int current = num;  -> while (set.contains(current + 1)) {
+      
+      
+      class Solution {
         public int longestConsecutive(int[] nums) {
             Set<Integer> set = new HashSet<>();
             for (int num : nums) set.add(num);
@@ -575,7 +548,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `mark row and col with 0 one to-> (matrix[i][k] != 0) matrix[i][k] = -999; and again replace -999 with 0
+      
+      
+      class Solution {
         public void setZeroes(int[][] matrix) {
             int m = matrix.length;
             int n = matrix[0].length;
@@ -654,7 +630,10 @@ const questionsData = {
     
     Space Complexity: O(N²)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `   temp[j][n - 1 - i] = matrix[i][j];
+      
+      
+      class Solution {
         public void rotate(int[][] matrix) {
             int n = matrix.length;
             int[][] temp = new int[n][n];
@@ -676,7 +655,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `transpose and then reverse each row->  matrix[i][j] = matrix[i][n-1-j];
+      
+      
+      class Solution {
         public void rotate(int[][] matrix) {
             int n = matrix.length;
             
@@ -804,7 +786,9 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `  nested loop->  if(sum==k) count++
+      
+      class Solution {
         public int subarraySum(int[] nums, int k) {
             int count = 0;
             int n = nums.length;
@@ -824,7 +808,9 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: ` use map and count += map.get(sum - k);
+      
+      class Solution {
         public int subarraySum(int[] nums, int k) {
             Map<Integer, Integer> prefixSum = new HashMap<>();
             prefixSum.put(0, 1);
@@ -978,7 +964,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: ` 3 for loop ->  List<Integer> triplet = Arrays.asList(nums[i], nums[j], nums[k]);
+      
+      
+      class Solution {
         public List<List<Integer>> threeSum(int[] nums) {
             List<List<Integer>> result = new ArrayList<>();
             int n = nums.length;
@@ -987,7 +976,7 @@ const questionsData = {
                     for (int k = j + 1; k < n; k++) {
                         if (nums[i] + nums[j] + nums[k] == 0) {
                             List<Integer> triplet = Arrays.asList(nums[i], nums[j], nums[k]);
-                            triplet.sort(null);
+                            triplet.sort(null);           //sorts the elements of the triplet->for integers, that means smallest to largest.
                             if (!result.contains(triplet)) result.add(triplet);
                         }
                     }
@@ -1101,7 +1090,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for lopp ->   if (sum == 0) { ->maxLength = Math.max(maxLength, j - i + 1);
+      
+      
+      class Solution {
         public int maxLen(int[] nums) {
             int maxLength = 0;
             int n = nums.length;
@@ -1123,7 +1115,10 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Map and  maxLength = Math.max(maxLength, i - prefixSum.get(sum));
+      
+      
+      class Solution {
         public int maxLen(int[] nums) {
             Map<Integer, Integer> prefixSum = new HashMap<>();
             prefixSum.put(0, -1);
@@ -1157,7 +1152,9 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for loop and xor ^= nums[j]; -> if (xor == k) count++;
+      
+      class Solution {
         public int subarrayXor(int[] nums, int k) {
             int count = 0;
             int n = nums.length;
@@ -1177,7 +1174,10 @@ const questionsData = {
     
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `   map and count += prefixXor.get(xor ^ k);
+      
+      
+      class Solution {
         public int subarrayXor(int[] nums, int k) {
             Map<Integer, Integer> prefixXor = new HashMap<>();
             prefixXor.put(0, 1);
@@ -1245,8 +1245,8 @@ const questionsData = {
     Given two sorted arrays arr1 and arr2 of size m and n respectively. Merge them in sorted order without using any extra space. Modify arr1 and arr2 so that arr1 contains the first m elements and arr2 contains the remaining elements.
     
     EXAMPLE:
-    Input: arr1 = [1, 3, 5, 7], arr2 = [0, 2, 6, 8, 9]
-    Output: arr1 = [0, 1, 2, 3, 5], arr2 = [6, 7, 8, 9]`,
+    Input: arr1 = [1, 3, 5, 7], arr2 = [0, 2, 6, 8]
+    Output: arr1 = [0, 1, 2, 3], arr2 = [5, 6, 7, 8]`,
     
       bruteForceComplexity: `Time Complexity: O((M+N) log(M+N))
     - Merge and sort.
@@ -1260,7 +1260,10 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: ` while (i >= 0 && j < m) {  it will shift desired no only
+      
+      
+      class Solution {
         public void merge(long arr1[], long arr2[], int n, int m) {
             int i = n - 1;
             int j = 0;
@@ -1295,7 +1298,10 @@ const questionsData = {
     - Use nested loops or sorting.
     Space Complexity: O(1) or O(N)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for loop and if(arr[i] == arr[j]) -> find missing with help of visited in one for loop and return arr[i],k
+      
+      
+      class Solution {
         public int[] findRepeatingMissing(int[] arr) {
             int n = arr.length;
             for (int i = 0; i < n; i++) {
@@ -1317,28 +1323,30 @@ const questionsData = {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1) (using math) or O(N) (using HashMap)`,
     
-      optimalCode: `class Solution {
-        public int[] findRepeatingMissing(int[] arr) {
-            long n = arr.length;
-            long sum = 0, sumSq = 0;
-            
-            for (int num : arr) {
-                sum += num;
-                sumSq += (long) num * num;
+      optimalCode: ` put in map with counting freq and count = freq.getOrDefault(i, 0);-> if count=2 rep one and if 0 then missing one
+      
+
+        class Solution {
+            public int[] findRepeatingMissing(int[] arr) {
+                int n = arr.length;
+                HashMap<Integer, Integer> freq = new HashMap<>();
+                
+                // Count frequency of each element
+                for (int num : arr) {
+                    freq.put(num, freq.getOrDefault(num, 0) + 1);
+                }
+                int repeating = -1, missing = -1;
+                for (int i = 1; i <= n; i++) {
+                    int count = freq.getOrDefault(i, 0);
+                    if (count == 2) {
+                        repeating = i;   // this number appeared twice
+                    } else if (count == 0) {
+                        missing = i;     // this number never appeared
+                    }
+                }
+                return new int[]{repeating, missing};
             }
-            
-            long sumN = n * (n + 1) / 2;
-            long sumSqN = n * (n + 1) * (2 * n + 1) / 6;
-            
-            long diff1 = sum - sumN;        // repeating - missing
-            long diff2 = sumSq - sumSqN;    // repeating² - missing²
-            
-            long repeating = (diff2 / diff1 + diff1) / 2;
-            long missing = repeating - diff1;
-            
-            return new int[]{(int)repeating, (int)missing};
-        }
-    }`
+        }`
     },
 
 
@@ -1353,7 +1361,9 @@ const questionsData = {
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `nested for loop and  if (nums[i] > 2L * nums[j]) count++;
+      
+      class Solution {
         public int reversePairs(int[] nums) {
             int count = 0;
             for (int i = 0; i < nums.length; i++) {
@@ -1423,14 +1433,16 @@ const questionsData = {
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `   max = Math.max(max, prod *= nums[j]);
+
+
+      class Solution {
         public int maxProduct(int[] nums) {
             int max = Integer.MIN_VALUE;
             for (int i = 0; i < nums.length; i++) {
                 int prod = 1;
                 for (int j = i; j < nums.length; j++) {
-                    prod *= nums[j];
-                    max = Math.max(max, prod);
+                    max = Math.max(max, prod *= nums[j]);
                 }
             }
             return max;
@@ -1440,7 +1452,10 @@ const questionsData = {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `track maxp and minp and if num[i]<0 swap
+      
+      
+      class Solution {
         public int maxProduct(int[] nums) {
             int maxProd = nums[0];
             int minProd = nums[0];
@@ -1476,7 +1491,10 @@ const questionsData = {
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `if(i*i>x) return (int)(i-1)
+      
+      
+      class Solution {
         public int mySqrt(int x) {
             if (x == 0) return 0;
             for (long i = 1; i <= x; i++) {
@@ -1489,7 +1507,10 @@ const questionsData = {
       optimalComplexity: `Time Complexity: O(log N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: ` BS  if(mid*mid==x) return mid
+      
+      
+      class Solution {
         public int mySqrt(int x) {
             if (x == 0 || x == 1) return x;
             long low = 1, high = x;
@@ -1554,17 +1575,16 @@ const questionsData = {
     Output: 4
     
     Explanation: 
-    - With speed 4: 
-      - Pile 3: 1 hour
-      - Pile 6: 2 hours
-      - Pile 7: 2 hours
-      - Pile 11: 3 hours
+    - With speed 4:     -Pile 3: 1 hour     -Pile 6: 2 hours    -Pile 7: 2 hours    -Pile 11: 3 hours
     Total = 8 hours`,
     
       bruteForceComplexity: `Time Complexity: O(max(piles) * N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `in these we will try for all values till high value of given and then call funtion that is this value ok or go for next
+      
+      
+      class Solution {
         public int minEatingSpeed(int[] piles, int h) {
             int maxPile = 0;
             for (int p : piles) {
@@ -1591,7 +1611,10 @@ const questionsData = {
       optimalComplexity: `Time Complexity: O(N log MaxPile)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `BS always low=1 and high=maxvalue then find mid then function call including mid if true high=mid else low=mid+1
+      try to return that (high, low) in which u r updation in this low=mid+1 so return low
+      
+      class Solution {
         public int minEatingSpeed(int[] piles, int h) {
             int low = 1;
             int high = 0;
@@ -2199,7 +2222,10 @@ Output: 2`,
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
 
-  bruteForceCode: `class Solution {
+  bruteForceCode: `nested for loop if(count>maxcout)-> maxcount=count and idx=i
+  
+  
+  class Solution {
     public int rowWithMax1s(int[][] mat) {
         int n = mat.length;
         int m = mat[0].length;
@@ -2223,7 +2249,10 @@ Space Complexity: O(1)`,
   optimalComplexity: `Time Complexity: O(N + M)
 Space Complexity: O(1)`,
 
-  optimalCode: `class Solution {
+  optimalCode: `single loop and while (col >= 0 && mat[i][col] == 1) cl-- and int count = m - col - 1;
+  
+  
+  class Solution {
     public int rowWithMax1s(int[][] mat) {
         int n = mat.length;
         int m = mat[0].length;
@@ -2274,7 +2303,10 @@ Space Complexity: O(1)`,
   optimalComplexity: `Time Complexity: O(log(N * M))
 Space Complexity: O(1)`,
 
-  optimalCode: `class Solution {
+  optimalCode: `here in BS we r considering 2D matrix as 1D and then searching cal row=mid/m  and col=mid%m
+  
+  
+  class Solution {
     public boolean searchMatrix(int[][] matrix, int target) {
         if (matrix.length == 0) return false;
         int n = matrix.length;
@@ -2309,7 +2341,10 @@ Output: true`,
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
 
-  bruteForceCode: `class Solution {
+  bruteForceCode: ` nested for loop if(num==target) return true
+  
+  
+  class Solution {
     public boolean searchMatrix(int[][] matrix, int target) {
         for (int[] row : matrix) {
             for (int num : row) {
@@ -2323,7 +2358,9 @@ Space Complexity: O(1)`,
   optimalComplexity: `Time Complexity: O(N + M)
 Space Complexity: O(1)`,
 
-  optimalCode: `class Solution {
+  optimalCode: `while(row<nums.length && col>=0)
+  
+  class Solution {
     public boolean searchMatrix(int[][] matrix, int target) {
         if (matrix.length == 0) return false;
         int row = 0;
@@ -2351,7 +2388,10 @@ Output: [0,1]`,
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
 
-  bruteForceCode: `class Solution {
+  bruteForceCode: `nested for loop and initialize boolean ispeak= true and then apply all 4-dirn condn
+  
+  
+  class Solution {
     public int[] findPeakGrid(int[][] mat) {
         int n = mat.length;
         int m = mat[0].length;
@@ -2372,7 +2412,10 @@ Space Complexity: O(1)`,
   optimalComplexity: `Time Complexity: O(N log M) or O(M log N)
 Space Complexity: O(1)`,
 
-  optimalCode: `class Solution {
+  optimalCode: `find mid and check in that colm which element is max and mark that colm and then check left and right of that element 
+    if that curr elem < right then low=mid+1 means we will now move to that colm(right side one)
+  
+  class Solution {
     public int[] findPeakGrid(int[][] mat) {
         int n = mat.length;
         int m = mat[0].length;
@@ -2415,7 +2458,10 @@ Output: 5`,
   bruteForceComplexity: `Time Complexity: O(N*M log(N*M))
 Space Complexity: O(N*M)`,
 
-  bruteForceCode: `class Solution {
+  bruteForceCode: `put each element in an arraylist and then sort it and then return list.size()/2
+  
+
+  class Solution {
     public int matrixMedian(int[][] mat) {
         List<Integer> list = new ArrayList<>();
         for (int[] row : mat) {
@@ -2429,7 +2475,11 @@ Space Complexity: O(N*M)`,
   optimalComplexity: `Time Complexity: O((N + M) * log(Max - Min))
 Space Complexity: O(1)`,
 
-  optimalCode: `class Solution {
+  optimalCode: `we find required(mediean element) then while loop and call function to count how may element less than mid
+       in function also we r checking using BS only
+  
+  
+  class Solution {
     public int matrixMedian(int[][] mat) {
         int n = mat.length;
         int m = mat[0].length;
@@ -6177,7 +6227,7 @@ class Solution {
                 int[] curr = pq.poll();
                 int node = curr[0], distance = curr[1];
                 
-                if (distance > dist[node]) continue;
+                if (distance > dist[node]) continue;     //It skips zombie entries in the PQ — entries that were valid when added, but a shorter path was found before they got processed.
                 
                 for (int[] nei : adj.get(node)) {
                     int next = nei[0], weight = nei[1];
@@ -6249,7 +6299,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N * M * log(MaxDiff))
     Space Complexity: O(N * M)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Exactly same as swimming water problem
+      
+      
+      class Solution {
         public int minimumEffortPath(int[][] heights) {
             int n = heights.length, m = heights[0].length;
             int low = 0, high = 1000000;
@@ -6305,39 +6358,45 @@ class Solution {
       optimalComplexity: `Time Complexity: O(E * K)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
-        public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
-            ArrayList<ArrayList<int[]>> adj = new ArrayList<>();
-            for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
-            
-            for (int[] f : flights) {
-                adj.get(f[0]).add(new int[]{f[1], f[2]});
-            }
-            
-            int[] dist = new int[n];
-            Arrays.fill(dist, Integer.MAX_VALUE);
-            dist[src] = 0;
-            
-            Queue<int[]> q = new LinkedList<>();
-            q.offer(new int[]{src, 0, 0}); // node, cost, stops
-            
-            while (!q.isEmpty()) {
-                int[] curr = q.poll();
-                int node = curr[0], cost = curr[1], stops = curr[2];
-                
-                if (stops > k) continue;
-                
-                for (int[] nei : adj.get(node)) {
-                    int next = nei[0], price = nei[1];
-                    if (cost + price < dist[next]) {
-                        dist[next] = cost + price;
-                        q.offer(new int[]{next, dist[next], stops + 1});
-                    }
-                }
-            }
-            return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
-        }
-    }`
+      optimalCode: `
+      class Solution {
+          public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+              ArrayList<ArrayList<int[]>> adj = new ArrayList<>();
+              for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+              
+              for (int[] f : flights) {
+                  adj.get(f[0]).add(new int[]{f[1], f[2]});
+              }
+              
+              int[] dist = new int[n];
+              Arrays.fill(dist, Integer.MAX_VALUE);
+              
+              Queue<int[]> q = new LinkedList<>();
+              q.offer(new int[]{src, 0, 0}); // node, cost, stops
+              
+              while (!q.isEmpty()) {
+                  int[] curr = q.poll();
+                  int node = curr[0], cost = curr[1], stops = curr[2];
+                  
+                  if (stops > k) continue;          //"If I already used more stops than allowed just to get to this node,
+                                                    //don't bother exploring further from here — this path is already invalid."
+                  for (int[] nei : adj.get(node)) {
+                      int next = nei[0], price = nei[1];
+                      int newCost = cost + price;
+                      // Only prune if this path can't possibly help (no dist check tied to stops)
+                      if (newCost < dist[next]) {
+                          dist[next] = newCost;
+                          q.offer(new int[]{next, newCost, stops + 1});
+                      } 
+                      // still explore even if not globally better, as long as stops allow it
+                      else if (stops + 1 <= k) {
+                          q.offer(new int[]{next, newCost, stops + 1});
+                      }
+                  }
+              }
+              return dist[dst] == Integer.MAX_VALUE ? -1 : dist[dst];
+          }
+      }`
     },
 
 
@@ -6406,7 +6465,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O((V + E) log V)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this we r checking in how many ways we can go from node 0 to n-1 node and thet must be less than n, so for this we do as usual only 
+      if(dist[node]+wt<dist[next]) then we equate and for ways ways[nest]=ways[node] in this condn else(dist[node]+wt=dist[next]) then ways[next]=ways[next]+ways[node]
+      
+      
+      class Solution {
         public int countPaths(int n, int[][] roads) {
             int MOD = 1000000007;
             ArrayList<ArrayList<long[]>> adj = new ArrayList<>();
@@ -6435,12 +6498,12 @@ class Solution {
                 
                 for (long[] nei : adj.get((int)node)) {
                     long next = nei[0], weight = nei[1];
-                    if (dist[(int)node] + weight < dist[(int)next]) {
-                        dist[(int)next] = dist[(int)node] + weight;
-                        ways[(int)next] = ways[(int)node];
+                    if (dist[(int)node] + weight < dist[(int)next]) {        //dist[6]=7, ways[6]=ways[0]=1, push (6,7)
+                        dist[(int)next] = dist[(int)node] + weight;          //dist[1]=2, ways[1]=1, push (1,2)
+                        ways[(int)next] = ways[(int)node];                   //dist[4]=5, ways[4]=1, push (4,5)
                         pq.offer(new long[]{next, dist[(int)next]});
                     } else if (dist[(int)node] + weight == dist[(int)next]) {
-                        ways[(int)next] = (ways[(int)next] + ways[(int)node]) % MOD;
+                        ways[(int)next] = (ways[(int)next] + ways[(int)node]) % MOD;    //ways[6] = ways[6]+ways[4] = 1+1 = 2
                     }
                 }
             }
@@ -6500,7 +6563,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(V * E)
     Space Complexity: O(V)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `basically its like dp so we r traversing V-1 times to get the smallest shortest path from each node to the other node 
+      and then for checking negative cycle we r applying the same condn but on the updated matrix 
+      
+      
+      class Solution {
         public int[] bellmanFord(int V, int[][] edges, int src) {
             int[] dist = new int[V];
             Arrays.fill(dist, 100000000);
@@ -6533,7 +6600,8 @@ class Solution {
     Given a graph of V vertices numbered from 0 to V-1. Find the shortest distances between every pair of vertices in a given edge-weighted directed graph. The graph is represented as an adjacency matrix of size n x n. Matrix[i][j] denotes the weight of the edge from i to j. If matrix[i][j]=-1, it means there is no edge from i to j.    
     EXAMPLE:  Input: matrix = [[0, 2, -1, -1],[1, 0, 3, -1],[-1, -1, 0, 1],[3, 5, 4, 0]]
     Output: [[0, 2, 5, 6], [1, 0, 3, 4], [4, 6, 0, 1], [3, 5, 4, 0]] 
-    Explanation: matrix[0][0] is storing the distance from vertex 0 to vertex 0, the distance from vertex 0 to vertex 1 is 2 and so on.`,
+    Explanation: matrix[0][0] is storing the distance from vertex 0 to vertex 0, the distance from vertex 0 to vertex 1 is 2 and so on.
+     Floyd-Warshall finds shortest paths between every single pair of cities in one go.`,
     
       optimalComplexity: `Time Complexity: O(V³)
     Space Complexity: O(V²)`,
@@ -6640,7 +6708,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(E log V)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `in PQ make condn of asc order based on weight and then in starting put 1st node to quesue and sum+=w and 
+      then traverse all neighbours that it as in pq we will get based on sorted so we will get min cost
+      
+      
+      class Solution {
         public int spanningTree(int V, ArrayList<ArrayList<ArrayList<Integer>>> adj) {
             boolean[] visited = new boolean[V];
             PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[1] - b[1]);       // Ascending (Min-Heap) — smallest weight polled first
@@ -6729,7 +6801,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(E log E)
     Space Complexity: O(V)`,
     
-      optimalCode: `
+      optimalCode: `connect edges and then sort them based on their weights then check if curr node and neigh,
+       there parents r diff then join them using ds.union
+
+
+
           class DisjointSet {
               int[] parent;  // parent[i] = parent of node i
               int[] rank;    // rank[i]   = height of tree rooted at i
@@ -6819,7 +6895,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N + E)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: ` join the connections using ds.union and after doing all these, 
+      check if ds.find(i)==i then component++ using for loop and at last return components-1
+      
+      
+      class Solution {
         public int makeConnected(int n, int[][] connections) {
             if (connections.length < n - 1) return -1;           //To connect n nodes in a tree, you ALWAYS need exactly n-1 edges
             
@@ -6849,7 +6929,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this check if two points have same col or row then join then ds.union and after doing all these, 
+      check if ds.find(i)==i then component++ using for loop and at last return n-components
+      
+      
+      class Solution {
         public int removeStones(int[][] stones) {
             int n = stones.length;
             DisjointSet ds = new DisjointSet(n);
@@ -6884,7 +6968,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N * α(N))
     Space Complexity: O(N)`,
     
-      optimalCode: `
+      optimalCode: `use nested for loop and put only all emails of each person and if there is already email present in map(means two emails same) then join then-> 
+      ds.union(i, emailToIndex.get(email)->index of account where email first appeared); then put each root(no) with their emails(same emails of diff person wil get in one only->ds)
+      then in last step sort emails 1st and then add name of email person in starting and then add to final result
+
+
+
           class Solution {
               public List<List<String>> accountsMerge(List<List<String>> accounts) {
                   Map<String, Integer> emailToIndex = new HashMap<>();
@@ -6953,7 +7042,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(K * α(M*N))
     Space Complexity: O(M*N)`,
     
-      optimalCode: `
+      optimalCode: `In this 1st we r making each given position to island and then we r travesing neighbour for each position and if there is 
+      any other island in its neghbour then join then using ds.union and mark them as one island by island--
+
+
           class Solution {
               public List<Integer> numIslands2(int m, int n, int[][] positions) {
                   List<Integer> result = new ArrayList<>();
@@ -7047,7 +7139,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this 1st we r calculating toatl island(if connected and seperate one also) with ds.union and increasing rank of one parent node
+       and in next step we r changing each 0 to 1 and then checking for the largest island, size += getComponentSize(ds, ni * n + nj);-> gives us the rank 
+       of that combined island, in dirns we considered as 1D array and for calculating current state->int nidx = ni * n + nj;
+      
+      
+      class Solution {
         public int largestIsland(int[][] grid) {
             int n = grid.length;
             DisjointSet ds = new DisjointSet(n * n);
@@ -7107,7 +7204,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N² log N)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `basically mid(time) is our desired time and we r checking for diff mid(time) through BS , calling function in which 
+      we r performing while q.isEmpty and for every new mid value we r calling same function from stating
+      
+      
+      class Solution {
         public int swimInWater(int[][] grid) {
             int n = grid.length;
             int low = grid[0][0], high = 0;
@@ -7163,7 +7264,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `apply dfs stating with node 0 and consider parent as -1 and traverse eaach node with dfs calling again and again and mark 
+      visited and if visited neigh come again then mark low of that node to min(low[node], dist[neigh]) and then backtrack and there mark low[node]
+      as min(low[node],low[neigh])
+      
+      
+      class Solution {
         public List<List<Integer>> criticalConnections(int n, List<List<Integer>> connections) {
             List<List<Integer>> adj = new ArrayList<>();
             for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
@@ -7235,11 +7341,11 @@ class Solution {
             Arrays.fill(parent, -1);
             
             List<Integer> result = new ArrayList<>();
-            int time = 0;
+            int[] time = {0}; // mutable counter shared across recursive calls
             
             for (int i = 0; i < V; i++) {
                 if (!visited[i]) {
-                    dfs(i, adj, visited, disc, low, parent, ap, time, result);
+                    dfs(i, adj, visited, disc, low, parent, ap, time, result);             // will know the updated values
                 }
             }
             
@@ -7290,7 +7396,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `traverse all nodes and push them in stack using dfs in such a way that all neigh visited first 
+      then should go in stack then transpose the matrix and remove each node from stack through dfs and count scc
+      
+      
+      class Solution {
         public int kosaraju(int V, ArrayList<ArrayList<Integer>> adj) {
             boolean[] visited = new boolean[V];
             Stack<Integer> stack = new Stack<>();
@@ -7319,8 +7429,11 @@ class Solution {
             while (!stack.isEmpty()) {
                 int node = stack.pop();
                 if (!visited[node]) {
-                    dfs2(transpose, node, visited);
+                    List<Integer> currentSCC = new ArrayList<>();
+                    dfs2(transpose, node, visited, currentSCC);
                     sccCount++;
+                    // Print this SCC
+                    System.out.println("SCC " + sccCount + ": " + currentSCC);
                 }
             }
             return sccCount;
@@ -7336,11 +7449,12 @@ class Solution {
             stack.push(node);
         }
         
-        private void dfs2(ArrayList<ArrayList<Integer>> transpose, int node, boolean[] visited) {
+        private void dfs2(ArrayList<ArrayList<Integer>> transpose, int node, boolean[] visited, List<Integer> currentSCC) {
             visited[node] = true;
+            currentSCC.add(node);
             for (int nei : transpose.get(node)) {
                 if (!visited[nei]) {
-                    dfs2(transpose, nei, visited);
+                    dfs2(transpose, nei, visited, currentSCC);
                 }
             }
         }
@@ -9229,7 +9343,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `dp[i] means: length of the longest increasing subsequence ending exactly at index i.
+      and this pattern is used in all questions of this type so keep in mind and then solve becomes easy
+
+      
+      
+      class Solution {
         public int lengthOfLIS(int[] nums) {
             int n = nums.length;
             int[] dp = new int[n];
@@ -9266,7 +9385,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `basically same as above only u can think that why it has not used Mat.max one condn 
+      instead have used one more condn becoz we need to track j in this case for printing the longest subsequence
+      
+      
+      class Solution {
         public List<Integer> printLIS(int[] nums) {
             int n = nums.length;
             int[] dp = new int[n];
@@ -9333,7 +9456,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `this one is exactly same as the previous one , u can check only one condn changes rest all same
+      
+      
+      class Solution {
         public List<Integer> largestDivisibleSubset(int[] nums) {
             Arrays.sort(nums);
             int n = nums.length;
@@ -9385,7 +9511,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N² * L)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `dp[i] stores till i how longest the length of string(made from previous strings by adding a single letter) by 
+      calling a function we will check , only this is the diff rest all is same as 1st question only
+      
+      
+      class Solution {
         public int longestStrChain(String[] words) {
             Arrays.sort(words, (a,b) -> a.length() - b.length());
             int n = words.length;
@@ -9432,7 +9562,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `exactly similar to previous concepts only yrr same pattern too easy just n
+      need one condn in every prolm nums[i]> nums[j] that it , all sorted after that
+      In this we r calculating 2 things lis[i] which store till i how many nums r 
+      strictly increasing and one is lds[i] which stores till i haow many r strictly decreasing 
+      
+      
+      class Solution {
         public int longestBitonicSequence(int[] nums) {
             int n = nums.length;
             int[] lis = new int[n];
@@ -9479,7 +9615,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `same as aabove questions , same pattern , and always solve 1st question of this pattern 
+      here in dp we r calculating the length of the longest strictly increasing subsequence (LIS) 
+      that ends exactly at index i and count[i] calculates that till i how many longesst subsequences can be formed
+      
+      
+      
+      class Solution {
         public int findNumberOfLIS(int[] nums) {
             int n = nums.length;
             int[] dp = new int[n];
@@ -9544,7 +9686,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `here basically we r trying to to check that if we take cut at k=1 then we r getting
+      minimum cost or at k=2 and so on and here main thing is recurssion and backtracking, for clarity 
+      always do dry run on 2x2 matrix and u will get clarity that how it is working, amin functionallity
+      is of arr[i-1] * arr[k] * arr[j]; only and dp[i][k] and dp[k+1][j] is basically calculate values
+      going backtrack and bring values either from base case or arr[i-1] * arr[k] * arr[j];
+      
+      class Solution {
         public int matrixMultiplication(int[] arr) {
             int n = arr.length;
             int[][] dp = new int[n][n];
@@ -9626,7 +9774,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
     
-      optimalCode: `
+      optimalCode: `This is also same as MCM only but diff is that here we r creating an arrray and putting arr[0]=0 and arr[n-1]=n 
+      becoz in this question we have given cuts and and whenever we made a cut it will cost to the original length of the rod so we 
+      add 0 and n so that when we make 1st cut we can consoder the whole length of rod and dp[i][k - 1]+ dp[k + 1][j] why we r ignoring
+      k becoz when we made a cut at k then that will be lost and to get cost of that cut we use (arr[j + 1] - arr[i - 1]); as MCM
+      and dp[i][k - 1]+ dp[k + 1][j]  r for backtrack to get values through base case and (arr[j + 1] - arr[i - 1]);
+
+
       class Solution {
           public int minCost(int n, int[] cuts) {
               Arrays.sort(cuts);
@@ -9701,7 +9855,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
     
-      optimalCode: `
+      optimalCode: `here also exactly same as rod cutting and adding 1 at arr[0] and arr[n] becoz here our
+       cost is calculated by multiplying the current elemeent by it right and left neighbour and in this also 
+       we r not considering th current (k) value becoz when we mutliply that we have to remove that element 
+       completely arr[i - 1] * arr[k] * arr[j + 1];
+
+
         class Solution {
             public int maxCoins(int[] nums) {
                 int n = nums.length;
@@ -9772,7 +9931,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(N)`,
     
-      optimalCode: `
+      optimalCode: `In this we r checking for each and combined character that is it palindrome and in 
+      dp we r storing that till each cuts how many cuts we need to make it palindrome
+
+
       class Solution {
           public int minCut(String s) {
               int n = s.length();
@@ -9844,7 +10006,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N * K)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this see dp[0] will be max becoz we r coverring that if we cover this much then what will be max, so now basically we r s
+      tarting at last index using nested for loop so that we can travese each node to as desired(means till k) we r taking j limit as 
+      j<n && j<i+k, now basicallly we r trying to change each current no to be same at 3(k) values and we r storingthe max of it in dp[i] taht if 
+      we replace this current value to 2 places then it is max or till 33 ten it is max and we r doing this for all nums and storing max of all in dp[i]
+      
+      
+      class Solution {
         public int maxSumAfterPartitioning(int[] arr, int k) {
             int n = arr.length;
             int[] dp = new int[n + 1];
@@ -9859,7 +10027,7 @@ class Solution {
                     best = Math.max(best, curMax * len + dp[j + 1]);
                 }
     
-                dp[i] = best;
+                dp[i] = best;          //dp[i] = the maximum sum achievable by optimally partitioning the suffix arr[i..n-1] (i.e., everything from index i to the end of the array).
             }
     
             return dp[0];
