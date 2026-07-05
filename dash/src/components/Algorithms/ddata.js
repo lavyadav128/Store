@@ -3714,7 +3714,12 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(log N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `here basically we r taking xor of start and goal and after that we r counting that how many 1's r there 
+      in resultant xor with th help of count += xor & 1;   as if we take & of any no with 1 then it will result 1 if last digit 
+      of resultant is 1 and after that we shift that last digit of resultant with xor >>= 1; and hence calculating all 1's
+      
+      
+      class Solution {
         public int minBitFlips(int start, int goal) {
             int xor = start ^ goal;
             int count = 0;
@@ -3759,7 +3764,12 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `see if we do ans^=num then it will return the element whcih will be single, see how we r initialize ans as 0 
+      and if we take xor of anything with 0 we will get that no only and if we do xor with same no then we will get 0 , so like 
+      this we will get the single element only, 0^(anything)-> anything  and (anything)^(anything)-> 0
+      
+      
+      class Solution {
         public int singleNumber(int[] nums) {
             int ans = 0;
             for (int num : nums) {
@@ -3782,7 +3792,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N * 2^N)
     Space Complexity: O(N * 2^N)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Loop i from 0 to 2ⁿ-1, treat each i's binary form as an include/exclude switch for every element in nums
+      (i & (1 << j))-> checks the bit at the j-th place of i if it is 1(means some value other than 0) then add in subset and if 
+      0 dont add it
+      
+      class Solution {
         public List<List<Integer>> subsets(int[] nums) {
             List<List<Integer>> result = new ArrayList<>();
             int n = nums.length;
@@ -3818,7 +3832,10 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Initialize xor as 0 and the xor ^= i; that it
+      
+    
+      class Solution {
         public int xorRange(int L, int R) {
             int xor = 0;
             for (int i = L; i <= R; i++) xor ^= i;
@@ -3863,7 +3880,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `1st we need to calculate rightmost(xor & -xor) and then we r storing two diff nums in diff varaable and if we r getting 
+      that same value again the it will go in that same variable and become 0 and new no will be stored and no which will be only 1 
+      that will be left only and we get our desired ans
+      
+      class Solution {
         public int[] singleNumber(int[] nums) {
             int xor = 0;
             for (int num : nums) xor ^= num;
@@ -3896,7 +3917,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `In this simply we r checking that while(n%i==0) till the we will add that i in ans 
+      and after each we will do n/=i as we have factored it by that i so we will work on new n
+      
+      
+      class Solution {
         public List<Integer> primeFactors(int n) {
             List<Integer> factors = new ArrayList<>();
             for (int i = 2; i <= n; i++) {
@@ -3912,7 +3937,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(√N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `here basically we r storing if n%2==0 add in ans and same for n%3==0 then also store
+       it and at last if n>2 then add it directly
+      
+      
+      class Solution {
         public List<Integer> primeFactors(int n) {
             List<Integer> factors = new ArrayList<>();
             
@@ -3950,7 +3979,9 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `simple for each i of for loop check if(n%i==0) that is ans add it in result
+      
+      class Solution {
         public List<Integer> divisors(int n) {
             List<Integer> list = new ArrayList<>();
             for (int i = 1; i <= n; i++) {
@@ -3963,7 +3994,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(√N)
     Space Complexity: O(√N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `here basically we r checking if(n%i==0) ten add that in ans and one more check we r doing in that same loop 
+      that if(i!=n/i) add that also in ans, this basically is reducing time, in one time we r checking for 2 that it
+      
+      
+      class Solution {
         public List<Integer> divisors(int n) {
             List<Integer> list = new ArrayList<>();
             
@@ -3991,7 +4026,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O((R-L+1) * √R)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `here basically we r calling prime function for each value in (L to R) and if that that value%2==0 
+      then that is not prime no and we will return false and we iit doesnt satisfy that condn then return true and count++
+      
+      
+      class Solution {
         public int countPrimes(int L, int R) {
             int count = 0;
             for (int i = Math.max(L, 2); i <= R; i++) {
@@ -4091,7 +4130,10 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `ans*=x that it and return n<0?1/ans:ans;
+      
+      
+      class Solution {
         public double myPow(double x, int n) {
             double ans = 1.0;
             long exp = Math.abs((long)n);
@@ -4105,7 +4147,12 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(log N)
     Space Complexity: O(log N) (recursion stack)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this basically we r calling funtion again and again by doing n/2 till base case returns then it will 
+      backtrack and find values for eaach n using if(n%==0)-> return half*half and if odd then half*half*x this way and 
+      if n<0(means negative)-> then just x=1/n and n=-n that it 
+      
+      
+      class Solution {
         public double myPow(double x, int n) {
             if (n == 0) return 1.0;
             if (n < 0) {
@@ -4144,7 +4191,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(256) ≈ O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `here we r using nested for loop and we r storing each char in set and if a char is already
+       present in set break at that moment only
+      
+
+      class Solution {
         public int lengthOfLongestSubstring(String s) {
             int n = s.length();
             int maxLen = 0;
@@ -4169,7 +4220,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(256) ≈ O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `"Keep expanding the window until you hit a repeat. When you hit a repeat, shrink the window just enough to remove the old duplicate, 
+      and keep track of the biggest window you ever had.", when we r getting the repeated char then we r removing that from our window with help of left.
+      as all non repeated char has lastIndex[ch]=-1 and if it is diff from -1 it means it has already appeared 
+      
+      class Solution {
         public int lengthOfLongestSubstring(String s) {
             int[] lastIndex = new int[256];
             Arrays.fill(lastIndex, -1);
@@ -4205,7 +4260,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Here same as previous only using nested for loop and getting length with j-i+1 and 
+      if nums[j]==0 zeroes++ and if zeroes> k break instantly as previous one
+      
+      
+      class Solution {
         public int longestOnes(int[] nums, int k) {
             int n = nums.length;
             int ans = 0;
@@ -4229,7 +4288,10 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `this also same as previous only we r tracking zeroes and when we get zeroes>k then we will
+       shift our left till we get zeroes<k and hence we calculate for mew(means right-left+1)
+      
+      class Solution {
         public int longestOnes(int[] nums, int k) {
             int left = 0;
             int zeros = 0;
@@ -4264,7 +4326,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(2)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `same as previous only using nested for loop and keep tracking of ecahh fruits in map along with their count and
+       if map.size()>2 bresk at that moment only as at most two distinct fruits we want
+      
+      
+      class Solution {
         public int totalFruit(int[] fruits) {
             int n = fruits.length;
             int ans = 0;
@@ -4288,7 +4354,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(2)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we r storing nums along with their count and if map size>k then we start decreasing count of fruit[left]
+       and left++ ones and get ans like this 
+      
+      
+      class Solution {
         public int totalFruit(int[] fruits) {
             HashMap<Integer,Integer> map = new HashMap<>();
     
@@ -4330,7 +4400,12 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(26)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `See here basically we r doing if(len-maxfreq<=k)-> ans=max(ans,len), see len i storing the comp length(j-i+1) and maxfreq 
+      is storing the freq and if we r at out desired char(A) then len- maxfreq=0  becoz we will get same values for both len and maxfreq and if 
+      diff char then we will get the value , the no of times it has appeared
+      
+      
+      class Solution {
         public int characterReplacement(String s, int k) {
             int n = s.length();
             int ans = 0;
@@ -4359,7 +4434,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(26)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here also same only but while(len-maxfreq>k) then we will decrease freq of char at left by 1 
+      and then left++, and try for the next char that it
+      
+      
+      class Solution {
         public int characterReplacement(String s, int k) {
             int[] freq = new int[26];
     
@@ -4399,20 +4478,19 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Simple sum+=nums[j] and then if(sum==goal) count++
+      
+      
+      class Solution {
         public int numSubarraysWithSum(int[] nums, int goal) {
             int count = 0;
-    
             for(int i = 0; i < nums.length; i++) {
                 int sum = 0;
-    
                 for(int j = i; j < nums.length; j++) {
                     sum += nums[j];
-    
                     if(sum == goal) count++;
                 }
             }
-    
             return count;
         }
     }`,
@@ -4420,26 +4498,23 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
-    
+      optimalCode: `Exactly same as previous only while(sum>goal)-> sum-=nums[left] and then left++ 
+      and try for next number same as above oone only
+      
+      
+      class Solution {
         private int atMost(int[] nums, int goal) {
             if(goal < 0) return 0;
-    
             int left = 0, sum = 0, count = 0;
-    
             for(int right = 0; right < nums.length; right++) {
                 sum += nums[right];
-    
                 while(sum > goal) {
                     sum -= nums[left++];
                 }
-    
                 count += right - left + 1;
             }
-    
             return count;
         }
-    
         public int numSubarraysWithSum(int[] nums, int goal) {
             return atMost(nums, goal)
                  - atMost(nums, goal - 1);          // Exactly(2) = AtMost(2)-AtMost(1)  this logic is getting used
@@ -4460,7 +4535,10 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `same as above only if(nums[j]%2==1)->odd++ and if(odd==k)-> count++ that it
+      
+      
+      class Solution {
         public int numberOfSubarrays(int[] nums, int k) {
             int count = 0;
     
@@ -4521,7 +4599,10 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Basically here we r checking feq of three char a,b,c and using
+      nested for loop and if freq of each char is >0 then count++ that it
+      
+      class Solution {
         public int numberOfSubstrings(String s) {
             int count = 0;
     
@@ -4546,7 +4627,15 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here we r storing the idx position of all the three chars in array list and 
+      when again that char appears then that char idx is updated to new idx
+      min(last[a], last[b], last[c]) tells you the rightmost point up to which a starting index
+      is still "safe" (still captures all 3 characters). Since valid starts range from 0 to that
+      minimum value, there are exactly min + 1 such starting positions — and each one produces
+      a distinct valid substring ending at i
+      
+      
+      class Solution {
         public int numberOfSubstrings(String s) {
             int[] last = {-1,-1,-1};
     
@@ -4583,7 +4672,11 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(2^K)
     Space Complexity: O(K)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Here we r using recurssion and returning Max(leftsum of length k from left,  
+      right sum of length k from right) by reducing k-- and basecase if k==0 return 0 that it 
+      
+      
+      class Solution {
         int solve(int[] arr, int left, int right, int k) {
             if(k == 0) return 0;
     
@@ -4602,28 +4695,24 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(K)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we r 1st calculating the 1st k sum from left then we r skipping one by one
+      leftmost(1st kth one then to 0 position) and adding the rightmost nums in place of that then in next step we 
+      will replace  with the last befor the rightmost and like this we can check from where max sum is there
+      
+      class Solution {
         public int maxScore(int[] cardPoints, int k) {
             int n = cardPoints.length;
-    
             int leftSum = 0;
-    
             for(int i = 0; i < k; i++) {
                 leftSum += cardPoints[i];
             }
-    
             int maxSum = leftSum;
             int rightSum = 0;
-    
             for(int i = k - 1; i >= 0; i--) {
                 leftSum -= cardPoints[i];
-    
                 rightSum += cardPoints[n - (k - i)];
-    
-                maxSum = Math.max(maxSum,
-                                  leftSum + rightSum);
+                maxSum = Math.max(maxSum, leftSum + rightSum);
             }
-    
             return maxSum;
         }
     }`
@@ -4642,25 +4731,23 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(K)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Here we r using nested for loop and storing each char to map along with their count and when size of map>k
+      break and we will store max length with ans=max(ans,j-i+1)
+      
+      
+      class Solution {
         public int lengthOfLongestSubstringKDistinct(String s, int k) {
             int n = s.length();
             int ans = 0;
-    
             for(int i = 0; i < n; i++) {
                 HashMap<Character,Integer> map = new HashMap<>();
-    
                 for(int j = i; j < n; j++) {
                     char ch = s.charAt(j);
-    
                     map.put(ch, map.getOrDefault(ch,0)+1);
-    
                     if(map.size() > k) break;
-    
                     ans = Math.max(ans, j - i + 1);
                 }
             }
-    
             return ans;
         }
     }`,
@@ -4668,33 +4755,28 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(K)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `In this same yrr as previous ones 1st we will add chars and then while(map.size>k) then we start removing the char
+      from the position left(0) till while satisfy and then will add next char when while loop ends to track each element and will 
+      store max ans as of before only
+      
+      class Solution {
         public int lengthOfLongestSubstringKDistinct(String s, int k) {
             HashMap<Character,Integer> map = new HashMap<>();
-    
             int left = 0;
             int ans = 0;
-    
             for(int right = 0; right < s.length(); right++) {
                 char ch = s.charAt(right);
-    
                 map.put(ch, map.getOrDefault(ch,0)+1);
-    
                 while(map.size() > k) {
                     char leftChar = s.charAt(left);
-    
                     map.put(leftChar, map.get(leftChar)-1);
-    
                     if(map.get(leftChar) == 0) {
                         map.remove(leftChar);
                     }
-    
                     left++;
                 }
-    
                 ans = Math.max(ans, right - left + 1);
             }
-    
             return ans;
         }
     }`
@@ -4713,7 +4795,10 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(K)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Use nested for loop and if map.size==k then count++ and if map.size>k then break the loop and
+      outside of both for loop return count
+      
+      class Solution {
         public int subarraysWithKDistinct(int[] nums, int k) {
             int count = 0;
     
@@ -4737,32 +4822,30 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(K)`,
     
-      optimalCode: `class Solution {
-    
+      optimalCode: `Exactly as same previous only same while lool(map.size>k) then start removing char from position left(0) 
+      one by one by reducing theeir count one by one and if count becomes 0 for a particular no then while loop ends as > condn
+       ends then we will add new char to map and like this we will track the complete string and get the ans and calculate count
+       with count += right - left + 1;
+      
+      
+      class Solution {
         private int atMost(int[] nums, int k) {
             HashMap<Integer,Integer> map = new HashMap<>();
-    
             int left = 0;
             int count = 0;
-    
             for(int right = 0; right < nums.length; right++) {
                 map.put(nums[right],
                         map.getOrDefault(nums[right],0)+1);
-    
                 while(map.size() > k) {
                     map.put(nums[left],
                             map.get(nums[left]) - 1);
-    
                     if(map.get(nums[left]) == 0) {
                         map.remove(nums[left]);
                     }
-    
                     left++;
                 }
-    
                 count += right - left + 1;
             }
-    
             return count;
         }
     
@@ -4787,19 +4870,20 @@ Space Complexity: O(1)`,
       bruteForceComplexity: `Time Complexity: O(N^3)
     Space Complexity: O(256)`,
     
-      bruteForceCode: `class Solution {
+      bruteForceCode: `Here we r checking each eubstring of s1 to complete s2 string(that is s2 is coming in s1 substring
+      till this length) using nested for loop and checking for all and trying for min length of substring of s1, and in 
+      if(freq[ch]-- <= 0) { we dont want 0 becoz in question it has ask that in substring of s t should be present, so it
+      cant contain char of t string only and get freq 0 , it should have s char too(even 1 also that iss enough)
+      
+      
+      class Solution {
         public String minWindow(String s, String t) {
             int minLen = Integer.MAX_VALUE;
             String ans = "";
-    
             for(int i = 0; i < s.length(); i++) {
-    
                 for(int j = i; j < s.length(); j++) {
-    
                     String sub = s.substring(i, j + 1);
-    
                     if(isValid(sub, t)) {
-    
                         if(sub.length() < minLen) {
                             minLen = sub.length();
                             ans = sub;
@@ -4807,23 +4891,18 @@ Space Complexity: O(1)`,
                     }
                 }
             }
-    
             return ans;
         }
-    
         private boolean isValid(String sub, String t) {
             int[] freq = new int[256];
-    
             for(char ch : sub.toCharArray()) {
                 freq[ch]++;
             }
-    
             for(char ch : t.toCharArray()) {
                 if(freq[ch]-- <= 0) {
                     return false;
                 }
             }
-    
             return true;
         }
     }`,
@@ -4831,65 +4910,41 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(256)`,
     
-      optimalCode: `
+      optimalCode: `Here basically 1st we r counting freq of each char of t and then we r traveersing the s string and when we r able to find
+       all chars of t in s(at each char founf we r doing count--) and when count==0 then we r calculating min length and to get the shortest
+        min length, again we increase freq of char at(0) and if freq of that char>0 then count++ (see one logic is there only t chars can 
+        have freq>0 after increasing freq of char at(left) becoz rest char of s have freq in minus(-) as we have decreased in starting) so
+         that is a logiv to trach the next shorter length that again when we r getting all 3 chars
+
+
       class Solution {
           public String minWindow(String s, String t) {
-
-              // Stores frequency of characters required from t
               int[] freq = new int[256];
-
-              // Build frequency map of t
               for(char ch : t.toCharArray()) {
                   freq[ch]++;
               }
-
-              // Left pointer of sliding window
               int left = 0;
-
-              // Number of required characters still missing
               int count = t.length();
-
-              // Stores minimum window length found
               int minLen = Integer.MAX_VALUE;
-
-              // Stores starting index of minimum window
               int start = 0;
-
-              // Expand window by moving right pointer
               for(int right = 0; right < s.length(); right++) {
-
                   // If current character is still needed
                   if(freq[s.charAt(right)] > 0) {
                       count--;            // One required character found
                   }
-
-                  // Include current character in window
                   freq[s.charAt(right)]--;
-
-                  // Window is valid (contains all required characters)
                   while(count == 0) {
-
-                      // Update answer if current window is smaller
                       if(right - left + 1 < minLen) {
                           minLen = right - left + 1;
                           start = left;
                       }
-
-                      // Remove left character from window
                       freq[s.charAt(left)]++;
-
-                      // If removed character becomes required again
                       if(freq[s.charAt(left)] > 0) {
                           count++;        // Window becomes invalid
                       }
-
-                      // Shrink window from left
                       left++;
                   }
               }
-
-              // If no valid window found return ""
-              // Otherwise return minimum window substring
               return minLen == Integer.MAX_VALUE
                     ? ""
                     : s.substring(start, start + minLen);   // if(2,2+3)-> (2,5) substring (excluding 5)
