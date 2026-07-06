@@ -57,6 +57,9 @@ import videoStudioRouter from "./routes/video.routes.js";
 
 import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
 
+import batchRoutes from './routes/batches.routes.js';
+
+
 import dns from 'node:dns';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
@@ -156,6 +159,9 @@ app.use('/api', purchaseRoutes);
 app.use('/api', chatbotRoutes);
 
 app.use("/api/video-splitter", videoSplitterRoutes);
+
+app.use('/api/batches', batchRoutes);
+
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive

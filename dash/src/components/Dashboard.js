@@ -8,6 +8,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import AdminFileUpload from "./AdminFileUpload";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import BatchPredictionIcon from "@mui/icons-material/BatchPrediction";
 import VideoClipIcon from "@mui/icons-material/Videocam";
 import DreamIcon from "@mui/icons-material/Psychology";
 import NotificationsIcon from "@mui/icons-material/Notifications";
@@ -45,6 +46,7 @@ import DoubtPage from "./doubt";
 import PaymentsPage from "./payment";
 import AdminDashboard from "./AdminDashboard";
 import Dreams from "./Dreams";
+import Batches from "./Batches";
 import VideoSplit from "./VideoSplit";
 import LogoutIcon from "@mui/icons-material/Logout";
 
@@ -60,6 +62,7 @@ const VIEW_VIDEO         = "video";
 const VIEW_CLIP          = "clip";
 const VIEW_DREAMS        = "dreams";
 const VIEW_FILES         = "files";
+const VIEW_BATCH         = "batches"
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -78,7 +81,7 @@ const SOCIAL = [
 
 const QUICK_COURSES = [
   { label: "IIT JEE",  sublabel: "Premium Batches",  route: "/pre",  icon: AutoAwesomeIcon,    emoji: "⚡", iconBg: "linear-gradient(135deg, #2c2c2c 0%, #555555 100%)", dot: "#333" },
-  { label: "IIT JEE",  sublabel: "All Courses",       route: "/cou",  icon: LayersIcon,         emoji: "📚", iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)", dot: "#1a1a1a" },
+  { label: "Jee Mains",  sublabel: "All Courses",       route: "/cou",  icon: LayersIcon,         emoji: "📚", iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)", dot: "#1a1a1a" },
   { label: "Tech",  sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
   { label: "CDS",      sublabel: "Revision Batch",    route: "/rev",  icon: MilitaryTechIcon,   emoji: "🎯", iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)", dot: "#111" },
   { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
@@ -90,6 +93,7 @@ const ADMIN_NAV = [
   { icon: UploadFileIcon, title: "File Manager",    view: VIEW_FILES },
   { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
   { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
+  { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
 
 ];
 
@@ -1019,6 +1023,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_DREAMS && (
                     <Dreams onBack={() => goView(VIEW_ADMIN)} />
+                  )}
+                  {activeView === VIEW_BATCH && (
+                    <Fade in timeout={400}><Box><Batches /></Box></Fade>
                   )}
 
                 </>
