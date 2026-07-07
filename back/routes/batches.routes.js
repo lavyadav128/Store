@@ -6,16 +6,16 @@ const router = express.Router();
 // PUBLIC ROUTES — used by frontend pages
 // ─────────────────────────────────────────────
 
-// GET /api/batches?pageType=classes
-// GET /api/batches?pageType=courses
-// Frontend calls this to get batches for a specific page
+// GET /api/batches?folder=Tech
+// GET /api/batches?folder=IIT+JEE
+// Frontend calls this to get batches for a specific folder/page
 router.get('/', async (req, res) => {
   try {
     const filter = { isActive: true };
 
-    // If pageType query param is passed, filter by it
-    if (req.query.pageType) {
-      filter.pageType = req.query.pageType;
+    // If folder query param is passed, filter by it
+    if (req.query.folder) {
+      filter.folder = req.query.folder;
     }
 
     const batches = await Batch.find(filter).sort({ sortOrder: 1, createdAt: 1 });
@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
 // GET /api/admin/batches — get ALL batches (including inactive)
 router.get('/admin', auth, async (req, res) => {
   try {
-    const batches = await Batch.find().sort({ pageType: 1, sortOrder: 1 });
+    const batches = await Batch.find().sort({ folder: 1, sortOrder: 1 });
     res.json(batches);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch batches', error: err.message });
@@ -43,8 +43,8 @@ router.get('/admin', auth, async (req, res) => {
 router.post('/admin', auth, async (req, res) => {
   try {
     const {
-      batchId, title, description, imageUrl, screenshot,
-      price, pageType, category, redirectPath, whatYouLearn,
+      batchId, folder, title, description, imageUrl, screenshot,
+      price, redirectPath, whatYouLearn,
       isActive, sortOrder,
     } = req.body;
 
@@ -55,10 +55,9 @@ router.post('/admin', auth, async (req, res) => {
     }
 
     const batch = new Batch({
-      batchId, title, description, imageUrl,
+      batchId, folder, title, description, imageUrl,
       screenshot: screenshot || '',
       price: price || 0,
-      pageType, category,
       redirectPath: redirectPath || '',
       whatYouLearn: whatYouLearn || [],
       isActive: isActive !== undefined ? isActive : true,

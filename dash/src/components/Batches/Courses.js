@@ -495,6 +495,12 @@
 // // so other files can import it as: import ClassCardPage from './ClassCardPage'
 // export default ClassCardPage;
 
+
+
+
+
+
+
 import React, { useEffect, useState } from "react";
 import {
   Box, Typography, Card, CardContent, CardMedia, CardActions,
@@ -506,7 +512,9 @@ import { makeAuthenticatedRequest } from "../makeauth";
 import server from "../../environment";
 
 // ─────────────────────────────────────────────────────────────
-// CombinedClassPage — ONLY change: fetch batches from API
+// CombinedClassPage — ONLY change: fetch batches from API,
+// filtered by folder="Tech" to match the new BatchManager schema
+// (previously pageType=courses, which no longer exists).
 // All card UI, purchase flow, payment logic = ZERO changes
 // ─────────────────────────────────────────────────────────────
 const CombinedClassPage = () => {
@@ -525,8 +533,8 @@ const CombinedClassPage = () => {
   useEffect(() => {
     const fetchBatches = async () => {
       try {
-        // pageType=courses fetches only Courses.js batches
-        const res = await fetch(`${server}/api/batches?pageType=courses`);
+        // folder=Tech fetches only this page's batches (dsa, web, data-analysis, aptitude)
+        const res = await fetch(`${server}/api/batches?folder=Tech`);
         const data = await res.json();
 
         // Map MongoDB fields to match your existing card props exactly
