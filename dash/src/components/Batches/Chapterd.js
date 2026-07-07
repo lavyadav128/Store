@@ -47,6 +47,48 @@ const ChapterDetail = () => {
     };
   }, []);
 
+
+
+
+
+  // category label used in your UI (shortNotes/completeNotes/mindmap)
+// -> category value stored in MongoDB (shortnotes/completenotes/mindmap)
+const LABEL_TO_DB_CATEGORY = {
+  shortNotes: "shortnotes",
+  completeNotes: "completenotes",
+  mindmap: "mindmap",
+};
+
+const API_BASE = process.env.REACT_APP_API_URL || "https://note-vevp.onrender.com/";
+const [cloudUrls, setCloudUrls] = useState({}); // { shortNotes: url, completeNotes: url, mindmap: url }
+
+useEffect(() => {
+  let cancelled = false;
+
+  async function fetchCloudLinks() {
+    const entries = await Promise.all(
+      Object.entries(LABEL_TO_DB_CATEGORY).map(async ([label, dbCategory]) => {
+        try {
+          const res = await fetch(`${API_BASE}/api/resources/${dbCategory}`);
+          if (!res.ok) return [label, null];
+          const list = await res.json();
+          const match = list.find((r) => r.title === slug);
+          return [label, match?.fileUrl || null];
+        } catch {
+          return [label, null];
+        }
+      })
+    );
+    if (!cancelled) setCloudUrls(Object.fromEntries(entries));
+  }
+
+  fetchCloudLinks();
+  return () => { cancelled = true; };
+}, [slug]);
+
+
+
+
   const chapterVideoUrl =
     chaptersData[classId]?.[subject]?.find((ch) => ch.title === slug)?.videoUrl || null;
 
@@ -54,17 +96,17 @@ const ChapterDetail = () => {
     classId === "14"
       ? {
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || `/images/completenotes/${slug}.pdf`,
           },
         }
       : classId === "10" || classId === "1"
       ? {
           shortNotes: {
-            pdf: `/images/shortnotes/${slug}.pdf`,
+            pdf: cloudUrls.shortNotes || `/images/shortnotes/${slug}.pdf`,
             audio: `/images/shortnotes/${slug}.mp3`,
           },
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || `/images/completenotes/${slug}.pdf`,
           },
           video: {
             url: chapterVideoUrl,
@@ -72,13 +114,13 @@ const ChapterDetail = () => {
         }
       : {
           mindmap: {
-            pdf: `/images/mindmap/${slug}.pdf`,
+            pdf: cloudUrls.mindmap || `/images/mindmap/${slug}.pdf`,
           },
           shortNotes: {
-            pdf: `/images/shortnotes/${slug}.pdf`,
+            pdf: cloudUrls.shortNotes || `/images/shortnotes/${slug}.pdf`,
           },
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || `/images/completenotes/${slug}.pdf`,
           },
           video: {
             url: chapterVideoUrl,
@@ -154,7 +196,7 @@ const ChapterDetail = () => {
             <iframe
               src={
                 isMobile
-                  ? `https://docs.google.com/gview?embedded=true&url=https://notess-ei6q.onrender.com${linkObj.pdf}`
+                  ? `https://docs.google.com/gview?embedded=true&url=${linkObj.pdf}`
                   : linkObj.pdf
               }
               title="PDF Viewer"

@@ -36,9 +36,6 @@ const topics = [
   { id: "mysarthi", name: "Mysarthi" },
   { id: "notenova", name: "Notenova" },
 
-
-
-
 ];
 
 const TopicPage = () => {

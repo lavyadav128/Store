@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -22,6 +22,19 @@ import CloseIcon from "@mui/icons-material/Close";
 import DownloadIcon from "@mui/icons-material/Download";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "@mui/material/styles";
+
+const API_BASE = process.env.REACT_APP_API_URL || "https://note-vevp.onrender.com/";
+
+// Cloudinary raw-file URLs don't honor the HTML `download` attribute for
+// cross-origin requests unless the fl_attachment flag is present — this
+// inserts it right after "/upload/" so the browser actually force-downloads
+// instead of opening the PDF inline. Local (non-Cloudinary) URLs pass through
+// unchanged.
+function toDownloadUrl(url) {
+  if (!url || !url.includes("res.cloudinary.com")) return url;
+  if (url.includes("/fl_attachment/")) return url; // already has it
+  return url.replace("/upload/", "/upload/fl_attachment/");
+}
 
 const topics = [
   { name: "GitHub", slug: "github", subtopics: [] },
@@ -60,6 +73,38 @@ const WebDevTopics = () => {
   const [pdfUrl, setPdfUrl] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
 
+  // title (== the slug this page already computes, e.g. "github",
+  // "frontend-css", "theory-dbms") -> Cloudinary fileUrl. Fetched once.
+  // Cloud-only: if a title isn't found here, the file is treated as
+  // not existing — there is no local fallback anymore.
+  const [resourceMap, setResourceMap] = useState({});
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchFullstackResources() {
+      try {
+        const res = await fetch(`${API_BASE}/api/resources/fullstack`);
+        if (!res.ok) return;
+        const list = await res.json();
+        if (cancelled) return;
+        const map = {};
+        for (const r of list) {
+          if (r?.title && r?.fileUrl) map[r.title] = r.fileUrl;
+        }
+        setResourceMap(map);
+      } catch {
+        // network/API failure — resourceMap stays {} and everything just
+        // falls back to local static paths below.
+      }
+    }
+
+    fetchFullstackResources();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const handleBack = () => navigate(-1);
   const handleTabChange = (_, newValue) => setTabIndex(newValue);
   const handleToggleExpand = (slug) =>
@@ -70,36 +115,35 @@ const WebDevTopics = () => {
     setPdfUrl(null);
   };
 
-  const openPdfIfExists = async (e, topicSlug, slug) => {
+  const openPdfIfExists = (e, topicSlug, slug) => {
     e.preventDefault();
-    const url = `/images/fullstack/${topicSlug}/${slug}.pdf`;
+    const cloudUrl = resourceMap[slug];
 
-    try {
-      const response = await fetch(url, { method: "HEAD" });
-      const contentType = response.headers.get("content-type") || "";
-
-      if (response.ok && contentType.includes("pdf")) {
-        const viewerUrl = isMobile
-          ? `https://docs.google.com/gview?embedded=true&url=${window.location.origin}${url}`
-          : url;
-        setPdfUrl(viewerUrl);
-        setModalOpen(true);
-      } else {
-        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-        setSnackbarMessage("This PDF file does not exist yet.");
-        setSnackbarOpen(true);
-      }
-    } catch {
+    if (!cloudUrl) {
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
-      setSnackbarMessage("Error checking the file.");
+      setSnackbarMessage("This PDF file does not exist yet.");
       setSnackbarOpen(true);
+      return;
     }
+
+    const viewerUrl = isMobile
+      ? `https://docs.google.com/gview?embedded=true&url=${cloudUrl}`
+      : cloudUrl;
+    setPdfUrl(viewerUrl);
+    setModalOpen(true);
   };
 
   const handleDownload = (topicSlug, slug) => {
-    const url = `/images/fullstack/${topicSlug}/${slug}.pdf`;
+    const cloudUrl = resourceMap[slug];
+
+    if (!cloudUrl) {
+      setSnackbarMessage("This PDF file does not exist yet.");
+      setSnackbarOpen(true);
+      return;
+    }
+
     const a = document.createElement("a");
-    a.href = url;
+    a.href = toDownloadUrl(cloudUrl);
     a.download = `${slug}.pdf`;
     a.click();
   };
