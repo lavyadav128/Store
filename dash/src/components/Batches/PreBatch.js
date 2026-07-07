@@ -1,37 +1,49 @@
+
+// ─────────────────────────────────────────────────────────────
+// IMPORTS — bring in everything this file needs
+// ─────────────────────────────────────────────────────────────
+
+// React is the core library for building UI
+// useEffect = run code after component appears on screen
+// useState  = create variables that re-render the UI when changed
 import React, { useEffect, useState } from 'react';
+
+// MUI (Material UI) components — pre-built, styled UI blocks
 import {
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  Button,
-  CardActions,
-  Box,
-  Chip,
-  Stack,
-  useMediaQuery,
-  useTheme,
+  Card,           // the white box/container for each class card
+  CardContent,    // the text area inside the card
+  CardMedia,      // the image area at the top of the card
+  Typography,     // styled text (headings, paragraphs, captions)
+  Button,         // clickable button
+  CardActions,    // the bottom area of the card that holds buttons
+  Box,            // a general-purpose div with MUI styling support
+  Chip,           // a small pill/badge (e.g. "FREE", "Purchased")
+  Stack,          // a flex container — stacks children in a row or column
+  useMediaQuery,  // a hook that returns true/false based on screen size
+  useTheme,       // gives access to the MUI theme (breakpoints, colors, etc.)
 } from '@mui/material';
+
+// useNavigate lets us redirect the user to a different page/route
 import { useNavigate } from 'react-router-dom';
+
+// makeAuthenticatedRequest is a helper function that sends API requests
+// with the JWT token automatically attached (so the backend knows who's calling)
 import { makeAuthenticatedRequest } from '../makeauth';
+
+// "server" is the base URL of our backend (e.g. "https://our-api.onrender.com")
+// imported from a config file so we don't hardcode the URL everywhere
 import server from '../../environment';
 
-const classList = [
-  { id: '1', title: 'Class 10', description: 'Master all subjects with our compreyhensive Class 10 content.', imageUrl: '/images/p10.png', price: 9, isPremium: true },
-  { id: '2', title: 'Class 11 (Jee + Boards)', description: 'Strengthen your foundation with advanced concepts.', imageUrl: '/images/p11.png', price: 9, isPremium: true },
-  { id: '3', title: 'Class 12 (Jee + Boards)', description: 'Ace your boards and entrance exams with Class 12 content.', imageUrl: '/images/p12.png', price: 9, isPremium: true },
-  { id: '14', title: 'HandWritten Notes', description: 'Ace your boards and entrance exams with Best Notes.', imageUrl: '/images/p13.png', price: 9, isPremium: true },
-
-];
 
 // ═════════════════════════════════════════════════════════════
 //  ClassCard COMPONENT
 //  Renders a single course card with image, title, price, and buttons
 //  Receives all its data as props from the parent (ClassCardPage)
+//  ── ZERO CHANGES HERE — identical to your original ──
 // ═════════════════════════════════════════════════════════════
 
 // Destructuring the props directly in the function signature
-// id, title, description, imageUrl, price → static data from classList array
+// id, title, description, imageUrl, price → data for this card
 // purchaseInfo → object from backend if this class was purchased, otherwise undefined
 // onPurchase   → a function passed from the parent to update purchase state after buying
 const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPurchase }) => {
@@ -282,9 +294,17 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 //  ClassCardPage COMPONENT
 //  The parent/page component — renders the heading and all class cards
 //  Manages which classes the user has purchased
+//
+//  ── ONLY CHANGE: classList now comes from the API (folder="Jee Mains")
+//     instead of being a hardcoded array. Everything else — layout,
+//     purchase handling, card rendering — is untouched. ──
 // ═════════════════════════════════════════════════════════════
 
 const ClassCardPage = () => {
+
+  // classList now lives in state, populated by the API fetch below,
+  // instead of being a hardcoded constant outside the component.
+  const [classList, setClassList] = useState([]);
 
   // purchasedBatches = an object (dictionary) where:
   // key   = classId (e.g. "10", "11")
@@ -300,6 +320,31 @@ const ClassCardPage = () => {
   // theme.breakpoints.down('sm') = true when screen is smaller than 600px (mobile)
   // isMobile is used throughout to switch between mobile and desktop layouts
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  // ── FETCH BATCHES FOR THIS FOLDER ON PAGE LOAD ──
+  // This page corresponds to the "Jee Mains" folder in the Batch Manager
+  // (batchId's 10, 11, 12, 111, 121). Only active batches are returned.
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const res = await fetch(`${server}/api/batches?folder=${encodeURIComponent('IIT JEE')}`);
+        const data = await res.json();
+
+        // Map MongoDB fields to match ClassCard's existing props exactly
+        setClassList(data.map((b) => ({
+          id: b.batchId,
+          title: b.title,
+          description: b.description,
+          imageUrl: b.imageUrl,
+          price: b.price,
+        })));
+      } catch (err) {
+        console.error('Failed to fetch classes:', err);
+      }
+    };
+
+    fetchClasses();
+  }, []);
 
   // ── FETCH PURCHASED CLASSES ON PAGE LOAD ──
   useEffect(() => {
@@ -434,4 +479,3 @@ const ClassCardPage = () => {
 // Export this component as the default export
 // so other files can import it as: import ClassCardPage from './ClassCardPage'
 export default ClassCardPage;
-
