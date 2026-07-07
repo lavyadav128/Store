@@ -19,6 +19,18 @@ import { useState, useEffect, useRef } from "react";
 import DownloadIcon from "@mui/icons-material/Download";
 import { chaptersData } from "./Subjectpage";
 
+// CRA (Create React App) env vars must be prefixed REACT_APP_ and read via
+// process.env — import.meta.env is a Vite-only feature and doesn't exist here.
+const API_BASE = process.env.REACT_APP_API_URL || "https://note-vevp.onrender.com";
+
+// UI label (used in pdfLinks below) -> category value stored in MongoDB
+// (matches your Resource schema's category enum exactly)
+const LABEL_TO_DB_CATEGORY = {
+  shortNotes: "shortnotes",
+  completeNotes: "completenotes",
+  mindmap: "mindmap",
+};
+
 const ChapterDetail = () => {
   const { classId, subject, slug } = useParams();
   const navigate = useNavigate();
@@ -31,6 +43,10 @@ const ChapterDetail = () => {
   const [viewerContent, setViewerContent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const modalRef = useRef(null);
+
+  // Holds the Cloudinary URLs fetched from the backend for this chapter's
+  // slug, keyed by the same labels used in pdfLinks (shortNotes/completeNotes/mindmap).
+  const [cloudUrls, setCloudUrls] = useState({});
 
   useEffect(() => {
     const wheelHandler = (e) => {
@@ -47,6 +63,35 @@ const ChapterDetail = () => {
     };
   }, []);
 
+  // Fetch this chapter's Cloudinary URLs (by matching title === slug within
+  // each category) from the backend, replacing what used to be local
+  // /images/... paths entirely.
+  useEffect(() => {
+    let cancelled = false;
+
+    async function fetchCloudLinks() {
+      const entries = await Promise.all(
+        Object.entries(LABEL_TO_DB_CATEGORY).map(async ([label, dbCategory]) => {
+          try {
+            const res = await fetch(`${API_BASE}/api/resources/${dbCategory}`);
+            if (!res.ok) return [label, null];
+            const list = await res.json();
+            const match = list.find((r) => r.title === slug);
+            return [label, match?.fileUrl || null];
+          } catch {
+            return [label, null];
+          }
+        })
+      );
+      if (!cancelled) setCloudUrls(Object.fromEntries(entries));
+    }
+
+    if (slug) fetchCloudLinks();
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
+
   const chapterVideoUrl =
     chaptersData[classId]?.[subject]?.find((ch) => ch.title === slug)?.videoUrl || null;
 
@@ -54,17 +99,17 @@ const ChapterDetail = () => {
     classId === "14"
       ? {
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || "",
           },
         }
       : classId === "10" || classId === "1"
       ? {
           shortNotes: {
-            pdf: `/images/shortnotes/${slug}.pdf`,
-            audio: `/images/shortnotes/${slug}.mp3`,
+            pdf: cloudUrls.shortNotes || "",
+            audio: cloudUrls.shortNotesAudio || "",
           },
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || "",
           },
           video: {
             url: chapterVideoUrl,
@@ -72,13 +117,13 @@ const ChapterDetail = () => {
         }
       : {
           mindmap: {
-            pdf: `/images/mindmap/${slug}.pdf`,
+            pdf: cloudUrls.mindmap || "",
           },
           shortNotes: {
-            pdf: `/images/shortnotes/${slug}.pdf`,
+            pdf: cloudUrls.shortNotes || "",
           },
           completeNotes: {
-            pdf: `/images/completenotes/${slug}.pdf`,
+            pdf: cloudUrls.completeNotes || "",
           },
           video: {
             url: chapterVideoUrl,
@@ -135,8 +180,14 @@ const ChapterDetail = () => {
         return;
       }
 
+      if (!linkObj.pdf) {
+        setSnackbarMessage("This PDF file does not exist yet.");
+        setSnackbarOpen(true);
+        return;
+      }
+
       const pdfRes = await fetch(linkObj.pdf, { method: "HEAD" });
-      if (!pdfRes.ok || !pdfRes.headers.get("content-type")?.includes("pdf")) {
+      if (!pdfRes.ok) {
         setSnackbarMessage("This PDF file does not exist yet.");
         setSnackbarOpen(true);
         return;
@@ -154,7 +205,7 @@ const ChapterDetail = () => {
             <iframe
               src={
                 isMobile
-                  ? `https://docs.google.com/gview?embedded=true&url=https://notess-ei6q.onrender.com${linkObj.pdf}`
+                  ? `https://docs.google.com/gview?embedded=true&url=${linkObj.pdf}`
                   : linkObj.pdf
               }
               title="PDF Viewer"
@@ -361,6 +412,3 @@ const getLabelDescription = (key) => {
 };
 
 export default ChapterDetail;
-
-
-
