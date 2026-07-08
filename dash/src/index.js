@@ -51,7 +51,9 @@ import TestSeries from './components/Batches/TestSeries';
 import PYQSeries from './components/Batches/PYQSeries';
 import TestAttemptPage from "./components/Batches/testattempt";
 
-
+import ChaptersPage from './components/Chapterspage';
+import ChapterDetailPage from './components/Chapterdetailpage';
+import SubjectsPage from './components/Subjectspage';
 
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute   from './components/AdminRoute';
@@ -121,6 +123,11 @@ root.render(
               <Route path="/attempt-test"                            element={<TestAttemptPage />} />
               <Route path="/premium/class/:classId/pyq"              element={<PYQSeries />} />
               <Route path="premium/class/:classId/mentorship"        element={<MentorshipPage />} />
+
+              <Route path="/class/:batchId" element={<SubjectsPage />} />
+              <Route path="/class/:batchId/:subjectSlug" element={<ChaptersPage />} />
+              <Route path="/class/:batchId/:subjectSlug/:chapterSlug" element={<ChapterDetailPage />} />
+
             </Route>
           </Routes>
 

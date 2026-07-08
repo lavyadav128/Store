@@ -3239,6 +3239,273 @@ Space Complexity: O(1)`,
 
 
   "linked-list":[
+      {
+        title: `QUESTION:
+    Given a singly linked list, insert a new node with value val at the beginning (start) of the list and return the new head.
+    
+    EXAMPLE:
+    Input: list = 2 -> 3 -> 4, val = 1
+    Output: 1 -> 2 -> 3 -> 4`,
+    
+        bruteForceComplexity: `Time Complexity: O(N) — copies all existing values into a new array, then rebuilds the entire list from scratch
+    Space Complexity: O(N) for the temporary array/new nodes`,
+    
+        bruteForceCode: `class Solution {
+        public ListNode insertAtStart(ListNode head, int val) {
+            // copy all values into a list first
+            List<Integer> values = new ArrayList<>();
+            values.add(val);
+            ListNode curr = head;
+            while (curr != null) {
+                values.add(curr.val);
+                curr = curr.next;
+            }
+    
+            // rebuild the entire linked list from scratch
+            ListNode newHead = new ListNode(values.get(0));
+            ListNode tail = newHead;
+            for (int i = 1; i < values.size(); i++) {
+                tail.next = new ListNode(values.get(i));
+                tail = tail.next;
+            }
+            return newHead;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(1) — just create a node and point it to the old head
+    Space Complexity: O(1) extra space besides the new node`,
+    
+        optimalCode: `class Solution {
+        public ListNode insertAtStart(ListNode head, int val) {
+            ListNode newNode = new ListNode(val);
+            newNode.next = head; // point new node to old head
+            return newNode;       // new node becomes the head
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given a singly linked list, insert a new node with value val at the end of the list and return the head.
+    
+    EXAMPLE:
+    Input: list = 1 -> 2 -> 3, val = 4
+    Output: 1 -> 2 -> 3 -> 4`,
+    
+        bruteForceComplexity: `Time Complexity: O(N) — copies all existing values into an array, then rebuilds the entire list including the new value
+    Space Complexity: O(N) for the temporary array/new nodes`,
+    
+        bruteForceCode: `class Solution {
+        public ListNode insertAtEnd(ListNode head, int val) {
+            // copy all values into a list first
+            List<Integer> values = new ArrayList<>();
+            ListNode curr = head;
+            while (curr != null) {
+                values.add(curr.val);
+                curr = curr.next;
+            }
+            values.add(val);
+    
+            // rebuild the entire linked list from scratch
+            ListNode newHead = new ListNode(values.get(0));
+            ListNode tail = newHead;
+            for (int i = 1; i < values.size(); i++) {
+                tail.next = new ListNode(values.get(i));
+                tail = tail.next;
+            }
+            return newHead;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N) — must traverse to the last node before attaching the new one (unavoidable without a tail pointer)
+    Space Complexity: O(1) extra space besides the new node`,
+    
+        optimalCode: `class Solution {
+        public ListNode insertAtEnd(ListNode head, int val) {
+            ListNode newNode = new ListNode(val);
+            if (head == null) return newNode; // empty list case
+    
+            ListNode curr = head;
+            while (curr.next != null) { // walk to the last node
+                curr = curr.next;
+            }
+            curr.next = newNode; // attach new node at the tail
+            return head;
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given a singly linked list and a 0-indexed position, insert a new node with value val at that position (middle) in the list and return the head.
+    
+    EXAMPLE:
+    Input: list = 1 -> 2 -> 4, val = 3, position = 2
+    Output: 1 -> 2 -> 3 -> 4`,
+    
+        bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, inserts at the given index, then rebuilds the whole list
+    Space Complexity: O(N) for the temporary array/new nodes`,
+    
+        bruteForceCode: `class Solution {
+        public ListNode insertAtMiddle(ListNode head, int val, int position) {
+            // copy all values into a list first
+            List<Integer> values = new ArrayList<>();
+            ListNode curr = head;
+            while (curr != null) {
+                values.add(curr.val);
+                curr = curr.next;
+            }
+            values.add(position, val); // insert at the index using ArrayList's shift
+    
+            // rebuild the entire linked list from scratch
+            ListNode newHead = new ListNode(values.get(0));
+            ListNode tail = newHead;
+            for (int i = 1; i < values.size(); i++) {
+                tail.next = new ListNode(values.get(i));
+                tail = tail.next;
+            }
+            return newHead;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N) — must walk to the node just before the target position (unavoidable in a singly linked list)
+    Space Complexity: O(1) extra space besides the new node`,
+    
+        optimalCode: `class Solution {
+        public ListNode insertAtMiddle(ListNode head, int val, int position) {
+            if (position == 0) {
+                ListNode newNode = new ListNode(val);
+                newNode.next = head;
+                return newNode;
+            }
+    
+            ListNode curr = head;
+            for (int i = 0; i < position - 1; i++) { // stop just before the target position
+                curr = curr.next;
+            }
+    
+            ListNode newNode = new ListNode(val);
+            newNode.next = curr.next; // link new node to the rest of the list
+            curr.next = newNode;      // link previous node to the new node
+            return head;
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given the head of a singly linked list and a value val, delete the first node that has that value and return the head.
+    
+    EXAMPLE:
+    Input: list = 1 -> 2 -> 3 -> 4, val = 3
+    Output: 1 -> 2 -> 4`,
+    
+        bruteForceComplexity: `Time Complexity: O(N) — copies all values except the target into an array, then rebuilds the entire list
+    Space Complexity: O(N) for the temporary array/new nodes`,
+    
+        bruteForceCode: `class Solution {
+        public ListNode deleteNode(ListNode head, int val) {
+            // copy all values except the first occurrence of val
+            List<Integer> values = new ArrayList<>();
+            ListNode curr = head;
+            boolean removed = false;
+            while (curr != null) {
+                if (!removed && curr.val == val) {
+                    removed = true; // skip this one value only
+                } else {
+                    values.add(curr.val);
+                }
+                curr = curr.next;
+            }
+    
+            // rebuild the entire linked list from scratch
+            if (values.isEmpty()) return null;
+            ListNode newHead = new ListNode(values.get(0));
+            ListNode tail = newHead;
+            for (int i = 1; i < values.size(); i++) {
+                tail.next = new ListNode(values.get(i));
+                tail = tail.next;
+            }
+            return newHead;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N) — traverse until the target value is found, then relink pointers in place
+    Space Complexity: O(1) extra space, no new nodes created`,
+    
+        optimalCode: `class Solution {
+        public ListNode deleteNode(ListNode head, int val) {
+            if (head == null) return null;
+            if (head.val == val) return head.next; // deleting the head itself
+    
+            ListNode prev = head;
+            ListNode curr = head.next;
+            while (curr != null) {
+                if (curr.val == val) {
+                    prev.next = curr.next; // unlink curr by skipping over it
+                    return head;
+                }
+                prev = curr;
+                curr = curr.next;
+            }
+            return head; // value not found, list unchanged
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given the head of a singly linked list, reverse the list and return the new head.
+    
+    EXAMPLE:
+    Input: list = 1 -> 2 -> 3 -> 4 -> 5
+    Output: 5 -> 4 -> 3 -> 2 -> 1`,
+    
+        bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, reverses the array, then rebuilds the entire list
+    Space Complexity: O(N) for the temporary array/new nodes`,
+    
+        bruteForceCode: `class Solution {
+        public ListNode reverseList(ListNode head) {
+            // copy all values into a list first
+            List<Integer> values = new ArrayList<>();
+            ListNode curr = head;
+            while (curr != null) {
+                values.add(curr.val);
+                curr = curr.next;
+            }
+            Collections.reverse(values); // reverse using extra space
+    
+            // rebuild the entire linked list from scratch
+            if (values.isEmpty()) return null;
+            ListNode newHead = new ListNode(values.get(0));
+            ListNode tail = newHead;
+            for (int i = 1; i < values.size(); i++) {
+                tail.next = new ListNode(values.get(i));
+                tail = tail.next;
+            }
+            return newHead;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N) — single pass, reversing each pointer in place
+    Space Complexity: O(1) extra space, no new nodes created`,
+    
+        optimalCode: `class Solution {
+        public ListNode reverseList(ListNode head) {
+            ListNode prev = null;
+            ListNode curr = head;
+    
+            while (curr != null) {
+                ListNode nextTemp = curr.next; // save next node before overwriting
+                curr.next = prev;              // reverse the pointer
+                prev = curr;                   // move prev forward
+                curr = nextTemp;               // move curr forward
+            }
+            return prev; // prev is the new head after full reversal
+        }
+    }`
+    },
+
     {
       title: `QUESTION:
     Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.
@@ -15542,6 +15809,557 @@ class Solution {
   ],
 
   "heaps":[
+
+    {
+      title: `QUESTION:
+    Insert an element into a binary heap (min-heap), maintaining the heap property.
+    
+    EXAMPLE:
+    Input: heap = [1,3,5,7,9], insert 2
+    Output: [1,2,5,7,9,3]  (heap array after insertion, satisfies min-heap property)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — appends element then re-sorts and re-validates entire heap structure
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MinHeap {
+        List<Integer> heap = new ArrayList<>();
+    
+        public void insert(int val) {
+            heap.add(val);
+            Collections.sort(heap); // sorts the ENTIRE array instead of just fixing local heap property
+            // note: a sorted array technically satisfies heap property but this is massive overkill
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(log N)
+    Space Complexity: O(1) extra`,
+    
+      optimalCode: `class MinHeap {
+        List<Integer> heap = new ArrayList<>();
+    
+        public void insert(int val) {
+            heap.add(val); // place at the end
+            int i = heap.size() - 1;
+    
+            // bubble up: swap with parent while heap property is violated
+            while (i > 0) {
+                int parent = (i - 1) / 2;
+                if (heap.get(parent) <= heap.get(i)) break; // heap property satisfied
+                Collections.swap(heap, i, parent);
+                i = parent;
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Delete the root (minimum) element from a binary heap (min-heap), maintaining the heap property.
+    
+    EXAMPLE:
+    Input: heap = [1,2,5,7,9,3]
+    Output: [2,3,5,7,9]  (heap array after removing the min)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — removes root then re-sorts entire array from scratch
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MinHeap {
+        List<Integer> heap = new ArrayList<>();
+    
+        public int deleteMin() {
+            int min = heap.get(0);
+            heap.remove(0); // O(N) shift
+            Collections.sort(heap); // resorts everything instead of just fixing local violation
+            return min;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(log N)
+    Space Complexity: O(1) extra`,
+    
+      optimalCode: `class MinHeap {
+        List<Integer> heap = new ArrayList<>();
+    
+        public int deleteMin() {
+            int min = heap.get(0);
+            int last = heap.remove(heap.size() - 1); // remove last element
+    
+            if (!heap.isEmpty()) {
+                heap.set(0, last); // move last element to root
+                heapifyDown(0);
+            }
+            return min;
+        }
+    
+        private void heapifyDown(int i) {
+            int n = heap.size();
+            while (true) {
+                int left = 2 * i + 1, right = 2 * i + 2, smallest = i;
+    
+                if (left < n && heap.get(left) < heap.get(smallest)) smallest = left;
+                if (right < n && heap.get(right) < heap.get(smallest)) smallest = right;
+    
+                if (smallest == i) break; // heap property restored
+                Collections.swap(heap, i, smallest);
+                i = smallest;
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of integers, sort the array in ascending order using Heap Sort.
+    
+    EXAMPLE:
+    Input: nums = [12,11,13,5,6,7]
+    Output: [5,6,7,11,12,13]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) but with extra overhead — uses a library PriorityQueue instead of in-place heapify
+    Space Complexity: O(N) — auxiliary heap structure`,
+    
+      bruteForceCode: `class Solution {
+        public int[] heapSort(int[] nums) {
+            PriorityQueue<Integer> minHeap = new PriorityQueue<>(); // library heap, not in-place array heapify
+            for (int num : nums) minHeap.offer(num);
+    
+            int[] result = new int[nums.length];
+            for (int i = 0; i < nums.length; i++) {
+                result[i] = minHeap.poll();
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(1) — true in-place sorting`,
+    
+      optimalCode: `class Solution {
+        public int[] heapSort(int[] nums) {
+            int n = nums.length;
+    
+            for (int i = n / 2 - 1; i >= 0; i--) { // build max heap in-place
+                heapify(nums, n, i);
+            }
+    
+            for (int i = n - 1; i > 0; i--) { // extract max repeatedly, place at end
+                int temp = nums[0];
+                nums[0] = nums[i];
+                nums[i] = temp;
+                heapify(nums, i, 0);
+            }
+            return nums;
+        }
+    
+        private void heapify(int[] nums, int heapSize, int rootIdx) {
+            int largest = rootIdx, left = 2 * rootIdx + 1, right = 2 * rootIdx + 2;
+    
+            if (left < heapSize && nums[left] > nums[largest]) largest = left;
+            if (right < heapSize && nums[right] > nums[largest]) largest = right;
+    
+            if (largest != rootIdx) {
+                int temp = nums[rootIdx];
+                nums[rootIdx] = nums[largest];
+                nums[largest] = temp;
+                heapify(nums, heapSize, largest);
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the locations of N cars and a reference point, find the K nearest cars to that reference point based on Euclidean distance.
+    
+    EXAMPLE:
+    Input: points = [[1,3],[-2,2],[5,8],[0,1]], reference = [0,0], K = 2
+    Output: [[-2,2],[0,1]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — computes all distances, then sorts the entire array
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int[][] nearestCars(int[][] points, int[] reference, int K) {
+            Arrays.sort(points, (a, b) -> {
+                int distA = dist(a, reference);
+                int distB = dist(b, reference);
+                return distA - distB; // full sort of ALL points by distance
+            });
+            return Arrays.copyOfRange(points, 0, K);
+        }
+    
+        private int dist(int[] p, int[] ref) {
+            return (p[0] - ref[0]) * (p[0] - ref[0]) + (p[1] - ref[1]) * (p[1] - ref[1]);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log K)
+    Space Complexity: O(K) for the heap`,
+    
+      optimalCode: `class Solution {
+        public int[][] nearestCars(int[][] points, int[] reference, int K) {
+            // max-heap of size K, keeps K nearest points seen so far, farthest on top
+            PriorityQueue<int[]> maxHeap = new PriorityQueue<>((a, b) -> dist(b, reference) - dist(a, reference));
+    
+            for (int[] p : points) {
+                maxHeap.offer(p);
+                if (maxHeap.size() > K) maxHeap.poll(); // evict farthest
+            }
+    
+            int[][] result = new int[K][2];
+            for (int i = K - 1; i >= 0; i--) result[i] = maxHeap.poll();
+            return result;
+        }
+    
+        private int dist(int[] p, int[] ref) {
+            return (p[0] - ref[0]) * (p[0] - ref[0]) + (p[1] - ref[1]) * (p[1] - ref[1]);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given N ropes of different lengths, connect ropes into one rope with minimum total cost, where the cost to connect two ropes equals the sum of their lengths.
+    
+    EXAMPLE:
+    Input: ropes = [4,3,2,6]
+    Output: 29`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2 log N) — sorts the array from scratch after every single merge
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int minCost(int[] ropes) {
+            List<Integer> lengths = new ArrayList<>();
+            for (int r : ropes) lengths.add(r);
+    
+            int totalCost = 0;
+            while (lengths.size() > 1) {
+                Collections.sort(lengths); // re-sorts EVERYTHING every iteration just to find 2 smallest
+                int first = lengths.remove(0);
+                int second = lengths.remove(0);
+                int cost = first + second;
+                totalCost += cost;
+                lengths.add(cost);
+            }
+            return totalCost;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(N) for the heap`,
+    
+      optimalCode: `class Solution {
+        public int minCost(int[] ropes) {
+            PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+            for (int r : ropes) minHeap.offer(r);
+    
+            int totalCost = 0;
+            while (minHeap.size() > 1) { // always combine the two smallest ropes
+                int first = minHeap.poll();
+                int second = minHeap.poll();
+                int cost = first + second;
+                totalCost += cost;
+                minHeap.offer(cost);
+            }
+            return totalCost;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a 2D binary matrix representing soldiers (1) and civilians (0) in each row (soldiers ordered to the left), where rows are sorted by soldier strength, return the indices of the K weakest rows in order.
+    
+    EXAMPLE:
+    Input: mat = [[1,1,0,0],[1,1,1,1],[1,0,0,0],[1,1,0,0],[1,1,1,1]], K = 3
+    Output: [2,0,3]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*M log N) — counts soldiers per row, then sorts ALL rows by count
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int[] kWeakestRows(int[][] mat, int K) {
+            int n = mat.length;
+            Integer[] indices = new Integer[n];
+            int[] soldierCount = new int[n];
+    
+            for (int i = 0; i < n; i++) {
+                indices[i] = i;
+                for (int val : mat[i]) soldierCount[i] += val; // count soldiers in row
+            }
+    
+            Arrays.sort(indices, (a, b) -> soldierCount[a] != soldierCount[b]
+                ? soldierCount[a] - soldierCount[b] : a - b); // sorts ALL rows
+    
+            int[] result = new int[K];
+            for (int i = 0; i < K; i++) result[i] = indices[i];
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log M + N log K) — binary search for soldier count per row + heap of size K
+    Space Complexity: O(K) for the heap`,
+    
+      optimalCode: `class Solution {
+        public int[] kWeakestRows(int[][] mat, int K) {
+            int n = mat.length;
+            // max-heap of size K on [soldierCount, rowIndex], weakest kept, strongest evicted
+            PriorityQueue<int[]> maxHeap = new PriorityQueue<>((a, b) ->
+                a[0] != b[0] ? b[0] - a[0] : b[1] - a[1]);
+    
+            for (int i = 0; i < n; i++) {
+                int count = countSoldiers(mat[i]); // binary search since row is sorted (1s then 0s)
+                maxHeap.offer(new int[]{count, i});
+                if (maxHeap.size() > K) maxHeap.poll();
+            }
+    
+            int[] result = new int[K];
+            for (int i = K - 1; i >= 0; i--) result[i] = maxHeap.poll()[1];
+            return result;
+        }
+    
+        private int countSoldiers(int[] row) { // binary search for first 0 (row is sorted: 1s then 0s)
+            int lo = 0, hi = row.length;
+            while (lo < hi) {
+                int mid = lo + (hi - lo) / 2;
+                if (row[mid] == 1) lo = mid + 1;
+                else hi = mid;
+            }
+            return lo;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array nums and a window size k, return an array of the maximum element in every contiguous window of size k as it slides from left to right.
+    
+    EXAMPLE:
+    Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+    Output: [3,3,5,5,6,7]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*K) — scans the entire window from scratch for every position
+    Space Complexity: O(N-K+1) for the result`,
+    
+      bruteForceCode: `class Solution {
+        public int[] maxSlidingWindow(int[] nums, int k) {
+            int n = nums.length;
+            int[] result = new int[n - k + 1];
+    
+            for (int i = 0; i <= n - k; i++) {
+                int max = Integer.MIN_VALUE;
+                for (int j = i; j < i + k; j++) { // rescans entire window every time
+                    max = Math.max(max, nums[j]);
+                }
+                result[i] = max;
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(K) for the deque`,
+    
+      optimalCode: `class Solution {
+        public int[] maxSlidingWindow(int[] nums, int k) {
+            int n = nums.length;
+            int[] result = new int[n - k + 1];
+            Deque<Integer> deque = new ArrayDeque<>(); // stores indices, monotonic decreasing values
+    
+            for (int i = 0; i < n; i++) {
+                if (!deque.isEmpty() && deque.peekFirst() < i - k + 1) {
+                    deque.pollFirst(); // remove indices out of current window
+                }
+                while (!deque.isEmpty() && nums[deque.peekLast()] < nums[i]) {
+                    deque.pollLast(); // remove smaller elements, they can never be the max again
+                }
+                deque.offerLast(i);
+    
+                if (i >= k - 1) {
+                    result[i - k + 1] = nums[deque.peekFirst()]; // front of deque = max of current window
+                }
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given two strings s and t, return true if t is an anagram of s (contains the same characters with the same frequencies, in any order).
+    
+    EXAMPLE:
+    Input: s = "anagram", t = "nagaram"
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — sorts both strings and compares
+    Space Complexity: O(N) for character arrays`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isAnagram(String s, String t) {
+            if (s.length() != t.length()) return false;
+    
+            char[] sArr = s.toCharArray();
+            char[] tArr = t.toCharArray();
+            Arrays.sort(sArr); // sorts both strings just to compare, more work than needed
+            Arrays.sort(tArr);
+    
+            return Arrays.equals(sArr, tArr);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) — fixed-size 26-character frequency array`,
+    
+      optimalCode: `class Solution {
+        public boolean isAnagram(String s, String t) {
+            if (s.length() != t.length()) return false;
+    
+            int[] freq = new int[26];
+            for (int i = 0; i < s.length(); i++) {
+                freq[s.charAt(i) - 'a']++; // increment for s
+                freq[t.charAt(i) - 'a']--; // decrement for t
+            }
+    
+            for (int count : freq) { // if s and t are anagrams, all counts should cancel to 0
+                if (count != 0) return false;
+            }
+            return true;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given two integer arrays nums1 and nums2, return their union (unique elements from both) and their intersection (common elements).
+    
+    EXAMPLE:
+    Input: nums1 = [1,2,2,1], nums2 = [2,2]
+    Output: union = [1,2], intersection = [2]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*M) — nested loops checking every pair for equality
+    Space Complexity: O(N+M) for result storage`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> union(int[] nums1, int[] nums2) {
+            List<Integer> result = new ArrayList<>();
+            for (int num : nums1) {
+                if (!result.contains(num)) result.add(num); // O(N) contains check each time
+            }
+            for (int num : nums2) {
+                if (!result.contains(num)) result.add(num);
+            }
+            return result;
+        }
+    
+        public List<Integer> intersection(int[] nums1, int[] nums2) {
+            List<Integer> result = new ArrayList<>();
+            for (int a : nums1) {
+                for (int b : nums2) { // nested loop, O(N*M)
+                    if (a == b && !result.contains(a)) {
+                        result.add(a);
+                    }
+                }
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N+M)
+    Space Complexity: O(N+M) for the hash sets`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> union(int[] nums1, int[] nums2) {
+            Set<Integer> set = new LinkedHashSet<>(); // preserves insertion order, dedupes automatically
+            for (int num : nums1) set.add(num);
+            for (int num : nums2) set.add(num);
+            return new ArrayList<>(set);
+        }
+    
+        public List<Integer> intersection(int[] nums1, int[] nums2) {
+            Set<Integer> set1 = new HashSet<>();
+            for (int num : nums1) set1.add(num);
+    
+            Set<Integer> result = new LinkedHashSet<>();
+            for (int num : nums2) {
+                if (set1.contains(num)) result.add(num); // O(1) lookup instead of nested loop
+            }
+            return new ArrayList<>(result);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a list of airline tickets represented as pairs of departure and arrival airports [from, to], reconstruct the itinerary in order, starting from "JFK". If multiple valid itineraries exist, return the lexicographically smallest one. Assume all tickets form at least one valid itinerary using all tickets exactly once.
+    
+    EXAMPLE:
+    Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
+    Output: ["JFK","MUC","LHR","SFO","SJC"]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N!) — tries every permutation of tickets to find a valid itinerary
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public List<String> findItinerary(List<List<String>> tickets) {
+            List<List<String>> remaining = new ArrayList<>(tickets);
+            List<String> itinerary = new ArrayList<>();
+            itinerary.add("JFK");
+    
+            tryBuild(remaining, itinerary, "JFK", tickets.size());
+            return itinerary;
+        }
+    
+        // tries every unused ticket at every step -- exponential without any ordering heuristic
+        private boolean tryBuild(List<List<String>> remaining, List<String> itinerary, String curr, int totalTickets) {
+            if (itinerary.size() == totalTickets + 1) return true;
+    
+            for (int i = 0; i < remaining.size(); i++) {
+                List<String> ticket = remaining.get(i);
+                if (ticket.get(0).equals(curr)) {
+                    remaining.remove(i);
+                    itinerary.add(ticket.get(1));
+    
+                    if (tryBuild(remaining, itinerary, ticket.get(1), totalTickets)) return true;
+    
+                    itinerary.remove(itinerary.size() - 1); // backtrack
+                    remaining.add(i, ticket);
+                }
+            }
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — sorting tickets + Hierholzer's algorithm for Eulerian path
+    Space Complexity: O(N) for the adjacency map`,
+    
+      optimalCode: `class Solution {
+        public List<String> findItinerary(List<List<String>> tickets) {
+            // adjacency map: airport -> sorted min-heap of destinations (lexicographically smallest first)
+            Map<String, PriorityQueue<String>> graph = new HashMap<>();
+            for (List<String> ticket : tickets) {
+                graph.computeIfAbsent(ticket.get(0), k -> new PriorityQueue<>()).offer(ticket.get(1));
+            }
+    
+            LinkedList<String> itinerary = new LinkedList<>();
+            // Hierholzer's algorithm: DFS, backtrack by prepending to result (post-order)
+            dfs("JFK", graph, itinerary);
+            return itinerary;
+        }
+    
+        private void dfs(String airport, Map<String, PriorityQueue<String>> graph, LinkedList<String> itinerary) {
+            PriorityQueue<String> destinations = graph.get(airport);
+            while (destinations != null && !destinations.isEmpty()) {
+                String next = destinations.poll(); // always take lexicographically smallest unused destination
+                dfs(next, graph, itinerary);
+            }
+            itinerary.addFirst(airport); // add in post-order, builds correct Eulerian path
+        }
+    }`
+    },
+
+
     {
       title: `QUESTION:
     Given K sorted arrays, merge them into a single sorted array.
@@ -15884,6 +16702,376 @@ class Solution {
   ],
 
   "tries":[
+      {
+        title: `QUESTION:
+    Implement the insert(String word) operation for a Trie (prefix tree) data structure using 26 lowercase English letters per node.
+    
+    EXAMPLE:
+    Input: insert("apple"), insert("app"), insert("apricot")
+    Output: Trie contains "apple", "app", "apricot" sharing the common prefix "ap"`,
+    
+        bruteForceComplexity: `Time Complexity: O(N * L) per insert — scans all existing words to check for duplicates (N = number of words, L = average length)
+    Space Complexity: O(N * L) — every word stored fully, no prefix sharing`,
+    
+        bruteForceCode: `class Solution {
+        private List<String> words = new ArrayList<>();
+    
+        public void insert(String word) {
+            // naive: check if word already exists by scanning the whole list
+            for (String w : words) {
+                if (w.equals(word)) return; // duplicate, skip
+            }
+            words.add(word); // no prefix sharing, full string stored every time
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(L) — L is the length of the inserted word, independent of how many words already exist
+    Space Complexity: O(ALPHABET_SIZE * L) worst case per unique path; shared prefixes reduce overall space`,
+    
+        optimalCode: `class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean isEndOfWord = false;
+    }
+    
+    class Solution {
+        private TrieNode root = new TrieNode();
+    
+        public void insert(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) {
+                    curr.children[idx] = new TrieNode(); // create node only if path doesn't exist
+                }
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true; // mark end after traversing/creating the path
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given a Trie built from a dictionary of words, implement search(String word) that returns true if the exact word exists in the trie.
+    
+    EXAMPLE:
+    Input: insert("apple"); search("apple") -> true; search("app") -> false; search("appl") -> false`,
+    
+        bruteForceComplexity: `Time Complexity: O(N * L) — compares the target word against every stored word (N words, L = average length)
+    Space Complexity: O(N * L) for storing all words in a list`,
+    
+        bruteForceCode: `class Solution {
+        private List<String> words = new ArrayList<>();
+    
+        public void insert(String word) {
+            words.add(word);
+        }
+    
+        public boolean search(String word) {
+            // linear scan comparing against every stored word
+            for (String w : words) {
+                if (w.equals(word)) return true;
+            }
+            return false;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(L) — traverse one path down the trie matching each character
+    Space Complexity: O(ALPHABET_SIZE * N * L) worst case for the trie, shared across common prefixes`,
+    
+        optimalCode: `class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean isEndOfWord = false;
+    }
+    
+    class Solution {
+        private TrieNode root = new TrieNode();
+    
+        public void insert(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    
+        public boolean search(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) return false; // path doesn't exist
+                curr = curr.children[idx];
+            }
+            return curr.isEndOfWord; // must be a complete word, not just a prefix
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
+    
+    EXAMPLE:
+    Input: s = "leetcode", wordDict = ["leet","code"]
+    Output: true // segmented as "leet code"`,
+    
+        bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible way to partition the string via recursion, no memoization
+    Space Complexity: O(N) recursion stack`,
+    
+        bruteForceCode: `class Solution {
+        public boolean wordBreak(String s, List<String> wordDict) {
+            Set<String> dict = new HashSet<>(wordDict);
+            return tryBreak(s, 0, dict);
+        }
+    
+        // tries every split point recursively, recomputing overlapping subproblems
+        private boolean tryBreak(String s, int start, Set<String> dict) {
+            if (start == s.length()) return true;
+    
+            for (int end = start + 1; end <= s.length(); end++) {
+                String prefix = s.substring(start, end);
+                if (dict.contains(prefix) && tryBreak(s, end, dict)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N^2) — DP over all substrings; Trie-backed prefix lookup lets invalid branches stop early
+    Space Complexity: O(N) for the DP array + O(sum of word lengths) for the Trie`,
+    
+        optimalCode: `class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean isEndOfWord = false;
+    }
+    
+    class Solution {
+        public boolean wordBreak(String s, List<String> wordDict) {
+            TrieNode root = new TrieNode();
+            for (String word : wordDict) insert(root, word);
+    
+            int n = s.length();
+            boolean[] dp = new boolean[n + 1];
+            dp[0] = true; // empty prefix is always breakable
+    
+            for (int start = 0; start < n; start++) {
+                if (!dp[start]) continue; // skip unreachable starting points
+    
+                TrieNode curr = root;
+                for (int end = start; end < n; end++) {
+                    int idx = s.charAt(end) - 'a';
+                    if (curr.children[idx] == null) break; // no dict word has this prefix, stop early
+                    curr = curr.children[idx];
+                    if (curr.isEndOfWord) {
+                        dp[end + 1] = true; // valid word ends at 'end'
+                    }
+                }
+            }
+            return dp[n];
+        }
+    
+        private void insert(TrieNode root, String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given an array of strings, find the longest common prefix string amongst all strings using a Trie. If there is no common prefix, return "".
+    
+    EXAMPLE:
+    Input: strs = ["flower","flow","flight"]
+    Output: "fl"`,
+    
+        bruteForceComplexity: `Time Complexity: O(N^2 * S) worst case — repeatedly compares the shrinking prefix against every other string pairwise (S = length of shortest string, N = number of strings)
+    Space Complexity: O(1) extra space`,
+    
+        bruteForceCode: `class Solution {
+        public String longestCommonPrefix(String[] strs) {
+            if (strs.length == 0) return "";
+    
+            String prefix = strs[0];
+            // repeatedly compare current prefix against every other string, pairwise
+            for (int i = 1; i < strs.length; i++) {
+                while (!strs[i].startsWith(prefix)) {
+                    prefix = prefix.substring(0, prefix.length() - 1); // shrink one char at a time
+                    if (prefix.isEmpty()) return "";
+                }
+            }
+            return prefix;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(S) to build the trie (S = total characters across all strings) + O(L) to walk the shared path (L = length of common prefix)
+    Space Complexity: O(S) for the trie structure`,
+    
+        optimalCode: `class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        int count = 0; // how many words pass through this node
+    }
+    
+    class Solution {
+        public String longestCommonPrefix(String[] strs) {
+            if (strs.length == 0) return "";
+    
+            TrieNode root = new TrieNode();
+            for (String word : strs) insert(root, word);
+    
+            StringBuilder prefix = new StringBuilder();
+            TrieNode curr = root;
+            while (true) {
+                int childIdx = -1, childCount = 0;
+                for (int i = 0; i < 26; i++) {
+                    if (curr.children[i] != null) {
+                        childIdx = i;
+                        childCount++;
+                    }
+                }
+                // stop as soon as branching occurs, or not all strings pass through here
+                if (childCount != 1 || curr.count != strs.length) break;
+                curr = curr.children[childIdx];
+                prefix.append((char) ('a' + childIdx));
+            }
+            return prefix.toString();
+        }
+    
+        private void insert(TrieNode root, String word) {
+            TrieNode curr = root;
+            curr.count++;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+                curr.count++; // track how many words pass through this node
+            }
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Implement a startsWith(String prefix) method for a Trie that returns true if any inserted word begins with the given prefix.
+    
+    EXAMPLE:
+    Input: insert("apple"); startsWith("app") -> true; startsWith("appl") -> true; startsWith("b") -> false`,
+    
+        bruteForceComplexity: `Time Complexity: O(N * L) — checks the prefix against every stored word using String.startsWith (N words, L = average length)
+    Space Complexity: O(N * L) for storing all words`,
+    
+        bruteForceCode: `class Solution {
+        private List<String> words = new ArrayList<>();
+    
+        public void insert(String word) {
+            words.add(word);
+        }
+    
+        public boolean startsWith(String prefix) {
+            // scan every word and check manually
+            for (String w : words) {
+                if (w.startsWith(prefix)) return true;
+            }
+            return false;
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(L) — walk the trie one node per character of the prefix
+    Space Complexity: O(ALPHABET_SIZE * N * L) worst case for the trie, shared across common prefixes`,
+    
+        optimalCode: `class TrieNode {
+        TrieNode[] children = new TrieNode[26];
+        boolean isEndOfWord = false;
+    }
+    
+    class Solution {
+        private TrieNode root = new TrieNode();
+    
+        public void insert(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    
+        public boolean startsWith(String prefix) {
+            TrieNode curr = root;
+            for (char c : prefix.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) return false; // path breaks, no word has this prefix
+                curr = curr.children[idx];
+            }
+            return true; // path exists regardless of isEndOfWord
+        }
+    }`
+      },
+    
+      {
+        title: `QUESTION:
+    Given a string s, count the number of distinct (unique) non-empty substrings of s.
+    
+    EXAMPLE:
+    Input: s = "aba"
+    Output: 5 // "a", "b", "ab", "ba", "aba" ("a" counted once despite appearing twice)`,
+    
+        bruteForceComplexity: `Time Complexity: O(N^3) — generates all O(N^2) substrings, each hashed/compared in O(N), deduplicated via a HashSet
+    Space Complexity: O(N^2) to store all substrings`,
+    
+        bruteForceCode: `class Solution {
+        public int countUniqueSubstrings(String s) {
+            Set<String> distinct = new HashSet<>();
+            int n = s.length();
+    
+            // generate every substring and rely on HashSet to remove duplicates
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j <= n; j++) {
+                    distinct.add(s.substring(i, j)); // O(N) hashing/comparison cost per substring
+                }
+            }
+            return distinct.size();
+        }
+    }`,
+    
+        optimalComplexity: `Time Complexity: O(N^2) — insert all N suffixes into a trie (suffix lengths sum to N + (N-1) + ... + 1 = O(N^2))
+    Space Complexity: O(N^2) worst case for the suffix trie nodes`,
+    
+        optimalCode: `class TrieNode {
+        Map<Character, TrieNode> children = new HashMap<>();
+    }
+    
+    class Solution {
+        public int countUniqueSubstrings(String s) {
+            TrieNode root = new TrieNode();
+            int n = s.length();
+            int uniqueCount = 0;
+    
+            // insert every suffix; each *new* node created represents one distinct substring
+            for (int i = 0; i < n; i++) {
+                TrieNode curr = root;
+                for (int j = i; j < n; j++) {
+                    char c = s.charAt(j);
+                    if (!curr.children.containsKey(c)) {
+                        curr.children.put(c, new TrieNode());
+                        uniqueCount++; // new path segment = new distinct substring
+                    }
+                    curr = curr.children.get(c);
+                }
+            }
+            return uniqueCount;
+        }
+    }`
+    },
 
     {
       title: `QUESTION:
