@@ -118,7 +118,7 @@ const BatchContentManager = ({ open, onClose, batch, onBatchUpdated }) => {
   // ── SUBJECTS: save the whole array back onto the batch document ──
   const persistSubjects = async (updated) => {
     try {
-      await makeAuthenticatedRequest(`${server}/api/admin/batches/${batch._id}`, 'PUT', { subjects: updated });
+      await makeAuthenticatedRequest(`${server}/api/batches/admin/${batch._id}`, 'PUT', { subjects: updated });
       setSubjects(updated);
       onBatchUpdated && onBatchUpdated();
       showSnackbar('Subjects updated!');
