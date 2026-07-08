@@ -3241,6 +3241,737 @@ Space Complexity: O(1)`,
   "linked-list":[
     {
       title: `QUESTION:
+    Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5]
+    Output: [3,4,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) + O(N/2) — two passes
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode middleNode(ListNode head) {
+            int count = 0;
+            ListNode temp = head;
+            while (temp != null) { // first pass: count nodes
+                count++;
+                temp = temp.next;
+            }
+    
+            int steps = count / 2;
+            temp = head;
+            for (int i = 0; i < steps; i++) { // second pass: walk to middle
+                temp = temp.next;
+            }
+            return temp;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N) — single pass
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public ListNode middleNode(ListNode head) {
+            ListNode slow = head, fast = head;
+            // fast moves 2 steps, slow moves 1 step -> slow lands on middle
+            while (fast != null && fast.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+            }
+            return slow;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a singly linked list, reverse the list, and return the reversed list.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5]
+    Output: [5,4,3,2,1]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — uses extra array/stack`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode reverseList(ListNode head) {
+            List<Integer> values = new ArrayList<>();
+            ListNode temp = head;
+            while (temp != null) { // store all values
+                values.add(temp.val);
+                temp = temp.next;
+            }
+    
+            temp = head;
+            for (int i = values.size() - 1; i >= 0; i--) { // overwrite in reverse order
+                temp.val = values.get(i);
+                temp = temp.next;
+            }
+            return head;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public ListNode reverseList(ListNode head) {
+            ListNode prev = null, curr = head;
+            while (curr != null) {
+                ListNode nextTemp = curr.next; // save next
+                curr.next = prev;              // reverse pointer
+                prev = curr;                   // advance prev
+                curr = nextTemp;               // advance curr
+            }
+            return prev; // new head
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a linked list that may contain a cycle, remove the cycle from the linked list if it exists (restore it to a normal linked list ending in null).
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4] with 4 pointing back to 2
+    Output: [1,2,3,4] with 4.next = null`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — uses a HashSet to track visited nodes`,
+    
+      bruteForceCode: `class Solution {
+        public void removeCycle(ListNode head) {
+            if (head == null) return;
+            Set<ListNode> visited = new HashSet<>();
+            ListNode curr = head, prev = null;
+    
+            while (curr != null) {
+                if (visited.contains(curr)) { // cycle found
+                    prev.next = null; // break the cycle
+                    return;
+                }
+                visited.add(curr);
+                prev = curr;
+                curr = curr.next;
+            }
+            // no cycle, nothing to do
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public void removeCycle(ListNode head) {
+            if (head == null) return;
+            ListNode slow = head, fast = head;
+            boolean hasCycle = false;
+    
+            // Floyd's cycle detection
+            while (fast != null && fast.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+                if (slow == fast) {
+                    hasCycle = true;
+                    break;
+                }
+            }
+            if (!hasCycle) return;
+    
+            // find start of cycle
+            slow = head;
+            if (slow == fast) { // cycle starts at head
+                while (fast.next != slow) fast = fast.next;
+            } else {
+                while (slow.next != fast.next) {
+                    slow = slow.next;
+                    fast = fast.next;
+                }
+            }
+            fast.next = null; // break the cycle
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a linked list, determine if the linked list has a cycle in it.
+    
+    EXAMPLE:
+    Input: head = [3,2,0,-4] with -4 pointing back to node at index 1
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — uses a HashSet to track visited nodes`,
+    
+      bruteForceCode: `class Solution {
+        public boolean hasCycle(ListNode head) {
+            Set<ListNode> visited = new HashSet<>();
+            ListNode curr = head;
+            while (curr != null) {
+                if (visited.contains(curr)) return true; // revisited a node
+                visited.add(curr);
+                curr = curr.next;
+            }
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public boolean hasCycle(ListNode head) {
+            ListNode slow = head, fast = head;
+            // Floyd's Tortoise and Hare
+            while (fast != null && fast.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+                if (slow == fast) return true; // pointers met -> cycle
+            }
+            return false;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    You are given the heads of two sorted linked lists list1 and list2. Merge the two lists into one sorted list and return the head of the merged list.
+    
+    EXAMPLE:
+    Input: list1 = [1,2,4], list2 = [1,3,4]
+    Output: [1,1,2,3,4,4]`,
+    
+      bruteForceComplexity: `Time Complexity: O((N+M) log(N+M)) — collect all values, then sort
+    Space Complexity: O(N+M)`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+            List<Integer> values = new ArrayList<>();
+            while (list1 != null) { values.add(list1.val); list1 = list1.next; }
+            while (list2 != null) { values.add(list2.val); list2 = list2.next; }
+    
+            Collections.sort(values); // ignores the fact both lists are already sorted
+    
+            ListNode dummy = new ListNode(-1);
+            ListNode curr = dummy;
+            for (int val : values) {
+                curr.next = new ListNode(val);
+                curr = curr.next;
+            }
+            return dummy.next;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N+M)
+    Space Complexity: O(1) — reuses existing nodes`,
+    
+      optimalCode: `class Solution {
+        public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+            ListNode dummy = new ListNode(-1);
+            ListNode curr = dummy;
+    
+            while (list1 != null && list2 != null) {
+                if (list1.val <= list2.val) {
+                    curr.next = list1;
+                    list1 = list1.next;
+                } else {
+                    curr.next = list2;
+                    list2 = list2.next;
+                }
+                curr = curr.next;
+            }
+            // attach whichever list remains
+            curr.next = (list1 != null) ? list1 : list2;
+    
+            return dummy.next;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    You are given a linked list where each node has an additional "child" pointer, which may or may not point to a separate doubly linked list. Also, each node has a "next" pointer to point to the next node. Flatten the list so that all nodes appear in a single-level doubly linked list, using the next and child pointers.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5,6] with 3 having a child list [7,8,9]
+    Output: [1,2,3,7,8,9,4,5,6]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all nodes into a list first, then rebuilds links
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public Node flatten(Node head) {
+            if (head == null) return null;
+            List<Node> nodes = new ArrayList<>();
+            collect(head, nodes); // DFS collect every node in order, ignoring child pointers afterward
+    
+            for (int i = 0; i < nodes.size(); i++) {
+                Node curr = nodes.get(i);
+                curr.child = null;
+                curr.prev = (i > 0) ? nodes.get(i - 1) : null;
+                curr.next = (i < nodes.size() - 1) ? nodes.get(i + 1) : null;
+            }
+            return nodes.get(0);
+        }
+    
+        private void collect(Node node, List<Node> nodes) {
+            while (node != null) {
+                nodes.add(node);
+                if (node.child != null) {
+                    collect(node.child, nodes); // recurse into child first
+                }
+                node = node.next;
+            }
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) recursion stack (or O(1) with iterative variant)`,
+    
+      optimalCode: `class Solution {
+        public Node flatten(Node head) {
+            flattenDFS(head);
+            return head;
+        }
+    
+        // returns the tail of the flattened list starting at 'node'
+        private Node flattenDFS(Node node) {
+            Node curr = node, lastNode = null;
+    
+            while (curr != null) {
+                Node nextNode = curr.next;
+    
+                if (curr.child != null) {
+                    Node childTail = flattenDFS(curr.child); // flatten child first
+    
+                    curr.next = curr.child; // splice child in right after curr
+                    curr.child.prev = curr;
+                    curr.child = null;
+    
+                    if (nextNode != null) {
+                        childTail.next = nextNode; // reconnect to rest of original list
+                        nextNode.prev = childTail;
+                    }
+                    lastNode = childTail;
+                } else {
+                    lastNode = curr;
+                }
+                curr = nextNode;
+            }
+            return lastNode;
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    Given the head of a singly linked list, determine if the linked list is a palindrome.
+    
+    EXAMPLE:
+    Input: head = [1,2,2,1]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — stores all values in a list`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isPalindrome(ListNode head) {
+            List<Integer> values = new ArrayList<>();
+            ListNode temp = head;
+            while (temp != null) { // copy all values
+                values.add(temp.val);
+                temp = temp.next;
+            }
+    
+            int left = 0, right = values.size() - 1;
+            while (left < right) {
+                if (!values.get(left).equals(values.get(right))) return false;
+                left++;
+                right--;
+            }
+            return true;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public boolean isPalindrome(ListNode head) {
+            if (head == null || head.next == null) return true;
+    
+            // find middle using slow/fast pointers
+            ListNode slow = head, fast = head;
+            while (fast.next != null && fast.next.next != null) {
+                slow = slow.next;
+                fast = fast.next.next;
+            }
+    
+            // reverse second half in-place
+            ListNode secondHalf = reverse(slow.next);
+            ListNode firstHalf = head;
+    
+            // compare both halves
+            ListNode temp = secondHalf;
+            boolean result = true;
+            while (temp != null) {
+                if (firstHalf.val != temp.val) {
+                    result = false;
+                    break;
+                }
+                firstHalf = firstHalf.next;
+                temp = temp.next;
+            }
+    
+            slow.next = reverse(secondHalf); // restore original list (optional)
+            return result;
+        }
+    
+        private ListNode reverse(ListNode head) {
+            ListNode prev = null, curr = head;
+            while (curr != null) {
+                ListNode next = curr.next;
+                curr.next = prev;
+                prev = curr;
+                curr = next;
+            }
+            return prev;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    A linked list of length n is given such that each node contains an additional random pointer, which could point to any node in the list, or null. Construct a deep copy of the list.
+    
+    EXAMPLE:
+    Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+    Output: A fully independent deep copy with the same val/next/random structure`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, searches the whole list to find its random target's copy
+    Space Complexity: O(N) for the copied list`,
+    
+      bruteForceCode: `class Solution {
+        public Node copyRandomList(Node head) {
+            if (head == null) return null;
+    
+            // build copy of the list (next pointers only), track original nodes in order
+            Map<Node, Node> visited = new HashMap<>();
+            Node curr = head;
+            while (curr != null) {
+                visited.put(curr, new Node(curr.val));
+                curr = curr.next;
+            }
+    
+            curr = head;
+            while (curr != null) {
+                visited.get(curr).next = visited.get(curr.next);
+                // find random target by scanning again (redundant since we already have map,
+                // but mimics a truly brute approach without any auxiliary map for random lookup)
+                visited.get(curr).random = visited.get(curr.random);
+                curr = curr.next;
+            }
+    
+            return visited.get(head);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra (excluding output) — interweaving technique`,
+    
+      optimalCode: `class Solution {
+        public Node copyRandomList(Node head) {
+            if (head == null) return null;
+    
+            // Step 1: interweave copied nodes with original nodes
+            Node curr = head;
+            while (curr != null) {
+                Node copy = new Node(curr.val);
+                copy.next = curr.next;
+                curr.next = copy;
+                curr = copy.next;
+            }
+    
+            // Step 2: assign random pointers to copies
+            curr = head;
+            while (curr != null) {
+                if (curr.random != null) {
+                    curr.next.random = curr.random.next;
+                }
+                curr = curr.next.next;
+            }
+    
+            // Step 3: separate the two lists
+            curr = head;
+            Node copyHead = head.next;
+            Node copyCurr = copyHead;
+            while (curr != null) {
+                curr.next = curr.next.next;
+                copyCurr.next = (copyCurr.next != null) ? copyCurr.next.next : null;
+                curr = curr.next;
+                copyCurr = copyCurr.next;
+            }
+    
+            return copyHead;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a singly linked list and two integers left and right, reverse the nodes of the list from position left to position right, and return the reversed list.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5], left = 2, right = 4
+    Output: [1,4,3,2,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — stores values in a list to reverse the segment`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode reverseBetween(ListNode head, int left, int right) {
+            List<Integer> values = new ArrayList<>();
+            ListNode temp = head;
+            while (temp != null) { // copy all values
+                values.add(temp.val);
+                temp = temp.next;
+            }
+    
+            // reverse the sublist [left-1, right-1] in the array
+            int i = left - 1, j = right - 1;
+            while (i < j) {
+                int t = values.get(i);
+                values.set(i, values.get(j));
+                values.set(j, t);
+                i++;
+                j--;
+            }
+    
+            temp = head;
+            for (int val : values) { // overwrite list with modified values
+                temp.val = val;
+                temp = temp.next;
+            }
+            return head;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public ListNode reverseBetween(ListNode head, int left, int right) {
+            if (head == null || left == right) return head;
+    
+            ListNode dummy = new ListNode(-1);
+            dummy.next = head;
+            ListNode prev = dummy;
+    
+            for (int i = 0; i < left - 1; i++) prev = prev.next; // node before left
+    
+            ListNode curr = prev.next;
+            // reverse in-place using pointer manipulation, no extra storage
+            for (int i = 0; i < right - left; i++) {
+                ListNode nextNode = curr.next;
+                curr.next = nextNode.next;
+                nextNode.next = prev.next;
+                prev.next = nextNode;
+            }
+    
+            return dummy.next;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    You are given two non-empty linked lists representing two non-negative integers. The digits are stored in reverse order, and each node contains a single digit. Add the two numbers and return the sum as a linked list.
+    
+    EXAMPLE:
+    Input: l1 = [2,4,3], l2 = [5,6,4]
+    Output: [7,0,8]  (342 + 465 = 807)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N+M)
+    Space Complexity: O(N+M) — converts lists to numbers via strings/BigInteger`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+            StringBuilder s1 = new StringBuilder();
+            while (l1 != null) { s1.append(l1.val); l1 = l1.next; } // digits are reversed already, so prepend won't match order
+    
+            StringBuilder s2 = new StringBuilder();
+            while (l2 != null) { s2.append(l2.val); l2 = l2.next; }
+    
+            // reverse strings to get actual number, since input was stored in reverse
+            BigInteger num1 = new BigInteger(s1.reverse().toString());
+            BigInteger num2 = new BigInteger(s2.reverse().toString());
+            String sum = num1.add(num2).toString();
+    
+            // build result list in reverse order of sum
+            ListNode dummy = new ListNode(-1);
+            ListNode curr = dummy;
+            for (int i = sum.length() - 1; i >= 0; i--) {
+                curr.next = new ListNode(sum.charAt(i) - '0');
+                curr = curr.next;
+            }
+            return dummy.next;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(max(N,M))
+    Space Complexity: O(max(N,M)) for the output list`,
+    
+      optimalCode: `class Solution {
+        public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
+            ListNode dummy = new ListNode(-1);
+            ListNode curr = dummy;
+            int carry = 0;
+    
+            while (l1 != null || l2 != null || carry != 0) {
+                int sum = carry;
+                if (l1 != null) { sum += l1.val; l1 = l1.next; }
+                if (l2 != null) { sum += l2.val; l2 = l2.next; }
+    
+                carry = sum / 10;
+                curr.next = new ListNode(sum % 10);
+                curr = curr.next;
+            }
+            return dummy.next;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list. If the number of nodes is not a multiple of k, the remaining nodes at the end should stay as-is.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5], k = 2
+    Output: [2,1,4,3,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — stores values in a list to reverse each group`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode reverseKGroup(ListNode head, int k) {
+            List<Integer> values = new ArrayList<>();
+            ListNode temp = head;
+            while (temp != null) { values.add(temp.val); temp = temp.next; }
+    
+            int n = values.size();
+            for (int i = 0; i + k <= n; i += k) { // reverse each full group of size k in the array
+                int left = i, right = i + k - 1;
+                while (left < right) {
+                    int t = values.get(left);
+                    values.set(left, values.get(right));
+                    values.set(right, t);
+                    left++;
+                    right--;
+                }
+            }
+    
+            temp = head;
+            for (int val : values) { // overwrite list with modified values
+                temp.val = val;
+                temp = temp.next;
+            }
+            return head;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) — pure pointer manipulation (excluding recursion stack if using recursive variant)`,
+    
+      optimalCode: `class Solution {
+        public ListNode reverseKGroup(ListNode head, int k) {
+            ListNode node = head;
+            int count = 0;
+            while (node != null && count < k) { // check if at least k nodes remain
+                node = node.next;
+                count++;
+            }
+            if (count < k) return head; // fewer than k nodes left, leave as-is
+    
+            ListNode prev = null, curr = head;
+            for (int i = 0; i < k; i++) { // reverse this group of k nodes
+                ListNode nextNode = curr.next;
+                curr.next = prev;
+                prev = curr;
+                curr = nextNode;
+            }
+    
+            // head is now the tail of this reversed group; recurse on the rest
+            head.next = reverseKGroup(curr, k);
+            return prev; // new head of this group
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the head of a linked list, rotate the list to the right by k places.
+    
+    EXAMPLE:
+    Input: head = [1,2,3,4,5], k = 2
+    Output: [4,5,1,2,3]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*k) — performs a single-step rotation k times
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public ListNode rotateRight(ListNode head, int k) {
+            if (head == null || head.next == null || k == 0) return head;
+    
+            for (int i = 0; i < k; i++) { // rotate by 1 position, k times (no modulo optimization)
+                ListNode temp = head;
+                while (temp.next.next != null) temp = temp.next; // find second-last node
+    
+                ListNode last = temp.next;
+                temp.next = null;
+                last.next = head;
+                head = last;
+            }
+            return head;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public ListNode rotateRight(ListNode head, int k) {
+            if (head == null || head.next == null || k == 0) return head;
+    
+            // find length and tail
+            int length = 1;
+            ListNode tail = head;
+            while (tail.next != null) {
+                tail = tail.next;
+                length++;
+            }
+    
+            k = k % length; // avoid redundant full rotations
+            if (k == 0) return head;
+    
+            tail.next = head; // make it circular
+    
+            int stepsToNewTail = length - k;
+            ListNode newTail = head;
+            for (int i = 1; i < stepsToNewTail; i++) newTail = newTail.next;
+    
+            ListNode newHead = newTail.next;
+            newTail.next = null; // break the circle
+            return newHead;
+        }
+    }`
+    },
+
+
+    {
+      title: `QUESTION:
     Given a doubly linked list and a key, delete all occurrences of the key from the DLL.
     
     EXAMPLE:
@@ -10546,11 +11277,5343 @@ class Solution {
         }
     }`
     }
+  ],
+
+
+  "recurssion-&-backtracking":[
+
+    {
+      title: `QUESTION:
+    Given an array of distinct integers candidates and a target integer target, return all unique combinations where the chosen numbers sum to target. The same number may be chosen an unlimited number of times.
+    
+    EXAMPLE:
+    Input: candidates = [2,3,6,7], target = 7
+    Output: [[2,2,3],[7]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^target) worst case — explores every combination without early cutoff
+    Space Complexity: O(target) recursion depth`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<Integer>> combinationSum(int[] candidates, int target) {
+            List<List<Integer>> result = new ArrayList<>();
+            explore(candidates, target, 0, new ArrayList<>(), result);
+            return result;
+        }
+    
+        // tries every candidate at every index without sorting or pruning by value
+        private void explore(int[] candidates, int remaining, int index, List<Integer> current, List<List<Integer>> result) {
+            if (remaining == 0) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            if (remaining < 0 || index == candidates.length) return;
+    
+            for (int i = index; i < candidates.length; i++) {
+                current.add(candidates[i]);
+                explore(candidates, remaining - candidates[i], i, current, result); // can reuse same index
+                current.remove(current.size() - 1); // backtrack
+            }
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(2^target) worst case, but pruned significantly by sorting
+    Space Complexity: O(target)`,
+    
+      optimalCode: `class Solution {
+        public List<List<Integer>> combinationSum(int[] candidates, int target) {
+            List<List<Integer>> result = new ArrayList<>();
+            Arrays.sort(candidates); // enables early break
+            backtrack(candidates, target, 0, new ArrayList<>(), result);
+            return result;
+        }
+    
+        private void backtrack(int[] candidates, int remaining, int start, List<Integer> current, List<List<Integer>> result) {
+            if (remaining == 0) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            for (int i = start; i < candidates.length; i++) {
+                if (candidates[i] > remaining) break; // sorted -> prune rest immediately
+                current.add(candidates[i]);
+                backtrack(candidates, remaining - candidates[i], i, current, result);
+                current.remove(current.size() - 1); // backtrack
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a collection of candidate numbers (candidates) that may contain duplicates and a target integer target, return all unique combinations where the chosen numbers sum to target. Each number may be used at most once.
+    
+    EXAMPLE:
+    Input: candidates = [10,1,2,7,6,1,5], target = 8
+    Output: [[1,1,6],[1,2,5],[1,7],[2,6]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N) plus HashSet overhead to dedupe
+    Space Complexity: O(2^N * N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+            Set<List<Integer>> uniqueResults = new HashSet<>();
+            Arrays.sort(candidates); // only for consistent output within each combo
+            explore(candidates, target, 0, new ArrayList<>(), uniqueResults);
+            return new ArrayList<>(uniqueResults);
+        }
+    
+        // include/exclude recursion, dedupe with a Set instead of skipping in-loop
+        private void explore(int[] candidates, int remaining, int index, List<Integer> current, Set<List<Integer>> result) {
+            if (remaining == 0) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            if (remaining < 0 || index == candidates.length) return;
+    
+            // exclude candidates[index]
+            explore(candidates, remaining, index + 1, current, result);
+    
+            // include candidates[index]
+            current.add(candidates[index]);
+            explore(candidates, remaining - candidates[index], index + 1, current, result);
+            current.remove(current.size() - 1); // backtrack
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(2^N) worst case, pruned via sorting + duplicate skip
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public List<List<Integer>> combinationSum2(int[] candidates, int target) {
+            List<List<Integer>> result = new ArrayList<>();
+            Arrays.sort(candidates);
+            backtrack(candidates, target, 0, new ArrayList<>(), result);
+            return result;
+        }
+    
+        private void backtrack(int[] candidates, int remaining, int start, List<Integer> current, List<List<Integer>> result) {
+            if (remaining == 0) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            for (int i = start; i < candidates.length; i++) {
+                if (candidates[i] > remaining) break; // sorted -> prune rest
+                if (i > start && candidates[i] == candidates[i - 1]) continue; // skip same-level duplicates
+                current.add(candidates[i]);
+                backtrack(candidates, remaining - candidates[i], i + 1, current, result); // move to i+1, each used once
+                current.remove(current.size() - 1); // backtrack
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a string s, partition s such that every substring of the partition is a palindrome. Return all possible palindrome partitionings of s.
+    
+    EXAMPLE:
+    Input: s = "aab"
+    Output: [["a","a","b"],["aa","b"]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N * 2^N) — checks palindrome from scratch for every substring
+    Space Complexity: O(N) recursion depth`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<String>> partition(String s) {
+            List<List<String>> result = new ArrayList<>();
+            explore(s, 0, new ArrayList<>(), result);
+            return result;
+        }
+    
+        private void explore(String s, int start, List<String> current, List<List<String>> result) {
+            if (start == s.length()) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            for (int end = start + 1; end <= s.length(); end++) {
+                String substr = s.substring(start, end);
+                if (isPalindrome(substr)) { // re-checks palindrome character by character every call
+                    current.add(substr);
+                    explore(s, end, current, result);
+                    current.remove(current.size() - 1); // backtrack
+                }
+            }
+        }
+    
+        private boolean isPalindrome(String str) {
+            int left = 0, right = str.length() - 1;
+            while (left < right) {
+                if (str.charAt(left++) != str.charAt(right--)) return false;
+            }
+            return true;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N * 2^N) worst case, but avoids redundant palindrome checks via precomputed DP table
+    Space Complexity: O(N^2) for the DP table + O(N) recursion`,
+    
+      optimalCode: `class Solution {
+        public List<List<String>> partition(String s) {
+            int n = s.length();
+            boolean[][] isPalin = new boolean[n][n];
+            // precompute all palindrome substrings in O(N^2)
+            for (int end = 0; end < n; end++) {
+                for (int start = 0; start <= end; start++) {
+                    if (s.charAt(start) == s.charAt(end) && (end - start <= 2 || isPalin[start + 1][end - 1])) {
+                        isPalin[start][end] = true;
+                    }
+                }
+            }
+    
+            List<List<String>> result = new ArrayList<>();
+            backtrack(s, 0, isPalin, new ArrayList<>(), result);
+            return result;
+        }
+    
+        private void backtrack(String s, int start, boolean[][] isPalin, List<String> current, List<List<String>> result) {
+            if (start == s.length()) {
+                result.add(new ArrayList<>(current));
+                return;
+            }
+            for (int end = start; end < s.length(); end++) {
+                if (isPalin[start][end]) { // O(1) lookup instead of re-scanning
+                    current.add(s.substring(start, end + 1));
+                    backtrack(s, end + 1, isPalin, current, result);
+                    current.remove(current.size() - 1); // backtrack
+                }
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an integer n, place n non-attacking queens on an n x n chessboard, and return all distinct board configurations.
+    
+    EXAMPLE:
+    Input: n = 4
+    Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^N) — tries every column in every row, validating with full board scan each time
+    Space Complexity: O(N^2) for the board`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<String>> solveNQueens(int n) {
+            List<List<String>> result = new ArrayList<>();
+            char[][] board = new char[n][n];
+            for (char[] row : board) Arrays.fill(row, '.');
+            solve(board, 0, n, result);
+            return result;
+        }
+    
+        private void solve(char[][] board, int row, int n, List<List<String>> result) {
+            if (row == n) {
+                result.add(construct(board));
+                return;
+            }
+            for (int col = 0; col < n; col++) {
+                if (isSafe(board, row, col, n)) { // full O(N) scan every check
+                    board[row][col] = 'Q';
+                    solve(board, row + 1, n, result);
+                    board[row][col] = '.'; // backtrack
+                }
+            }
+        }
+    
+        private boolean isSafe(char[][] board, int row, int col, int n) {
+            for (int i = 0; i < row; i++) if (board[i][col] == 'Q') return false;
+            for (int i = row - 1, j = col - 1; i >= 0 && j >= 0; i--, j--) if (board[i][j] == 'Q') return false;
+            for (int i = row - 1, j = col + 1; i >= 0 && j < n; i--, j++) if (board[i][j] == 'Q') return false;
+            return true;
+        }
+    
+        private List<String> construct(char[][] board) {
+            List<String> rows = new ArrayList<>();
+            for (char[] row : board) rows.add(new String(row));
+            return rows;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N!) practically — pruned heavily via O(1) conflict checks
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public List<List<String>> solveNQueens(int n) {
+            List<List<String>> result = new ArrayList<>();
+            int[] queenCol = new int[n]; // queenCol[row] = column of queen in that row
+            boolean[] cols = new boolean[n];
+            boolean[] diag1 = new boolean[2 * n]; // row - col + n
+            boolean[] diag2 = new boolean[2 * n]; // row + col
+            solve(0, n, queenCol, cols, diag1, diag2, result);
+            return result;
+        }
+    
+        private void solve(int row, int n, int[] queenCol, boolean[] cols, boolean[] diag1, boolean[] diag2, List<List<String>> result) {
+            if (row == n) {
+                result.add(construct(queenCol, n));
+                return;
+            }
+            for (int col = 0; col < n; col++) {
+                int d1 = row - col + n, d2 = row + col;
+                if (cols[col] || diag1[d1] || diag2[d2]) continue; // O(1) conflict check
+    
+                queenCol[row] = col;
+                cols[col] = diag1[d1] = diag2[d2] = true;
+    
+                solve(row + 1, n, queenCol, cols, diag1, diag2, result);
+    
+                cols[col] = diag1[d1] = diag2[d2] = false; // backtrack
+            }
+        }
+    
+        private List<String> construct(int[] queenCol, int n) {
+            List<String> board = new ArrayList<>();
+            for (int row = 0; row < n; row++) {
+                char[] line = new char[n];
+                Arrays.fill(line, '.');
+                line[queenCol[row]] = 'Q';
+                board.add(new String(line));
+            }
+            return board;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Write a program to solve a Sudoku puzzle by filling the empty cells ('.') such that each row, column, and 3x3 sub-box contains digits 1-9 without repetition.
+    
+    EXAMPLE:
+    Input: A partially filled 9x9 board
+    Output: The board filled in with a valid solution`,
+    
+      bruteForceComplexity: `Time Complexity: O(9^(N*N)) — tries digits 1-9 in every empty cell, validating via full row/col/box scan
+    Space Complexity: O(N*N) recursion + board`,
+    
+      bruteForceCode: `class Solution {
+        public void solveSudoku(char[][] board) {
+            solve(board);
+        }
+    
+        private boolean solve(char[][] board) {
+            for (int row = 0; row < 9; row++) {
+                for (int col = 0; col < 9; col++) {
+                    if (board[row][col] == '.') {
+                        for (char digit = '1'; digit <= '9'; digit++) {
+                            if (isValid(board, row, col, digit)) { // O(N) scan every check
+                                board[row][col] = digit;
+                                if (solve(board)) return true;
+                                board[row][col] = '.'; // backtrack
+                            }
+                        }
+                        return false; // no digit worked here
+                    }
+                }
+            }
+            return true; // no empty cells left
+        }
+    
+        private boolean isValid(char[][] board, int row, int col, char digit) {
+            for (int i = 0; i < 9; i++) {
+                if (board[row][i] == digit) return false;
+                if (board[i][col] == digit) return false;
+                if (board[3 * (row / 3) + i / 3][3 * (col / 3) + i % 3] == digit) return false;
+            }
+            return true;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(9^(N*N)) worst case, but pruned heavily via O(1) constraint lookups
+    Space Complexity: O(N*N)`,
+    
+      optimalCode: `class Solution {
+        boolean[][] rows = new boolean[9][10];
+        boolean[][] cols = new boolean[9][10];
+        boolean[][] boxes = new boolean[9][10];
+    
+        public void solveSudoku(char[][] board) {
+            for (int r = 0; r < 9; r++) {
+                for (int c = 0; c < 9; c++) {
+                    if (board[r][c] != '.') {
+                        int d = board[r][c] - '0';
+                        mark(r, c, d, true);
+                    }
+                }
+            }
+            solve(board, 0, 0);
+        }
+    
+        private boolean solve(char[][] board, int row, int col) {
+            if (row == 9) return true;
+            int nextRow = (col == 8) ? row + 1 : row;
+            int nextCol = (col == 8) ? 0 : col + 1;
+    
+            if (board[row][col] != '.') return solve(board, nextRow, nextCol);
+    
+            for (int d = 1; d <= 9; d++) {
+                if (isValid(row, col, d)) { // O(1) lookup instead of scanning
+                    board[row][col] = (char) ('0' + d);
+                    mark(row, col, d, true);
+                    if (solve(board, nextRow, nextCol)) return true;
+                    mark(row, col, d, false); // backtrack
+                    board[row][col] = '.';
+                }
+            }
+            return false;
+        }
+    
+        private boolean isValid(int row, int col, int d) {
+            int box = (row / 3) * 3 + col / 3;
+            return !rows[row][d] && !cols[col][d] && !boxes[box][d];
+        }
+    
+        private void mark(int row, int col, int d, boolean value) {
+            int box = (row / 3) * 3 + col / 3;
+            rows[row][d] = value;
+            cols[col][d] = value;
+            boxes[box][d] = value;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an undirected graph and an integer m, determine whether the graph's vertices can be colored using at most m colors such that no two adjacent vertices share the same color. Return true if possible, else false.
+    
+    EXAMPLE:
+    Input: graph = [[0,1,1,1],[1,0,1,0],[1,1,0,1],[1,0,1,0]], m = 3
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(m^N) — tries every color for every vertex, checking all edges each time
+    Space Complexity: O(N) recursion + color array`,
+    
+      bruteForceCode: `class Solution {
+        public boolean graphColoring(int[][] graph, int m) {
+            int n = graph.length;
+            int[] color = new int[n];
+            return solve(graph, m, color, 0, n);
+        }
+    
+        private boolean solve(int[][] graph, int m, int[] color, int vertex, int n) {
+            if (vertex == n) return true;
+    
+            for (int c = 1; c <= m; c++) {
+                if (isSafe(graph, color, vertex, c, n)) { // scans all vertices every check
+                    color[vertex] = c;
+                    if (solve(graph, m, color, vertex + 1, n)) return true;
+                    color[vertex] = 0; // backtrack
+                }
+            }
+            return false;
+        }
+    
+        private boolean isSafe(int[][] graph, int[] color, int vertex, int c, int n) {
+            for (int i = 0; i < n; i++) {
+                if (graph[vertex][i] == 1 && color[i] == c) return false;
+            }
+            return true;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(m^N) worst case, pruned via adjacency-list traversal instead of full matrix scan
+    Space Complexity: O(N + E)`,
+    
+      optimalCode: `class Solution {
+        public boolean graphColoring(int[][] graph, int m) {
+            int n = graph.length;
+            List<List<Integer>> adj = new ArrayList<>();
+            for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
+            for (int i = 0; i < n; i++) {
+                for (int j = i + 1; j < n; j++) {
+                    if (graph[i][j] == 1) {
+                        adj.get(i).add(j);
+                        adj.get(j).add(i);
+                    }
+                }
+            }
+    
+            int[] color = new int[n];
+            return solve(adj, m, color, 0, n);
+        }
+    
+        private boolean solve(List<List<Integer>> adj, int m, int[] color, int vertex, int n) {
+            if (vertex == n) return true;
+    
+            for (int c = 1; c <= m; c++) {
+                if (isSafe(adj, color, vertex, c)) { // only checks actual neighbors, not full row
+                    color[vertex] = c;
+                    if (solve(adj, m, color, vertex + 1, n)) return true;
+                    color[vertex] = 0; // backtrack
+                }
+            }
+            return false;
+        }
+    
+        private boolean isSafe(List<List<Integer>> adj, int[] color, int vertex, int c) {
+            for (int neighbor : adj.get(vertex)) {
+                if (color[neighbor] == c) return false;
+            }
+            return true;
+        }
+    }`
+    },
+
+
+    {
+      title: `QUESTION:
+    Given a chessboard of size N x N, find a knight's tour starting from a given cell such that the knight visits every cell exactly once.
+    
+    EXAMPLE:
+    Input: N = 5, start = (0, 0)
+    Output: A 5x5 grid showing visit order (0 to 24)`,
+    
+      bruteForceComplexity: `Time Complexity: O(8^(N*N))
+    Space Complexity: O(N*N)`,
+    
+      bruteForceCode: `class Solution {
+        static int[] rowMove = {2, 1, -1, -2, -2, -1, 1, 2};
+        static int[] colMove = {1, 2, 2, 1, -1, -2, -2, -1};
+    
+        public int[][] knightsTour(int n, int startRow, int startCol) {
+            int[][] board = new int[n][n];
+            for (int[] row : board) Arrays.fill(row, -1);
+            board[startRow][startCol] = 0;
+            solve(board, startRow, startCol, 1, n);
+            return board;
+        }
+    
+        // pure backtracking: fixed move order, no heuristic
+        private boolean solve(int[][] board, int row, int col, int moveCount, int n) {
+            if (moveCount == n * n) return true;
+            for (int i = 0; i < 8; i++) {
+                int nr = row + rowMove[i], nc = col + colMove[i];
+                if (isValid(board, nr, nc, n)) {
+                    board[nr][nc] = moveCount;
+                    if (solve(board, nr, nc, moveCount + 1, n)) return true;
+                    board[nr][nc] = -1; // backtrack
+                }
+            }
+            return false;
+        }
+    
+        private boolean isValid(int[][] board, int row, int col, int n) {
+            return row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: ~O(N^2) practically (Warnsdorff's heuristic avoids near-total backtracking)
+    Space Complexity: O(N*N)`,
+    
+      optimalCode: `class Solution {
+        static int[] rowMove = {2, 1, -1, -2, -2, -1, 1, 2};
+        static int[] colMove = {1, 2, 2, 1, -1, -2, -2, -1};
+    
+        public int[][] knightsTour(int n, int startRow, int startCol) {
+            int[][] board = new int[n][n];
+            for (int[] row : board) Arrays.fill(row, -1);
+            board[startRow][startCol] = 0;
+            solve(board, startRow, startCol, 1, n);
+            return board;
+        }
+    
+        // Warnsdorff's rule: greedily move to the cell with fewest onward moves
+        // avoids dead ends almost entirely, so backtracking rarely triggers
+        private boolean solve(int[][] board, int row, int col, int moveCount, int n) {
+            if (moveCount == n * n) return true;
+            List<int[]> nextMoves = new ArrayList<>();
+            for (int i = 0; i < 8; i++) {
+                int nr = row + rowMove[i], nc = col + colMove[i];
+                if (isValid(board, nr, nc, n)) {
+                    nextMoves.add(new int[]{nr, nc, countOnward(board, nr, nc, n)});
+                }
+            }
+            nextMoves.sort((a, b) -> a[2] - b[2]);
+            for (int[] mv : nextMoves) {
+                board[mv[0]][mv[1]] = moveCount;
+                if (solve(board, mv[0], mv[1], moveCount + 1, n)) return true;
+                board[mv[0]][mv[1]] = -1;
+            }
+            return false;
+        }
+    
+        private int countOnward(int[][] board, int row, int col, int n) {
+            int c = 0;
+            for (int i = 0; i < 8; i++)
+                if (isValid(board, row + rowMove[i], col + colMove[i], n)) c++;
+            return c;
+        }
+    
+        private boolean isValid(int[][] board, int row, int col, int n) {
+            return row >= 0 && row < n && col >= 0 && col < n && board[row][col] == -1;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an integer array nums that may contain duplicates, return all possible subsets (the power set), without duplicate subsets.
+    
+    EXAMPLE:
+    Input: nums = [1,2,2]
+    Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N * N) plus HashSet overhead for dedup
+    Space Complexity: O(2^N * N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<Integer>> subsetsWithDup(int[] nums) {
+            Set<List<Integer>> uniqueSubsets = new HashSet<>();
+            generate(nums, 0, new ArrayList<>(), uniqueSubsets);
+            return new ArrayList<>(uniqueSubsets);
+        }
+    
+        // plain recursion: include/exclude every element, dedupe afterward
+        private void generate(int[] nums, int index, List<Integer> current, Set<List<Integer>> result) {
+            if (index == nums.length) {
+                List<Integer> sorted = new ArrayList<>(current);
+                Collections.sort(sorted);
+                result.add(sorted);
+                return;
+            }
+            generate(nums, index + 1, current, result); // exclude
+            current.add(nums[index]);
+            generate(nums, index + 1, current, result); // include
+            current.remove(current.size() - 1); // backtrack
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(2^N * N)
+    Space Complexity: O(2^N * N)`,
+    
+      optimalCode: `class Solution {
+        public List<List<Integer>> subsetsWithDup(int[] nums) {
+            List<List<Integer>> result = new ArrayList<>();
+            Arrays.sort(nums); // enables adjacent-duplicate skipping
+            backtrack(nums, 0, new ArrayList<>(), result);
+            return result;
+        }
+    
+        // backtracking with sorted-array duplicate skip — no Set/sort-per-subset needed
+        private void backtrack(int[] nums, int start, List<Integer> current, List<List<Integer>> result) {
+            result.add(new ArrayList<>(current));
+            for (int i = start; i < nums.length; i++) {
+                if (i > start && nums[i] == nums[i - 1]) continue;
+                current.add(nums[i]);
+                backtrack(nums, i + 1, current, result);
+                current.remove(current.size() - 1); // backtrack
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of integers, sort the array in ascending order.
+    
+    EXAMPLE:
+    Input: nums = [5,2,3,1]
+    Output: [1,2,3,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2)
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int[] sortArray(int[] nums) {
+            recursiveSelectionSort(nums, 0);
+            return nums;
+        }
+    
+        // recursive selection sort — pick min of remainder, place, recurse
+        private void recursiveSelectionSort(int[] nums, int start) {
+            if (start >= nums.length - 1) return;
+            int minIndex = start;
+            for (int i = start + 1; i < nums.length; i++) {
+                if (nums[i] < nums[minIndex]) minIndex = i;
+            }
+            int temp = nums[start];
+            nums[start] = nums[minIndex];
+            nums[minIndex] = temp;
+            recursiveSelectionSort(nums, start + 1);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public int[] sortArray(int[] nums) {
+            if (nums.length <= 1) return nums;
+            mergeSort(nums, 0, nums.length - 1);
+            return nums;
+        }
+    
+        // divide and conquer
+        private void mergeSort(int[] nums, int left, int right) {
+            if (left >= right) return;
+            int mid = left + (right - left) / 2;
+            mergeSort(nums, left, mid);
+            mergeSort(nums, mid + 1, right);
+            merge(nums, left, mid, right);
+        }
+    
+        private void merge(int[] nums, int left, int mid, int right) {
+            int[] temp = new int[right - left + 1];
+            int i = left, j = mid + 1, k = 0;
+            while (i <= mid && j <= right) {
+                temp[k++] = (nums[i] <= nums[j]) ? nums[i++] : nums[j++];
+            }
+            while (i <= mid) temp[k++] = nums[i++];
+            while (j <= right) temp[k++] = nums[j++];
+            System.arraycopy(temp, 0, nums, left, temp.length);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an N x N maze with a rat starting at (0,0) trying to reach (N-1,N-1), find all possible paths (moves: D, L, R, U).
+    
+    EXAMPLE:
+    Input: maze = [[1,0,0,0],[1,1,0,1],[1,1,0,0],[0,1,1,1]]
+    Output: ["DDRDRR","DRDDRR"]`,
+    
+      bruteForceComplexity: `Time Complexity: O(4^(N*N))
+    Space Complexity: O(N*N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<String> findPath(int[][] maze, int n) {
+            List<String> result = new ArrayList<>();
+            boolean[][] visited = new boolean[n][n];
+            explore(maze, 0, 0, n, visited, "", result);
+            Collections.sort(result);
+            return result;
+        }
+    
+        // plain backtracking, no upfront pruning
+        private void explore(int[][] maze, int row, int col, int n, boolean[][] visited, String path, List<String> result) {
+            if (row < 0 || row >= n || col < 0 || col >= n || maze[row][col] == 0 || visited[row][col]) return;
+            if (row == n - 1 && col == n - 1) {
+                result.add(path);
+                return;
+            }
+            visited[row][col] = true;
+            explore(maze, row + 1, col, n, visited, path + "D", result);
+            explore(maze, row - 1, col, n, visited, path + "U", result);
+            explore(maze, row, col - 1, n, visited, path + "L", result);
+            explore(maze, row, col + 1, n, visited, path + "R", result);
+            visited[row][col] = false; // backtrack
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(4^(N*N)) worst case, pruned early via boundary/blocked checks upfront
+    Space Complexity: O(N*N)`,
+    
+      optimalCode: `class Solution {
+        static int[] dr = {1, -1, 0, 0};
+        static int[] dc = {0, 0, -1, 1};
+        static char[] dir = {'D', 'U', 'L', 'R'};
+    
+        public List<String> findPath(int[][] maze, int n) {
+            List<String> result = new ArrayList<>();
+            if (maze[0][0] == 0 || maze[n - 1][n - 1] == 0) return result; // early exit
+            boolean[][] visited = new boolean[n][n];
+            solve(maze, 0, 0, n, visited, new StringBuilder(), result);
+            Collections.sort(result);
+            return result;
+        }
+    
+        private void solve(int[][] maze, int row, int col, int n, boolean[][] visited, StringBuilder path, List<String> result) {
+            if (row == n - 1 && col == n - 1) {
+                result.add(path.toString());
+                return;
+            }
+            visited[row][col] = true;
+            for (int i = 0; i < 4; i++) {
+                int nr = row + dr[i], nc = col + dc[i];
+                if (isSafe(maze, nr, nc, n, visited)) {
+                    path.append(dir[i]);
+                    solve(maze, nr, nc, n, visited, path, result);
+                    path.deleteCharAt(path.length() - 1); // backtrack
+                }
+            }
+            visited[row][col] = false;
+        }
+    
+        private boolean isSafe(int[][] maze, int row, int col, int n, boolean[][] visited) {
+            return row >= 0 && row < n && col >= 0 && col < n && maze[row][col] == 1 && !visited[row][col];
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of integers, count the number of inversions. An inversion is a pair (i, j) such that i < j and arr[i] > arr[j].
+    
+    EXAMPLE:
+    Input: arr = [2,4,1,3,5]
+    Output: 3`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2)
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public long countInversions(int[] arr) {
+            return countFrom(arr, 0);
+        }
+    
+        // nested recursion mimicking nested loops
+        private long countFrom(int[] arr, int i) {
+            if (i >= arr.length) return 0;
+            return countPairs(arr, i, i + 1) + countFrom(arr, i + 1);
+        }
+    
+        private long countPairs(int[] arr, int i, int j) {
+            if (j >= arr.length) return 0;
+            long inv = (arr[i] > arr[j]) ? 1 : 0;
+            return inv + countPairs(arr, i, j + 1);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public long countInversions(int[] arr) {
+            return mergeSortAndCount(arr, 0, arr.length - 1);
+        }
+    
+        private long mergeSortAndCount(int[] arr, int left, int right) {
+            long count = 0;
+            if (left < right) {
+                int mid = left + (right - left) / 2;
+                count += mergeSortAndCount(arr, left, mid);
+                count += mergeSortAndCount(arr, mid + 1, right);
+                count += mergeAndCount(arr, left, mid, right);
+            }
+            return count;
+        }
+    
+        private long mergeAndCount(int[] arr, int left, int mid, int right) {
+            int[] temp = new int[right - left + 1];
+            int i = left, j = mid + 1, k = 0;
+            long count = 0;
+            while (i <= mid && j <= right) {
+                if (arr[i] <= arr[j]) {
+                    temp[k++] = arr[i++];
+                } else {
+                    count += (mid - i + 1); // arr[i..mid] all > arr[j]
+                    temp[k++] = arr[j++];
+                }
+            }
+            while (i <= mid) temp[k++] = arr[i++];
+            while (j <= right) temp[k++] = arr[j++];
+            System.arraycopy(temp, 0, arr, left, temp.length);
+            return count;
+        }
+    }`
+    },
+
+  ],
 
 
 
+  "stacks-and-queue":[
 
-  ]
+    {
+      title: `QUESTION:
+    Implement a stack using only queue operations (enqueue, dequeue, front, isEmpty). Support push, pop, top, and empty operations.
+    
+    EXAMPLE:
+    Input: push(1), push(2), top(), pop(), empty()
+    Output: 2, 2, false`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) for push, O(1) for pop — using two queues
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MyStack {
+        Queue<Integer> q1 = new LinkedList<>();
+        Queue<Integer> q2 = new LinkedList<>();
+    
+        public void push(int x) {
+            q2.offer(x); // put new element in empty queue
+            while (!q1.isEmpty()) { // move all old elements after it
+                q2.offer(q1.poll());
+            }
+            Queue<Integer> temp = q1;
+            q1 = q2;
+            q2 = temp; // swap so q1 always holds the stack order
+        }
+    
+        public int pop() {
+            return q1.poll();
+        }
+    
+        public int top() {
+            return q1.peek();
+        }
+    
+        public boolean empty() {
+            return q1.isEmpty();
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N) for push, O(1) for pop — using a single queue
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class MyStack {
+        Queue<Integer> q = new LinkedList<>();
+    
+        public void push(int x) {
+            q.offer(x);
+            int size = q.size();
+            // rotate queue so newest element moves to front
+            for (int i = 0; i < size - 1; i++) {
+                q.offer(q.poll());
+            }
+        }
+    
+        public int pop() {
+            return q.poll();
+        }
+    
+        public int top() {
+            return q.peek();
+        }
+    
+        public boolean empty() {
+            return q.isEmpty();
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given two arrays nums1 and nums2, where nums1 is a subset of nums2, find the next greater element for each element of nums1 in nums2. If it doesn't exist, output -1.
+    
+    EXAMPLE:
+    Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+    Output: [-1,3,-1]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*M)
+    Space Complexity: O(N) for the result`,
+    
+      bruteForceCode: `class Solution {
+        public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+            int[] result = new int[nums1.length];
+    
+            for (int i = 0; i < nums1.length; i++) {
+                int index = -1;
+                for (int j = 0; j < nums2.length; j++) { // find nums1[i] in nums2
+                    if (nums2[j] == nums1[i]) { index = j; break; }
+                }
+                int nextGreater = -1;
+                for (int j = index + 1; j < nums2.length; j++) { // scan forward for greater element
+                    if (nums2[j] > nums1[i]) { nextGreater = nums2[j]; break; }
+                }
+                result[i] = nextGreater;
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N+M)
+    Space Complexity: O(M) for the map + stack`,
+    
+      optimalCode: `class Solution {
+        public int[] nextGreaterElement(int[] nums1, int[] nums2) {
+            Map<Integer, Integer> nextGreaterMap = new HashMap<>();
+            Deque<Integer> stack = new ArrayDeque<>();
+    
+            // monotonic decreasing stack over nums2
+            for (int num : nums2) {
+                while (!stack.isEmpty() && stack.peek() < num) {
+                    nextGreaterMap.put(stack.pop(), num);
+                }
+                stack.push(num);
+            }
+    
+            int[] result = new int[nums1.length];
+            for (int i = 0; i < nums1.length; i++) {
+                result[i] = nextGreaterMap.getOrDefault(nums1[i], -1);
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Implement a queue using only stack operations (push, pop, top, empty). Support push, pop, peek, and empty operations.
+    
+    EXAMPLE:
+    Input: push(1), push(2), peek(), pop(), empty()
+    Output: 1, 1, false`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) for push, O(1) for pop — using two stacks, always transferring on push
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MyQueue {
+        Deque<Integer> s1 = new ArrayDeque<>();
+        Deque<Integer> s2 = new ArrayDeque<>();
+    
+        public void push(int x) {
+            while (!s1.isEmpty()) s2.push(s1.pop()); // move everything out
+            s1.push(x); // insert new element at bottom
+            while (!s2.isEmpty()) s1.push(s2.pop()); // move everything back
+        }
+    
+        public int pop() {
+            return s1.pop();
+        }
+    
+        public int peek() {
+            return s1.peek();
+        }
+    
+        public boolean empty() {
+            return s1.isEmpty();
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(1) amortized for push and pop
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class MyQueue {
+        Deque<Integer> inStack = new ArrayDeque<>();
+        Deque<Integer> outStack = new ArrayDeque<>();
+    
+        public void push(int x) {
+            inStack.push(x); // O(1) always
+        }
+    
+        public int pop() {
+            transfer();
+            return outStack.pop();
+        }
+    
+        public int peek() {
+            transfer();
+            return outStack.peek();
+        }
+    
+        public boolean empty() {
+            return inStack.isEmpty() && outStack.isEmpty();
+        }
+    
+        // only moves elements when outStack is empty -> amortized O(1)
+        private void transfer() {
+            if (outStack.isEmpty()) {
+                while (!inStack.isEmpty()) outStack.push(inStack.pop());
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid (every bracket is closed by the same type, in the correct order).
+    
+    EXAMPLE:
+    Input: s = "()[]{}"
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — repeatedly removes matched adjacent pairs
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isValid(String s) {
+            StringBuilder sb = new StringBuilder(s);
+            boolean changed = true;
+    
+            while (changed) { // keep removing matched pairs until no more changes
+                changed = false;
+                for (int i = 0; i < sb.length() - 1; i++) {
+                    char a = sb.charAt(i), b = sb.charAt(i + 1);
+                    if ((a == '(' && b == ')') || (a == '{' && b == '}') || (a == '[' && b == ']')) {
+                        sb.delete(i, i + 2);
+                        changed = true;
+                        break;
+                    }
+                }
+            }
+            return sb.length() == 0;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public boolean isValid(String s) {
+            Deque<Character> stack = new ArrayDeque<>();
+            Map<Character, Character> pairs = Map.of(')', '(', '}', '{', ']', '[');
+    
+            for (char c : s.toCharArray()) {
+                if (!pairs.containsKey(c)) {
+                    stack.push(c); // opening bracket
+                } else {
+                    if (stack.isEmpty() || stack.pop() != pairs.get(c)) return false;
+                }
+            }
+            return stack.isEmpty();
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a stream of characters, find the first non-repeating character at every point when a new character is added to the stream.
+    
+    EXAMPLE:
+    Input: stream = "aabc"
+    Output: "a a b b"  (after 'a': a, after 'a': a repeats so still a until removed -> a, after 'b': b, after 'c': b)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — rescans the whole stream for each new character
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public String firstNonRepeating(String stream) {
+            StringBuilder result = new StringBuilder();
+    
+            for (int i = 0; i < stream.length(); i++) {
+                String prefix = stream.substring(0, i + 1);
+                char[] freq = new char[256];
+                for (char c : prefix.toCharArray()) freq[c]++; // count frequency from scratch
+    
+                char firstNonRepeat = '#';
+                for (char c : prefix.toCharArray()) { // find first char with freq 1
+                    if (freq[c] == 1) { firstNonRepeat = c; break; }
+                }
+                result.append(firstNonRepeat);
+            }
+            return result.toString();
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public String firstNonRepeating(String stream) {
+            StringBuilder result = new StringBuilder();
+            int[] freq = new int[256];
+            Queue<Character> queue = new LinkedList<>();
+    
+            for (char c : stream.toCharArray()) {
+                freq[c]++;
+                queue.offer(c);
+    
+                // remove repeating chars from front of queue
+                while (!queue.isEmpty() && freq[queue.peek()] > 1) {
+                    queue.poll();
+                }
+    
+                result.append(queue.isEmpty() ? '#' : queue.peek());
+            }
+            return result.toString();
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a queue of integers and a positive integer k, reverse the order of the first k elements of the queue, leaving the rest of the queue in the same relative order.
+    
+    EXAMPLE:
+    Input: queue = [1,2,3,4,5], k = 3
+    Output: [3,2,1,4,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) — using an auxiliary array to reverse the first k
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public Queue<Integer> reverseFirstK(Queue<Integer> queue, int k) {
+            int[] arr = new int[k];
+            for (int i = 0; i < k; i++) { // extract first k into array
+                arr[i] = queue.poll();
+            }
+    
+            for (int i = 0, j = k - 1; i < j; i++, j--) { // reverse array
+                int temp = arr[i];
+                arr[i] = arr[j];
+                arr[j] = temp;
+            }
+    
+            Queue<Integer> newQueue = new LinkedList<>();
+            for (int val : arr) newQueue.offer(val); // reversed first k
+            while (!queue.isEmpty()) newQueue.offer(queue.poll()); // rest unchanged
+    
+            return newQueue;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(k) — uses a stack instead of an extra queue`,
+    
+      optimalCode: `class Solution {
+        public Queue<Integer> reverseFirstK(Queue<Integer> queue, int k) {
+            Deque<Integer> stack = new ArrayDeque<>();
+    
+            for (int i = 0; i < k; i++) { // push first k elements onto stack
+                stack.push(queue.poll());
+            }
+            while (!stack.isEmpty()) { // pop back into queue -> reversed order
+                queue.offer(stack.pop());
+            }
+    
+            int remaining = queue.size() - k;
+            for (int i = 0; i < remaining; i++) { // rotate rest to preserve original relative order
+                queue.offer(queue.poll());
+            }
+    
+            return queue;
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    There are n people in a line to buy tickets, where the 0th person is at the front. Given an integer array tickets of length n, where tickets[i] is the number of tickets that person i wants to buy, and a position k, return the time taken for the person at position k to finish buying tickets (each person buys 1 ticket at a time, then goes to the back of the line if they still need more).
+    
+    EXAMPLE:
+    Input: tickets = [2,3,2], k = 2
+    Output: 6`,
+    
+      bruteForceComplexity: `Time Complexity: O(sum(tickets)) — actually simulates the queue with a real Queue data structure
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int timeRequiredToBuy(int[] tickets, int k) {
+            Queue<Integer> indices = new LinkedList<>();
+            for (int i = 0; i < tickets.length; i++) indices.offer(i); // simulate actual line
+    
+            int time = 0;
+            while (!indices.isEmpty()) {
+                int idx = indices.poll();
+                tickets[idx]--; // buy one ticket
+                time++;
+    
+                if (idx == k && tickets[idx] == 0) return time; // target person done
+                if (tickets[idx] > 0) indices.offer(idx); // go to back of line
+            }
+            return time;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public int timeRequiredToBuy(int[] tickets, int k) {
+            int time = 0;
+            for (int i = 0; i < tickets.length; i++) {
+                if (i <= k) {
+                    // people at or before k buy up to tickets[k] tickets (or all of theirs if fewer)
+                    time += Math.min(tickets[i], tickets[k]);
+                } else {
+                    // people after k only get one extra round before k finishes
+                    time += Math.min(tickets[i], tickets[k] - 1);
+                }
+            }
+            return time;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Design a data structure that follows Least Recently Used (LRU) cache eviction policy. Implement get(key) and put(key, value) both in O(1) time. Capacity is fixed.
+    
+    EXAMPLE:
+    Input: capacity = 2, put(1,1), put(2,2), get(1), put(3,3) [evicts 2], get(2)
+    Output: get(1) = 1, get(2) = -1`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) for get and put — using a LinkedHashMap-like linear scan or ArrayList
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class LRUCache {
+        private List<int[]> cache; // each entry: [key, value], order = recency (front = most recent)
+        private int capacity;
+    
+        public LRUCache(int capacity) {
+            this.capacity = capacity;
+            this.cache = new ArrayList<>();
+        }
+    
+        public int get(int key) {
+            for (int i = 0; i < cache.size(); i++) { // linear scan to find key
+                if (cache.get(i)[0] == key) {
+                    int[] entry = cache.remove(i);
+                    cache.add(0, entry); // move to front (most recently used)
+                    return entry[1];
+                }
+            }
+            return -1;
+        }
+    
+        public void put(int key, int value) {
+            for (int i = 0; i < cache.size(); i++) { // check if key exists
+                if (cache.get(i)[0] == key) {
+                    cache.remove(i);
+                    break;
+                }
+            }
+            if (cache.size() == capacity) {
+                cache.remove(cache.size() - 1); // evict least recently used (last)
+            }
+            cache.add(0, new int[]{key, value});
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(1) for both get and put
+    Space Complexity: O(capacity)`,
+    
+      optimalCode: `class LRUCache {
+        class Node {
+            int key, value;
+            Node prev, next;
+            Node(int k, int v) { key = k; value = v; }
+        }
+    
+        private Map<Integer, Node> map;
+        private Node head, tail; // dummy head/tail for doubly linked list
+        private int capacity;
+    
+        public LRUCache(int capacity) {
+            this.capacity = capacity;
+            this.map = new HashMap<>();
+            head = new Node(-1, -1);
+            tail = new Node(-1, -1);
+            head.next = tail;
+            tail.prev = head;
+        }
+    
+        public int get(int key) {
+            if (!map.containsKey(key)) return -1;
+            Node node = map.get(key);
+            remove(node);
+            insertAtFront(node); // mark as most recently used
+            return node.value;
+        }
+    
+        public void put(int key, int value) {
+            if (map.containsKey(key)) {
+                remove(map.get(key));
+            }
+            if (map.size() == capacity) {
+                Node lru = tail.prev; // least recently used = right before tail
+                remove(lru);
+                map.remove(lru.key);
+            }
+            Node newNode = new Node(key, value);
+            insertAtFront(newNode);
+            map.put(key, newNode);
+        }
+    
+        private void remove(Node node) {
+            node.prev.next = node.next;
+            node.next.prev = node.prev;
+        }
+    
+        private void insertAtFront(Node node) {
+            node.next = head.next;
+            node.prev = head;
+            head.next.prev = node;
+            head.next = node;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+    
+    EXAMPLE:
+    Input: push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()
+    Output: -3, 0, -2`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) for getMin — scans the whole stack each time
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MinStack {
+        private Deque<Integer> stack;
+    
+        public MinStack() {
+            stack = new ArrayDeque<>();
+        }
+    
+        public void push(int val) {
+            stack.push(val);
+        }
+    
+        public void pop() {
+            stack.pop();
+        }
+    
+        public int top() {
+            return stack.peek();
+        }
+    
+        public int getMin() {
+            int min = Integer.MAX_VALUE;
+            for (int val : stack) { // linear scan every call
+                min = Math.min(min, val);
+            }
+            return min;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(1) for all operations
+    Space Complexity: O(N) — auxiliary min stack`,
+    
+      optimalCode: `class MinStack {
+        private Deque<Integer> stack;
+        private Deque<Integer> minStack; // tracks minimum at each level
+    
+        public MinStack() {
+            stack = new ArrayDeque<>();
+            minStack = new ArrayDeque<>();
+        }
+    
+        public void push(int val) {
+            stack.push(val);
+            // push current min (either val or existing min) onto minStack
+            int currentMin = minStack.isEmpty() ? val : Math.min(val, minStack.peek());
+            minStack.push(currentMin);
+        }
+    
+        public void pop() {
+            stack.pop();
+            minStack.pop();
+        }
+    
+        public int top() {
+            return stack.peek();
+        }
+    
+        public int getMin() {
+            return minStack.peek(); // O(1) lookup
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a circular integer array nums, return the next greater number for every element. The next greater number of a number x is the first greater number to its traversing-order next in the array, which means you could search circularly to find its next greater number. If it doesn't exist, return -1.
+    
+    EXAMPLE:
+    Input: nums = [1,2,1]
+    Output: [2,-1,2]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each element, scans up to 2N elements circularly
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int[] nextGreaterElements(int[] nums) {
+            int n = nums.length;
+            int[] result = new int[n];
+    
+            for (int i = 0; i < n; i++) {
+                int nextGreater = -1;
+                for (int j = 1; j < n; j++) { // scan circularly starting from i+1
+                    int idx = (i + j) % n;
+                    if (nums[idx] > nums[i]) {
+                        nextGreater = nums[idx];
+                        break;
+                    }
+                }
+                result[i] = nextGreater;
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public int[] nextGreaterElements(int[] nums) {
+            int n = nums.length;
+            int[] result = new int[n];
+            Arrays.fill(result, -1);
+            Deque<Integer> stack = new ArrayDeque<>(); // stores indices
+    
+            // traverse array twice to simulate circularity, using a monotonic decreasing stack
+            for (int i = 0; i < 2 * n; i++) {
+                int num = nums[i % n];
+                while (!stack.isEmpty() && nums[stack.peek()] < num) {
+                    result[stack.pop()] = num;
+                }
+                if (i < n) stack.push(i); // only push indices during first pass
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    In a party of N people, only one person is known to everyone (the celebrity). This person knows nobody, but everybody knows them. Given a matrix M where M[i][j] = 1 means person i knows person j, find the celebrity (return their index, or -1 if none exists).
+    
+    EXAMPLE:
+    Input: M = [[0,1,0],[0,0,0],[0,1,0]]
+    Output: 1`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — checks every candidate against everyone
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public int findCelebrity(int[][] M, int n) {
+            for (int candidate = 0; candidate < n; candidate++) {
+                boolean isCelebrity = true;
+    
+                for (int other = 0; other < n; other++) {
+                    if (candidate == other) continue;
+                    // celebrity knows nobody, and everybody knows the celebrity
+                    if (M[candidate][other] == 1 || M[other][candidate] == 0) {
+                        isCelebrity = false;
+                        break;
+                    }
+                }
+                if (isCelebrity) return candidate;
+            }
+            return -1;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N) — elimination via stack, then O(N) verification
+    Space Complexity: O(N) for the stack`,
+    
+      optimalCode: `class Solution {
+        public int findCelebrity(int[][] M, int n) {
+            Deque<Integer> stack = new ArrayDeque<>();
+            for (int i = 0; i < n; i++) stack.push(i);
+    
+            // eliminate one candidate per comparison until one remains
+            while (stack.size() > 1) {
+                int a = stack.pop();
+                int b = stack.pop();
+    
+                if (M[a][b] == 1) {
+                    // a knows b, so a can't be celebrity
+                    stack.push(b);
+                } else {
+                    // a doesn't know b, so b can't be celebrity
+                    stack.push(a);
+                }
+            }
+    
+            int candidate = stack.pop();
+    
+            // verify candidate: knows nobody, known by everybody
+            for (int other = 0; other < n; other++) {
+                if (other == candidate) continue;
+                if (M[candidate][other] == 1 || M[other][candidate] == 0) return -1;
+            }
+            return candidate;
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    You are given an m x n grid where each cell can have one of three values: 0 (empty), 1 (fresh orange), or 2 (rotten orange). Every minute, any fresh orange adjacent (4-directionally) to a rotten orange becomes rotten. Return the minimum number of minutes until no fresh orange remains, or -1 if impossible.
+    
+    EXAMPLE:
+    Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
+    Output: 4`,
+    
+      bruteForceComplexity: `Time Complexity: O((M*N)^2) — repeatedly rescans entire grid each minute until no changes occur
+    Space Complexity: O(1) extra`,
+    
+      bruteForceCode: `class Solution {
+        public int orangesRotting(int[][] grid) {
+            int rows = grid.length, cols = grid[0].length;
+            int minutes = 0;
+    
+            while (true) {
+                boolean changed = false;
+                int[][] next = deepCopy(grid);
+    
+                for (int r = 0; r < rows; r++) { // rescan the whole grid every minute
+                    for (int c = 0; c < cols; c++) {
+                        if (grid[r][c] == 2) {
+                            int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+                            for (int[] d : dirs) {
+                                int nr = r + d[0], nc = c + d[1];
+                                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1) {
+                                    next[nr][nc] = 2;
+                                    changed = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                grid = next;
+                if (!changed) break;
+                minutes++;
+            }
+    
+            for (int[] row : grid) { // check leftover fresh oranges
+                for (int val : row) if (val == 1) return -1;
+            }
+            return minutes;
+        }
+    
+        private int[][] deepCopy(int[][] grid) {
+            int[][] copy = new int[grid.length][];
+            for (int i = 0; i < grid.length; i++) copy[i] = grid[i].clone();
+            return copy;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(M*N)
+    Space Complexity: O(M*N) for the queue`,
+    
+      optimalCode: `class Solution {
+        public int orangesRotting(int[][] grid) {
+            int rows = grid.length, cols = grid[0].length;
+            Queue<int[]> queue = new LinkedList<>();
+            int freshCount = 0;
+    
+            for (int r = 0; r < rows; r++) { // single pass to find all rotten + count fresh
+                for (int c = 0; c < cols; c++) {
+                    if (grid[r][c] == 2) queue.offer(new int[]{r, c});
+                    else if (grid[r][c] == 1) freshCount++;
+                }
+            }
+    
+            int minutes = 0;
+            int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
+    
+            while (!queue.isEmpty() && freshCount > 0) { // multi-source BFS
+                int size = queue.size();
+                for (int i = 0; i < size; i++) {
+                    int[] cell = queue.poll();
+                    for (int[] d : dirs) {
+                        int nr = cell[0] + d[0], nc = cell[1] + d[1];
+                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1) {
+                            grid[nr][nc] = 2;
+                            freshCount--;
+                            queue.offer(new int[]{nr, nc});
+                        }
+                    }
+                }
+                minutes++;
+            }
+    
+            return freshCount == 0 ? minutes : -1;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a stack of integers, sort it in ascending order (with the smallest on top) using only stack operations (push, pop, peek, isEmpty). No other data structure like arrays is allowed, except one additional stack.
+    
+    EXAMPLE:
+    Input: stack = [34,3,31,98,92,23]
+    Output: [3,23,31,34,92,98]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) but with heavy constant overhead — repeatedly finds and extracts the max via full pass, one at a time
+    Space Complexity: O(N) for the result stack`,
+    
+      bruteForceCode: `class Solution {
+        public Deque<Integer> sortStack(Deque<Integer> input) {
+            Deque<Integer> result = new ArrayDeque<>();
+            int size = input.size();
+    
+            for (int i = 0; i < size; i++) { // repeat 'size' times: find current max and move it
+                int max = Integer.MIN_VALUE;
+                Deque<Integer> temp = new ArrayDeque<>();
+    
+                while (!input.isEmpty()) { // find max by popping everything out
+                    int val = input.pop();
+                    if (val > max) max = val;
+                    temp.push(val);
+                }
+                boolean placed = false;
+                while (!temp.isEmpty()) { // put everything back except the max
+                    int val = temp.pop();
+                    if (val == max && !placed) { placed = true; continue; }
+                    input.push(val);
+                }
+                result.push(max); // largest values pushed first, so smallest ends on top
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N^2)
+    Space Complexity: O(N) — one auxiliary stack`,
+    
+      optimalCode: `class Solution {
+        public Deque<Integer> sortStack(Deque<Integer> input) {
+            Deque<Integer> tempStack = new ArrayDeque<>();
+    
+            while (!input.isEmpty()) {
+                int temp = input.pop();
+    
+                // move elements from tempStack back to input while they're smaller than temp
+                while (!tempStack.isEmpty() && tempStack.peek() > temp) {
+                    input.push(tempStack.pop());
+                }
+                tempStack.push(temp); // tempStack stays sorted (descending, top = smallest... actually ascending bottom-to-top)
+            }
+    
+            // tempStack now holds sorted values with smallest on top after reversal
+            while (!tempStack.isEmpty()) {
+                input.push(tempStack.pop());
+            }
+            return input;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    The stock span problem: for each day, given the stock's price, calculate the span of that stock's price, defined as the maximum number of consecutive days (including today) the price of the stock was less than or equal to today's price.
+    
+    EXAMPLE:
+    Input: prices = [100,80,60,70,60,75,85]
+    Output: [1,1,1,2,1,4,6]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each day, scans backward until a higher price is found
+    Space Complexity: O(N) for the result`,
+    
+      bruteForceCode: `class Solution {
+        public int[] calculateSpan(int[] prices) {
+            int n = prices.length;
+            int[] span = new int[n];
+    
+            for (int i = 0; i < n; i++) {
+                int count = 1;
+                int j = i - 1;
+                while (j >= 0 && prices[j] <= prices[i]) { // scan backward day by day
+                    count++;
+                    j--;
+                }
+                span[i] = count;
+            }
+            return span;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) for the stack`,
+    
+      optimalCode: `class Solution {
+        public int[] calculateSpan(int[] prices) {
+            int n = prices.length;
+            int[] span = new int[n];
+            Deque<Integer> stack = new ArrayDeque<>(); // stores indices, monotonic decreasing prices
+    
+            for (int i = 0; i < n; i++) {
+                while (!stack.isEmpty() && prices[stack.peek()] <= prices[i]) {
+                    stack.pop(); // pop all days with price <= today's price
+                }
+                span[i] = stack.isEmpty() ? (i + 1) : (i - stack.peek());
+                stack.push(i);
+            }
+            return span;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    There are n gas stations along a circular route, where gas[i] is the amount of gas at station i, and cost[i] is the cost of gas to travel from station i to station i+1. Return the starting gas station's index if you can travel around the circuit once, otherwise return -1. (Assume a unique solution exists if one is possible.)
+    
+    EXAMPLE:
+    Input: gas = [1,2,3,4,5], cost = [3,4,5,1,2]
+    Output: 3`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — tries every starting point and simulates the full circular trip
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public int canCompleteCircuit(int[] gas, int[] cost) {
+            int n = gas.length;
+    
+            for (int start = 0; start < n; start++) { // try every starting station
+                int tank = 0;
+                boolean canComplete = true;
+    
+                for (int i = 0; i < n; i++) { // simulate the full circular trip from 'start'
+                    int idx = (start + i) % n;
+                    tank += gas[idx] - cost[idx];
+                    if (tank < 0) {
+                        canComplete = false;
+                        break;
+                    }
+                }
+                if (canComplete) return start;
+            }
+            return -1;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public int canCompleteCircuit(int[] gas, int[] cost) {
+            int totalTank = 0, currTank = 0, start = 0;
+    
+            for (int i = 0; i < gas.length; i++) {
+                int diff = gas[i] - cost[i];
+                totalTank += diff;
+                currTank += diff;
+    
+                if (currTank < 0) { // can't reach next station from current start
+                    start = i + 1;  // reset start candidate
+                    currTank = 0;
+                }
+            }
+    
+            return totalTank >= 0 ? start : -1; // total gas covers total cost -> a solution exists
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of integers heights representing the histogram's bar heights where the width of each bar is 1, return the area of the largest rectangle in the histogram.
+    
+    EXAMPLE:
+    Input: heights = [2,1,5,6,2,3]
+    Output: 10`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each bar, expands left and right to find the boundary
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public int largestRectangleArea(int[] heights) {
+            int n = heights.length;
+            int maxArea = 0;
+    
+            for (int i = 0; i < n; i++) {
+                int minHeight = heights[i];
+                for (int j = i; j < n; j++) { // expand right, tracking the minimum height in range
+                    minHeight = Math.min(minHeight, heights[j]);
+                    int width = j - i + 1;
+                    maxArea = Math.max(maxArea, minHeight * width);
+                }
+            }
+            return maxArea;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) for the stack`,
+    
+      optimalCode: `class Solution {
+        public int largestRectangleArea(int[] heights) {
+            Deque<Integer> stack = new ArrayDeque<>(); // stores indices, monotonic increasing heights
+            int maxArea = 0;
+            int n = heights.length;
+    
+            for (int i = 0; i <= n; i++) {
+                int currHeight = (i == n) ? 0 : heights[i]; // sentinel 0 to flush remaining stack at end
+    
+                while (!stack.isEmpty() && heights[stack.peek()] >= currHeight) {
+                    int height = heights[stack.pop()];
+                    int width = stack.isEmpty() ? i : i - stack.peek() - 1;
+                    maxArea = Math.max(maxArea, height * width);
+                }
+                stack.push(i);
+            }
+            return maxArea;
+        }
+    }`
+    },
+
+  ],
+
+
+  "bt-&-bst":[
+
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the preorder traversal of its nodes' values (Root -> Left -> Right).
+    
+    EXAMPLE:
+    Input: root = [1,null,2,3]
+    Output: [1,2,3]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — recursion stack (O(H) for height, worst case O(N) for skewed tree)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> preorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            traverse(root, result);
+            return result;
+        }
+    
+        private void traverse(TreeNode node, List<Integer> result) {
+            if (node == null) return;
+            result.add(node.val); // visit root first
+            traverse(node.left, result);
+            traverse(node.right, result);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — Morris traversal, no stack or recursion`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> preorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (curr.left == null) {
+                    result.add(curr.val);
+                    curr = curr.right;
+                } else {
+                    // find inorder predecessor (rightmost node in left subtree)
+                    TreeNode pred = curr.left;
+                    while (pred.right != null && pred.right != curr) pred = pred.right;
+    
+                    if (pred.right == null) {
+                        result.add(curr.val); // visit before going left (preorder)
+                        pred.right = curr;    // create temporary thread
+                        curr = curr.left;
+                    } else {
+                        pred.right = null; // remove thread, already visited
+                        curr = curr.right;
+                    }
+                }
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the level order traversal of its nodes' values (i.e., from left to right, level by level).
+    
+    EXAMPLE:
+    Input: root = [3,9,20,null,null,15,7]
+    Output: [[3],[9,20],[15,7]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — computes tree height first, then does a separate pass per level
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<Integer>> levelOrder(TreeNode root) {
+            List<List<Integer>> result = new ArrayList<>();
+            int height = getHeight(root);
+    
+            for (int level = 0; level < height; level++) { // separate traversal for each level
+                List<Integer> currentLevel = new ArrayList<>();
+                collectLevel(root, level, currentLevel);
+                result.add(currentLevel);
+            }
+            return result;
+        }
+    
+        private int getHeight(TreeNode node) {
+            if (node == null) return 0;
+            return 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        }
+    
+        private void collectLevel(TreeNode node, int level, List<Integer> result) {
+            if (node == null) return;
+            if (level == 0) {
+                result.add(node.val);
+                return;
+            }
+            collectLevel(node.left, level - 1, result); // re-traverses from root every call
+            collectLevel(node.right, level - 1, result);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
+    
+      optimalCode: `class Solution {
+        public List<List<Integer>> levelOrder(TreeNode root) {
+            List<List<Integer>> result = new ArrayList<>();
+            if (root == null) return result;
+    
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+    
+            while (!queue.isEmpty()) {
+                int size = queue.size(); // number of nodes at current level
+                List<Integer> currentLevel = new ArrayList<>();
+    
+                for (int i = 0; i < size; i++) {
+                    TreeNode node = queue.poll();
+                    currentLevel.add(node.val);
+                    if (node.left != null) queue.offer(node.left);
+                    if (node.right != null) queue.offer(node.right);
+                }
+                result.add(currentLevel);
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the inorder traversal of its nodes' values (Left -> Root -> Right).
+    
+    EXAMPLE:
+    Input: root = [1,null,2,3]
+    Output: [1,3,2]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> inorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            traverse(root, result);
+            return result;
+        }
+    
+        private void traverse(TreeNode node, List<Integer> result) {
+            if (node == null) return;
+            traverse(node.left, result);
+            result.add(node.val); // visit root between left and right
+            traverse(node.right, result);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — Morris traversal, no stack or recursion`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> inorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (curr.left == null) {
+                    result.add(curr.val);
+                    curr = curr.right;
+                } else {
+                    TreeNode pred = curr.left;
+                    while (pred.right != null && pred.right != curr) pred = pred.right;
+    
+                    if (pred.right == null) {
+                        pred.right = curr; // create temporary thread
+                        curr = curr.left;
+                    } else {
+                        pred.right = null; // remove thread
+                        result.add(curr.val); // visit after left subtree done (inorder)
+                        curr = curr.right;
+                    }
+                }
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a Binary Search Tree, return the minimum absolute difference between the values of any two different nodes in the tree.
+    
+    EXAMPLE:
+    Input: root = [4,2,6,1,3]
+    Output: 1`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — compares every pair of node values
+    Space Complexity: O(N) for storing all values`,
+    
+      bruteForceCode: `class Solution {
+        public int minDiffInBST(TreeNode root) {
+            List<Integer> values = new ArrayList<>();
+            collect(root, values);
+    
+            int minDiff = Integer.MAX_VALUE;
+            for (int i = 0; i < values.size(); i++) { // compare every pair
+                for (int j = i + 1; j < values.size(); j++) {
+                    minDiff = Math.min(minDiff, Math.abs(values.get(i) - values.get(j)));
+                }
+            }
+            return minDiff;
+        }
+    
+        private void collect(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            values.add(node.val);
+            collect(node.left, values);
+            collect(node.right, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) — recursion stack, H = tree height`,
+    
+      optimalCode: `class Solution {
+        private TreeNode prev = null;
+        private int minDiff = Integer.MAX_VALUE;
+    
+        public int minDiffInBST(TreeNode root) {
+            inorder(root);
+            return minDiff;
+        }
+    
+        // inorder traversal of a BST visits nodes in sorted order,
+        // so the minimum difference must occur between adjacent visited nodes
+        private void inorder(TreeNode node) {
+            if (node == null) return;
+            inorder(node.left);
+    
+            if (prev != null) {
+                minDiff = Math.min(minDiff, node.val - prev.val);
+            }
+            prev = node;
+    
+            inorder(node.right);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, check whether it is a mirror of itself (i.e., symmetric around its center).
+    
+    EXAMPLE:
+    Input: root = [1,2,2,3,4,4,3]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — builds a mirrored copy of the tree, then compares node by node with re-traversal
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isSymmetric(TreeNode root) {
+            if (root == null) return true;
+            TreeNode mirrored = buildMirror(root);
+            return isSameTree(root, mirrored); // separate full traversal to compare
+        }
+    
+        private TreeNode buildMirror(TreeNode node) {
+            if (node == null) return null;
+            TreeNode newNode = new TreeNode(node.val);
+            newNode.left = buildMirror(node.right); // swap children while copying
+            newNode.right = buildMirror(node.left);
+            return newNode;
+        }
+    
+        private boolean isSameTree(TreeNode a, TreeNode b) {
+            if (a == null && b == null) return true;
+            if (a == null || b == null || a.val != b.val) return false;
+            return isSameTree(a.left, b.left) && isSameTree(a.right, b.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) — recursion stack, H = tree height`,
+    
+      optimalCode: `class Solution {
+        public boolean isSymmetric(TreeNode root) {
+            if (root == null) return true;
+            return isMirror(root.left, root.right); // compare directly, no extra tree built
+        }
+    
+        private boolean isMirror(TreeNode left, TreeNode right) {
+            if (left == null && right == null) return true;
+            if (left == null || right == null || left.val != right.val) return false;
+    
+            // left's left must mirror right's right, and vice versa
+            return isMirror(left.left, right.right) && isMirror(left.right, right.left);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the postorder traversal of its nodes' values (Left -> Right -> Root).
+    
+    EXAMPLE:
+    Input: root = [1,null,2,3]
+    Output: [3,2,1]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> postorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            traverse(root, result);
+            return result;
+        }
+    
+        private void traverse(TreeNode node, List<Integer> result) {
+            if (node == null) return;
+            traverse(node.left, result);
+            traverse(node.right, result);
+            result.add(node.val); // visit root last
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — Morris-based postorder traversal, no stack or recursion`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> postorderTraversal(TreeNode root) {
+            LinkedList<Integer> result = new LinkedList<>();
+            TreeNode curr = root;
+    
+            // Morris preorder on (root, right, left), then reverse -> postorder
+            while (curr != null) {
+                if (curr.right == null) {
+                    result.addFirst(curr.val); // build result in reverse
+                    curr = curr.left;
+                } else {
+                    TreeNode pred = curr.right;
+                    while (pred.left != null && pred.left != curr) pred = pred.left;
+    
+                    if (pred.left == null) {
+                        result.addFirst(curr.val);
+                        pred.left = curr; // create temporary thread
+                        curr = curr.right;
+                    } else {
+                        pred.left = null; // remove thread
+                        curr = curr.left;
+                    }
+                }
+            }
+            return result;
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the inorder traversal using Morris Traversal (O(1) extra space, no recursion or stack).
+    
+    EXAMPLE:
+    Input: root = [1,null,2,3]
+    Output: [1,3,2]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — uses an explicit stack to simulate recursion`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> inorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            Deque<TreeNode> stack = new ArrayDeque<>();
+            TreeNode curr = root;
+    
+            while (curr != null || !stack.isEmpty()) {
+                while (curr != null) { // push all left nodes
+                    stack.push(curr);
+                    curr = curr.left;
+                }
+                curr = stack.pop();
+                result.add(curr.val);
+                curr = curr.right;
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — Morris Traversal, no stack or recursion`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> inorderTraversal(TreeNode root) {
+            List<Integer> result = new ArrayList<>();
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (curr.left == null) {
+                    result.add(curr.val);
+                    curr = curr.right;
+                } else {
+                    // find inorder predecessor (rightmost node in left subtree)
+                    TreeNode pred = curr.left;
+                    while (pred.right != null && pred.right != curr) pred = pred.right;
+    
+                    if (pred.right == null) {
+                        pred.right = curr; // create temporary thread back to curr
+                        curr = curr.left;
+                    } else {
+                        pred.right = null; // remove thread, left subtree already visited
+                        result.add(curr.val);
+                        curr = curr.right;
+                    }
+                }
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the length of the diameter of the tree (the length of the longest path between any two nodes, measured in number of edges; this path may or may not pass through the root).
+    
+    EXAMPLE:
+    Input: root = [1,2,3,4,5]
+    Output: 3`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, recomputes height of its subtrees independently
+    Space Complexity: O(H) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        int maxDiameter = 0;
+    
+        public int diameterOfBinaryTree(TreeNode root) {
+            computeDiameter(root);
+            return maxDiameter;
+        }
+    
+        private void computeDiameter(TreeNode node) {
+            if (node == null) return;
+            int leftHeight = height(node.left); // recomputes height from scratch each call
+            int rightHeight = height(node.right);
+            maxDiameter = Math.max(maxDiameter, leftHeight + rightHeight);
+    
+            computeDiameter(node.left);
+            computeDiameter(node.right);
+        }
+    
+        private int height(TreeNode node) {
+            if (node == null) return 0;
+            return 1 + Math.max(height(node.left), height(node.right));
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        int maxDiameter = 0;
+    
+        public int diameterOfBinaryTree(TreeNode root) {
+            height(root);
+            return maxDiameter;
+        }
+    
+        // single pass: compute height and update diameter simultaneously
+        private int height(TreeNode node) {
+            if (node == null) return 0;
+            int leftHeight = height(node.left);
+            int rightHeight = height(node.right);
+    
+            maxDiameter = Math.max(maxDiameter, leftHeight + rightHeight);
+    
+            return 1 + Math.max(leftHeight, rightHeight);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the roots of two binary trees p and q, check if they are the same tree (structurally identical and nodes have the same value).
+    
+    EXAMPLE:
+    Input: p = [1,2,3], q = [1,2,3]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — serializes both trees into strings then compares
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isSameTree(TreeNode p, TreeNode q) {
+            String s1 = serialize(p);
+            String s2 = serialize(q);
+            return s1.equals(s2); // compares full serialized representations
+        }
+    
+        private String serialize(TreeNode node) {
+            if (node == null) return "null,";
+            return node.val + "," + serialize(node.left) + serialize(node.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public boolean isSameTree(TreeNode p, TreeNode q) {
+            if (p == null && q == null) return true;
+            if (p == null || q == null || p.val != q.val) return false;
+    
+            return isSameTree(p.left, q.left) && isSameTree(p.right, q.right); // direct comparison, no strings
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, check whether it is a mirror of itself (symmetric around its center).
+    
+    EXAMPLE:
+    Input: root = [1,2,2,3,4,4,3]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — builds a mirrored copy of the tree, then compares node by node
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isSymmetric(TreeNode root) {
+            if (root == null) return true;
+            TreeNode mirrored = buildMirror(root);
+            return isSameTree(root, mirrored); // separate comparison after building full mirror
+        }
+    
+        private TreeNode buildMirror(TreeNode node) {
+            if (node == null) return null;
+            TreeNode newNode = new TreeNode(node.val);
+            newNode.left = buildMirror(node.right);
+            newNode.right = buildMirror(node.left);
+            return newNode;
+        }
+    
+        private boolean isSameTree(TreeNode a, TreeNode b) {
+            if (a == null && b == null) return true;
+            if (a == null || b == null || a.val != b.val) return false;
+            return isSameTree(a.left, b.left) && isSameTree(a.right, b.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public boolean isSymmetric(TreeNode root) {
+            if (root == null) return true;
+            return isMirror(root.left, root.right); // compare directly, no extra tree
+        }
+    
+        private boolean isMirror(TreeNode left, TreeNode right) {
+            if (left == null && right == null) return true;
+            if (left == null || right == null || left.val != right.val) return false;
+    
+            return isMirror(left.left, right.right) && isMirror(left.right, right.left);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the roots of two binary trees root and subRoot, return true if there is a subtree of root with the same structure and node values as subRoot.
+    
+    EXAMPLE:
+    Input: root = [3,4,5,1,2], subRoot = [4,1,2]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*M) — serializes both trees to strings and searches naively, or compares subtree at every node from scratch
+    Space Complexity: O(N+M)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isSubtree(TreeNode root, TreeNode subRoot) {
+            if (root == null) return subRoot == null;
+    
+            // check every single node in root as a possible match, full comparison each time
+            if (isSameTree(root, subRoot)) return true;
+    
+            return isSubtree(root.left, subRoot) || isSubtree(root.right, subRoot);
+        }
+    
+        private boolean isSameTree(TreeNode a, TreeNode b) {
+            if (a == null && b == null) return true;
+            if (a == null || b == null || a.val != b.val) return false;
+            return isSameTree(a.left, b.left) && isSameTree(a.right, b.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N+M) — via serialization + KMP/string-matching (or O(N*M) with tree comparison but pruned early with hashing)
+    Space Complexity: O(N+M)`,
+    
+      optimalCode: `class Solution {
+        public boolean isSubtree(TreeNode root, TreeNode subRoot) {
+            StringBuilder rootStr = new StringBuilder();
+            StringBuilder subStr = new StringBuilder();
+            serialize(root, rootStr);
+            serialize(subRoot, subStr);
+    
+            // single substring search instead of repeated full-tree comparisons
+            return rootStr.toString().contains(subStr.toString());
+        }
+    
+        // include null markers and a delimiter to avoid false positives (e.g. "12" containing "2")
+        private void serialize(TreeNode node, StringBuilder sb) {
+            if (node == null) {
+                sb.append(",#");
+                return;
+            }
+            sb.append(",").append(node.val);
+            serialize(node.left, sb);
+            serialize(node.right, sb);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, determine if it is height-balanced (the depths of the two subtrees of every node never differ by more than 1).
+    
+    EXAMPLE:
+    Input: root = [3,9,20,null,null,15,7]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, recomputes height of its subtrees independently
+    Space Complexity: O(H) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isBalanced(TreeNode root) {
+            if (root == null) return true;
+    
+            int leftHeight = height(root.left); // recomputes height from scratch each call
+            int rightHeight = height(root.right);
+    
+            if (Math.abs(leftHeight - rightHeight) > 1) return false;
+    
+            return isBalanced(root.left) && isBalanced(root.right);
+        }
+    
+        private int height(TreeNode node) {
+            if (node == null) return 0;
+            return 1 + Math.max(height(node.left), height(node.right));
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public boolean isBalanced(TreeNode root) {
+            return checkHeight(root) != -1;
+        }
+    
+        // single pass: returns height if balanced, or -1 as a sentinel if unbalanced
+        // and short-circuits immediately once imbalance is detected
+        private int checkHeight(TreeNode node) {
+            if (node == null) return 0;
+    
+            int leftHeight = checkHeight(node.left);
+            if (leftHeight == -1) return -1; // early exit
+    
+            int rightHeight = checkHeight(node.right);
+            if (rightHeight == -1) return -1; // early exit
+    
+            if (Math.abs(leftHeight - rightHeight) > 1) return -1;
+    
+            return 1 + Math.max(leftHeight, rightHeight);
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the bottom view of the tree — the set of nodes visible when the tree is viewed from below, ordered by their horizontal distance from the root (left to right).
+    
+    EXAMPLE:
+    Input: root = [20,8,22,5,3,4,25,null,null,10,14]
+    Output: [5,10,4,14,25]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — for each horizontal distance, tracks the last node seen at that level via repeated map updates without proper level tracking (may overwrite with a higher node incorrectly in some traversal orders)
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> bottomView(TreeNode root) {
+            Map<Integer, Integer> hdMap = new TreeMap<>(); // horizontal distance -> value
+            traverse(root, 0, hdMap);
+            return new ArrayList<>(hdMap.values());
+        }
+    
+        // plain preorder DFS (root, left, right) - later nodes at same HD overwrite earlier ones,
+        // but without level tracking this can incorrectly favor a node visited later in DFS
+        // even if it's actually higher up, so results can be wrong for certain tree shapes
+        private void traverse(TreeNode node, int hd, Map<Integer, Integer> hdMap) {
+            if (node == null) return;
+            hdMap.put(hd, node.val); // always overwrite, no level comparison
+            traverse(node.left, hd - 1, hdMap);
+            traverse(node.right, hd + 1, hdMap);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by TreeMap operations
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> bottomView(TreeNode root) {
+            if (root == null) return new ArrayList<>();
+            TreeMap<Integer, Integer> hdMap = new TreeMap<>(); // sorted by horizontal distance
+            Queue<TreeNode> queue = new LinkedList<>();
+            Queue<Integer> hdQueue = new LinkedList<>();
+    
+            queue.offer(root);
+            hdQueue.offer(0);
+    
+            // BFS ensures nodes are processed level by level, so later levels correctly overwrite earlier ones
+            while (!queue.isEmpty()) {
+                TreeNode node = queue.poll();
+                int hd = hdQueue.poll();
+    
+                hdMap.put(hd, node.val); // last node at this HD (from deepest level) wins
+    
+                if (node.left != null) {
+                    queue.offer(node.left);
+                    hdQueue.offer(hd - 1);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                    hdQueue.offer(hd + 1);
+                }
+            }
+            return new ArrayList<>(hdMap.values());
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the top view of the tree — the set of nodes visible when the tree is viewed from above, ordered by their horizontal distance from the root (left to right).
+    
+    EXAMPLE:
+    Input: root = [1,2,3,4,5,6,7]
+    Output: [4,2,1,3,7]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> topView(TreeNode root) {
+            Map<Integer, Integer> hdMap = new TreeMap<>();
+            Map<Integer, Integer> depthMap = new TreeMap<>(); // tracks min depth seen for each HD
+    
+            traverse(root, 0, 0, hdMap, depthMap);
+            return new ArrayList<>(hdMap.values());
+        }
+    
+        // DFS with manual depth tracking to decide whether to overwrite -
+        // more bookkeeping than needed, since BFS naturally solves this
+        private void traverse(TreeNode node, int hd, int depth, Map<Integer, Integer> hdMap, Map<Integer, Integer> depthMap) {
+            if (node == null) return;
+    
+            if (!depthMap.containsKey(hd) || depth < depthMap.get(hd)) {
+                depthMap.put(hd, depth);
+                hdMap.put(hd, node.val);
+            }
+    
+            traverse(node.left, hd - 1, depth + 1, hdMap, depthMap);
+            traverse(node.right, hd + 1, depth + 1, hdMap, depthMap);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by TreeMap operations
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> topView(TreeNode root) {
+            if (root == null) return new ArrayList<>();
+            TreeMap<Integer, Integer> hdMap = new TreeMap<>();
+            Queue<TreeNode> queue = new LinkedList<>();
+            Queue<Integer> hdQueue = new LinkedList<>();
+    
+            queue.offer(root);
+            hdQueue.offer(0);
+    
+            // BFS: first node encountered at each HD is the topmost -> only insert if not already present
+            while (!queue.isEmpty()) {
+                TreeNode node = queue.poll();
+                int hd = hdQueue.poll();
+    
+                if (!hdMap.containsKey(hd)) { // first (topmost) node at this HD wins
+                    hdMap.put(hd, node.val);
+                }
+    
+                if (node.left != null) {
+                    queue.offer(node.left);
+                    hdQueue.offer(hd - 1);
+                }
+                if (node.right != null) {
+                    queue.offer(node.right);
+                    hdQueue.offer(hd + 1);
+                }
+            }
+            return new ArrayList<>(hdMap.values());
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a binary tree and two nodes p and q, find their lowest common ancestor (LCA) — the lowest node in the tree that has both p and q as descendants.
+    
+    EXAMPLE:
+    Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+    Output: 3`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) to find paths + O(H) to compare — but path storage adds overhead
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+            List<TreeNode> pathP = new ArrayList<>();
+            List<TreeNode> pathQ = new ArrayList<>();
+    
+            findPath(root, p, pathP, new ArrayList<>());
+            findPath(root, q, pathQ, new ArrayList<>());
+    
+            TreeNode lca = null;
+            int i = 0;
+            while (i < pathP.size() && i < pathQ.size() && pathP.get(i) == pathQ.get(i)) {
+                lca = pathP.get(i); // walk both paths together, last common node is LCA
+                i++;
+            }
+            return lca;
+        }
+    
+        private boolean findPath(TreeNode node, TreeNode target, List<TreeNode> result, List<TreeNode> current) {
+            if (node == null) return false;
+            current.add(node);
+            if (node == target) {
+                result.addAll(current);
+                return true;
+            }
+            if (findPath(node.left, target, result, current) || findPath(node.right, target, result, current)) {
+                return true;
+            }
+            current.remove(current.size() - 1); // backtrack
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+            if (root == null || root == p || root == q) return root;
+    
+            TreeNode left = lowestCommonAncestor(root.left, p, q);
+            TreeNode right = lowestCommonAncestor(root.right, p, q);
+    
+            if (left != null && right != null) return root; // p and q found in different subtrees
+            return (left != null) ? left : right; // both in same subtree, or one/none found
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree and an integer k, return all node values at level k (root is at level 0).
+    
+    EXAMPLE:
+    Input: root = [1,2,3,4,5,6,7], k = 2
+    Output: [4,5,6,7]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with redundant traversal overhead — re-traverses from root for level checking
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> kthLevel(TreeNode root, int k) {
+            List<Integer> result = new ArrayList<>();
+            int height = getHeight(root);
+    
+            if (k > height) return result; // level doesn't exist
+    
+            collectAtLevel(root, k, result); // separate DFS pass just for level k
+            return result;
+        }
+    
+        private int getHeight(TreeNode node) {
+            if (node == null) return -1;
+            return 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        }
+    
+        private void collectAtLevel(TreeNode node, int level, List<Integer> result) {
+            if (node == null) return;
+            if (level == 0) {
+                result.add(node.val);
+                return;
+            }
+            collectAtLevel(node.left, level - 1, result);
+            collectAtLevel(node.right, level - 1, result);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> kthLevel(TreeNode root, int k) {
+            List<Integer> result = new ArrayList<>();
+            if (root == null) return result;
+    
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+            int currentLevel = 0;
+    
+            // single BFS pass, stop as soon as target level is processed
+            while (!queue.isEmpty()) {
+                int size = queue.size();
+    
+                if (currentLevel == k) {
+                    for (int i = 0; i < size; i++) {
+                        result.add(queue.poll().val);
+                    }
+                    return result;
+                }
+    
+                for (int i = 0; i < size; i++) {
+                    TreeNode node = queue.poll();
+                    if (node.left != null) queue.offer(node.left);
+                    if (node.right != null) queue.offer(node.right);
+                }
+                currentLevel++;
+            }
+            return result; // level k doesn't exist
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree, construct and return the binary tree.
+    
+    EXAMPLE:
+    Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+    Output: [3,9,20,null,null,15,7]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — linear search in inorder array to find root index each time
+    Space Complexity: O(N^2) — creates new subarrays at every recursive call`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode buildTree(int[] preorder, int[] inorder) {
+            if (preorder.length == 0) return null;
+    
+            int rootVal = preorder[0];
+            TreeNode root = new TreeNode(rootVal);
+    
+            int rootIndex = 0;
+            for (int i = 0; i < inorder.length; i++) { // linear search for root in inorder
+                if (inorder[i] == rootVal) { rootIndex = i; break; }
+            }
+    
+            int[] leftInorder = Arrays.copyOfRange(inorder, 0, rootIndex);       // creates new arrays
+            int[] rightInorder = Arrays.copyOfRange(inorder, rootIndex + 1, inorder.length);
+            int[] leftPreorder = Arrays.copyOfRange(preorder, 1, rootIndex + 1);
+            int[] rightPreorder = Arrays.copyOfRange(preorder, rootIndex + 1, preorder.length);
+    
+            root.left = buildTree(leftPreorder, leftInorder);
+            root.right = buildTree(rightPreorder, rightInorder);
+    
+            return root;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — hashmap + recursion stack`,
+    
+      optimalCode: `class Solution {
+        private Map<Integer, Integer> inorderIndexMap = new HashMap<>();
+        private int preIndex = 0;
+    
+        public TreeNode buildTree(int[] preorder, int[] inorder) {
+            for (int i = 0; i < inorder.length; i++) { // O(1) lookup instead of linear search
+                inorderIndexMap.put(inorder[i], i);
+            }
+            return build(preorder, 0, inorder.length - 1);
+        }
+    
+        private TreeNode build(int[] preorder, int inStart, int inEnd) {
+            if (inStart > inEnd) return null;
+    
+            int rootVal = preorder[preIndex++]; // next node in preorder is always the current root
+            TreeNode root = new TreeNode(rootVal);
+    
+            int rootIndex = inorderIndexMap.get(rootVal); // O(1) lookup
+    
+            root.left = build(preorder, inStart, rootIndex - 1);   // no array copying, just index ranges
+            root.right = build(preorder, rootIndex + 1, inEnd);
+    
+            return root;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, transform it into a "Sum Tree" where each node's new value is the sum of all values in its original left and right subtrees (leaf nodes become 0).
+    
+    EXAMPLE:
+    Input: root = [10,-2,6,8,-4,7,5]
+    Output: [20,4,12,0,0,0,0]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, sums its subtree via a separate full traversal
+    Space Complexity: O(H) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public void toSumTree(TreeNode root) {
+            if (root == null) return;
+    
+            int leftSum = sumTree(root.left);   // full traversal of left subtree
+            int rightSum = sumTree(root.right); // full traversal of right subtree
+    
+            toSumTree(root.left);  // recurse to transform children too
+            toSumTree(root.right);
+    
+            root.val = leftSum + rightSum; // uses ORIGINAL values since children haven't changed yet... 
+            // but this actually mutates children before capturing original sums in a naive order,
+            // so sums must be captured before recursing, as shown above
+        }
+    
+        private int sumTree(TreeNode node) { // recomputes sum of ORIGINAL subtree, redundant work
+            if (node == null) return 0;
+            return node.val + sumTree(node.left) + sumTree(node.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public void toSumTree(TreeNode root) {
+            computeSum(root);
+        }
+    
+        // single post-order pass: transform node AND return original subtree sum simultaneously
+        private int computeSum(TreeNode node) {
+            if (node == null) return 0;
+    
+            int originalVal = node.val;
+            int leftSum = computeSum(node.left);
+            int rightSum = computeSum(node.right);
+    
+            node.val = leftSum + rightSum; // update node in place
+    
+            return originalVal + leftSum + rightSum; // return sum of original subtree to parent
+        }
+    }`
+    },
+
+
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, flatten the tree into a "linked list" using the right child pointers (each node's left pointer set to null), following preorder traversal order.
+    
+    EXAMPLE:
+    Input: root = [1,2,5,3,4,null,6]
+    Output: [1,null,2,null,3,null,4,null,5,null,6]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — stores preorder traversal in a list first`,
+    
+      bruteForceCode: `class Solution {
+        public void flatten(TreeNode root) {
+            List<TreeNode> nodes = new ArrayList<>();
+            preorder(root, nodes); // collect all nodes in preorder first
+    
+            for (int i = 0; i < nodes.size() - 1; i++) { // rebuild links using the list
+                nodes.get(i).left = null;
+                nodes.get(i).right = nodes.get(i + 1);
+            }
+            if (!nodes.isEmpty()) nodes.get(nodes.size() - 1).left = null;
+        }
+    
+        private void preorder(TreeNode node, List<TreeNode> nodes) {
+            if (node == null) return;
+            nodes.add(node);
+            preorder(node.left, nodes);
+            preorder(node.right, nodes);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — Morris-style in-place flattening`,
+    
+      optimalCode: `class Solution {
+        public void flatten(TreeNode root) {
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (curr.left != null) {
+                    // find rightmost node of left subtree (predecessor)
+                    TreeNode pred = curr.left;
+                    while (pred.right != null) pred = pred.right;
+    
+                    pred.right = curr.right; // attach original right subtree at the end
+                    curr.right = curr.left;  // move left subtree to right
+                    curr.left = null;
+                }
+                curr = curr.right; // move to next node
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the maximum path sum of any non-empty path (a path can start and end at any node, and must go through parent-child connections, but doesn't need to pass through the root).
+    
+    EXAMPLE:
+    Input: root = [-10,9,20,null,null,15,7]
+    Output: 42`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node as potential path root, recomputes max downward sums separately
+    Space Complexity: O(H) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        int maxSum = Integer.MIN_VALUE;
+    
+        public int maxPathSum(TreeNode root) {
+            traverseAllNodes(root);
+            return maxSum;
+        }
+    
+        private void traverseAllNodes(TreeNode node) {
+            if (node == null) return;
+    
+            int pathThroughNode = node.val + maxDownward(node.left) + maxDownward(node.right); // recomputes downward sums from scratch
+            maxSum = Math.max(maxSum, pathThroughNode);
+    
+            traverseAllNodes(node.left);
+            traverseAllNodes(node.right);
+        }
+    
+        private int maxDownward(TreeNode node) { // O(N) call, repeated for every node in outer traversal
+            if (node == null) return 0;
+            int left = Math.max(0, maxDownward(node.left));
+            int right = Math.max(0, maxDownward(node.right));
+            return node.val + Math.max(left, right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        int maxSum = Integer.MIN_VALUE;
+    
+        public int maxPathSum(TreeNode root) {
+            maxDownward(root);
+            return maxSum;
+        }
+    
+        // single pass: compute max downward sum AND update global max path sum simultaneously
+        private int maxDownward(TreeNode node) {
+            if (node == null) return 0;
+    
+            int left = Math.max(0, maxDownward(node.left));  // ignore negative contributions
+            int right = Math.max(0, maxDownward(node.right));
+    
+            maxSum = Math.max(maxSum, node.val + left + right); // path through this node as the "peak"
+    
+            return node.val + Math.max(left, right); // can only extend one branch upward
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the maximum width of the tree (the maximum number of nodes present between the leftmost and rightmost non-null nodes at any level, including the null nodes between them).
+    
+    EXAMPLE:
+    Input: root = [1,3,2,5,3,null,9]
+    Output: 4`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each level, does a separate traversal to find leftmost/rightmost positions
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int widthOfBinaryTree(TreeNode root) {
+            int height = getHeight(root);
+            int maxWidth = 0;
+    
+            for (int level = 0; level < height; level++) { // separate pass per level
+                List<Long> positions = new ArrayList<>();
+                collectPositions(root, 0, level, 0, positions);
+                if (!positions.isEmpty()) {
+                    long width = positions.get(positions.size() - 1) - positions.get(0) + 1;
+                    maxWidth = Math.max(maxWidth, (int) width);
+                }
+            }
+            return maxWidth;
+        }
+    
+        private int getHeight(TreeNode node) {
+            if (node == null) return 0;
+            return 1 + Math.max(getHeight(node.left), getHeight(node.right));
+        }
+    
+        private void collectPositions(TreeNode node, int currLevel, int targetLevel, long pos, List<Long> positions) {
+            if (node == null) return;
+            if (currLevel == targetLevel) {
+                positions.add(pos);
+                return;
+            }
+            collectPositions(node.left, currLevel + 1, targetLevel, 2 * pos, positions);
+            collectPositions(node.right, currLevel + 1, targetLevel, 2 * pos + 1, positions);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
+    
+      optimalCode: `class Solution {
+        public int widthOfBinaryTree(TreeNode root) {
+            if (root == null) return 0;
+            int maxWidth = 0;
+    
+            Queue<TreeNode> nodeQueue = new LinkedList<>();
+            Queue<Long> indexQueue = new LinkedList<>();
+            nodeQueue.offer(root);
+            indexQueue.offer(0L);
+    
+            while (!nodeQueue.isEmpty()) {
+                int size = nodeQueue.size();
+                long first = indexQueue.peek(); // leftmost index at this level
+                long last = first;
+    
+                for (int i = 0; i < size; i++) {
+                    TreeNode node = nodeQueue.poll();
+                    long idx = indexQueue.poll();
+                    last = idx; // rightmost index seen so far this level
+    
+                    if (node.left != null) {
+                        nodeQueue.offer(node.left);
+                        indexQueue.offer(2 * idx);
+                    }
+                    if (node.right != null) {
+                        nodeQueue.offer(node.right);
+                        indexQueue.offer(2 * idx + 1);
+                    }
+                }
+                maxWidth = Math.max(maxWidth, (int) (last - first + 1));
+            }
+            return maxWidth;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.
+    
+    EXAMPLE:
+    Input: inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
+    Output: [3,9,20,null,null,15,7]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — linear search in inorder array to find root index each time
+    Space Complexity: O(N^2) — creates new subarrays at every recursive call`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode buildTree(int[] inorder, int[] postorder) {
+            if (postorder.length == 0) return null;
+    
+            int rootVal = postorder[postorder.length - 1]; // last element in postorder is root
+            TreeNode root = new TreeNode(rootVal);
+    
+            int rootIndex = 0;
+            for (int i = 0; i < inorder.length; i++) { // linear search
+                if (inorder[i] == rootVal) { rootIndex = i; break; }
+            }
+    
+            int[] leftInorder = Arrays.copyOfRange(inorder, 0, rootIndex);
+            int[] rightInorder = Arrays.copyOfRange(inorder, rootIndex + 1, inorder.length);
+            int[] leftPostorder = Arrays.copyOfRange(postorder, 0, rootIndex);
+            int[] rightPostorder = Arrays.copyOfRange(postorder, rootIndex, postorder.length - 1);
+    
+            root.left = buildTree(leftInorder, leftPostorder);
+            root.right = buildTree(rightInorder, rightPostorder);
+    
+            return root;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — hashmap + recursion stack`,
+    
+      optimalCode: `class Solution {
+        private Map<Integer, Integer> inorderIndexMap = new HashMap<>();
+        private int postIndex;
+    
+        public TreeNode buildTree(int[] inorder, int[] postorder) {
+            for (int i = 0; i < inorder.length; i++) { // O(1) lookup instead of linear search
+                inorderIndexMap.put(inorder[i], i);
+            }
+            postIndex = postorder.length - 1;
+            return build(postorder, 0, inorder.length - 1);
+        }
+    
+        private TreeNode build(int[] postorder, int inStart, int inEnd) {
+            if (inStart > inEnd) return null;
+    
+            int rootVal = postorder[postIndex--]; // process postorder from the end (root first)
+            TreeNode root = new TreeNode(rootVal);
+    
+            int rootIndex = inorderIndexMap.get(rootVal);
+    
+            // build right subtree FIRST since we're consuming postorder from the end
+            root.right = build(postorder, rootIndex + 1, inEnd);
+            root.left = build(postorder, inStart, rootIndex - 1);
+    
+            return root;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, return the zigzag level order traversal of its nodes' values (alternating left-to-right, then right-to-left, level by level).
+    
+    EXAMPLE:
+    Input: root = [3,9,20,null,null,15,7]
+    Output: [[3],[20,9],[15,7]]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — does normal level order traversal, then reverses alternate levels using sorting-like overhead per level
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+            List<List<Integer>> result = new ArrayList<>();
+            if (root == null) return result;
+    
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+            int level = 0;
+    
+            while (!queue.isEmpty()) {
+                int size = queue.size();
+                List<Integer> currentLevel = new ArrayList<>();
+    
+                for (int i = 0; i < size; i++) {
+                    TreeNode node = queue.poll();
+                    currentLevel.add(node.val); // always add left to right
+                    if (node.left != null) queue.offer(node.left);
+                    if (node.right != null) queue.offer(node.right);
+                }
+    
+                if (level % 2 == 1) {
+                    Collections.reverse(currentLevel); // separate reversal pass for odd levels
+                }
+                result.add(currentLevel);
+                level++;
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
+    
+      optimalCode: `class Solution {
+        public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+            List<List<Integer>> result = new ArrayList<>();
+            if (root == null) return result;
+    
+            Queue<TreeNode> queue = new LinkedList<>();
+            queue.offer(root);
+            boolean leftToRight = true;
+    
+            while (!queue.isEmpty()) {
+                int size = queue.size();
+                LinkedList<Integer> currentLevel = new LinkedList<>(); // supports O(1) addFirst
+    
+                for (int i = 0; i < size; i++) {
+                    TreeNode node = queue.poll();
+    
+                    if (leftToRight) {
+                        currentLevel.addLast(node.val);
+                    } else {
+                        currentLevel.addFirst(node.val); // insert at front directly, no separate reversal pass
+                    }
+    
+                    if (node.left != null) queue.offer(node.left);
+                    if (node.right != null) queue.offer(node.right);
+                }
+                result.add(currentLevel);
+                leftToRight = !leftToRight;
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, a target node, and an integer k, find the kth ancestor of the target node (the ancestor k levels above it in the tree). Return -1 or null if it doesn't exist.
+    
+    EXAMPLE:
+    Input: root = [1,2,3,4,5,6,7], target = 5, k = 2
+    Output: 1`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) to find path + O(1) to index — but path storage adds overhead
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int kthAncestor(TreeNode root, TreeNode target, int k) {
+            List<TreeNode> path = new ArrayList<>();
+            findPath(root, target, path);
+    
+            int ancestorIndex = path.size() - 1 - k; // walk back k steps from target's position in path
+            if (ancestorIndex < 0) return -1;
+    
+            return path.get(ancestorIndex).val;
+        }
+    
+        private boolean findPath(TreeNode node, TreeNode target, List<TreeNode> path) {
+            if (node == null) return false;
+            path.add(node);
+            if (node == target) return true;
+    
+            if (findPath(node.left, target, path) || findPath(node.right, target, path)) {
+                return true;
+            }
+            path.remove(path.size() - 1); // backtrack
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack, no extra path storage`,
+    
+      optimalCode: `class Solution {
+        private int result = -1;
+    
+        public int kthAncestor(TreeNode root, TreeNode target, int k) {
+            findKthAncestor(root, target, k);
+            return result;
+        }
+    
+        // returns distance from 'target' if found in this subtree, else -1
+        // sets 'result' as soon as distance reaches k while unwinding the recursion
+        private int findKthAncestor(TreeNode node, TreeNode target, int k) {
+            if (node == null) return -1;
+            if (node == target) return 0;
+    
+            int leftDist = findKthAncestor(node.left, target, k);
+            if (leftDist != -1) {
+                if (leftDist + 1 == k) result = node.val;
+                return leftDist + 1;
+            }
+    
+            int rightDist = findKthAncestor(node.right, target, k);
+            if (rightDist != -1) {
+                if (rightDist + 1 == k) result = node.val;
+                return rightDist + 1;
+            }
+    
+            return -1;
+        }
+    }`
+    },
+
+
+    {
+      title: `QUESTION:   (Binary Search Tree)
+    Given the root of a Binary Search Tree, find the kth largest element in it.
+    
+    EXAMPLE:
+    Input: root = [3,1,4,null,2], k = 1
+    Output: 4`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all values then sorts
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int kthLargest(TreeNode root, int k) {
+            List<Integer> values = new ArrayList<>();
+            collect(root, values); // collect ALL nodes regardless of k
+    
+            Collections.sort(values); // ignores that inorder traversal is already sorted
+            return values.get(values.size() - k);
+        }
+    
+        private void collect(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            collect(node.left, values);
+            values.add(node.val);
+            collect(node.right, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(H + k) — reverse inorder traversal, stops early once kth element found
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        private int count = 0;
+        private int result = -1;
+    
+        public int kthLargest(TreeNode root, int k) {
+            reverseInorder(root, k);
+            return result;
+        }
+    
+        // reverse inorder (Right -> Root -> Left) visits nodes in descending order
+        private void reverseInorder(TreeNode node, int k) {
+            if (node == null || count >= k) return;
+    
+            reverseInorder(node.right, k);
+            count++;
+            if (count == k) {
+                result = node.val;
+                return; // stop as soon as kth largest is found
+            }
+            reverseInorder(node.left, k);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an integer array nums sorted in ascending order, convert it to a height-balanced binary search tree.
+    
+    EXAMPLE:
+    Input: nums = [-10,-3,0,5,9]
+    Output: [0,-3,9,-10,null,5]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but produces an unbalanced/skewed tree — inserts elements one by one via standard BST insertion
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode sortedArrayToBST(int[] nums) {
+            TreeNode root = null;
+            for (int num : nums) { // sequential insertion causes a skewed (linked-list-like) tree
+                root = insert(root, num);
+            }
+            return root;
+        }
+    
+        private TreeNode insert(TreeNode node, int val) {
+            if (node == null) return new TreeNode(val);
+            if (val < node.val) node.left = insert(node.left, val);
+            else node.right = insert(node.right, val);
+            return node;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(log N) recursion stack`,
+    
+      optimalCode: `class Solution {
+        public TreeNode sortedArrayToBST(int[] nums) {
+            return build(nums, 0, nums.length - 1);
+        }
+    
+        // always pick the middle element as root -> guarantees balanced tree
+        private TreeNode build(int[] nums, int left, int right) {
+            if (left > right) return null;
+    
+            int mid = left + (right - left) / 2;
+            TreeNode root = new TreeNode(nums[mid]);
+    
+            root.left = build(nums, left, mid - 1);
+            root.right = build(nums, mid + 1, right);
+    
+            return root;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a Binary Search Tree, and an integer k, find the kth smallest element in it.
+    
+    EXAMPLE:
+    Input: root = [5,3,6,2,4,null,null,1], k = 3
+    Output: 3`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all values then sorts
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int kthSmallest(TreeNode root, int k) {
+            List<Integer> values = new ArrayList<>();
+            collect(root, values); // collect ALL nodes regardless of k
+    
+            Collections.sort(values); // ignores that inorder traversal is already sorted
+            return values.get(k - 1);
+        }
+    
+        private void collect(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            collect(node.left, values);
+            values.add(node.val);
+            collect(node.right, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(H + k) — inorder traversal, stops early once kth element found
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        private int count = 0;
+        private int result = -1;
+    
+        public int kthSmallest(TreeNode root, int k) {
+            inorder(root, k);
+            return result;
+        }
+    
+        // inorder traversal of a BST visits nodes in ascending order
+        private void inorder(TreeNode node, int k) {
+            if (node == null || count >= k) return;
+    
+            inorder(node.left, k);
+            count++;
+            if (count == k) {
+                result = node.val;
+                return; // stop as soon as kth smallest is found
+            }
+            inorder(node.right, k);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a Binary Search Tree and two nodes p and q, find their lowest common ancestor (LCA) in the BST.
+    
+    EXAMPLE:
+    Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+    Output: 6`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) — treats it like a generic binary tree, ignoring BST ordering property
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+            List<TreeNode> pathP = new ArrayList<>();
+            List<TreeNode> pathQ = new ArrayList<>();
+    
+            findPath(root, p, pathP); // full DFS search, ignoring BST property entirely
+            findPath(root, q, pathQ);
+    
+            TreeNode lca = null;
+            int i = 0;
+            while (i < pathP.size() && i < pathQ.size() && pathP.get(i) == pathQ.get(i)) {
+                lca = pathP.get(i);
+                i++;
+            }
+            return lca;
+        }
+    
+        private boolean findPath(TreeNode node, TreeNode target, List<TreeNode> path) {
+            if (node == null) return false;
+            path.add(node);
+            if (node == target) return true;
+            if (findPath(node.left, target, path) || findPath(node.right, target, path)) return true;
+            path.remove(path.size() - 1);
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(H) — H = height of tree, uses BST ordering to skip unnecessary subtrees
+    Space Complexity: O(1) — iterative, no recursion or extra storage`,
+    
+      optimalCode: `class Solution {
+        public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                // both p and q are smaller -> LCA must be in left subtree
+                if (p.val < curr.val && q.val < curr.val) {
+                    curr = curr.left;
+                }
+                // both p and q are larger -> LCA must be in right subtree
+                else if (p.val > curr.val && q.val > curr.val) {
+                    curr = curr.right;
+                }
+                // split point found -> this is the LCA
+                else {
+                    return curr;
+                }
+            }
+            return null;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a binary tree, determine if it is a valid Binary Search Tree (BST).
+    
+    EXAMPLE:
+    Input: root = [5,1,4,null,null,3,6]
+    Output: false`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects inorder traversal into a list, then checks sorted order
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public boolean isValidBST(TreeNode root) {
+            List<Integer> values = new ArrayList<>();
+            inorder(root, values); // collect ALL values first
+    
+            for (int i = 1; i < values.size(); i++) { // separate pass to check strictly increasing order
+                if (values.get(i) <= values.get(i - 1)) return false;
+            }
+            return true;
+        }
+    
+        private void inorder(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            inorder(node.left, values);
+            values.add(node.val);
+            inorder(node.right, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack, no extra list storage`,
+    
+      optimalCode: `class Solution {
+        public boolean isValidBST(TreeNode root) {
+            return validate(root, null, null);
+        }
+    
+        // pass down valid (min, max) bounds instead of collecting values first
+        private boolean validate(TreeNode node, Long lower, Long upper) {
+            if (node == null) return true;
+    
+            if (lower != null && node.val <= lower) return false;
+            if (upper != null && node.val >= upper) return false;
+    
+            return validate(node.left, lower, (long) node.val) &&
+                   validate(node.right, (long) node.val, upper);
+        }
+    }`
+    },
+
+    {
+      title: `QUESTION:
+    Given the root of a BST where exactly two nodes were swapped by mistake, recover the tree without changing its structure (fix it in place so it becomes a valid BST again).
+    
+    EXAMPLE:
+    Input: root = [1,3,null,null,2]
+    Output: [3,1,null,null,2]  (nodes 1 and 3 are swapped back)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — collects all values, sorts them, then reassigns via another inorder pass
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public void recoverTree(TreeNode root) {
+            List<TreeNode> nodes = new ArrayList<>();
+            List<Integer> values = new ArrayList<>();
+    
+            collect(root, nodes, values); // gather all nodes and values
+    
+            Collections.sort(values); // brute-force fix: just sort all values (ignores the "only 2 swapped" insight)
+    
+            for (int i = 0; i < nodes.size(); i++) { // reassign sorted values back via another pass
+                nodes.get(i).val = values.get(i);
+            }
+        }
+    
+        private void collect(TreeNode node, List<TreeNode> nodes, List<Integer> values) {
+            if (node == null) return;
+            collect(node.left, nodes, values);
+            nodes.add(node);
+            values.add(node.val);
+            collect(node.right, nodes, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack, no extra list storage`,
+    
+      optimalCode: `class Solution {
+        private TreeNode first, second, prev;
+    
+        public void recoverTree(TreeNode root) {
+            inorder(root);
+            int temp = first.val; // swap only the two problematic nodes directly
+            first.val = second.val;
+            second.val = temp;
+        }
+    
+        // inorder traversal should be strictly increasing in a valid BST;
+        // find the two nodes where this order is violated
+        private void inorder(TreeNode node) {
+            if (node == null) return;
+            inorder(node.left);
+    
+            if (prev != null && prev.val > node.val) {
+                if (first == null) first = prev;       // first violation
+                second = node;                          // update on every violation (handles adjacent swap case)
+            }
+            prev = node;
+    
+            inorder(node.right);
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a perfect binary tree where all leaves are on the same level, and every parent has two children, populate each next pointer to point to its next right node. If there is no next right node, the next pointer should be null.
+    
+    EXAMPLE:
+    Input: root = [1,2,3,4,5,6,7]
+    Output: [1,#,2,3,#,4,5,6,7,#]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — uses a queue for level order traversal`,
+    
+      bruteForceCode: `class Solution {
+        public Node connect(Node root) {
+            if (root == null) return root;
+            Queue<Node> queue = new LinkedList<>();
+            queue.offer(root);
+    
+            while (!queue.isEmpty()) {
+                int size = queue.size();
+                Node prev = null;
+    
+                for (int i = 0; i < size; i++) { // standard BFS level order
+                    Node node = queue.poll();
+                    if (prev != null) prev.next = node;
+                    prev = node;
+    
+                    if (node.left != null) queue.offer(node.left);
+                    if (node.right != null) queue.offer(node.right);
+                }
+            }
+            return root;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(1) extra — uses already-established next pointers instead of a queue`,
+    
+      optimalCode: `class Solution {
+        public Node connect(Node root) {
+            if (root == null) return root;
+            Node leftmost = root;
+    
+            while (leftmost.left != null) { // while not at leaf level
+                Node curr = leftmost;
+    
+                while (curr != null) {
+                    curr.left.next = curr.right; // connect children within same parent
+                    if (curr.next != null) {
+                        curr.right.next = curr.next.left; // connect across different parents
+                    }
+                    curr = curr.next; // move to next node at current level using existing next pointers
+                }
+                leftmost = leftmost.left; // move down to next level
+            }
+            return root;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of unique integers preorder, which represents the preorder traversal of a BST, construct the tree and return its root.
+    
+    EXAMPLE:
+    Input: preorder = [8,5,1,7,10,12]
+    Output: [8,5,10,1,7,null,12]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, linearly scans ahead to find where the right subtree begins
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        private int index = 0;
+    
+        public TreeNode bstFromPreorder(int[] preorder) {
+            return build(preorder, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+    
+        private TreeNode build(int[] preorder, int lower, int upper) {
+            if (index == preorder.length || preorder[index] < lower || preorder[index] > upper) return null;
+    
+            int val = preorder[index++];
+            TreeNode root = new TreeNode(val);
+    
+            // scans forward to find split point between left and right subtree values -- redundant since bounds already handle it
+            int splitIndex = index;
+            while (splitIndex < preorder.length && preorder[splitIndex] < val) splitIndex++;
+    
+            root.left = build(preorder, lower, val - 1);
+            root.right = build(preorder, val + 1, upper);
+    
+            return root;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        private int index = 0;
+    
+        public TreeNode bstFromPreorder(int[] preorder) {
+            return build(preorder, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+    
+        // pass valid (lower, upper) bounds down -- BST property alone determines subtree membership
+        private TreeNode build(int[] preorder, int lower, int upper) {
+            if (index == preorder.length) return null;
+    
+            int val = preorder[index];
+            if (val < lower || val > upper) return null; // doesn't belong in this subtree
+    
+            index++;
+            TreeNode root = new TreeNode(val);
+            root.left = build(preorder, lower, val - 1);
+            root.right = build(preorder, val + 1, upper);
+    
+            return root;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Implement an iterator over a BST that supports next() (returns the next smallest number) and hasNext() operations. Both should run in average O(1) time and use O(H) memory.
+    
+    EXAMPLE:
+    Input: root = [7,3,15,null,null,9,20], calls: next(), next(), hasNext(), next(), hasNext()
+    Output: 3, 7, true, 9, true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) upfront, O(1) per next() call
+    Space Complexity: O(N) — stores entire inorder traversal in a list`,
+    
+      bruteForceCode: `class BSTIterator {
+        private List<Integer> values;
+        private int index = 0;
+    
+        public BSTIterator(TreeNode root) {
+            values = new ArrayList<>();
+            inorder(root, values); // precompute and store ALL values upfront
+        }
+    
+        private void inorder(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            inorder(node.left, values);
+            values.add(node.val);
+            inorder(node.right, values);
+        }
+    
+        public int next() {
+            return values.get(index++);
+        }
+    
+        public boolean hasNext() {
+            return index < values.size();
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(1) average per next() call, O(H) for hasNext()
+    Space Complexity: O(H) — only stores nodes along the current path, not the whole tree`,
+    
+      optimalCode: `class BSTIterator {
+        private Deque<TreeNode> stack;
+    
+        public BSTIterator(TreeNode root) {
+            stack = new ArrayDeque<>();
+            pushLeft(root); // push only the leftmost path initially
+        }
+    
+        public int next() {
+            TreeNode node = stack.pop();
+            if (node.right != null) {
+                pushLeft(node.right); // push leftmost path of right subtree, lazily
+            }
+            return node.val;
+        }
+    
+        public boolean hasNext() {
+            return !stack.isEmpty();
+        }
+    
+        private void pushLeft(TreeNode node) {
+            while (node != null) {
+                stack.push(node);
+                node = node.left;
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a Binary Search Tree, flatten it into a sorted singly linked list (using right pointers only, left set to null), following ascending order.
+    
+    EXAMPLE:
+    Input: root = [5,3,6,2,4,null,8]
+    Output: [2,3,4,5,6,8]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N)
+    Space Complexity: O(N) — stores inorder traversal in a list first`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode flatten(TreeNode root) {
+            List<TreeNode> nodes = new ArrayList<>();
+            inorder(root, nodes); // collect all nodes in sorted (inorder) order
+    
+            for (int i = 0; i < nodes.size() - 1; i++) { // rebuild links using the list
+                nodes.get(i).left = null;
+                nodes.get(i).right = nodes.get(i + 1);
+            }
+            if (!nodes.isEmpty()) nodes.get(nodes.size() - 1).left = null;
+    
+            return nodes.isEmpty() ? null : nodes.get(0);
+        }
+    
+        private void inorder(TreeNode node, List<TreeNode> nodes) {
+            if (node == null) return;
+            inorder(node.left, nodes);
+            nodes.add(node);
+            inorder(node.right, nodes);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack, no extra list storage`,
+    
+      optimalCode: `class Solution {
+        private TreeNode prev = null;
+        private TreeNode newHead = null;
+    
+        public TreeNode flatten(TreeNode root) {
+            inorder(root);
+            return newHead;
+        }
+    
+        // single inorder pass: relink nodes on the fly as we visit them
+        private void inorder(TreeNode node) {
+            if (node == null) return;
+    
+            inorder(node.left);
+    
+            if (prev == null) {
+                newHead = node; // first node visited becomes the head
+            } else {
+                prev.right = node; // link previous node to current
+                prev.left = null;
+            }
+            prev = node;
+    
+            TreeNode rightChild = node.right; // save before overwriting
+            inorder(rightChild);
+        }
+    }`
+    },
+
+
+    {
+      title: `QUESTION:
+    Given the roots of two Binary Search Trees, return all elements of both BSTs in a single sorted list.
+    
+    EXAMPLE:
+    Input: root1 = [2,1,4], root2 = [1,0,3]
+    Output: [0,1,1,2,3,4]`,
+    
+      bruteForceComplexity: `Time Complexity: O((N+M) log(N+M)) — collect all values from both trees, then sort
+    Space Complexity: O(N+M)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> mergeTwoBSTs(TreeNode root1, TreeNode root2) {
+            List<Integer> values = new ArrayList<>();
+            collect(root1, values);
+            collect(root2, values);
+    
+            Collections.sort(values); // ignores that each tree's inorder is already sorted individually
+            return values;
+        }
+    
+        private void collect(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            collect(node.left, values);
+            values.add(node.val);
+            collect(node.right, values);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N+M)
+    Space Complexity: O(N+M) — two lists (already sorted) merged directly`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> mergeTwoBSTs(TreeNode root1, TreeNode root2) {
+            List<Integer> list1 = new ArrayList<>();
+            List<Integer> list2 = new ArrayList<>();
+            inorder(root1, list1); // each inorder traversal is already sorted
+            inorder(root2, list2);
+    
+            return mergeSortedLists(list1, list2); // linear merge, no sorting needed
+        }
+    
+        private void inorder(TreeNode node, List<Integer> values) {
+            if (node == null) return;
+            inorder(node.left, values);
+            values.add(node.val);
+            inorder(node.right, values);
+        }
+    
+        private List<Integer> mergeSortedLists(List<Integer> list1, List<Integer> list2) {
+            List<Integer> result = new ArrayList<>();
+            int i = 0, j = 0;
+    
+            while (i < list1.size() && j < list2.size()) {
+                if (list1.get(i) <= list2.get(j)) result.add(list1.get(i++));
+                else result.add(list2.get(j++));
+            }
+            while (i < list1.size()) result.add(list1.get(i++));
+            while (j < list2.size()) result.add(list2.get(j++));
+    
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Design an algorithm to serialize and deserialize a Binary Search Tree. Serialization converts the tree to a string; deserialization reconstructs it from that string.
+    
+    EXAMPLE:
+    Input: root = [4,2,5,1,3]
+    Output: (serialized string) -> deserialize -> same tree structure`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) but treats it like a generic tree — serializes with null markers, ignoring BST property
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Codec {
+        public String serialize(TreeNode root) {
+            StringBuilder sb = new StringBuilder();
+            preorder(root, sb); // includes null markers, like a generic binary tree
+            return sb.toString();
+        }
+    
+        private void preorder(TreeNode node, StringBuilder sb) {
+            if (node == null) {
+                sb.append("#,");
+                return;
+            }
+            sb.append(node.val).append(",");
+            preorder(node.left, sb);
+            preorder(node.right, sb);
+        }
+    
+        public TreeNode deserialize(String data) {
+            Queue<String> nodes = new LinkedList<>(Arrays.asList(data.split(",")));
+            return buildTree(nodes);
+        }
+    
+        private TreeNode buildTree(Queue<String> nodes) {
+            String val = nodes.poll();
+            if (val.equals("#")) return null;
+    
+            TreeNode node = new TreeNode(Integer.parseInt(val));
+            node.left = buildTree(nodes);
+            node.right = buildTree(nodes);
+            return node;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N) for both serialize and deserialize
+    Space Complexity: O(N) — no null markers needed, more compact string`,
+    
+      optimalCode: `class Codec {
+        public String serialize(TreeNode root) {
+            StringBuilder sb = new StringBuilder();
+            preorder(root, sb); // no null markers needed -- BST property lets us reconstruct structure
+            return sb.toString().trim();
+        }
+    
+        private void preorder(TreeNode node, StringBuilder sb) {
+            if (node == null) return;
+            sb.append(node.val).append(" ");
+            preorder(node.left, sb);
+            preorder(node.right, sb);
+        }
+    
+        private int index = 0;
+    
+        public TreeNode deserialize(String data) {
+            if (data.isEmpty()) return null;
+            String[] values = data.split(" ");
+            index = 0;
+            return build(values, Integer.MIN_VALUE, Integer.MAX_VALUE);
+        }
+    
+        // exploits BST property: use bounds to determine subtree membership, same as "Construct from Preorder"
+        private TreeNode build(String[] values, int lower, int upper) {
+            if (index == values.length) return null;
+    
+            int val = Integer.parseInt(values[index]);
+            if (val < lower || val > upper) return null;
+    
+            index++;
+            TreeNode node = new TreeNode(val);
+            node.left = build(values, lower, val - 1);
+            node.right = build(values, val + 1, upper);
+            return node;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a Binary Search Tree and a target node, find the inorder predecessor of the target node (the node with the largest value smaller than the target's value).
+    
+    EXAMPLE:
+    Input: root = [20,10,30,5,15], target = 15
+    Output: 10`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) — collects entire inorder traversal, then searches for the predecessor
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode inorderPredecessor(TreeNode root, TreeNode target) {
+            List<TreeNode> nodes = new ArrayList<>();
+            inorder(root, nodes); // collect ALL nodes in sorted order
+    
+            for (int i = 0; i < nodes.size(); i++) { // linear scan to find target, then look one back
+                if (nodes.get(i) == target) {
+                    return (i > 0) ? nodes.get(i - 1) : null;
+                }
+            }
+            return null;
+        }
+    
+        private void inorder(TreeNode node, List<TreeNode> nodes) {
+            if (node == null) return;
+            inorder(node.left, nodes);
+            nodes.add(node);
+            inorder(node.right, nodes);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(H) — H = height of tree
+    Space Complexity: O(1) — iterative, no recursion or extra storage`,
+    
+      optimalCode: `class Solution {
+        public TreeNode inorderPredecessor(TreeNode root, TreeNode target) {
+            TreeNode predecessor = null;
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (target.val > curr.val) {
+                    predecessor = curr; // curr could be the predecessor, keep going right for a closer one
+                    curr = curr.right;
+                } else {
+                    curr = curr.left; // predecessor must be somewhere in left subtree, or doesn't exist here
+                }
+            }
+            return predecessor;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a binary tree, find the size of the largest subtree which is also a Binary Search Tree.
+    
+    EXAMPLE:
+    Input: root = [10,5,15,1,8,null,7]
+    Output: 3  (the subtree rooted at 5, containing nodes 1, 5, 8)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2) — for every node, checks if its subtree is a valid BST via a separate full traversal
+    Space Complexity: O(H) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int largestBSTSubtree(TreeNode root) {
+            int maxSize = 0;
+            maxSize = Math.max(maxSize, checkAndSize(root)); // check root
+            return exploreAllNodes(root, maxSize);
+        }
+    
+        private int exploreAllNodes(TreeNode node, int maxSize) {
+            if (node == null) return maxSize;
+            if (isValidBST(node, null, null)) { // separate full validation for every node
+                maxSize = Math.max(maxSize, size(node));
+            }
+            maxSize = exploreAllNodes(node.left, maxSize);
+            maxSize = exploreAllNodes(node.right, maxSize);
+            return maxSize;
+        }
+    
+        private int checkAndSize(TreeNode node) {
+            return isValidBST(node, null, null) ? size(node) : 0;
+        }
+    
+        private boolean isValidBST(TreeNode node, Integer lower, Integer upper) {
+            if (node == null) return true;
+            if (lower != null && node.val <= lower) return false;
+            if (upper != null && node.val >= upper) return false;
+            return isValidBST(node.left, lower, node.val) && isValidBST(node.right, node.val, upper);
+        }
+    
+        private int size(TreeNode node) {
+            if (node == null) return 0;
+            return 1 + size(node.left) + size(node.right);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N)
+    Space Complexity: O(H) recursion stack`,
+    
+      optimalCode: `class Solution {
+        class Info {
+            boolean isBST;
+            int size;
+            int min, max;
+            Info(boolean isBST, int size, int min, int max) {
+                this.isBST = isBST; this.size = size; this.min = min; this.max = max;
+            }
+        }
+    
+        int maxSize = 0;
+    
+        public int largestBSTSubtree(TreeNode root) {
+            postorder(root);
+            return maxSize;
+        }
+    
+        // single post-order pass: each node returns whether its subtree is a BST, its size, and its value range
+        private Info postorder(TreeNode node) {
+            if (node == null) return new Info(true, 0, Integer.MAX_VALUE, Integer.MIN_VALUE);
+    
+            Info left = postorder(node.left);
+            Info right = postorder(node.right);
+    
+            if (left.isBST && right.isBST && node.val > left.max && node.val < right.min) {
+                int size = left.size + right.size + 1;
+                maxSize = Math.max(maxSize, size);
+                return new Info(true, size, Math.min(node.val, left.min), Math.max(node.val, right.max));
+            }
+    
+            return new Info(false, 0, 0, 0); // not a valid BST, size doesn't matter
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given the root of a Binary Search Tree and a target node, find the inorder successor of the target node (the node with the smallest value greater than the target's value).
+    
+    EXAMPLE:
+    Input: root = [20,10,30,5,15], target = 15
+    Output: 20`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) — collects entire inorder traversal, then searches for the successor
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public TreeNode inorderSuccessor(TreeNode root, TreeNode target) {
+            List<TreeNode> nodes = new ArrayList<>();
+            inorder(root, nodes); // collect ALL nodes in sorted order
+    
+            for (int i = 0; i < nodes.size(); i++) { // linear scan to find target, then look one ahead
+                if (nodes.get(i) == target) {
+                    return (i < nodes.size() - 1) ? nodes.get(i + 1) : null;
+                }
+            }
+            return null;
+        }
+    
+        private void inorder(TreeNode node, List<TreeNode> nodes) {
+            if (node == null) return;
+            inorder(node.left, nodes);
+            nodes.add(node);
+            inorder(node.right, nodes);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(H) — H = height of tree
+    Space Complexity: O(1) — iterative, no recursion or extra storage`,
+    
+      optimalCode: `class Solution {
+        public TreeNode inorderSuccessor(TreeNode root, TreeNode target) {
+            TreeNode successor = null;
+            TreeNode curr = root;
+    
+            while (curr != null) {
+                if (target.val < curr.val) {
+                    successor = curr; // curr could be the successor, keep going left for a closer one
+                    curr = curr.left;
+                } else {
+                    curr = curr.right; // successor must be somewhere in right subtree, or doesn't exist here
+                }
+            }
+            return successor;
+        }
+    }`
+    },
+
+  ],
+
+  "heaps":[
+    {
+      title: `QUESTION:
+    Given K sorted arrays, merge them into a single sorted array.
+    
+    EXAMPLE:
+    Input: arrays = [[1,4,5],[1,3,4],[2,6]]
+    Output: [1,1,2,3,4,4,5,6]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — N = total elements, collects everything then sorts
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public List<Integer> mergeKSortedArrays(int[][] arrays) {
+            List<Integer> result = new ArrayList<>();
+    
+            for (int[] arr : arrays) { // dump everything into one list, ignoring individual sorted order
+                for (int val : arr) {
+                    result.add(val);
+                }
+            }
+    
+            Collections.sort(result); // sorts from scratch instead of using the merge property
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log K) — N = total elements, K = number of arrays
+    Space Complexity: O(K) for the heap + O(N) for result`,
+    
+      optimalCode: `class Solution {
+        public List<Integer> mergeKSortedArrays(int[][] arrays) {
+            List<Integer> result = new ArrayList<>();
+            // min-heap of [value, arrayIndex, elementIndex]
+            PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+    
+            for (int i = 0; i < arrays.length; i++) { // seed heap with first element of each array
+                if (arrays[i].length > 0) {
+                    minHeap.offer(new int[]{arrays[i][0], i, 0});
+                }
+            }
+    
+            while (!minHeap.isEmpty()) {
+                int[] curr = minHeap.poll();
+                result.add(curr[0]);
+    
+                int arrIdx = curr[1], elemIdx = curr[2];
+                if (elemIdx + 1 < arrays[arrIdx].length) { // push next element from same array
+                    minHeap.offer(new int[]{arrays[arrIdx][elemIdx + 1], arrIdx, elemIdx + 1});
+                }
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an integer array nums and an integer k, return the k most frequent elements.
+    
+    EXAMPLE:
+    Input: nums = [1,1,1,2,2,3], k = 2
+    Output: [1,2]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — counts frequencies, then sorts all unique elements by frequency
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class Solution {
+        public int[] topKFrequent(int[] nums, int k) {
+            Map<Integer, Integer> freqMap = new HashMap<>();
+            for (int num : nums) freqMap.merge(num, 1, Integer::sum);
+    
+            List<Integer> unique = new ArrayList<>(freqMap.keySet());
+            unique.sort((a, b) -> freqMap.get(b) - freqMap.get(a)); // full sort of ALL unique elements
+    
+            int[] result = new int[k];
+            for (int i = 0; i < k; i++) result[i] = unique.get(i);
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log K)
+    Space Complexity: O(N) for frequency map + O(K) for heap`,
+    
+      optimalCode: `class Solution {
+        public int[] topKFrequent(int[] nums, int k) {
+            Map<Integer, Integer> freqMap = new HashMap<>();
+            for (int num : nums) freqMap.merge(num, 1, Integer::sum);
+    
+            // min-heap of size k, keeps only the k most frequent elements seen so far
+            PriorityQueue<Map.Entry<Integer, Integer>> minHeap =
+                new PriorityQueue<>((a, b) -> a.getValue() - b.getValue());
+    
+            for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
+                minHeap.offer(entry);
+                if (minHeap.size() > k) minHeap.poll(); // evict least frequent
+            }
+    
+            int[] result = new int[k];
+            for (int i = k - 1; i >= 0; i--) {
+                result[i] = minHeap.poll().getKey();
+            }
+            return result;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Design a data structure that supports adding numbers from a stream, and finding the median of all numbers added so far at any point.
+    
+    EXAMPLE:
+    Input: addNum(1), addNum(2), findMedian(), addNum(3), findMedian()
+    Output: 1.5, 2.0`,
+    
+      bruteForceComplexity: `Time Complexity: O(N) per insertion (to keep sorted) — O(N^2) total for N insertions
+    Space Complexity: O(N)`,
+    
+      bruteForceCode: `class MedianFinder {
+        private List<Integer> nums = new ArrayList<>();
+    
+        public void addNum(int num) {
+            int pos = 0;
+            while (pos < nums.size() && nums.get(pos) < num) pos++; // linear search for insert position
+            nums.add(pos, num); // O(N) shift for insertion
+        }
+    
+        public double findMedian() {
+            int n = nums.size();
+            if (n % 2 == 1) return nums.get(n / 2);
+            return (nums.get(n / 2 - 1) + nums.get(n / 2)) / 2.0;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(log N) per insertion, O(1) for findMedian
+    Space Complexity: O(N)`,
+    
+      optimalCode: `class MedianFinder {
+        private PriorityQueue<Integer> maxHeap; // lower half, largest on top
+        private PriorityQueue<Integer> minHeap; // upper half, smallest on top
+    
+        public MedianFinder() {
+            maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+            minHeap = new PriorityQueue<>();
+        }
+    
+        public void addNum(int num) {
+            maxHeap.offer(num);
+            minHeap.offer(maxHeap.poll()); // balance: move max of lower half to upper half
+    
+            if (minHeap.size() > maxHeap.size()) { // keep maxHeap size >= minHeap size
+                maxHeap.offer(minHeap.poll());
+            }
+        }
+    
+        public double findMedian() {
+            if (maxHeap.size() > minHeap.size()) return maxHeap.peek();
+            return (maxHeap.peek() + minHeap.peek()) / 2.0;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    You have K sorted lists. Find the smallest range that includes at least one number from each of the K lists.
+    
+    EXAMPLE:
+    Input: lists = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]
+    Output: [20,24]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^K) — tries all combinations of one element from each list
+    Space Complexity: O(K) for indices`,
+    
+      bruteForceCode: `class Solution {
+        int[] bestRange = {Integer.MIN_VALUE, Integer.MAX_VALUE};
+    
+        public int[] smallestRange(List<List<Integer>> lists) {
+            int[] indices = new int[lists.size()];
+            tryAllCombinations(lists, indices, 0);
+            return bestRange;
+        }
+    
+        // brute-force recursion: try every possible combination of picks (not just moving the min forward)
+        private void tryAllCombinations(List<List<Integer>> lists, int[] indices, int listIdx) {
+            if (listIdx == lists.size()) {
+                int min = Integer.MAX_VALUE, max = Integer.MIN_VALUE;
+                for (int i = 0; i < lists.size(); i++) {
+                    int val = lists.get(i).get(indices[i]);
+                    min = Math.min(min, val);
+                    max = Math.max(max, val);
+                }
+                if (max - min < bestRange[1] - bestRange[0]) {
+                    bestRange = new int[]{min, max};
+                }
+                return;
+            }
+            for (int i = 0; i < lists.get(listIdx).size(); i++) { // tries EVERY index in every list -> exponential
+                indices[listIdx] = i;
+                tryAllCombinations(lists, indices, listIdx + 1);
+            }
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log K) — N = total elements across all lists
+    Space Complexity: O(K) for the heap`,
+    
+      optimalCode: `class Solution {
+        public int[] smallestRange(List<List<Integer>> lists) {
+            // min-heap of [value, listIndex, elementIndex]
+            PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+            int currMax = Integer.MIN_VALUE;
+    
+            for (int i = 0; i < lists.size(); i++) { // seed heap with first element of each list
+                int val = lists.get(i).get(0);
+                minHeap.offer(new int[]{val, i, 0});
+                currMax = Math.max(currMax, val);
+            }
+    
+            int[] bestRange = {Integer.MIN_VALUE, Integer.MAX_VALUE};
+    
+            while (minHeap.size() == lists.size()) { // stop once any list is exhausted
+                int[] curr = minHeap.poll();
+                int currMin = curr[0];
+    
+                if (currMax - currMin < bestRange[1] - bestRange[0]) {
+                    bestRange = new int[]{currMin, currMax};
+                }
+    
+                int listIdx = curr[1], elemIdx = curr[2];
+                if (elemIdx + 1 < lists.get(listIdx).size()) {
+                    int nextVal = lists.get(listIdx).get(elemIdx + 1);
+                    minHeap.offer(new int[]{nextVal, listIdx, elemIdx + 1});
+                    currMax = Math.max(currMax, nextVal); // update max as we advance
+                }
+            }
+            return bestRange;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an integer array nums and an integer k, return the kth smallest element in the array.
+    
+    EXAMPLE:
+    Input: nums = [3,2,1,5,6,4], k = 2
+    Output: 2`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) — sorts the entire array
+    Space Complexity: O(log N) to O(N) depending on sort implementation`,
+    
+      bruteForceCode: `class Solution {
+        public int findKthSmallest(int[] nums, int k) {
+            int[] sorted = nums.clone();
+            Arrays.sort(sorted); // full sort, even though we only need the kth element
+            return sorted[k - 1];
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log K)
+    Space Complexity: O(K) for the heap`,
+    
+      optimalCode: `class Solution {
+        public int findKthSmallest(int[] nums, int k) {
+            // max-heap of size k: keeps the k smallest elements seen so far, largest on top
+            PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+    
+            for (int num : nums) {
+                maxHeap.offer(num);
+                if (maxHeap.size() > k) maxHeap.poll(); // evict the largest, keeping only k smallest
+            }
+            return maxHeap.peek(); // top of max-heap is the kth smallest
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of integers, sort the array in ascending order using Heap Sort.
+    
+    EXAMPLE:
+    Input: nums = [12,11,13,5,6,7]
+    Output: [5,6,7,11,12,13]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N log N) but with extra overhead — uses a built-in PriorityQueue instead of in-place heapify
+    Space Complexity: O(N) — auxiliary heap structure`,
+    
+      bruteForceCode: `class Solution {
+        public int[] heapSort(int[] nums) {
+            PriorityQueue<Integer> minHeap = new PriorityQueue<>(); // uses library heap, not in-place array heapify
+            for (int num : nums) minHeap.offer(num);
+    
+            int[] result = new int[nums.length];
+            for (int i = 0; i < nums.length; i++) {
+                result[i] = minHeap.poll();
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N)
+    Space Complexity: O(1) — true in-place sorting`,
+    
+      optimalCode: `class Solution {
+        public int[] heapSort(int[] nums) {
+            int n = nums.length;
+    
+            // build max heap in-place
+            for (int i = n / 2 - 1; i >= 0; i--) {
+                heapify(nums, n, i);
+            }
+    
+            // repeatedly extract max, place at end, shrink heap
+            for (int i = n - 1; i > 0; i--) {
+                int temp = nums[0];
+                nums[0] = nums[i];
+                nums[i] = temp;
+                heapify(nums, i, 0);
+            }
+            return nums;
+        }
+    
+        private void heapify(int[] nums, int heapSize, int rootIdx) {
+            int largest = rootIdx;
+            int left = 2 * rootIdx + 1;
+            int right = 2 * rootIdx + 2;
+    
+            if (left < heapSize && nums[left] > nums[largest]) largest = left;
+            if (right < heapSize && nums[right] > nums[largest]) largest = right;
+    
+            if (largest != rootIdx) {
+                int temp = nums[rootIdx];
+                nums[rootIdx] = nums[largest];
+                nums[largest] = temp;
+                heapify(nums, heapSize, largest); // sift down
+            }
+        }
+    }`
+    },
+
+  ],
+
+  "tries":[
+
+    {
+      title: `QUESTION:
+    Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
+    
+    EXAMPLE:
+    Input: s = "leetcode", wordDict = ["leet","code"]
+    Output: true`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible partition point without memoization
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public boolean wordBreak(String s, List<String> wordDict) {
+            Set<String> wordSet = new HashSet<>(wordDict);
+            return explore(s, 0, wordSet);
+        }
+    
+        // pure recursion, re-solves overlapping subproblems repeatedly
+        private boolean explore(String s, int start, Set<String> wordSet) {
+            if (start == s.length()) return true;
+    
+            for (int end = start + 1; end <= s.length(); end++) {
+                String word = s.substring(start, end);
+                if (wordSet.contains(word) && explore(s, end, wordSet)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N^2)
+    Space Complexity: O(N) for the DP array`,
+    
+      optimalCode: `class Solution {
+        public boolean wordBreak(String s, List<String> wordDict) {
+            Set<String> wordSet = new HashSet<>(wordDict);
+            int n = s.length();
+            boolean[] dp = new boolean[n + 1]; // dp[i] = true if s[0..i) can be segmented
+            dp[0] = true;
+    
+            for (int end = 1; end <= n; end++) {
+                for (int start = 0; start < end; start++) {
+                    if (dp[start] && wordSet.contains(s.substring(start, end))) {
+                        dp[end] = true; // avoids recomputation via bottom-up table
+                        break;
+                    }
+                }
+            }
+            return dp[n];
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Implement a Trie (prefix tree) with insert, search, and startsWith methods.
+    
+    EXAMPLE:
+    Input: insert("apple"), search("apple"), search("app"), startsWith("app")
+    Output: true, false, true`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*L) per search/startsWith — N = number of words, L = word length
+    Space Complexity: O(N*L) — stores all words in a list`,
+    
+      bruteForceCode: `class Trie {
+        private List<String> words = new ArrayList<>();
+    
+        public void insert(String word) {
+            words.add(word); // just store every word in a list
+        }
+    
+        public boolean search(String word) {
+            for (String w : words) { // linear scan through all stored words
+                if (w.equals(word)) return true;
+            }
+            return false;
+        }
+    
+        public boolean startsWith(String prefix) {
+            for (String w : words) { // linear scan checking prefix match
+                if (w.startsWith(prefix)) return true;
+            }
+            return false;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(L) per insert/search/startsWith — L = word/prefix length
+    Space Complexity: O(total characters across all inserted words)`,
+    
+      optimalCode: `class Trie {
+        class TrieNode {
+            TrieNode[] children = new TrieNode[26];
+            boolean isEndOfWord = false;
+        }
+    
+        private TrieNode root;
+    
+        public Trie() {
+            root = new TrieNode();
+        }
+    
+        public void insert(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    
+        public boolean search(String word) {
+            TrieNode node = traverse(word);
+            return node != null && node.isEndOfWord;
+        }
+    
+        public boolean startsWith(String prefix) {
+            return traverse(prefix) != null;
+        }
+    
+        private TrieNode traverse(String s) {
+            TrieNode curr = root;
+            for (char c : s.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) return null;
+                curr = curr.children[idx];
+            }
+            return curr;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of strings words, find the longest string in words such that every prefix of it is also present in words. If there are multiple such strings, return the lexicographically smallest one.
+    
+    EXAMPLE:
+    Input: words = ["w","wo","wor","worl","world"]
+    Output: "world"`,
+    
+      bruteForceComplexity: `Time Complexity: O(N^2 * L) — for each word, checks every prefix's existence via linear search in the array
+    Space Complexity: O(N) for the word set`,
+    
+      bruteForceCode: `class Solution {
+        public String longestWord(String[] words) {
+            Set<String> wordSet = new HashSet<>(Arrays.asList(words));
+            String result = "";
+    
+            for (String word : words) {
+                boolean allPrefixesExist = true;
+                for (int i = 1; i <= word.length(); i++) { // check every prefix individually
+                    if (!wordSet.contains(word.substring(0, i))) {
+                        allPrefixesExist = false;
+                        break;
+                    }
+                }
+                if (allPrefixesExist) {
+                    if (word.length() > result.length() ||
+                        (word.length() == result.length() && word.compareTo(result) < 0)) {
+                        result = word;
+                    }
+                }
+            }
+            return result;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N*L) — N = number of words, L = average word length
+    Space Complexity: O(N*L) for the trie`,
+    
+      optimalCode: `class Solution {
+        class TrieNode {
+            TrieNode[] children = new TrieNode[26];
+            boolean isEndOfWord = false;
+        }
+    
+        private TrieNode root = new TrieNode();
+    
+        public String longestWord(String[] words) {
+            for (String word : words) insert(word);
+    
+            StringBuilder result = new StringBuilder();
+            dfs(root, new StringBuilder(), result);
+            return result.toString();
+        }
+    
+        private void insert(String word) {
+            TrieNode curr = root;
+            for (char c : word.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    
+        // DFS only descends through nodes marked isEndOfWord -> guarantees all prefixes exist
+        private void dfs(TrieNode node, StringBuilder path, StringBuilder result) {
+            if (path.length() > result.length() ||
+                (path.length() == result.length() && path.toString().compareTo(result.toString()) < 0)) {
+                result.setLength(0);
+                result.append(path);
+            }
+    
+            for (char c = 'a'; c <= 'z'; c++) {
+                int idx = c - 'a';
+                if (node.children[idx] != null && node.children[idx].isEndOfWord) {
+                    path.append(c);
+                    dfs(node.children[idx], path, result);
+                    path.deleteCharAt(path.length() - 1); // backtrack
+                }
+            }
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Implement a Phone Directory that supports adding a contact, searching for all contacts matching a given prefix (autocomplete), and deleting a contact.
+    
+    EXAMPLE:
+    Input: add("john"), add("jane"), search("ja")
+    Output: ["jane"]`,
+    
+      bruteForceComplexity: `Time Complexity: O(N*L) per search — N = number of contacts, L = contact length
+    Space Complexity: O(N*L)`,
+    
+      bruteForceCode: `class PhoneDirectory {
+        private List<String> contacts = new ArrayList<>();
+    
+        public void add(String name) {
+            contacts.add(name);
+        }
+    
+        public List<String> search(String prefix) {
+            List<String> result = new ArrayList<>();
+            for (String contact : contacts) { // linear scan through all contacts every search
+                if (contact.startsWith(prefix)) result.add(contact);
+            }
+            Collections.sort(result);
+            return result;
+        }
+    
+        public void delete(String name) {
+            contacts.remove(name); // O(N) removal
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(L) for add/delete, O(P + M) for search — P = prefix length, M = number of matches
+    Space Complexity: O(total characters across all contacts)`,
+    
+      optimalCode: `class PhoneDirectory {
+        class TrieNode {
+            TrieNode[] children = new TrieNode[26];
+            boolean isEndOfWord = false;
+        }
+    
+        private TrieNode root = new TrieNode();
+    
+        public void add(String name) {
+            TrieNode curr = root;
+            for (char c : name.toCharArray()) {
+                int idx = c - 'a';
+                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
+                curr = curr.children[idx];
+            }
+            curr.isEndOfWord = true;
+        }
+    
+        public List<String> search(String prefix) {
+            List<String> result = new ArrayList<>();
+            TrieNode node = root;
+            for (char c : prefix.toCharArray()) { // navigate directly to prefix node
+                int idx = c - 'a';
+                if (node.children[idx] == null) return result; // no matches
+                node = node.children[idx];
+            }
+            collectWords(node, new StringBuilder(prefix), result); // DFS only from prefix node onward
+            return result;
+        }
+    
+        private void collectWords(TrieNode node, StringBuilder path, List<String> result) {
+            if (node.isEndOfWord) result.add(path.toString());
+            for (char c = 'a'; c <= 'z'; c++) {
+                int idx = c - 'a';
+                if (node.children[idx] != null) {
+                    path.append(c);
+                    collectWords(node.children[idx], path, result);
+                    path.deleteCharAt(path.length() - 1);
+                }
+            }
+        }
+    
+        public void delete(String name) {
+            deleteHelper(root, name, 0);
+        }
+    
+        private boolean deleteHelper(TrieNode node, String name, int depth) {
+            if (depth == name.length()) {
+                if (!node.isEndOfWord) return false;
+                node.isEndOfWord = false;
+                return isEmpty(node);
+            }
+            int idx = name.charAt(depth) - 'a';
+            TrieNode child = node.children[idx];
+            if (child == null) return false;
+    
+            boolean shouldDeleteChild = deleteHelper(child, name, depth + 1);
+            if (shouldDeleteChild) {
+                node.children[idx] = null; // prune empty subtree
+                return !node.isEndOfWord && isEmpty(node);
+            }
+            return false;
+        }
+    
+        private boolean isEmpty(TrieNode node) {
+            for (TrieNode child : node.children) if (child != null) return false;
+            return true;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given an array of strings strs, find the longest common prefix string amongst all strings in the array. If there is no common prefix, return an empty string.
+    
+    EXAMPLE:
+    Input: strs = ["flower","flow","flight"]
+    Output: "fl"`,
+    
+      bruteForceComplexity: `Time Complexity: O(N * L) but with heavy overhead — compares every string against every other string character by character
+    Space Complexity: O(1)`,
+    
+      bruteForceCode: `class Solution {
+        public String longestCommonPrefix(String[] strs) {
+            if (strs.length == 0) return "";
+    
+            String prefix = strs[0];
+            for (int i = 1; i < strs.length; i++) { // repeatedly shrink prefix comparing against each string
+                while (!strs[i].startsWith(prefix)) {
+                    prefix = prefix.substring(0, prefix.length() - 1); // trims one char at a time
+                    if (prefix.isEmpty()) return "";
+                }
+            }
+            return prefix;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N*L) — N = number of words, L = length of shortest string, but with early termination via vertical scanning
+    Space Complexity: O(1)`,
+    
+      optimalCode: `class Solution {
+        public String longestCommonPrefix(String[] strs) {
+            if (strs.length == 0) return "";
+    
+            // vertical scanning: compare character by character across all strings simultaneously
+            for (int i = 0; i < strs[0].length(); i++) {
+                char c = strs[0].charAt(i);
+                for (int j = 1; j < strs.length; j++) {
+                    if (i == strs[j].length() || strs[j].charAt(i) != c) {
+                        return strs[0].substring(0, i); // mismatch found, stop immediately
+                    }
+                }
+            }
+            return strs[0];
+        }
+    }`
+    },
+
+  ],
+
+  "greedy-algorithm":[
+
+    {
+      title: `QUESTION:
+    Given N activities with their start and finish times, select the maximum number of activities that can be performed by a single person, assuming a person can only work on a single activity at a time.
+    
+    EXAMPLE:
+    Input: start = [1,3,0,5,8,5], finish = [2,4,6,7,9,9]
+    Output: 4  (activities with intervals [1,2],[3,4],[5,7],[8,9])`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible subset of activities and checks for overlaps
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int maxActivities(int[] start, int[] finish) {
+            int n = start.length;
+            return explore(start, finish, -1, 0, n);
+        }
+    
+        // tries including/excluding every activity, checking overlap against the last chosen one
+        private int explore(int[] start, int[] finish, int lastChosen, int index, int n) {
+            if (index == n) return 0;
+    
+            int exclude = explore(start, finish, lastChosen, index + 1, n);
+    
+            int include = 0;
+            if (lastChosen == -1 || start[index] >= finish[lastChosen]) {
+                include = 1 + explore(start, finish, index, index + 1, n);
+            }
+            return Math.max(include, exclude);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by sorting
+    Space Complexity: O(N) for the index array used in sorting`,
+    
+      optimalCode: `class Solution {
+        public int maxActivities(int[] start, int[] finish) {
+            int n = start.length;
+            Integer[] indices = new Integer[n];
+            for (int i = 0; i < n; i++) indices[i] = i;
+    
+            // greedy: always sort by finish time, always pick the activity that finishes earliest
+            Arrays.sort(indices, (a, b) -> finish[a] - finish[b]);
+    
+            int count = 1;
+            int lastFinish = finish[indices[0]];
+    
+            for (int i = 1; i < n; i++) {
+                int idx = indices[i];
+                if (start[idx] >= lastFinish) { // no overlap with last selected activity
+                    count++;
+                    lastFinish = finish[idx];
+                }
+            }
+            return count;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given weights and values of N items and a knapsack of capacity W, find the maximum value that can be put into the knapsack, where items can be broken into fractions (unlike 0/1 knapsack).
+    
+    EXAMPLE:
+    Input: values = [60,100,120], weights = [10,20,30], W = 50
+    Output: 240.0`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N) — tries every combination of fractions via exhaustive subset exploration
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public double fractionalKnapsack(int[] values, int[] weights, int W) {
+            return explore(values, weights, W, 0, values.length);
+        }
+    
+        // tries taking full item, or skipping it entirely -- doesn't exploit fractional property properly
+        private double explore(int[] values, int[] weights, int remaining, int index, int n) {
+            if (index == n || remaining == 0) return 0;
+    
+            double skip = explore(values, weights, remaining, index + 1, n);
+    
+            double take = 0;
+            if (weights[index] <= remaining) {
+                take = values[index] + explore(values, weights, remaining - weights[index], index + 1, n);
+            } else {
+                // take a fraction if it doesn't fit fully (only considered at this leaf level, not globally optimal search)
+                double fraction = (double) remaining / weights[index];
+                take = fraction * values[index];
+            }
+            return Math.max(take, skip);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by sorting
+    Space Complexity: O(N) for the index array used in sorting`,
+    
+      optimalCode: `class Solution {
+        public double fractionalKnapsack(int[] values, int[] weights, int W) {
+            int n = values.length;
+            Integer[] indices = new Integer[n];
+            for (int i = 0; i < n; i++) indices[i] = i;
+    
+            // greedy: always sort by value/weight ratio descending, always take the best ratio first
+            Arrays.sort(indices, (a, b) -> Double.compare(
+                (double) values[b] / weights[b], (double) values[a] / weights[a]));
+    
+            double totalValue = 0;
+            int remaining = W;
+    
+            for (int idx : indices) {
+                if (remaining <= 0) break;
+                if (weights[idx] <= remaining) {
+                    totalValue += values[idx]; // take whole item
+                    remaining -= weights[idx];
+                } else {
+                    totalValue += values[idx] * ((double) remaining / weights[idx]); // take fraction to fill remaining capacity
+                    remaining = 0;
+                }
+            }
+            return totalValue;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    You are given N pairs of numbers. In every pair, the first number is smaller than the second. A pair (c,d) can follow another pair (a,b) if b < c. Find the length of the longest chain that can be formed from the given set of pairs.
+    
+    EXAMPLE:
+    Input: pairs = [[5,24],[39,60],[15,28],[27,40],[50,90]]
+    Output: 3  (chain: [5,24] -> [27,40] -> [50,90])`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N) — tries every subset of pairs and checks validity of the chain
+    Space Complexity: O(N) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int maxChainLength(int[][] pairs) {
+            return explore(pairs, -1, 0, pairs.length);
+        }
+    
+        // tries including/excluding every pair, checking chain validity against last chosen pair
+        private int explore(int[][] pairs, int lastChosen, int index, int n) {
+            if (index == n) return 0;
+    
+            int exclude = explore(pairs, lastChosen, index + 1, n);
+    
+            int include = 0;
+            if (lastChosen == -1 || pairs[index][0] > pairs[lastChosen][1]) {
+                include = 1 + explore(pairs, index, index + 1, n);
+            }
+            return Math.max(include, exclude);
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by sorting
+    Space Complexity: O(1) extra (excluding sort space)`,
+    
+      optimalCode: `class Solution {
+        public int maxChainLength(int[][] pairs) {
+            // greedy: sort by second element (like activity selection) -- always pick pair that ends earliest
+            Arrays.sort(pairs, (a, b) -> a[1] - b[1]);
+    
+            int count = 1;
+            int lastEnd = pairs[0][1];
+    
+            for (int i = 1; i < pairs.length; i++) {
+                if (pairs[i][0] > lastEnd) { // valid continuation of the chain
+                    count++;
+                    lastEnd = pairs[i][1];
+                }
+            }
+            return count;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a value V and an array of Indian currency denominations (coins), find the minimum number of coins/notes needed to make the value V (assume infinite supply of each denomination).
+    
+    EXAMPLE:
+    Input: V = 93, coins = [1,2,5,10,20,50,100,500,1000]
+    Output: 5  (50 + 20 + 20 + 2 + 1)`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^V) — tries every combination of coin counts via exhaustive recursion
+    Space Complexity: O(V) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        public int minCoins(int V, int[] coins) {
+            if (V == 0) return 0;
+            int minCount = Integer.MAX_VALUE;
+    
+            for (int coin : coins) { // tries every coin at every step, exponential blowup
+                if (coin <= V) {
+                    int result = minCoins(V - coin, coins);
+                    if (result != Integer.MAX_VALUE) {
+                        minCount = Math.min(minCount, result + 1);
+                    }
+                }
+            }
+            return minCount;
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N + V/smallest_coin) — sorting + greedy pass (works correctly because Indian denominations are canonical)
+    Space Complexity: O(1) extra`,
+    
+      optimalCode: `class Solution {
+        public int minCoins(int V, int[] coins) {
+            Integer[] sortedCoins = Arrays.stream(coins).boxed().toArray(Integer[]::new);
+            Arrays.sort(sortedCoins, Collections.reverseOrder()); // largest denomination first
+    
+            int count = 0;
+            for (int coin : sortedCoins) {
+                while (V >= coin) { // greedily use largest coin as many times as possible
+                    V -= coin;
+                    count++;
+                }
+            }
+            return count;
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given a set of N jobs where each job has a deadline and profit, and each job takes exactly 1 unit of time, find the maximum profit and the number of jobs done by scheduling jobs such that a job can only be scheduled at a time before or on its deadline (only one job can be scheduled at a time).
+    
+    EXAMPLE:
+    Input: jobs = [(1,4,20),(2,1,10),(3,1,40),(4,1,30)] (id, deadline, profit)
+    Output: 2 jobs, 60 profit`,
+    
+      bruteForceComplexity: `Time Complexity: O(2^N * maxDeadline) — tries every subset of jobs and every valid slot assignment
+    Space Complexity: O(maxDeadline) for slot tracking`,
+    
+      bruteForceCode: `class Solution {
+        public int[] jobSequencing(int[] deadlines, int[] profits) {
+            int n = deadlines.length;
+            int maxDeadline = Arrays.stream(deadlines).max().getAsInt();
+            boolean[] slots = new boolean[maxDeadline + 1];
+    
+            int[] best = {0, 0}; // count, profit
+            explore(deadlines, profits, 0, n, slots, 0, 0, best);
+            return best;
+        }
+    
+        // tries including/excluding every job at every possible slot -- exponential
+        private void explore(int[] deadlines, int[] profits, int index, int n, boolean[] slots, int count, int profit, int[] best) {
+            if (index == n) {
+                if (profit > best[1]) { best[0] = count; best[1] = profit; }
+                return;
+            }
+    
+            explore(deadlines, profits, index + 1, n, slots, count, profit, best); // skip job
+    
+            for (int slot = deadlines[index]; slot >= 1; slot--) { // try every slot up to deadline
+                if (!slots[slot]) {
+                    slots[slot] = true;
+                    explore(deadlines, profits, index + 1, n, slots, count + 1, profit + profits[index], best);
+                    slots[slot] = false; // backtrack
+                    break;
+                }
+            }
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N + N * maxDeadline)
+    Space Complexity: O(maxDeadline) for slot tracking`,
+    
+      optimalCode: `class Solution {
+        public int[] jobSequencing(int[] deadlines, int[] profits) {
+            int n = deadlines.length;
+            Integer[] indices = new Integer[n];
+            for (int i = 0; i < n; i++) indices[i] = i;
+    
+            // greedy: sort jobs by profit descending, always try to schedule the most profitable job first
+            Arrays.sort(indices, (a, b) -> profits[b] - profits[a]);
+    
+            int maxDeadline = Arrays.stream(deadlines).max().getAsInt();
+            boolean[] slots = new boolean[maxDeadline + 1];
+    
+            int count = 0, totalProfit = 0;
+    
+            for (int idx : indices) {
+                // try to place job in the latest available slot at or before its deadline
+                for (int slot = deadlines[idx]; slot >= 1; slot--) {
+                    if (!slots[slot]) {
+                        slots[slot] = true;
+                        count++;
+                        totalProfit += profits[idx];
+                        break;
+                    }
+                }
+            }
+            return new int[]{count, totalProfit};
+        }
+    }`
+    },
+    
+    {
+      title: `QUESTION:
+    Given N packets of chocolates with different quantities and M students, distribute packets such that each student gets exactly one packet, and the difference between the maximum and minimum chocolates given to a student is minimized.
+    
+    EXAMPLE:
+    Input: chocolates = [3,4,1,9,56,7,9,12], M = 5
+    Output: 6  (packets [3,4,7,9,9] -> max-min = 9-3 = 6)`,
+    
+      bruteForceComplexity: `Time Complexity: O(N choose M) — tries every possible combination of M packets out of N
+    Space Complexity: O(M) recursion stack`,
+    
+      bruteForceCode: `class Solution {
+        int minDiff = Integer.MAX_VALUE;
+    
+        public int findMinDiff(int[] chocolates, int M) {
+            explore(chocolates, M, 0, new ArrayList<>());
+            return minDiff;
+        }
+    
+        // tries every combination of M packets, exponential
+        private void explore(int[] chocolates, int M, int index, List<Integer> current) {
+            if (current.size() == M) {
+                int max = Collections.max(current);
+                int min = Collections.min(current);
+                minDiff = Math.min(minDiff, max - min);
+                return;
+            }
+            if (index == chocolates.length) return;
+    
+            current.add(chocolates[index]);
+            explore(chocolates, M, index + 1, current); // include
+            current.remove(current.size() - 1);
+    
+            explore(chocolates, M, index + 1, current); // exclude
+        }
+    }`,
+    
+      optimalComplexity: `Time Complexity: O(N log N) — dominated by sorting
+    Space Complexity: O(1) extra (excluding sort space)`,
+    
+      optimalCode: `class Solution {
+        public int findMinDiff(int[] chocolates, int M) {
+            if (M == 0 || chocolates.length == 0) return 0;
+    
+            Arrays.sort(chocolates); // greedy: sorted packets means any window of size M is a candidate
+    
+            int minDiff = Integer.MAX_VALUE;
+            // slide a window of size M across sorted array -- min diff only needs adjacent windows checked
+            for (int i = 0; i + M - 1 < chocolates.length; i++) {
+                int diff = chocolates[i + M - 1] - chocolates[i];
+                minDiff = Math.min(minDiff, diff);
+            }
+            return minDiff;
+        }
+    }`
+    },
+  ],
   
   };
   
