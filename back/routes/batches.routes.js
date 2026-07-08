@@ -72,7 +72,6 @@ router.post('/admin', auth, async (req, res) => {
 });
 
 // PUT /api/admin/batches/:id — edit an existing batch
-// (also used to save the "subjects" array from BatchContentManager)
 router.put('/admin/:id', auth, async (req, res) => {
   try {
     const batch = await Batch.findByIdAndUpdate(
@@ -121,23 +120,6 @@ router.patch('/admin/:id/toggle', auth, async (req, res) => {
     res.json({ message: `Batch ${batch.isActive ? 'activated' : 'deactivated'}`, batch });
   } catch (err) {
     res.status(500).json({ message: 'Failed to toggle batch', error: err.message });
-  }
-});
-
-// ─────────────────────────────────────────────
-// GET /api/batches/:batchId — ONE batch (public, active only)
-// Registered LAST so it never shadows the /admin routes above.
-// Used by the Subjects page (/class/:batchId) to get the title + subjects list.
-// ─────────────────────────────────────────────
-router.get('/:batchId', async (req, res) => {
-  try {
-    const batch = await Batch.findOne({ batchId: req.params.batchId, isActive: true });
-    if (!batch) {
-      return res.status(404).json({ message: 'Batch not found' });
-    }
-    res.json(batch);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch batch', error: err.message });
   }
 });
 

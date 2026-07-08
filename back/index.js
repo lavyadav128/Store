@@ -59,7 +59,6 @@ import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
 
 import batchRoutes from './routes/batches.routes.js';
 
-import chaptersRouter from './routes/Chapters.routes.js';
 
 import dns from 'node:dns';
 
@@ -163,7 +162,6 @@ app.use("/api/video-splitter", videoSplitterRoutes);
 
 app.use('/api/batches', batchRoutes);
 
-app.use('/api/chapters', chaptersRouter);
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive

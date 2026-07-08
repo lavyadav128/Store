@@ -16,8 +16,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import BatchContentManager from './BatchesManager'; // adjust path
 import { makeAuthenticatedRequest } from './makeauth'; // adjust path
 import server from '../environment';                 // adjust path
 
@@ -238,9 +236,6 @@ const BatchManager = () => {
   const [imageUploading, setImageUploading] = useState(false);
   const [screenshotMode, setScreenshotMode] = useState('url');
   const [screenshotUploading, setScreenshotUploading] = useState(false);
-
-  // ── which batch's content (subjects/chapters) is being managed ──
-  const [contentManagerBatch, setContentManagerBatch] = useState(null);
 
   // ── FETCH ALL BATCHES (admin sees inactive too) ──
   const fetchBatches = async () => {
@@ -495,7 +490,6 @@ const BatchManager = () => {
                     onEdit={handleEdit}
                     onToggle={handleToggle}
                     onDelete={(b) => setDeleteConfirm(b)}
-                    onManageContent={(b) => setContentManagerBatch(b)}
                     showRedirect={folderName === 'Tech'}
                   />
                 </SectionCard>
@@ -694,14 +688,6 @@ const BatchManager = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ── CONTENT MANAGER (Subjects & Chapters) ── */}
-      <BatchContentManager
-        open={!!contentManagerBatch}
-        batch={contentManagerBatch}
-        onClose={() => setContentManagerBatch(null)}
-        onBatchUpdated={fetchBatches}
-      />
-
       {/* ── SNACKBAR ── */}
       <Snackbar open={snackbar.open} autoHideDuration={3000}
         onClose={() => setSnackbar(s => ({ ...s, open: false }))}>
@@ -737,7 +723,7 @@ const SectionCard = ({ icon, title, subtitle, children }) => (
 // ─────────────────────────────────────────────────────────────
 // Reusable BatchTable sub-component — grey/white restyle
 // ─────────────────────────────────────────────────────────────
-const BatchTable = ({ batches, onEdit, onToggle, onDelete, onManageContent, showRedirect = false }) => {
+const BatchTable = ({ batches, onEdit, onToggle, onDelete, showRedirect = false }) => {
   const headCellSx = {
     fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700,
     color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase",
@@ -816,14 +802,6 @@ const BatchTable = ({ batches, onEdit, onToggle, onDelete, onManageContent, show
                 />
               </Box>
               <Box component="td" sx={{ ...cellSx, textAlign: "center", pr: 1.5 }}>
-                <Tooltip title="Manage Content (Subjects & Chapters)">
-                  <IconButton
-                    size="small" onClick={() => onManageContent(batch)}
-                    sx={{ color: "#aaa", borderRadius: "8px", p: 0.7, mr: 0.5, "&:hover": { color: "#1a1a2e", background: "#f4f4f6" }, transition: "all 0.18s ease" }}
-                  >
-                    <MenuBookIcon sx={{ fontSize: 17 }} />
-                  </IconButton>
-                </Tooltip>
                 <Tooltip title="Edit">
                   <IconButton
                     size="small" onClick={() => onEdit(batch)}
