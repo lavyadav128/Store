@@ -3596,111 +3596,494 @@ Space Complexity: O(1)`,
         }
     }`
     },
-    
+
     {
       title: `QUESTION:
-    Given the head of a linked list that may contain a cycle, remove the cycle from the linked list if it exists (restore it to a normal linked list ending in null).
-    
-    EXAMPLE:
-    Input: head = [1,2,3,4] with 4 pointing back to 2
-    Output: [1,2,3,4] with 4.next = null`,
-    
-      bruteForceComplexity: `Time Complexity: O(N)
-    Space Complexity: O(N) — uses a HashSet to track visited nodes`,
-    
+  Given a singly linked list, remove the last node of the list and return the head.
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4
+  Output: 1 -> 2 -> 3`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — copies all values except the last into an array, then rebuilds the list
+  Space Complexity: O(N) for the temporary array/new nodes`,
+   
       bruteForceCode: `class Solution {
-        public void removeCycle(ListNode head) {
-            if (head == null) return;
-            Set<ListNode> visited = new HashSet<>();
-            ListNode curr = head, prev = null;
-    
-            while (curr != null) {
-                if (visited.contains(curr)) { // cycle found
-                    prev.next = null; // break the cycle
-                    return;
-                }
-                visited.add(curr);
-                prev = curr;
-                curr = curr.next;
-            }
-            // no cycle, nothing to do
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(1)`,
-    
+      public ListNode removeLast(ListNode head) {
+          // copy all values except the last into a list
+          List<Integer> values = new ArrayList<>();
+          ListNode curr = head;
+          while (curr != null && curr.next != null) {
+              values.add(curr.val);
+              curr = curr.next;
+          }
+          if (values.isEmpty()) return null; // 0 or 1 node list
+   
+          // rebuild the list from scratch
+          ListNode newHead = new ListNode(values.get(0));
+          ListNode tail = newHead;
+          for (int i = 1; i < values.size(); i++) {
+              tail.next = new ListNode(values.get(i));
+              tail = tail.next;
+          }
+          return newHead;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — must walk to the second-last node to unlink the last one
+  Space Complexity: O(1) extra space`,
+   
       optimalCode: `class Solution {
-        public void removeCycle(ListNode head) {
-            if (head == null) return;
-            ListNode slow = head, fast = head;
-            boolean hasCycle = false;
-    
-            // Floyd's cycle detection
-            while (fast != null && fast.next != null) {
-                slow = slow.next;
-                fast = fast.next.next;
-                if (slow == fast) {
-                    hasCycle = true;
-                    break;
-                }
-            }
-            if (!hasCycle) return;
-    
-            // find start of cycle
-            slow = head;
-            if (slow == fast) { // cycle starts at head
-                while (fast.next != slow) fast = fast.next;
-            } else {
-                while (slow.next != fast.next) {
-                    slow = slow.next;
-                    fast = fast.next;
-                }
-            }
-            fast.next = null; // break the cycle
-        }
-    }`
+      public ListNode removeLast(ListNode head) {
+          if (head == null || head.next == null) return null; // 0 or 1 node
+   
+          ListNode curr = head;
+          while (curr.next.next != null) { // stop at second-last node
+              curr = curr.next;
+          }
+          curr.next = null; // drop the last node
+          return head;
+      }
+  }`
     },
-    
+   
     {
       title: `QUESTION:
-    Given the head of a linked list, determine if the linked list has a cycle in it.
-    
-    EXAMPLE:
-    Input: head = [3,2,0,-4] with -4 pointing back to node at index 1
-    Output: true`,
-    
-      bruteForceComplexity: `Time Complexity: O(N)
-    Space Complexity: O(N) — uses a HashSet to track visited nodes`,
-    
+  Given a singly linked list and a target value, search the list and return true if the value exists, false otherwise.
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4, target = 3
+  Output: true`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then scans the array
+  Space Complexity: O(N) for the temporary array`,
+   
       bruteForceCode: `class Solution {
-        public boolean hasCycle(ListNode head) {
-            Set<ListNode> visited = new HashSet<>();
-            ListNode curr = head;
-            while (curr != null) {
-                if (visited.contains(curr)) return true; // revisited a node
-                visited.add(curr);
-                curr = curr.next;
-            }
-            return false;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(1)`,
-    
+      public boolean search(ListNode head, int target) {
+          // copy all values into a list first
+          List<Integer> values = new ArrayList<>();
+          ListNode curr = head;
+          while (curr != null) {
+              values.add(curr.val);
+              curr = curr.next;
+          }
+   
+          // scan the copied array
+          for (int v : values) {
+              if (v == target) return true;
+          }
+          return false;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — single traversal of the list, no extra copy needed
+  Space Complexity: O(1) extra space`,
+   
       optimalCode: `class Solution {
-        public boolean hasCycle(ListNode head) {
-            ListNode slow = head, fast = head;
-            // Floyd's Tortoise and Hare
-            while (fast != null && fast.next != null) {
-                slow = slow.next;
-                fast = fast.next.next;
-                if (slow == fast) return true; // pointers met -> cycle
-            }
-            return false;
-        }
-    }`
+      public boolean search(ListNode head, int target) {
+          ListNode curr = head;
+          while (curr != null) { // walk the list once
+              if (curr.val == target) return true;
+              curr = curr.next;
+          }
+          return false;
+      }
+  }`
+    },
+   
+    {
+      title: `QUESTION:
+  Given a singly linked list, find and remove the nth node from the end of the list, then return the head.
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4 -> 5, n = 2
+  Output: 1 -> 2 -> 3 -> 5`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — one pass to count total nodes, another pass to reach and remove the target node
+  Space Complexity: O(1) extra space (no copy needed, but conceptually two passes)`,
+   
+      bruteForceCode: `class Solution {
+      public ListNode removeNthFromEnd(ListNode head, int n) {
+          // first pass: count total nodes
+          int length = 0;
+          ListNode curr = head;
+          while (curr != null) {
+              length++;
+              curr = curr.next;
+          }
+   
+          // position from the start of the node to remove
+          int posFromStart = length - n;
+          if (posFromStart == 0) return head.next; // removing the head
+   
+          // second pass: walk to the node just before the target
+          curr = head;
+          for (int i = 0; i < posFromStart - 1; i++) {
+              curr = curr.next;
+          }
+          curr.next = curr.next.next; // unlink target node
+          return head;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — single pass using two pointers kept n apart
+  Space Complexity: O(1) extra space`,
+   
+      optimalCode: `class Solution {
+      public ListNode removeNthFromEnd(ListNode head, int n) {
+          ListNode dummy = new ListNode(0);
+          dummy.next = head;
+          ListNode fast = dummy, slow = dummy;
+   
+          for (int i = 0; i < n; i++) { // move fast n steps ahead
+              fast = fast.next;
+          }
+   
+          while (fast.next != null) { // move both until fast hits the end
+              fast = fast.next;
+              slow = slow.next;
+          }
+   
+          slow.next = slow.next.next; // unlink the nth node from end
+          return dummy.next;
+      }
+  }`
+    },
+   
+  
+    {
+      title: `QUESTION:
+  Given a singly linked list, determine whether it contains a cycle (a node's next pointer eventually loops back to a previous node).
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4 -> (points back to 2)
+  Output: true`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — visits each node once and stores it in a hash set to check for repeats
+  Space Complexity: O(N) for the hash set`,
+   
+      bruteForceCode: `class Solution {
+      public boolean hasCycle(ListNode head) {
+          Set<ListNode> visited = new HashSet<>();
+          ListNode curr = head;
+          while (curr != null) {
+              if (visited.contains(curr)) return true; // seen this node before
+              visited.add(curr);
+              curr = curr.next;
+          }
+          return false;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — Floyd's slow/fast pointer technique, fast catches slow if a cycle exists
+  Space Complexity: O(1) extra space`,
+   
+      optimalCode: `class Solution {
+      public boolean hasCycle(ListNode head) {
+          ListNode slow = head, fast = head;
+   
+          while (fast != null && fast.next != null) {
+              slow = slow.next;         // moves 1 step
+              fast = fast.next.next;    // moves 2 steps
+              if (slow == fast) return true; // pointers met, cycle exists
+          }
+          return false; // fast reached the end, no cycle
+      }
+  }`
+    },
+   
+    {
+      title: `QUESTION:
+  Given a singly linked list that may contain a cycle, remove the cycle (if one exists) so the list ends in null, and return the head.
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4 -> (points back to 2)
+  Output: 1 -> 2 -> 3 -> 4 -> null`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — stores visited nodes in a hash set, unlinks as soon as a repeat is found
+  Space Complexity: O(N) for the hash set`,
+   
+      bruteForceCode: `class Solution {
+      public ListNode removeCycle(ListNode head) {
+          Set<ListNode> visited = new HashSet<>();
+          ListNode curr = head, prev = null;
+   
+          while (curr != null) {
+              if (visited.contains(curr)) {
+                  prev.next = null; // cut the link that creates the cycle
+                  return head;
+              }
+              visited.add(curr);
+              prev = curr;
+              curr = curr.next;
+          }
+          return head; // no cycle found
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — Floyd's algorithm to detect meeting point, then find and cut the cycle start
+  Space Complexity: O(1) extra space`,
+   
+      optimalCode: `class Solution {
+      public ListNode removeCycle(ListNode head) {
+          if (head == null || head.next == null) return head;
+   
+          ListNode slow = head, fast = head;
+          boolean hasCycle = false;
+   
+          // step 1: detect if a cycle exists
+          while (fast != null && fast.next != null) {
+              slow = slow.next;
+              fast = fast.next.next;
+              if (slow == fast) {
+                  hasCycle = true;
+                  break;
+              }
+          }
+          if (!hasCycle) return head;
+   
+          // step 2: find the start of the cycle
+          slow = head;
+          if (slow == fast) { // cycle starts at head
+              while (fast.next != slow) {
+                  fast = fast.next;
+              }
+          } else {
+              while (slow.next != fast.next) {
+                  slow = slow.next;
+                  fast = fast.next;
+              }
+          }
+   
+          fast.next = null; // cut the cycle
+          return head;
+      }
+  }`
+    },
+   
+    {
+      title: `QUESTION:
+  Given a singly linked list, sort it in ascending order using merge sort and return the head.
+   
+  EXAMPLE:
+  Input: list = 4 -> 2 -> 1 -> 3
+  Output: 1 -> 2 -> 3 -> 4`,
+   
+      bruteForceComplexity: `Time Complexity: O(N log N) for sorting, but O(N) extra work — copies values into an array, sorts, then rebuilds the list
+  Space Complexity: O(N) for the temporary array/new nodes`,
+   
+      bruteForceCode: `class Solution {
+      public ListNode sortList(ListNode head) {
+          // copy all values into a list
+          List<Integer> values = new ArrayList<>();
+          ListNode curr = head;
+          while (curr != null) {
+              values.add(curr.val);
+              curr = curr.next;
+          }
+   
+          Collections.sort(values); // sort using built-in sort
+   
+          // rebuild the list from sorted values
+          ListNode newHead = new ListNode(values.get(0));
+          ListNode tail = newHead;
+          for (int i = 1; i < values.size(); i++) {
+              tail.next = new ListNode(values.get(i));
+              tail = tail.next;
+          }
+          return newHead;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N log N) — classic merge sort adapted to linked lists using slow/fast split
+  Space Complexity: O(log N) recursion stack, O(1) extra node space (in-place merging)`,
+   
+      optimalCode: `class Solution {
+      public ListNode sortList(ListNode head) {
+          if (head == null || head.next == null) return head;
+   
+          // split the list into two halves
+          ListNode mid = getMid(head);
+          ListNode left = head;
+          ListNode right = mid.next;
+          mid.next = null;
+   
+          // recursively sort each half
+          left = sortList(left);
+          right = sortList(right);
+   
+          return merge(left, right); // merge sorted halves
+      }
+   
+      private ListNode getMid(ListNode head) {
+          ListNode slow = head, fast = head.next;
+          while (fast != null && fast.next != null) {
+              slow = slow.next;
+              fast = fast.next.next;
+          }
+          return slow;
+      }
+   
+      private ListNode merge(ListNode l1, ListNode l2) {
+          ListNode dummy = new ListNode(0);
+          ListNode tail = dummy;
+   
+          while (l1 != null && l2 != null) {
+              if (l1.val <= l2.val) {
+                  tail.next = l1;
+                  l1 = l1.next;
+              } else {
+                  tail.next = l2;
+                  l2 = l2.next;
+              }
+              tail = tail.next;
+          }
+          tail.next = (l1 != null) ? l1 : l2; // attach remaining nodes
+          return dummy.next;
+      }
+  }`
+    },
+   
+    {
+      title: `QUESTION:
+  Given a singly linked list, reorder it in a zig-zag pattern: first node, last node, second node, second-to-last node, and so on.
+   
+  EXAMPLE:
+  Input: list = 1 -> 2 -> 3 -> 4 -> 5
+  Output: 1 -> 5 -> 2 -> 4 -> 3`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then rebuilds the list by picking alternately from front and back
+  Space Complexity: O(N) for the temporary array/new nodes`,
+   
+      bruteForceCode: `class Solution {
+      public ListNode zigZag(ListNode head) {
+          // copy all values into a list
+          List<Integer> values = new ArrayList<>();
+          ListNode curr = head;
+          while (curr != null) {
+              values.add(curr.val);
+              curr = curr.next;
+          }
+   
+          // rebuild by alternating front and back picks
+          ListNode dummy = new ListNode(0);
+          ListNode tail = dummy;
+          int left = 0, right = values.size() - 1;
+          boolean fromLeft = true;
+   
+          while (left <= right) {
+              int val = fromLeft ? values.get(left++) : values.get(right--);
+              tail.next = new ListNode(val);
+              tail = tail.next;
+              fromLeft = !fromLeft;
+          }
+          return dummy.next;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — find middle, reverse second half, then interleave the two halves in place
+  Space Complexity: O(1) extra space`,
+   
+      optimalCode: `class Solution {
+      public ListNode zigZag(ListNode head) {
+          if (head == null || head.next == null) return head;
+   
+          // find the middle using slow/fast pointers
+          ListNode slow = head, fast = head;
+          while (fast.next != null && fast.next.next != null) {
+              slow = slow.next;
+              fast = fast.next.next;
+          }
+   
+          // split and reverse the second half
+          ListNode secondHalf = reverse(slow.next);
+          slow.next = null;
+          ListNode firstHalf = head;
+   
+          // interleave first half and reversed second half
+          ListNode dummy = new ListNode(0);
+          ListNode tail = dummy;
+          while (firstHalf != null || secondHalf != null) {
+              if (firstHalf != null) {
+                  tail.next = firstHalf;
+                  firstHalf = firstHalf.next;
+                  tail = tail.next;
+              }
+              if (secondHalf != null) {
+                  tail.next = secondHalf;
+                  secondHalf = secondHalf.next;
+                  tail = tail.next;
+              }
+          }
+          return dummy.next;
+      }
+   
+      private ListNode reverse(ListNode head) {
+          ListNode prev = null;
+          while (head != null) {
+              ListNode next = head.next;
+              head.next = prev;
+              prev = head;
+              head = next;
+          }
+          return prev;
+      }
+  }`
+    },
+   
+    {
+      title: `QUESTION:
+  Given the head of a doubly linked list, reverse the list in place and return the new head.
+   
+  EXAMPLE:
+  Input: list = 1 <-> 2 <-> 3 <-> 4
+  Output: 4 <-> 3 <-> 2 <-> 1`,
+   
+      bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then rebuilds a brand new doubly linked list in reverse order
+  Space Complexity: O(N) for the temporary array/new nodes`,
+   
+      bruteForceCode: `class Solution {
+      public Node reverseDLL(Node head) {
+          // copy all values into a list first
+          List<Integer> values = new ArrayList<>();
+          Node curr = head;
+          while (curr != null) {
+              values.add(curr.val);
+              curr = curr.next;
+          }
+   
+          // rebuild a new DLL in reverse order
+          Node newHead = new Node(values.get(values.size() - 1));
+          Node tail = newHead;
+          for (int i = values.size() - 2; i >= 0; i--) {
+              Node node = new Node(values.get(i));
+              tail.next = node;
+              node.prev = tail;
+              tail = node;
+          }
+          return newHead;
+      }
+  }`,
+   
+      optimalComplexity: `Time Complexity: O(N) — single traversal swapping next/prev pointers at each node
+  Space Complexity: O(1) extra space`,
+   
+      optimalCode: `class Solution {
+      public Node reverseDLL(Node head) {
+          Node curr = head;
+          Node newHead = head;
+   
+          while (curr != null) {
+              Node temp = curr.prev;   // swap prev and next
+              curr.prev = curr.next;
+              curr.next = temp;
+   
+              newHead = curr;          // track the last visited node as new head
+              curr = curr.prev;        // move to next node (old next, now prev)
+          }
+          return newHead;
+      }
+  }`
     },
     
     {
@@ -3758,80 +4141,6 @@ Space Complexity: O(1)`,
     }`
     },
     
-    {
-      title: `QUESTION:
-    You are given a linked list where each node has an additional "child" pointer, which may or may not point to a separate doubly linked list. Also, each node has a "next" pointer to point to the next node. Flatten the list so that all nodes appear in a single-level doubly linked list, using the next and child pointers.
-    
-    EXAMPLE:
-    Input: head = [1,2,3,4,5,6] with 3 having a child list [7,8,9]
-    Output: [1,2,3,7,8,9,4,5,6]`,
-    
-      bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all nodes into a list first, then rebuilds links
-    Space Complexity: O(N)`,
-    
-      bruteForceCode: `class Solution {
-        public Node flatten(Node head) {
-            if (head == null) return null;
-            List<Node> nodes = new ArrayList<>();
-            collect(head, nodes); // DFS collect every node in order, ignoring child pointers afterward
-    
-            for (int i = 0; i < nodes.size(); i++) {
-                Node curr = nodes.get(i);
-                curr.child = null;
-                curr.prev = (i > 0) ? nodes.get(i - 1) : null;
-                curr.next = (i < nodes.size() - 1) ? nodes.get(i + 1) : null;
-            }
-            return nodes.get(0);
-        }
-    
-        private void collect(Node node, List<Node> nodes) {
-            while (node != null) {
-                nodes.add(node);
-                if (node.child != null) {
-                    collect(node.child, nodes); // recurse into child first
-                }
-                node = node.next;
-            }
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(N) recursion stack (or O(1) with iterative variant)`,
-    
-      optimalCode: `class Solution {
-        public Node flatten(Node head) {
-            flattenDFS(head);
-            return head;
-        }
-    
-        // returns the tail of the flattened list starting at 'node'
-        private Node flattenDFS(Node node) {
-            Node curr = node, lastNode = null;
-    
-            while (curr != null) {
-                Node nextNode = curr.next;
-    
-                if (curr.child != null) {
-                    Node childTail = flattenDFS(curr.child); // flatten child first
-    
-                    curr.next = curr.child; // splice child in right after curr
-                    curr.child.prev = curr;
-                    curr.child = null;
-    
-                    if (nextNode != null) {
-                        childTail.next = nextNode; // reconnect to rest of original list
-                        nextNode.prev = childTail;
-                    }
-                    lastNode = childTail;
-                } else {
-                    lastNode = curr;
-                }
-                curr = nextNode;
-            }
-            return lastNode;
-        }
-    }`
-    },
 
     {
       title: `QUESTION:
@@ -3910,82 +4219,6 @@ Space Complexity: O(1)`,
     }`
     },
     
-    {
-      title: `QUESTION:
-    A linked list of length n is given such that each node contains an additional random pointer, which could point to any node in the list, or null. Construct a deep copy of the list.
-    
-    EXAMPLE:
-    Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
-    Output: A fully independent deep copy with the same val/next/random structure`,
-    
-      bruteForceComplexity: `Time Complexity: O(N^2) — for each node, searches the whole list to find its random target's copy
-    Space Complexity: O(N) for the copied list`,
-    
-      bruteForceCode: `class Solution {
-        public Node copyRandomList(Node head) {
-            if (head == null) return null;
-    
-            // build copy of the list (next pointers only), track original nodes in order
-            Map<Node, Node> visited = new HashMap<>();
-            Node curr = head;
-            while (curr != null) {
-                visited.put(curr, new Node(curr.val));
-                curr = curr.next;
-            }
-    
-            curr = head;
-            while (curr != null) {
-                visited.get(curr).next = visited.get(curr.next);
-                // find random target by scanning again (redundant since we already have map,
-                // but mimics a truly brute approach without any auxiliary map for random lookup)
-                visited.get(curr).random = visited.get(curr.random);
-                curr = curr.next;
-            }
-    
-            return visited.get(head);
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(1) extra (excluding output) — interweaving technique`,
-    
-      optimalCode: `class Solution {
-        public Node copyRandomList(Node head) {
-            if (head == null) return null;
-    
-            // Step 1: interweave copied nodes with original nodes
-            Node curr = head;
-            while (curr != null) {
-                Node copy = new Node(curr.val);
-                copy.next = curr.next;
-                curr.next = copy;
-                curr = copy.next;
-            }
-    
-            // Step 2: assign random pointers to copies
-            curr = head;
-            while (curr != null) {
-                if (curr.random != null) {
-                    curr.next.random = curr.random.next;
-                }
-                curr = curr.next.next;
-            }
-    
-            // Step 3: separate the two lists
-            curr = head;
-            Node copyHead = head.next;
-            Node copyCurr = copyHead;
-            while (curr != null) {
-                curr.next = curr.next.next;
-                copyCurr.next = (copyCurr.next != null) ? copyCurr.next.next : null;
-                curr = curr.next;
-                copyCurr = copyCurr.next;
-            }
-    
-            return copyHead;
-        }
-    }`
-    },
     
     {
       title: `QUESTION:
@@ -4107,131 +4340,6 @@ Space Complexity: O(1)`,
                 curr = curr.next;
             }
             return dummy.next;
-        }
-    }`
-    },
-    
-    {
-      title: `QUESTION:
-    Given the head of a linked list, reverse the nodes of the list k at a time, and return the modified list. If the number of nodes is not a multiple of k, the remaining nodes at the end should stay as-is.
-    
-    EXAMPLE:
-    Input: head = [1,2,3,4,5], k = 2
-    Output: [2,1,4,3,5]`,
-    
-      bruteForceComplexity: `Time Complexity: O(N)
-    Space Complexity: O(N) — stores values in a list to reverse each group`,
-    
-      bruteForceCode: `class Solution {
-        public ListNode reverseKGroup(ListNode head, int k) {
-            List<Integer> values = new ArrayList<>();
-            ListNode temp = head;
-            while (temp != null) { values.add(temp.val); temp = temp.next; }
-    
-            int n = values.size();
-            for (int i = 0; i + k <= n; i += k) { // reverse each full group of size k in the array
-                int left = i, right = i + k - 1;
-                while (left < right) {
-                    int t = values.get(left);
-                    values.set(left, values.get(right));
-                    values.set(right, t);
-                    left++;
-                    right--;
-                }
-            }
-    
-            temp = head;
-            for (int val : values) { // overwrite list with modified values
-                temp.val = val;
-                temp = temp.next;
-            }
-            return head;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(1) — pure pointer manipulation (excluding recursion stack if using recursive variant)`,
-    
-      optimalCode: `class Solution {
-        public ListNode reverseKGroup(ListNode head, int k) {
-            ListNode node = head;
-            int count = 0;
-            while (node != null && count < k) { // check if at least k nodes remain
-                node = node.next;
-                count++;
-            }
-            if (count < k) return head; // fewer than k nodes left, leave as-is
-    
-            ListNode prev = null, curr = head;
-            for (int i = 0; i < k; i++) { // reverse this group of k nodes
-                ListNode nextNode = curr.next;
-                curr.next = prev;
-                prev = curr;
-                curr = nextNode;
-            }
-    
-            // head is now the tail of this reversed group; recurse on the rest
-            head.next = reverseKGroup(curr, k);
-            return prev; // new head of this group
-        }
-    }`
-    },
-    
-    {
-      title: `QUESTION:
-    Given the head of a linked list, rotate the list to the right by k places.
-    
-    EXAMPLE:
-    Input: head = [1,2,3,4,5], k = 2
-    Output: [4,5,1,2,3]`,
-    
-      bruteForceComplexity: `Time Complexity: O(N*k) — performs a single-step rotation k times
-    Space Complexity: O(1)`,
-    
-      bruteForceCode: `class Solution {
-        public ListNode rotateRight(ListNode head, int k) {
-            if (head == null || head.next == null || k == 0) return head;
-    
-            for (int i = 0; i < k; i++) { // rotate by 1 position, k times (no modulo optimization)
-                ListNode temp = head;
-                while (temp.next.next != null) temp = temp.next; // find second-last node
-    
-                ListNode last = temp.next;
-                temp.next = null;
-                last.next = head;
-                head = last;
-            }
-            return head;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(1)`,
-    
-      optimalCode: `class Solution {
-        public ListNode rotateRight(ListNode head, int k) {
-            if (head == null || head.next == null || k == 0) return head;
-    
-            // find length and tail
-            int length = 1;
-            ListNode tail = head;
-            while (tail.next != null) {
-                tail = tail.next;
-                length++;
-            }
-    
-            k = k % length; // avoid redundant full rotations
-            if (k == 0) return head;
-    
-            tail.next = head; // make it circular
-    
-            int stepsToNewTail = length - k;
-            ListNode newTail = head;
-            for (int i = 1; i < stepsToNewTail; i++) newTail = newTail.next;
-    
-            ListNode newHead = newTail.next;
-            newTail.next = null; // break the circle
-            return newHead;
         }
     }`
     },
@@ -12383,7 +12491,7 @@ class Solution {
 
 
 
-  "stacks-and-queue":[
+  "stack-&-queue":[
 
     {
       title: `QUESTION:
@@ -15811,12 +15919,93 @@ class Solution {
   "heaps":[
 
     {
+      title: `TOPIC:
+    Min-Heap vs Max-Heap using Java's PriorityQueue (PQ)
+    
+    EXAMPLE:
+    Input added to heap: 5, 1, 3, 9, 2
+    Min-Heap removal order: 1 -> 2 -> 3 -> 5 -> 9
+    Max-Heap removal order: 9 -> 5 -> 3 -> 2 -> 1`,
+    
+      bruteForceComplexity: `MIN-HEAP EXPLANATION:
+    A Min-Heap keeps the smallest element at the root. Every parent node is <= its children. peek() gives O(1) access to the minimum, and poll()/add() take O(log N) since the tree re-balances (sift up/down) after every change.
+    
+    Use case: Dijkstra's algorithm, merging K sorted lists, or finding K largest elements (by keeping a min-heap of size K and evicting the smallest when it overflows).`,
+    
+      bruteForceCode: `// Min-Heap PQ declaration (Java's default PQ behavior)
+    PriorityQueue<Integer> minHeap = new PriorityQueue<>();
+    
+    minHeap.add(5);
+    minHeap.add(1);
+    minHeap.add(3);
+    minHeap.add(9);
+    minHeap.add(2);
+    
+    System.out.println(minHeap.peek()); // 1 -> smallest is always at the top
+    
+    while (!minHeap.isEmpty()) {
+        System.out.print(minHeap.poll() + " ");
+    }
+    // Output: 1 2 3 5 9
+    
+    // -------------------------------------------
+    // Real usage: find K LARGEST elements using a MIN-heap of size K
+    int[] arr = {7, 10, 4, 3, 20, 15};
+    int k = 3;
+    PriorityQueue<Integer> minHeapK = new PriorityQueue<>();
+    
+    for (int num : arr) {
+        minHeapK.add(num);
+        if (minHeapK.size() > k) {
+            minHeapK.poll(); // evict the current smallest when heap overflows
+        }
+    }
+    // minHeapK now holds: [10, 15, 20] -> the 3 largest elements`,
+    
+      optimalComplexity: `MAX-HEAP EXPLANATION:
+    A Max-Heap keeps the largest element at the root. Every parent node is >= its children. peek() gives O(1) access to the maximum, and poll()/add() take O(log N), same as min-heap but with the comparator flipped.
+    
+    Use case: Job scheduling by highest priority, Huffman encoding, or finding K smallest elements (by keeping a max-heap of size K and evicting the largest when it overflows).`,
+    
+      optimalCode: `// Max-Heap PQ declaration (reverse the natural ordering)
+    PriorityQueue<Integer> maxHeap = new PriorityQueue<>(Collections.reverseOrder());
+    // or: new PriorityQueue<>((a, b) -> b - a);
+    
+    maxHeap.add(5);
+    maxHeap.add(1);
+    maxHeap.add(3);
+    maxHeap.add(9);
+    maxHeap.add(2);
+    
+    System.out.println(maxHeap.peek()); // 9 -> largest is always at the top
+    
+    while (!maxHeap.isEmpty()) {
+        System.out.print(maxHeap.poll() + " ");
+    }
+    // Output: 9 5 3 2 1
+    
+    // -------------------------------------------
+    // Real usage: find K SMALLEST elements using a MAX-heap of size K
+    int[] arr = {7, 10, 4, 3, 20, 15};
+    int k = 3;
+    PriorityQueue<Integer> maxHeapK = new PriorityQueue<>(Collections.reverseOrder());
+    
+    for (int num : arr) {
+        maxHeapK.add(num);
+        if (maxHeapK.size() > k) {
+            maxHeapK.poll(); // evict the current largest when heap overflows
+        }
+    }
+    // maxHeapK now holds: [3, 4, 7] -> the 3 smallest elements`
+    },
+
+    {
       title: `QUESTION:
     Insert an element into a binary heap (min-heap), maintaining the heap property.
     
     EXAMPLE:
     Input: heap = [1,3,5,7,9], insert 2
-    Output: [1,2,5,7,9,3]  (heap array after insertion, satisfies min-heap property)`,
+    Output: [1,3,5,7,9,2]  (heap array after insertion, satisfies min-heap property)`,
     
       bruteForceComplexity: `Time Complexity: O(N log N) — appends element then re-sorts and re-validates entire heap structure
     Space Complexity: O(N)`,
@@ -16106,7 +16295,7 @@ class Solution {
             int n = mat.length;
             // max-heap of size K on [soldierCount, rowIndex], weakest kept, strongest evicted
             PriorityQueue<int[]> maxHeap = new PriorityQueue<>((a, b) ->
-                a[0] != b[0] ? b[0] - a[0] : b[1] - a[1]);
+                a[0] != b[0] ? b[0] - a[0] : b[1] - a[1]);   // sorting 1st checking max no of soldiers and if same then index based sorting (both desc)
     
             for (int i = 0; i < n; i++) {
                 int count = countSoldiers(mat[i]); // binary search since row is sorted (1s then 0s)
@@ -16635,69 +16824,6 @@ class Solution {
     }`
     },
     
-    {
-      title: `QUESTION:
-    Given an array of integers, sort the array in ascending order using Heap Sort.
-    
-    EXAMPLE:
-    Input: nums = [12,11,13,5,6,7]
-    Output: [5,6,7,11,12,13]`,
-    
-      bruteForceComplexity: `Time Complexity: O(N log N) but with extra overhead — uses a built-in PriorityQueue instead of in-place heapify
-    Space Complexity: O(N) — auxiliary heap structure`,
-    
-      bruteForceCode: `class Solution {
-        public int[] heapSort(int[] nums) {
-            PriorityQueue<Integer> minHeap = new PriorityQueue<>(); // uses library heap, not in-place array heapify
-            for (int num : nums) minHeap.offer(num);
-    
-            int[] result = new int[nums.length];
-            for (int i = 0; i < nums.length; i++) {
-                result[i] = minHeap.poll();
-            }
-            return result;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N log N)
-    Space Complexity: O(1) — true in-place sorting`,
-    
-      optimalCode: `class Solution {
-        public int[] heapSort(int[] nums) {
-            int n = nums.length;
-    
-            // build max heap in-place
-            for (int i = n / 2 - 1; i >= 0; i--) {
-                heapify(nums, n, i);
-            }
-    
-            // repeatedly extract max, place at end, shrink heap
-            for (int i = n - 1; i > 0; i--) {
-                int temp = nums[0];
-                nums[0] = nums[i];
-                nums[i] = temp;
-                heapify(nums, i, 0);
-            }
-            return nums;
-        }
-    
-        private void heapify(int[] nums, int heapSize, int rootIdx) {
-            int largest = rootIdx;
-            int left = 2 * rootIdx + 1;
-            int right = 2 * rootIdx + 2;
-    
-            if (left < heapSize && nums[left] > nums[largest]) largest = left;
-            if (right < heapSize && nums[right] > nums[largest]) largest = right;
-    
-            if (largest != rootIdx) {
-                int temp = nums[rootIdx];
-                nums[rootIdx] = nums[largest];
-                nums[largest] = temp;
-                heapify(nums, heapSize, largest); // sift down
-            }
-        }
-    }`
-    },
 
   ],
 
@@ -16748,6 +16874,107 @@ class Solution {
             curr.isEndOfWord = true; // mark end after traversing/creating the path
         }
     }`
+      },
+
+      {
+        title: `QUESTION:
+      Given an array of words, find the shortest unique prefix for each word such that the prefix uniquely identifies the word from all others in the array.
+      
+      EXAMPLE:
+      Input: arr = ["zebra", "dog", "duck", "dovc"]
+      Output: ["z", "dog", "du", "dov"]
+      // "z" is enough since no other word starts with 'z'
+      // "dog" needed fully since "dog","duck","dovc" all start with 'd'
+      // "du" needed since "duck" and "dovc" both start with 'd','o'... wait "duck" and "dog" both start with 'd' but diverge at 2nd char
+      // "dov" needed since "duck" and "dovc" both start with 'd','o' and diverge at 3rd char`,
+      
+        bruteForceComplexity: `Time Complexity: O(N^2 * L) — for each word, tries every increasing prefix length and compares it against every other word's same-length prefix (N words, L = avg length)
+      Space Complexity: O(1) extra (excluding output array)`,
+      
+        bruteForceCode: `class Solution {
+          public String[] findShortestUniquePrefix(String[] arr) {
+              String[] result = new String[arr.length];
+      
+              for (int i = 0; i < arr.length; i++) {
+                  String word = arr[i];
+                  String prefix = "";
+      
+                  // try increasing prefix lengths until it's unique
+                  for (int len = 1; len <= word.length(); len++) {
+                      prefix = word.substring(0, len);
+                      boolean isUnique = true;
+      
+                      // compare this prefix against every other word's same prefix
+                      for (int j = 0; j < arr.length; j++) {
+                          if (i == j) continue;
+                          if (arr[j].length() >= len && arr[j].substring(0, len).equals(prefix)) {
+                              isUnique = false;
+                              break;
+                          }
+                      }
+      
+                      if (isUnique) break; // found shortest unique prefix for this word
+                  }
+                  result[i] = prefix;
+              }
+              return result;
+          }
+      }`,
+      
+        optimalComplexity: `Time Complexity: O(N * L) — insert all words into a trie while tracking frequency count at each node (O(N*L)), then a second pass walks each word down the trie until hitting a node with freq == 1 (O(N*L))
+      Space Complexity: O(ALPHABET_SIZE * N * L) worst case for the trie nodes`,
+      
+        optimalCode: `class TrieNode {
+          TrieNode[] children = new TrieNode[26];
+          int freq = 0; // how many words pass through this node
+      }
+      
+      class Solution {
+          private TrieNode root = new TrieNode();
+      
+          public String[] findShortestUniquePrefix(String[] arr) {
+              // step 1: insert every word, incrementing freq at each node along the path
+              for (String word : arr) {
+                  insert(word);
+              }
+      
+              // step 2: for each word, walk down until freq == 1 (that node's path is the unique prefix)
+              String[] result = new String[arr.length];
+              for (int i = 0; i < arr.length; i++) {
+                  result[i] = getUniquePrefix(arr[i]);
+              }
+              return result;
+          }
+      
+          private void insert(String word) {
+              TrieNode curr = root;
+              for (char c : word.toCharArray()) {
+                  int idx = c - 'a';
+                  if (curr.children[idx] == null) {
+                      curr.children[idx] = new TrieNode();
+                  }
+                  curr = curr.children[idx];
+                  curr.freq++; // mark that one more word passes through this node
+              }
+          }
+      
+          private String getUniquePrefix(String word) {
+              TrieNode curr = root;
+              StringBuilder prefix = new StringBuilder();
+      
+              for (char c : word.toCharArray()) {
+                  int idx = c - 'a';
+                  curr = curr.children[idx];
+                  prefix.append(c);
+      
+                  // as soon as only this one word passes through this node, prefix is unique
+                  if (curr.freq == 1) {
+                      break;
+                  }
+              }
+              return prefix.toString();
+          }
+      }`
       },
     
       {
@@ -16821,22 +17048,18 @@ class Solution {
     Space Complexity: O(N) recursion stack`,
     
         bruteForceCode: `class Solution {
-        public boolean wordBreak(String s, List<String> wordDict) {
-            Set<String> dict = new HashSet<>(wordDict);
-            return tryBreak(s, 0, dict);
-        }
-    
-        // tries every split point recursively, recomputing overlapping subproblems
-        private boolean tryBreak(String s, int start, Set<String> dict) {
-            if (start == s.length()) return true;
-    
-            for (int end = start + 1; end <= s.length(); end++) {
-                String prefix = s.substring(start, end);
-                if (dict.contains(prefix) && tryBreak(s, end, dict)) {
-                    return true;
-                }
+        public boolean wordBreak(String s) {
+          if(key.length()==0){
+            return true;
+          }
+
+          for(int i=1; i<s.length(); i++){
+            if(search(s.substring(0, i)) && wordBreak(s.substring(i))){
+              return true ;      
             }
-            return false;
+          }
+
+          return false;
         }
     }`,
     
@@ -17072,140 +17295,8 @@ class Solution {
         }
     }`
     },
-
-    {
-      title: `QUESTION:
-    Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.
     
-    EXAMPLE:
-    Input: s = "leetcode", wordDict = ["leet","code"]
-    Output: true`,
-    
-      bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible partition point without memoization
-    Space Complexity: O(N) recursion stack`,
-    
-      bruteForceCode: `class Solution {
-        public boolean wordBreak(String s, List<String> wordDict) {
-            Set<String> wordSet = new HashSet<>(wordDict);
-            return explore(s, 0, wordSet);
-        }
-    
-        // pure recursion, re-solves overlapping subproblems repeatedly
-        private boolean explore(String s, int start, Set<String> wordSet) {
-            if (start == s.length()) return true;
-    
-            for (int end = start + 1; end <= s.length(); end++) {
-                String word = s.substring(start, end);
-                if (wordSet.contains(word) && explore(s, end, wordSet)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N^2)
-    Space Complexity: O(N) for the DP array`,
-    
-      optimalCode: `class Solution {
-        public boolean wordBreak(String s, List<String> wordDict) {
-            Set<String> wordSet = new HashSet<>(wordDict);
-            int n = s.length();
-            boolean[] dp = new boolean[n + 1]; // dp[i] = true if s[0..i) can be segmented
-            dp[0] = true;
-    
-            for (int end = 1; end <= n; end++) {
-                for (int start = 0; start < end; start++) {
-                    if (dp[start] && wordSet.contains(s.substring(start, end))) {
-                        dp[end] = true; // avoids recomputation via bottom-up table
-                        break;
-                    }
-                }
-            }
-            return dp[n];
-        }
-    }`
-    },
-    
-    {
-      title: `QUESTION:
-    Implement a Trie (prefix tree) with insert, search, and startsWith methods.
-    
-    EXAMPLE:
-    Input: insert("apple"), search("apple"), search("app"), startsWith("app")
-    Output: true, false, true`,
-    
-      bruteForceComplexity: `Time Complexity: O(N*L) per search/startsWith — N = number of words, L = word length
-    Space Complexity: O(N*L) — stores all words in a list`,
-    
-      bruteForceCode: `class Trie {
-        private List<String> words = new ArrayList<>();
-    
-        public void insert(String word) {
-            words.add(word); // just store every word in a list
-        }
-    
-        public boolean search(String word) {
-            for (String w : words) { // linear scan through all stored words
-                if (w.equals(word)) return true;
-            }
-            return false;
-        }
-    
-        public boolean startsWith(String prefix) {
-            for (String w : words) { // linear scan checking prefix match
-                if (w.startsWith(prefix)) return true;
-            }
-            return false;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(L) per insert/search/startsWith — L = word/prefix length
-    Space Complexity: O(total characters across all inserted words)`,
-    
-      optimalCode: `class Trie {
-        class TrieNode {
-            TrieNode[] children = new TrieNode[26];
-            boolean isEndOfWord = false;
-        }
-    
-        private TrieNode root;
-    
-        public Trie() {
-            root = new TrieNode();
-        }
-    
-        public void insert(String word) {
-            TrieNode curr = root;
-            for (char c : word.toCharArray()) {
-                int idx = c - 'a';
-                if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
-                curr = curr.children[idx];
-            }
-            curr.isEndOfWord = true;
-        }
-    
-        public boolean search(String word) {
-            TrieNode node = traverse(word);
-            return node != null && node.isEndOfWord;
-        }
-    
-        public boolean startsWith(String prefix) {
-            return traverse(prefix) != null;
-        }
-    
-        private TrieNode traverse(String s) {
-            TrieNode curr = root;
-            for (char c : s.toCharArray()) {
-                int idx = c - 'a';
-                if (curr.children[idx] == null) return null;
-                curr = curr.children[idx];
-            }
-            return curr;
-        }
-    }`
-    },
-    
+  
     {
       title: `QUESTION:
     Given an array of strings words, find the longest string in words such that every prefix of it is also present in words. If there are multiple such strings, return the lexicographically smallest one.
@@ -17396,52 +17487,6 @@ class Solution {
     }`
     },
     
-    {
-      title: `QUESTION:
-    Given an array of strings strs, find the longest common prefix string amongst all strings in the array. If there is no common prefix, return an empty string.
-    
-    EXAMPLE:
-    Input: strs = ["flower","flow","flight"]
-    Output: "fl"`,
-    
-      bruteForceComplexity: `Time Complexity: O(N * L) but with heavy overhead — compares every string against every other string character by character
-    Space Complexity: O(1)`,
-    
-      bruteForceCode: `class Solution {
-        public String longestCommonPrefix(String[] strs) {
-            if (strs.length == 0) return "";
-    
-            String prefix = strs[0];
-            for (int i = 1; i < strs.length; i++) { // repeatedly shrink prefix comparing against each string
-                while (!strs[i].startsWith(prefix)) {
-                    prefix = prefix.substring(0, prefix.length() - 1); // trims one char at a time
-                    if (prefix.isEmpty()) return "";
-                }
-            }
-            return prefix;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N*L) — N = number of words, L = length of shortest string, but with early termination via vertical scanning
-    Space Complexity: O(1)`,
-    
-      optimalCode: `class Solution {
-        public String longestCommonPrefix(String[] strs) {
-            if (strs.length == 0) return "";
-    
-            // vertical scanning: compare character by character across all strings simultaneously
-            for (int i = 0; i < strs[0].length(); i++) {
-                char c = strs[0].charAt(i);
-                for (int j = 1; j < strs.length; j++) {
-                    if (i == strs[j].length() || strs[j].charAt(i) != c) {
-                        return strs[0].substring(0, i); // mismatch found, stop immediately
-                    }
-                }
-            }
-            return strs[0];
-        }
-    }`
-    },
 
   ],
 
