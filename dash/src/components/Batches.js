@@ -3,7 +3,7 @@ import {
   Box, Typography, Button, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField,
   Select, MenuItem, FormControl, InputLabel, Switch,
-  FormControlLabel, FormGroup, Checkbox, Chip, IconButton, Snackbar, Alert,
+  FormControlLabel, Chip, IconButton, Snackbar, Alert,
   Tooltip, Fade,
 } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
@@ -16,8 +16,6 @@ import CodeIcon from '@mui/icons-material/Code';
 import MilitaryTechIcon from '@mui/icons-material/MilitaryTech';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import BatchContentManager from './Batchcontentmanager'; // adjust path
 import { makeAuthenticatedRequest } from './makeauth'; // adjust path
 import server from '../environment';                 // adjust path
 
@@ -113,9 +111,6 @@ const emptyForm = {
   whatYouLearn: '',   // comma separated in form, converted to array on save
   isActive: true,
   sortOrder: 0,
-  // which resource cards show on this batch's chapter pages —
-  // replaces the old hardcoded classId branching in ChapterDetail.js
-  resourceTypes: { mindmap: true, shortNotes: true, completeNotes: true, video: true },
 };
 
 // ── shared field styling helper (matches AdminDashboard inputs) ──
@@ -242,9 +237,6 @@ const BatchManager = () => {
   const [screenshotMode, setScreenshotMode] = useState('url');
   const [screenshotUploading, setScreenshotUploading] = useState(false);
 
-  // ── which batch's content (subjects/chapters) is being managed ──
-  const [contentManagerBatch, setContentManagerBatch] = useState(null);
-
   // ── FETCH ALL BATCHES (admin sees inactive too) ──
   const fetchBatches = async () => {
     try {
@@ -286,7 +278,6 @@ const BatchManager = () => {
       whatYouLearn: (batch.whatYouLearn || []).join(', '),
       isActive: batch.isActive,
       sortOrder: batch.sortOrder || 0,
-      resourceTypes: batch.resourceTypes || { mindmap: true, shortNotes: true, completeNotes: true, video: true },
     });
     setImageMode('url');
     setScreenshotMode('url');
@@ -499,7 +490,6 @@ const BatchManager = () => {
                     onEdit={handleEdit}
                     onToggle={handleToggle}
                     onDelete={(b) => setDeleteConfirm(b)}
-                    onManageContent={(b) => setContentManagerBatch(b)}
                     showRedirect={folderName === 'Tech'}
                   />
                 </SectionCard>
@@ -625,37 +615,6 @@ const BatchManager = () => {
               </>
             )}
 
-            {/* ── which resource cards show on this batch's chapter pages ── */}
-            <Box sx={{ gridColumn: { xs: '1', sm: '1 / -1' } }}>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, fontWeight: 700, color: "#888", mb: 0.5 }}>
-                Resource Types (chapter page cards)
-              </Typography>
-              <FormGroup row>
-                {[
-                  { key: 'mindmap', label: 'Mindmap' },
-                  { key: 'shortNotes', label: 'Short Notes' },
-                  { key: 'completeNotes', label: 'Complete Notes' },
-                  { key: 'video', label: 'Video' },
-                ].map(({ key, label }) => (
-                  <FormControlLabel
-                    key={key}
-                    sx={{ "& .MuiFormControlLabel-label": { fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, color: "#555" } }}
-                    control={
-                      <Checkbox
-                        checked={form.resourceTypes?.[key] ?? true}
-                        onChange={(e) => setForm((prev) => ({
-                          ...prev,
-                          resourceTypes: { ...prev.resourceTypes, [key]: e.target.checked },
-                        }))}
-                        sx={{ color: "#ccc", "&.Mui-checked": { color: "#1a1a2e" } }}
-                      />
-                    }
-                    label={label}
-                  />
-                ))}
-              </FormGroup>
-            </Box>
-
             <TextField label="Sort Order" value={form.sortOrder} type="number"
               onChange={handleFormChange('sortOrder')} fullWidth
               helperText="Lower number = shown first" sx={fieldSx} />
@@ -729,14 +688,6 @@ const BatchManager = () => {
         </DialogActions>
       </Dialog>
 
-      {/* ── CONTENT MANAGER (Subjects & Chapters) ── */}
-      <BatchContentManager
-        open={!!contentManagerBatch}
-        batch={contentManagerBatch}
-        onClose={() => setContentManagerBatch(null)}
-        onBatchUpdated={fetchBatches}
-      />
-
       {/* ── SNACKBAR ── */}
       <Snackbar open={snackbar.open} autoHideDuration={3000}
         onClose={() => setSnackbar(s => ({ ...s, open: false }))}>
@@ -772,7 +723,7 @@ const SectionCard = ({ icon, title, subtitle, children }) => (
 // ─────────────────────────────────────────────────────────────
 // Reusable BatchTable sub-component — grey/white restyle
 // ─────────────────────────────────────────────────────────────
-const BatchTable = ({ batches, onEdit, onToggle, onDelete, onManageContent, showRedirect = false }) => {
+const BatchTable = ({ batches, onEdit, onToggle, onDelete, showRedirect = false }) => {
   const headCellSx = {
     fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700,
     color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase",
@@ -851,14 +802,6 @@ const BatchTable = ({ batches, onEdit, onToggle, onDelete, onManageContent, show
                 />
               </Box>
               <Box component="td" sx={{ ...cellSx, textAlign: "center", pr: 1.5 }}>
-                <Tooltip title="Manage Content (Subjects & Chapters)">
-                  <IconButton
-                    size="small" onClick={() => onManageContent(batch)}
-                    sx={{ color: "#aaa", borderRadius: "8px", p: 0.7, mr: 0.5, "&:hover": { color: "#1a1a2e", background: "#f4f4f6" }, transition: "all 0.18s ease" }}
-                  >
-                    <MenuBookIcon sx={{ fontSize: 17 }} />
-                  </IconButton>
-                </Tooltip>
                 <Tooltip title="Edit">
                   <IconButton
                     size="small" onClick={() => onEdit(batch)}

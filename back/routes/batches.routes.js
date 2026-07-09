@@ -1,16 +1,23 @@
 import express from 'express';
 import Batch from "../schema/batches.model.js";
-import auth from '../controller/authh.js';
+import auth from '../controller/authh.js'; // Custom auth middleware for protecting routes
 const router = express.Router();
-
 // ─────────────────────────────────────────────
-// PUBLIC ROUTES
+// PUBLIC ROUTES — used by frontend pages
 // ─────────────────────────────────────────────
 
+// GET /api/batches?folder=Tech
+// GET /api/batches?folder=IIT+JEE
+// Frontend calls this to get batches for a specific folder/page
 router.get('/', async (req, res) => {
   try {
     const filter = { isActive: true };
-    if (req.query.folder) filter.folder = req.query.folder;
+
+    // If folder query param is passed, filter by it
+    if (req.query.folder) {
+      filter.folder = req.query.folder;
+    }
+
     const batches = await Batch.find(filter).sort({ sortOrder: 1, createdAt: 1 });
     res.json(batches);
   } catch (err) {
@@ -19,9 +26,10 @@ router.get('/', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────
-// ADMIN ROUTES
+// ADMIN ROUTES — protected, only admin can access
 // ─────────────────────────────────────────────
 
+// GET /api/admin/batches — get ALL batches (including inactive)
 router.get('/admin', auth, async (req, res) => {
   try {
     const batches = await Batch.find().sort({ folder: 1, sortOrder: 1 });
@@ -31,14 +39,16 @@ router.get('/admin', auth, async (req, res) => {
   }
 });
 
+// POST /api/admin/batches — add a new batch
 router.post('/admin', auth, async (req, res) => {
   try {
     const {
       batchId, folder, title, description, imageUrl, screenshot,
       price, redirectPath, whatYouLearn,
-      isActive, sortOrder, resourceTypes,
+      isActive, sortOrder,
     } = req.body;
 
+    // Check if batchId already exists
     const existing = await Batch.findOne({ batchId });
     if (existing) {
       return res.status(400).json({ message: 'Batch ID already exists. Use a unique ID.' });
@@ -52,7 +62,6 @@ router.post('/admin', auth, async (req, res) => {
       whatYouLearn: whatYouLearn || [],
       isActive: isActive !== undefined ? isActive : true,
       sortOrder: sortOrder || 0,
-      resourceTypes: resourceTypes || { mindmap: true, shortNotes: true, completeNotes: true, video: true },
     });
 
     await batch.save();
@@ -62,7 +71,7 @@ router.post('/admin', auth, async (req, res) => {
   }
 });
 
-// PUT — generic $set already covers subjects AND resourceTypes updates, no change needed
+// PUT /api/admin/batches/:id — edit an existing batch
 router.put('/admin/:id', auth, async (req, res) => {
   try {
     const batch = await Batch.findByIdAndUpdate(
@@ -70,43 +79,47 @@ router.put('/admin/:id', auth, async (req, res) => {
       { $set: req.body },
       { new: true, runValidators: true }
     );
-    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
     res.json({ message: 'Batch updated successfully', batch });
   } catch (err) {
     res.status(500).json({ message: 'Failed to update batch', error: err.message });
   }
 });
 
+// DELETE /api/admin/batches/:id — delete a batch permanently
 router.delete('/admin/:id', auth, async (req, res) => {
   try {
     const batch = await Batch.findByIdAndDelete(req.params.id);
-    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
     res.json({ message: 'Batch deleted successfully' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete batch', error: err.message });
   }
 });
 
+// PATCH /api/admin/batches/:id/toggle — toggle active/inactive
 router.patch('/admin/:id/toggle', auth, async (req, res) => {
   try {
     const batch = await Batch.findById(req.params.id);
-    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+
+    if (!batch) {
+      return res.status(404).json({ message: 'Batch not found' });
+    }
+
     batch.isActive = !batch.isActive;
     await batch.save();
+
     res.json({ message: `Batch ${batch.isActive ? 'activated' : 'deactivated'}`, batch });
   } catch (err) {
     res.status(500).json({ message: 'Failed to toggle batch', error: err.message });
-  }
-});
-
-// GET /api/batches/:batchId — registered LAST so it never shadows /admin routes
-router.get('/:batchId', async (req, res) => {
-  try {
-    const batch = await Batch.findOne({ batchId: req.params.batchId, isActive: true });
-    if (!batch) return res.status(404).json({ message: 'Batch not found' });
-    res.json(batch);
-  } catch (err) {
-    res.status(500).json({ message: 'Failed to fetch batch', error: err.message });
   }
 });
 
