@@ -1,6 +1,3 @@
-
-
-
 import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import {
   Card,
@@ -13,61 +10,14 @@ import {
   Tab,
   useTheme,
   useMediaQuery,
+  CircularProgress,
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
-const subjects = {
-  10: ["mathematics", "physics", "biology", "chemistry", "SST"],
-  31: ["maths", "physics", "biology", "chemistry", "english", "history", "polity", "geography", "economics"],
-  32:["day (1)", "day (2)", "day (3)", "day (4)", "day (5)"],
-  11: ["mathematics", "physics", "chemistry"],
-  111: ["physics", "chemistry", "botany", "zoology"],
-  12: ["mathematics", "physics", "chemistry"],
-  121: ["physics", "chemistry", "botany", "zoology"],
-  1: ["mathematics", "physics", "biology", "chemistry", "SST"],
-  2: ["mathematics", "physics", "chemistry"],
-  3: ["mathematics", "physics", "chemistry"],
-  4: ["mathematics", "physics", "biology", "chemistry", "SST"],
-  14:["handwritten_notes"],
-  5: ["mathematics", "physics", "chemistry"],
-  6: ["mathematics", "physics", "chemistry"],
-  7: ["Semester (1)", "Semester (2)", "Semester (3)", "Semester (4)", "Semester (5)", "Semester (6)", "Semester (7)", "Semester (8)"],   
-  8: ["Semester (1)", "Semester (2)", "Semester (3)", "Semester (4)", "Semester (5)", "Semester (6)", "Semester (7)", "Semester (8)"],
-  9: ["Semester (1)", "Semester (2)", "Semester (3)", "Semester (4)", "Semester (5)", "Semester (6)", "Semester (7)", "Semester (8)"],
-  13: ["Semester (1)", "Semester (2)", "Semester (3)", "Semester (4)", "Semester (5)", "Semester (6)", "Semester (7)", "Semester (8)"],
-};
-
-const subjectInfo = {
-  "day (1)": "Screening test including OIR and Picture Perception & Discussion Test (PPDT).",
-  "day (2)": "Psychological testing through TAT, WAT, SRT, and SD to assess personality traits.",
-  "day (3)": "Group tasks, group planning exercise, and progressive group task led by GTO.",
-  "day (4)": "Individual obstacles, command task, lecturette, and final group task.",
-  "day (5)": "Personal interview and conference to finalize recommendation status.",
-  maths: "Sharpen logical thinking and problem-solving skills.",
-  mathematics: "Sharpen logical thinking and problem-solving skills.",
-  physics: "Understand the laws that govern matter and energy.",
-  chemistry: "Explore the substances that make up our world.",
-  english: "Enhance your language, comprehension, and grammar skills.",
-  history: "Learn about important events, civilizations, and revolutions.",
-  polity: "Understand the structure and functioning of government and constitution.",
-  geography: "Explore the physical features and human interactions with Earth.",
-  economics: "Study the production, distribution, and consumption of resources.",
-  SST: "Understand human society through history, geography, politics, and economics.",
-  biology: "Dive into the science of life and living organisms.",
-  botany: "Study the structure, growth, and functions of plants.",
-  zoology: "Explore the biology, behavior, and classification of animals.",
-  handwritten_notes: "High-quality handwritten notes for quick learning and easy revision.",
-
-  "Semester (1)": "Build a strong foundation in basic engineering and science subjects.",
-  "Semester (2)": "Continue core concepts while exploring introductory technical courses.",
-  "Semester (3)": "Dive into branch-specific subjects and practical applications.",
-  "Semester (4)": "Strengthen domain knowledge with advanced core subjects.",
-  "Semester (5)": "Focus on technical depth and start minor project work.",
-  "Semester (6)": "Enhance problem-solving with electives and real-world case studies.",
-  "Semester (7)": "Gain industry exposure through internships and major projects.",
-  "Semester (8)": "Prepare for professional life with final projects and career readiness.",
-};
+// CRA env vars must be prefixed REACT_APP_ and read via process.env
+// (matches the pattern already used in ChapterDetail.js)
+const API_BASE = process.env.REACT_APP_API_URL || "https://storee-6wri.onrender.com";
 
 const renderCard = (title, description, link) => (
   <Card
@@ -110,7 +60,29 @@ const ClassPage = () => {
   const isPremium = location.pathname.includes("/premium");
   const isRevision = location.pathname.includes("/revision");
   const isCollege = location.pathname.includes("/college");
-  const classSubjects = subjects[classId] || [];
+
+  // ── ONLY CHANGE: subjects now fetched from the batch document
+  // instead of the hardcoded `subjects` / `subjectInfo` objects ──
+  const [classSubjects, setClassSubjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBatch = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${API_BASE}/api/batches/${classId}`);
+        const data = await res.json();
+        const sorted = (data.subjects || []).slice().sort((a, b) => a.order - b.order);
+        setClassSubjects(sorted);
+      } catch (err) {
+        console.error("Failed to fetch batch subjects:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (classId) fetchBatch();
+  }, [classId]);
+
   const [tabIndex, setTabIndex] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -196,58 +168,63 @@ const ClassPage = () => {
         </Typography>
       )}
 
-      {(tabIndex === 0 || !isPremium) && (
-        <Grid container spacing={4} justifyContent="center">
-          {classSubjects.map((subject) => (
-            <Grid item xs={12} sm={6} md={6} key={subject}>
-              <Link
-                to={`${
-                  isPremium ? "/premium/class" : isRevision ? "/revision/class"  : isCollege ? "/college/class" : "/class"
-                }/${classId}/${subject}`}
-                style={{ textDecoration: "none" }}
-              >
-                <Card
-                  sx={{
-                    borderRadius: 3,
-                    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-                    transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                    "&:hover": {
-                      transform: "scale(1.03)",
-                      boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
-                      backgroundColor: "#f9f9f9",
-                    },
-                  }}
+      {loading ? (
+        <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}>
+          <CircularProgress />
+        </Box>
+      ) : (
+        (tabIndex === 0 || !isPremium) && (
+          <Grid container spacing={4} justifyContent="center">
+            {classSubjects.map((subject) => (
+              <Grid item xs={12} sm={6} md={6} key={subject.slug}>
+                <Link
+                  to={`${
+                    isPremium ? "/premium/class" : isRevision ? "/revision/class" : isCollege ? "/college/class" : "/class"
+                  }/${classId}/${subject.slug}`}
+                  style={{ textDecoration: "none" }}
                 >
-                  <CardContent>
-                    <Typography
-                      variant="h6"
-                      align="center"
-                      sx={{
-                        textTransform: "capitalize",
-                        fontWeight: 600,
-                        color: "#333",
-                      }}
-                    >
-                      {subject}
-                    </Typography>
-                    <Typography
-                      variant="body2"
-                      align="center"
-                      sx={{ mt: 0.5, color: "#555" }}
-                    >
-                      {subjectInfo[subject]}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Link>
-            </Grid>
-          ))}
-        </Grid>
+                  <Card
+                    sx={{
+                      borderRadius: 3,
+                      boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+                      transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      "&:hover": {
+                        transform: "scale(1.03)",
+                        boxShadow: "0 6px 20px rgba(0,0,0,0.12)",
+                        backgroundColor: "#f9f9f9",
+                      },
+                    }}
+                  >
+                    <CardContent>
+                      <Typography
+                        variant="h6"
+                        align="center"
+                        sx={{
+                          textTransform: "capitalize",
+                          fontWeight: 600,
+                          color: "#333",
+                        }}
+                      >
+                        {subject.name}
+                      </Typography>
+                      <Typography
+                        variant="body2"
+                        align="center"
+                        sx={{ mt: 0.5, color: "#555" }}
+                      >
+                        {subject.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </Grid>
+            ))}
+          </Grid>
+        )
       )}
 
       {isPremium && tabIndex === 1 && (
         <Grid container spacing={4} justifyContent="center">
-
           <Grid item xs={12} sm={6} md={6}>
             {renderCard(
               "Full Syllabus Mock Tests",
@@ -260,7 +237,6 @@ const ClassPage = () => {
 
       {isPremium && tabIndex === 2 && (
         <Grid container spacing={4} justifyContent="center">
-
           <Grid item xs={12} sm={6} md={6}>
             {renderCard(
               "Full PYQ Papers",
