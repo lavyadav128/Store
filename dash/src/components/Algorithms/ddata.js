@@ -3984,7 +3984,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N) — find middle, reverse second half, then interleave the two halves in place
   Space Complexity: O(1) extra space`,
    
-      optimalCode: `class Solution {
+      optimalCode: `Here we r doing same as palindrome one(same logic of firsthalf and secondhalf) and the storing one 
+      and one element of each in dummy ll
+      
+      
+      class Solution {
       public ListNode zigZag(ListNode head) {
           if (head == null || head.next == null) return head;
    
@@ -4175,7 +4179,12 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here 1st we r using slow and fast approach to reach mid and after that we r reversing the whole from slow next considering as 
+      secondhalf and after reversing we r macthing from starting(head) to reversed secondhalf and at last we r reversing the second
+      half again too restore it again
+      
+      
+      class Solution {
         public boolean isPalindrome(ListNode head) {
             if (head == null || head.next == null) return true;
     
@@ -4262,7 +4271,10 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `here 1st we r reaching and left position of question and then traversing for len right-left that it 
+      
+      
+      class Solution {
         public ListNode reverseBetween(ListNode head, int left, int right) {
             if (head == null || left == right) return head;
     
@@ -4324,7 +4336,10 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(max(N,M))
     Space Complexity: O(max(N,M)) for the output list`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here we r adding normally as we do on copy and calculating carry as we do normally and storing ans in dummy using sum%10
+      
+      
+      class Solution {
         public ListNode addTwoNumbers(ListNode l1, ListNode l2) {
             ListNode dummy = new ListNode(-1);
             ListNode curr = dummy;
@@ -4491,7 +4506,10 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `simply traversing to every node and if curr and curr next r same then point curr to next to next
+      
+      
+      class Solution {
         public Node removeDuplicates(Node head) {
             if (head == null) return null;
             
@@ -4528,38 +4546,53 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
-        public Node reverseKGroup(Node head, int k) {
-            if (head == null || k == 1) return head;
-            
-            Node dummy = new Node(0);
-            dummy.next = head;
-            Node prev = dummy, curr = head, next = null;
-            
-            // Count nodes
-            int count = 0;
-            while (curr != null) {
-                count++;
-                curr = curr.next;
-            }
-            
-            while (count >= k) {
-                curr = prev.next;
-                next = curr.next;
-                
-                for (int i = 1; i < k; i++) {
-                    curr.next = next.next;
-                    next.next = prev.next;
-                    prev.next = next;
-                    next = curr.next;
-                }
-                
-                prev = curr;
-                count -= k;
-            }
-            return dummy.next;
+      optimalCode: `here basically we r reversing every k nodes(means 1st k nodes then again the next k nodes this way) after reversing every k 
+      nodes we r making prev as the end of revesrsed node and again doing for the next and is done using while(count>=k)
+      
+      
+class Solution {
+    public Node reverseKGroup(Node head, int k) {
+        if (head == null || k == 1) return head;
+
+        Node dummy = new Node(0);
+        dummy.next = head;                  // dummy -> 1 -> 2 -> 3 -> 4 -> 5
+        Node prev = dummy;                  // prev = dummy
+        Node curr = head;
+        Node next = null;
+
+        int count = 0;
+        while (curr != null) {
+            count++;
+            curr = curr.next;
         }
-    }`
+        // count = 5
+
+        while (count >= k) {                // 5 >= 2 → enter loop
+
+            curr = prev.next;               // curr = 1              [prev=dummy, curr=1]
+            next = curr.next;                // next = 2              [next=2]
+
+            for (int i = 1; i < k; i++) {    // i=1 (runs once since k=2)
+
+                curr.next = next.next;       // 1.next = 3            → dummy -> 1 -> 3 -> 4 -> 5   (2 detached)
+                next.next = prev.next;       // 2.next = 1             → 2 -> 1 -> 3 -> 4 -> 5
+                prev.next = next;            // dummy.next = 2         → dummy -> 2 -> 1 -> 3 -> 4 -> 5
+                next = curr.next;            // next = 1.next = 3
+
+            }
+            // for loop ends (i=2 fails i<k)
+
+            prev = curr;                     // prev = 1              (tail of reversed group)
+            count -= k;                       // count = 5-2 = 3
+
+            // ---- state after iteration 1 ----
+            // List: dummy -> 2 -> 1 -> 3 -> 4 -> 5
+            // prev is at node 1, ready for next group [3,4]
+        }
+
+        return dummy.next;
+    }
+}`
     },
 
 
@@ -4580,7 +4613,12 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `here we r finding the length of ll and then traversing till that point from where we want to rotate the ll with(len-k) 
+      and after this we r making that points next to newhead(means to 4 in above ex) and making that point tp point null and
+       tail next to head(means 5 to 1) that it
+      
+      
+      class Solution {
         public Node rotateRight(Node head, int k) {
             if (head == null || head.next == null || k == 0) return head;
             
@@ -4628,7 +4666,10 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `basically here we just need to point child of each node to next of parent that it and children can also have
+       child and in question it is asking for sort it doesnt mean sort numbers numerically
+      
+      class Solution {
         public Node flatten(Node head) {
             if (head == null) return null;
             
@@ -4664,7 +4705,8 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
-    Output: Deep copy of the list`,
+    Output: Deep copy of the list
+    7  -> 7'  -> 13 -> 13' -> 11 -> 11' -> 10 -> 10' -> 1 -> 1' -> null`,
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -4674,7 +4716,11 @@ Space Complexity: O(1)`,
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `1st make copies of given and then assign random pointer to the copied ones(same as original one but assign the copied one)
+       and then keep everything of copied and remove the original ones
+      
+      
+      class Solution {
         public Node copyRandomList(Node head) {
             if (head == null) return null;
             
@@ -4691,7 +4737,7 @@ Space Complexity: O(1)`,
             curr = head;
             while (curr != null) {
                 if (curr.random != null) {
-                    curr.next.random = curr.random.next;
+                    curr.next.random = curr.random.next;       //13.next = 13'-> 13'.random = ?  ->>> 13.random=7 -> 13.random.next=7'
                 }
                 curr = curr.next.next;
             }
@@ -16523,29 +16569,37 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N log N) — sorting tickets + Hierholzer's algorithm for Eulerian path
     Space Complexity: O(N) for the adjacency map`,
     
-      optimalCode: `class Solution {
-        public List<String> findItinerary(List<List<String>> tickets) {
-            // adjacency map: airport -> sorted min-heap of destinations (lexicographically smallest first)
-            Map<String, PriorityQueue<String>> graph = new HashMap<>();
-            for (List<String> ticket : tickets) {
-                graph.computeIfAbsent(ticket.get(0), k -> new PriorityQueue<>()).offer(ticket.get(1));
+      optimalCode: `
+      
+        class Solution {
+            public List<String> findItinerary(List<List<String>> tickets) {
+                // adjacency map: airport -> sorted min-heap of destinations (lexicographically smallest first)
+                Map<String, PriorityQueue<String>> graph = new HashMap<>();
+                for (List<String> ticket : tickets) {
+                    String from = ticket.get(0);
+                    String to = ticket.get(1);
+
+                    PriorityQueue<String> destinations = graph.getOrDefault(from, new PriorityQueue<>());
+                    // if 'from' already in map, get its heap; else default to a brand-new empty heap
+                    destinations.offer(to);            // add this destination into that heap
+                    graph.put(from, destinations);      // put it back into the map (needed since getOrDefault doesn't insert)
+                }
+
+                LinkedList<String> itinerary = new LinkedList<>();
+                // Hierholzer's algorithm: DFS, backtrack by prepending to result (post-order)
+                dfs("JFK", graph, itinerary);
+                return itinerary;
             }
-    
-            LinkedList<String> itinerary = new LinkedList<>();
-            // Hierholzer's algorithm: DFS, backtrack by prepending to result (post-order)
-            dfs("JFK", graph, itinerary);
-            return itinerary;
-        }
-    
-        private void dfs(String airport, Map<String, PriorityQueue<String>> graph, LinkedList<String> itinerary) {
-            PriorityQueue<String> destinations = graph.get(airport);
-            while (destinations != null && !destinations.isEmpty()) {
-                String next = destinations.poll(); // always take lexicographically smallest unused destination
-                dfs(next, graph, itinerary);
+
+            private void dfs(String airport, Map<String, PriorityQueue<String>> graph, LinkedList<String> itinerary) {
+                PriorityQueue<String> destinations = graph.get(airport);
+                while (destinations != null && !destinations.isEmpty()) {
+                    String next = destinations.poll();   // always take lexicographically smallest unused destination
+                    dfs(next, graph, itinerary);
+                }
+                itinerary.addFirst(airport);   // add in post-order, builds correct Eulerian path
             }
-            itinerary.addFirst(airport); // add in post-order, builds correct Eulerian path
-        }
-    }`
+        }`
     },
 
 
@@ -16578,7 +16632,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N log K) — N = total elements, K = number of arrays
     Space Complexity: O(K) for the heap + O(N) for result`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Always pull the globally smallest element via a min-heap (one candidate from each array at a time), append it to the result, and push that array's 
+      next element in — since each individual array is already sorted, the heap always has access to the true next-smallest value across all arrays.
+      
+      
+      class Solution {
         public List<Integer> mergeKSortedArrays(int[][] arrays) {
             List<Integer> result = new ArrayList<>();
             // min-heap of [value, arrayIndex, elementIndex]
@@ -16632,27 +16690,32 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N log K)
     Space Complexity: O(N) for frequency map + O(K) for heap`,
     
-      optimalCode: `class Solution {
-        public int[] topKFrequent(int[] nums, int k) {
-            Map<Integer, Integer> freqMap = new HashMap<>();
-            for (int num : nums) freqMap.merge(num, 1, Integer::sum);
-    
-            // min-heap of size k, keeps only the k most frequent elements seen so far
-            PriorityQueue<Map.Entry<Integer, Integer>> minHeap =
-                new PriorityQueue<>((a, b) -> a.getValue() - b.getValue());
-    
-            for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
-                minHeap.offer(entry);
-                if (minHeap.size() > k) minHeap.poll(); // evict least frequent
+      optimalCode: `Keep a min-heap capped at size k, so that as you push every (number, frequency) pair, the single least frequent one gets evicted each time the heap overflows past k — guaranteeing
+       only the k most frequent elements survive by the end.
+      
+        class Solution {
+            public int[] topKFrequent(int[] nums, int k) {
+                Map<Integer, Integer> freqMap = new HashMap<>();
+                for (int num : nums) {
+                    freqMap.put(num, freqMap.getOrDefault(num, 0) + 1);   // if num seen before, get its count, else default 0, then +1
+                }
+
+                // min-heap of size k, keeps only the k most frequent elements seen so far
+                PriorityQueue<Map.Entry<Integer, Integer>> minHeap =
+                    new PriorityQueue<>((a, b) -> a.getValue() - b.getValue());
+
+                for (Map.Entry<Integer, Integer> entry : freqMap.entrySet()) {
+                    minHeap.offer(entry);
+                    if (minHeap.size() > k) minHeap.poll();   // evict least frequent
+                }
+
+                int[] result = new int[k];
+                for (int i = k - 1; i >= 0; i--) {
+                    result[i] = minHeap.poll().getKey();
+                }
+                return result;
             }
-    
-            int[] result = new int[k];
-            for (int i = k - 1; i >= 0; i--) {
-                result[i] = minHeap.poll().getKey();
-            }
-            return result;
-        }
-    }`
+        }`
     },
     
     {
@@ -16685,7 +16748,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(log N) per insertion, O(1) for findMedian
     Space Complexity: O(N)`,
     
-      optimalCode: `class MedianFinder {
+      optimalCode: `Maintain two heaps that always split the numbers into a "lower half" (max-heap, values ≤ median) and "upper half" (min-heap, values ≥ median),
+     keeping their sizes balanced (differing by at most 1) after every insertion — so the median is always just the top of the larger heap, or the average
+     of both tops when sizes are equal.
+      
+
+      class MedianFinder {
         private PriorityQueue<Integer> maxHeap; // lower half, largest on top
         private PriorityQueue<Integer> minHeap; // upper half, smallest on top
     
@@ -16754,33 +16822,37 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N log K) — N = total elements across all lists
     Space Complexity: O(K) for the heap`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Always pick the current smallest across all lists (via min-heap) and advance only that list, while tracking the running max — because 
+      the tightest range that covers all lists must start at some list's minimum, and sliding the global minimum forward one step at a time
+     (replacing it with that list's next value) is the only way to potentially shrink the range without ever leaving a list unrepresented.
+      
+      class Solution {
         public int[] smallestRange(List<List<Integer>> lists) {
             // min-heap of [value, listIndex, elementIndex]
             PriorityQueue<int[]> minHeap = new PriorityQueue<>((a, b) -> a[0] - b[0]);
             int currMax = Integer.MIN_VALUE;
     
-            for (int i = 0; i < lists.size(); i++) { // seed heap with first element of each list
-                int val = lists.get(i).get(0);
-                minHeap.offer(new int[]{val, i, 0});
-                currMax = Math.max(currMax, val);
+            for (int i = 0; i < lists.size(); i++) {
+                int val = lists.get(i).get(0);          // i=0: val=4   i=1: val=0   i=2: val=5
+                minHeap.offer(new int[]{val, i, 0});     // push (4,0,0), (0,1,0), (5,2,0)
+                currMax = Math.max(currMax, val);        // currMax = max(4,0,5) = 5
             }
     
             int[] bestRange = {Integer.MIN_VALUE, Integer.MAX_VALUE};
     
-            while (minHeap.size() == lists.size()) { // stop once any list is exhausted
-                int[] curr = minHeap.poll();
-                int currMin = curr[0];
-    
-                if (currMax - currMin < bestRange[1] - bestRange[0]) {
-                    bestRange = new int[]{currMin, currMax};
+            while (minHeap.size() == lists.size()) {   // 3 == 3 → enter
+                int[] curr = minHeap.poll();            // curr = (0,1,0)
+                int currMin = curr[0];                  // currMin = 0
+
+                if (currMax - currMin < bestRange[1] - bestRange[0]) {   // 5-0=5 < ∞ → true
+                    bestRange = new int[]{currMin, currMax};              // bestRange = [0,5]
                 }
-    
-                int listIdx = curr[1], elemIdx = curr[2];
-                if (elemIdx + 1 < lists.get(listIdx).size()) {
-                    int nextVal = lists.get(listIdx).get(elemIdx + 1);
-                    minHeap.offer(new int[]{nextVal, listIdx, elemIdx + 1});
-                    currMax = Math.max(currMax, nextVal); // update max as we advance
+
+                int listIdx = curr[1], elemIdx = curr[2];   // listIdx=1, elemIdx=0
+                if (elemIdx + 1 < lists.get(listIdx).size()) {  // 1 < 4 → true (list1 size=4)
+                    int nextVal = lists.get(listIdx).get(elemIdx + 1);  // lists[1][1] = 9
+                    minHeap.offer(new int[]{nextVal, listIdx, elemIdx + 1});  // push (9,1,1)
+                    currMax = Math.max(currMax, nextVal);   // currMax = max(5,9) = 9
                 }
             }
             return bestRange;
