@@ -59,7 +59,7 @@ import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
 
 import batchRoutes from './routes/batches.routes.js';
 
-import notesRouter from './routes/Notes.routes.js';
+import notesRouter from './routes/notes.routes.js';
 
 import dns from 'node:dns';
 
