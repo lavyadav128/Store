@@ -13,7 +13,9 @@ import DpractisePage from './components/Algorithms/dpractise';
 import Revision from './components/Revision/concept'; // Revision Page Component
 import College from './components/College/Top'; // College Page Component
 
-
+import NotesSubjectsPage from './components/Notessubjectspage';
+import NotesChaptersPage from './components/Noteschapterspage';
+import NotesChapterDetail from './components/Noteschapterdetail';
 
 
 import Web from './components/Developments/Web';
@@ -121,6 +123,11 @@ root.render(
               <Route path="/attempt-test"                            element={<TestAttemptPage />} />
               <Route path="/premium/class/:classId/pyq"              element={<PYQSeries />} />
               <Route path="premium/class/:classId/mentorship"        element={<MentorshipPage />} />
+
+
+              <Route path="/notes" element={<NotesSubjectsPage />} />
+              <Route path="/notes/:subjectSlug" element={<NotesChaptersPage />} />
+              <Route path="/notes/:subjectSlug/:chapterSlug" element={<NotesChapterDetail />} />
             </Route>
           </Routes>
 

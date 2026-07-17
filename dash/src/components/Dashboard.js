@@ -15,6 +15,7 @@ import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import PaymentIcon from "@mui/icons-material/Payment";
 import VideoIcon from "@mui/icons-material/VideoLibrary";
+import NotesIcon from "@mui/icons-material/VideoLibrary";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -47,6 +48,7 @@ import PaymentsPage from "./payment";
 import AdminDashboard from "./AdminDashboard";
 import Dreams from "./Dreams";
 import Batches from "./Batches";
+import NotesManager from "./Notesmanager";
 import VideoSplit from "./VideoSplit";
 import LogoutIcon from "@mui/icons-material/Logout";
 
@@ -62,7 +64,8 @@ const VIEW_VIDEO         = "video";
 const VIEW_CLIP          = "clip";
 const VIEW_DREAMS        = "dreams";
 const VIEW_FILES         = "files";
-const VIEW_BATCH         = "batches"
+const VIEW_BATCH         = "batches";
+const VIEW_NOTES         = "notes";
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -94,6 +97,7 @@ const ADMIN_NAV = [
   { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
   { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
   { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
+  { icon: NotesIcon,      title: "Notes",       view: VIEW_NOTES },
 
 ];
 
@@ -1026,6 +1030,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_BATCH && (
                     <Fade in timeout={400}><Box><Batches /></Box></Fade>
+                  )}
+                  {activeView === VIEW_NOTES && (
+                    <Fade in timeout={400}><Box><NotesManager /></Box></Fade>
                   )}
 
                 </>

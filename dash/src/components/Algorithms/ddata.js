@@ -13623,33 +13623,38 @@ class Solution {
     Space Complexity: O(N)`,
     
       bruteForceCode: `class Solution {
-        public List<List<Integer>> levelOrder(TreeNode root) {
-            List<List<Integer>> result = new ArrayList<>();
-            int height = getHeight(root);
-    
-            for (int level = 0; level < height; level++) { // separate traversal for each level
-                List<Integer> currentLevel = new ArrayList<>();
-                collectLevel(root, level, currentLevel);
-                result.add(currentLevel);
+            public List<List<Integer>> levelOrder(TreeNode root) {
+                List<List<Integer>> result = new ArrayList<>();
+                if (root == null) return result;
+
+                Queue<TreeNode> nodeQueue = new LinkedList<>();
+                Queue<Integer> levelQueue = new LinkedList<>();
+
+                nodeQueue.offer(root);
+                levelQueue.offer(0);
+
+                while (!nodeQueue.isEmpty()) {
+                    TreeNode node = nodeQueue.poll();
+                    int level = levelQueue.poll();
+
+                    // if this is the first node we've seen at this level, create a new list
+                    if (level == result.size()) {
+                        result.add(new ArrayList<>());
+                    }
+                    result.get(level).add(node.val);
+
+                    if (node.left != null) {
+                        nodeQueue.offer(node.left);
+                        levelQueue.offer(level + 1);
+                    }
+                    if (node.right != null) {
+                        nodeQueue.offer(node.right);
+                        levelQueue.offer(level + 1);
+                    }
+                }
+                return result;
             }
-            return result;
-        }
-    
-        private int getHeight(TreeNode node) {
-            if (node == null) return 0;
-            return 1 + Math.max(getHeight(node.left), getHeight(node.right));
-        }
-    
-        private void collectLevel(TreeNode node, int level, List<Integer> result) {
-            if (node == null) return;
-            if (level == 0) {
-                result.add(node.val);
-                return;
-            }
-            collectLevel(node.left, level - 1, result); // re-traverses from root every call
-            collectLevel(node.right, level - 1, result);
-        }
-    }`,
+        }`,
     
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
@@ -13772,7 +13777,8 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(H) — recursion stack, H = tree height`,
     
-      optimalCode: `class Solution {
+      optimalCode: `
+      class Solution {
         private TreeNode prev = null;
         private int minDiff = Integer.MAX_VALUE;
     
@@ -13783,16 +13789,16 @@ class Solution {
     
         // inorder traversal of a BST visits nodes in sorted order,
         // so the minimum difference must occur between adjacent visited nodes
-        private void inorder(TreeNode node) {
-            if (node == null) return;
-            inorder(node.left);
-    
-            if (prev != null) {
+        private void inorder(TreeNode node) {   // node = 4
+            if (node == null) return;           // 4 != null, continue
+            inorder(node.left);                 // → calls inorder(2)
+
+            if (prev != null) {                 // prev is null → skip
                 minDiff = Math.min(minDiff, node.val - prev.val);
             }
-            prev = node;
-    
-            inorder(node.right);
+            prev = node;                        // prev = node(1)
+
+            inorder(node.right);                // → calls inorder(null)
         }
     }`
     },
