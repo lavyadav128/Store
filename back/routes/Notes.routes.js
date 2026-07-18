@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import NoteSubject from '../schema/Notesubject.model.js';
-import NoteChapter from '../schema/Notchapter.model.js';
+import NoteChapter from '../schema/Notechapter.model.js';
 import { cloudinary } from "../config/cloudinary.js";
 import auth from '../controller/authh.js';
 
