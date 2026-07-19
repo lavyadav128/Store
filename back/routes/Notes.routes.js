@@ -1,40 +1,66 @@
 import express from 'express';
 import multer from 'multer';
+import NoteBatch from '../schema/Notebatch.model.js';
 import NoteSubject from '../schema/Notesubject.model.js';
 import NoteChapter from '../schema/Notechapter.model.js';
-import { cloudinary } from "../config/cloudinary.js";
+import { cloudinary } from '../config/cloudinary.js';
 import auth from '../controller/authh.js';
 
 const router = express.Router();
 
-// in-memory storage — file goes straight to Cloudinary, never touches disk
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
-// ─────────────────────────────────────────────
-// PUBLIC — SUBJECTS
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+// PUBLIC — BATCHES (browse/buy page)
+// ═════════════════════════════════════════════════════════════
 
-// GET /api/notes/subjects
+// GET /api/notes/batches — active only, used by the browse page
+router.get('/batches', async (req, res) => {
+  try {
+    const batches = await NoteBatch.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+    res.json(batches);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch batches', error: err.message });
+  }
+});
+
+// GET /api/notes/batches/:slug — one batch (e.g. for a title header)
+router.get('/batches/:slug', async (req, res) => {
+  try {
+    const batch = await NoteBatch.findOne({ slug: req.params.slug, isActive: true });
+    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    res.json(batch);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch batch', error: err.message });
+  }
+});
+
+// ═════════════════════════════════════════════════════════════
+// PUBLIC — SUBJECTS (scoped to a batch)
+// ═════════════════════════════════════════════════════════════
+
+// GET /api/notes/subjects?batch=physics-crash-course
 router.get('/subjects', async (req, res) => {
   try {
-    const subjects = await NoteSubject.find({ isActive: true }).sort({ order: 1, createdAt: 1 });
+    const { batch } = req.query;
+    if (!batch) return res.status(400).json({ message: 'batch is required' });
+    const subjects = await NoteSubject.find({ batchSlug: batch, isActive: true }).sort({ order: 1, createdAt: 1 });
     res.json(subjects);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch subjects', error: err.message });
   }
 });
 
-// ─────────────────────────────────────────────
-// PUBLIC — CHAPTERS
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+// PUBLIC — CHAPTERS (scoped to batch + subject)
+// ═════════════════════════════════════════════════════════════
 
-// GET /api/notes/chapters?subject=physics
+// GET /api/notes/chapters?batch=X&subject=physics
 router.get('/chapters', async (req, res) => {
   try {
-    const { subject } = req.query;
-    if (!subject) return res.status(400).json({ message: 'subject is required' });
-
-    const chapters = await NoteChapter.find({ subjectSlug: subject, isActive: true })
+    const { batch, subject } = req.query;
+    if (!batch || !subject) return res.status(400).json({ message: 'batch and subject are required' });
+    const chapters = await NoteChapter.find({ batchSlug: batch, subjectSlug: subject, isActive: true })
       .sort({ order: 1, createdAt: 1 });
     res.json(chapters);
   } catch (err) {
@@ -42,13 +68,12 @@ router.get('/chapters', async (req, res) => {
   }
 });
 
-// GET /api/notes/chapters/single?subject=physics&chapter=redox-reactions
+// GET /api/notes/chapters/single?batch=X&subject=physics&chapter=redox-reactions
 router.get('/chapters/single', async (req, res) => {
   try {
-    const { subject, chapter } = req.query;
-    if (!subject || !chapter) return res.status(400).json({ message: 'subject and chapter are required' });
-
-    const found = await NoteChapter.findOne({ subjectSlug: subject, slug: chapter, isActive: true });
+    const { batch, subject, chapter } = req.query;
+    if (!batch || !subject || !chapter) return res.status(400).json({ message: 'batch, subject and chapter are required' });
+    const found = await NoteChapter.findOne({ batchSlug: batch, subjectSlug: subject, slug: chapter, isActive: true });
     if (!found) return res.status(404).json({ message: 'Chapter not found' });
     res.json(found);
   } catch (err) {
@@ -56,13 +81,80 @@ router.get('/chapters/single', async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// ADMIN — SUBJECTS
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+// ADMIN — BATCHES
+// ═════════════════════════════════════════════════════════════
+
+router.get('/admin/batches', auth, async (req, res) => {
+  try {
+    const batches = await NoteBatch.find().sort({ order: 1, createdAt: 1 });
+    res.json(batches);
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to fetch batches', error: err.message });
+  }
+});
+
+router.post('/admin/batches', auth, async (req, res) => {
+  try {
+    const { slug, title, description, imageUrl, price, isActive, order } = req.body;
+
+    const existing = await NoteBatch.findOne({ slug });
+    if (existing) return res.status(400).json({ message: 'A batch with this slug already exists.' });
+
+    const batch = new NoteBatch({
+      slug, title, description, imageUrl,
+      price: price || 0,
+      isActive: isActive !== undefined ? isActive : true,
+      order: order || 0,
+    });
+    await batch.save();
+    res.status(201).json({ message: 'Batch created', batch });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to create batch', error: err.message });
+  }
+});
+
+router.put('/admin/batches/:id', auth, async (req, res) => {
+  try {
+    const batch = await NoteBatch.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true, runValidators: true });
+    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    res.json({ message: 'Batch updated', batch });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to update batch', error: err.message });
+  }
+});
+
+router.delete('/admin/batches/:id', auth, async (req, res) => {
+  try {
+    const batch = await NoteBatch.findByIdAndDelete(req.params.id);
+    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    res.json({ message: 'Batch deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to delete batch', error: err.message });
+  }
+});
+
+router.patch('/admin/batches/:id/toggle', auth, async (req, res) => {
+  try {
+    const batch = await NoteBatch.findById(req.params.id);
+    if (!batch) return res.status(404).json({ message: 'Batch not found' });
+    batch.isActive = !batch.isActive;
+    await batch.save();
+    res.json({ message: `Batch ${batch.isActive ? 'activated' : 'deactivated'}`, batch });
+  } catch (err) {
+    res.status(500).json({ message: 'Failed to toggle batch', error: err.message });
+  }
+});
+
+// ═════════════════════════════════════════════════════════════
+// ADMIN — SUBJECTS (scoped to a batch)
+// ═════════════════════════════════════════════════════════════
 
 router.get('/admin/subjects', auth, async (req, res) => {
   try {
-    const subjects = await NoteSubject.find().sort({ order: 1, createdAt: 1 });
+    const { batch } = req.query;
+    if (!batch) return res.status(400).json({ message: 'batch is required' });
+    const subjects = await NoteSubject.find({ batchSlug: batch }).sort({ order: 1, createdAt: 1 });
     res.json(subjects);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch subjects', error: err.message });
@@ -71,13 +163,13 @@ router.get('/admin/subjects', auth, async (req, res) => {
 
 router.post('/admin/subjects', auth, async (req, res) => {
   try {
-    const { slug, name, description, order, isActive } = req.body;
+    const { batchSlug, slug, name, description, order, isActive } = req.body;
 
-    const existing = await NoteSubject.findOne({ slug });
-    if (existing) return res.status(400).json({ message: 'A subject with this slug already exists.' });
+    const existing = await NoteSubject.findOne({ batchSlug, slug });
+    if (existing) return res.status(400).json({ message: 'A subject with this slug already exists in this batch.' });
 
     const subject = new NoteSubject({
-      slug, name, description: description || '', order: order || 0,
+      batchSlug, slug, name, description: description || '', order: order || 0,
       isActive: isActive !== undefined ? isActive : true,
     });
     await subject.save();
@@ -119,15 +211,15 @@ router.patch('/admin/subjects/:id/toggle', auth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// ADMIN — CHAPTERS
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+// ADMIN — CHAPTERS (scoped to batch + subject)
+// ═════════════════════════════════════════════════════════════
 
 router.get('/admin/chapters', auth, async (req, res) => {
   try {
-    const { subject } = req.query;
-    if (!subject) return res.status(400).json({ message: 'subject is required' });
-    const chapters = await NoteChapter.find({ subjectSlug: subject }).sort({ order: 1, createdAt: 1 });
+    const { batch, subject } = req.query;
+    if (!batch || !subject) return res.status(400).json({ message: 'batch and subject are required' });
+    const chapters = await NoteChapter.find({ batchSlug: batch, subjectSlug: subject }).sort({ order: 1, createdAt: 1 });
     res.json(chapters);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch chapters', error: err.message });
@@ -137,16 +229,16 @@ router.get('/admin/chapters', auth, async (req, res) => {
 router.post('/admin/chapters', auth, async (req, res) => {
   try {
     const {
-      subjectSlug, slug, title,
+      batchSlug, subjectSlug, slug, title,
       mindmapUrl, shortNotesUrl, completeNotesUrl, videoUrl,
       order, isActive,
     } = req.body;
 
-    const existing = await NoteChapter.findOne({ subjectSlug, slug });
+    const existing = await NoteChapter.findOne({ batchSlug, subjectSlug, slug });
     if (existing) return res.status(400).json({ message: 'A chapter with this slug already exists for this subject.' });
 
     const chapter = new NoteChapter({
-      subjectSlug, slug, title,
+      batchSlug, subjectSlug, slug, title,
       mindmapUrl: mindmapUrl || '',
       shortNotesUrl: shortNotesUrl || '',
       completeNotesUrl: completeNotesUrl || '',
@@ -193,11 +285,10 @@ router.patch('/admin/chapters/:id/toggle', auth, async (req, res) => {
   }
 });
 
-// ─────────────────────────────────────────────
-// ADMIN — UPLOAD (direct to Cloudinary, no bulkupload.js needed)
-// ─────────────────────────────────────────────
+// ═════════════════════════════════════════════════════════════
+// ADMIN — UPLOAD (Cloudinary, used for batch images AND chapter PDFs)
+// ═════════════════════════════════════════════════════════════
 
-// POST /api/notes/admin/upload  (multipart/form-data, field name "file")
 router.post('/admin/upload', auth, upload.single('file'), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file provided' });
@@ -206,10 +297,7 @@ router.post('/admin/upload', auth, upload.single('file'), async (req, res) => {
 
     const uploadFromBuffer = () => new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'notes',
-          resource_type: isPdf ? 'raw' : 'auto', // "raw" is required for PDFs on Cloudinary
-        },
+        { folder: 'notes', resource_type: isPdf ? 'raw' : 'auto' },
         (error, result) => (error ? reject(error) : resolve(result))
       );
       stream.end(req.file.buffer);

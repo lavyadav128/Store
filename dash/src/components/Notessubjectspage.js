@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 const API_BASE = process.env.REACT_APP_API_URL || "https://storee-6wri.onrender.com";
 
 const NotesSubjectsPage = () => {
+  const { batchSlug } = useParams();
   const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchSubjects = async () => {
+      setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/api/notes/subjects`);
+        const res = await fetch(`${API_BASE}/api/notes/subjects?batch=${encodeURIComponent(batchSlug)}`);
         const data = await res.json();
         setSubjects(data);
       } catch (err) {
@@ -22,8 +24,8 @@ const NotesSubjectsPage = () => {
         setLoading(false);
       }
     };
-    fetchSubjects();
-  }, []);
+    if (batchSlug) fetchSubjects();
+  }, [batchSlug]);
 
   return (
     <Box p={4} sx={{ backgroundColor: "#f5f7fa", minHeight: "100vh" }}>
@@ -55,7 +57,7 @@ const NotesSubjectsPage = () => {
             {subjects.map((subject) => (
               <Box
                 key={subject.slug}
-                onClick={() => navigate(`/notes/${subject.slug}`)}
+                onClick={() => navigate(`/notes/${batchSlug}/${subject.slug}`)}
                 sx={{
                   width: 420, maxWidth: "100%", p: 4, borderRadius: 3, cursor: "pointer",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.08)", backgroundColor: "#fff", textAlign: "center",

@@ -6,7 +6,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom';
 const API_BASE = process.env.REACT_APP_API_URL || "https://storee-6wri.onrender.com";
 
 const NotesChaptersPage = () => {
-  const { subjectSlug } = useParams();
+  const { batchSlug, subjectSlug } = useParams();
   const navigate = useNavigate();
   const [chapters, setChapters] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ const NotesChaptersPage = () => {
     const fetchChapters = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/api/notes/chapters?subject=${encodeURIComponent(subjectSlug)}`);
+        const res = await fetch(`${API_BASE}/api/notes/chapters?batch=${encodeURIComponent(batchSlug)}&subject=${encodeURIComponent(subjectSlug)}`);
         const data = await res.json();
         setChapters(data);
       } catch (err) {
@@ -24,8 +24,8 @@ const NotesChaptersPage = () => {
         setLoading(false);
       }
     };
-    if (subjectSlug) fetchChapters();
-  }, [subjectSlug]);
+    if (batchSlug && subjectSlug) fetchChapters();
+  }, [batchSlug, subjectSlug]);
 
   const subjectTitle = subjectSlug ? subjectSlug.charAt(0).toUpperCase() + subjectSlug.slice(1) : '';
 
@@ -58,7 +58,7 @@ const NotesChaptersPage = () => {
           <Grid container spacing={3}>
             {chapters.map((chapter) => (
               <Grid item xs={12} sm={6} md={3} key={chapter._id}>
-                <Link to={`/notes/${subjectSlug}/${chapter.slug}`} style={{ textDecoration: "none" }}>
+                <Link to={`/notes/${batchSlug}/${subjectSlug}/${chapter.slug}`} style={{ textDecoration: "none" }}>
                   <Card
                     sx={{
                       height: { xs: 60, sm: 80, md: 100 }, minHeight: 100, borderRadius: 3,

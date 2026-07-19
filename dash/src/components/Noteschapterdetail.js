@@ -18,7 +18,7 @@ const getLabelDescription = (key) => ({
 }[key] || '');
 
 const NotesChapterDetail = () => {
-  const { subjectSlug, chapterSlug } = useParams();
+  const { batchSlug, subjectSlug, chapterSlug } = useParams();
   const navigate = useNavigate();
   const [chapter, setChapter] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,7 +27,7 @@ const NotesChapterDetail = () => {
     const fetchChapter = async () => {
       setLoading(true);
       try {
-        const res = await fetch(`${API_BASE}/api/notes/chapters/single?subject=${encodeURIComponent(subjectSlug)}&chapter=${encodeURIComponent(chapterSlug)}`);
+        const res = await fetch(`${API_BASE}/api/notes/chapters/single?batch=${encodeURIComponent(batchSlug)}&subject=${encodeURIComponent(subjectSlug)}&chapter=${encodeURIComponent(chapterSlug)}`);
         if (!res.ok) throw new Error('not found');
         const data = await res.json();
         setChapter(data);
@@ -37,8 +37,8 @@ const NotesChapterDetail = () => {
         setLoading(false);
       }
     };
-    if (subjectSlug && chapterSlug) fetchChapter();
-  }, [subjectSlug, chapterSlug]);
+    if (batchSlug && subjectSlug && chapterSlug) fetchChapter();
+  }, [batchSlug, subjectSlug, chapterSlug]);
 
   if (loading) {
     return (
@@ -113,7 +113,7 @@ const NotesChapterDetail = () => {
                         target={link.url ? '_blank' : undefined}
                         rel={link.url ? 'noopener noreferrer' : undefined}
                       >
-                        {link.url ? 'Play Video' : 'Play Video'}
+                        Play Video
                       </Button>
                     ) : (
                       <>

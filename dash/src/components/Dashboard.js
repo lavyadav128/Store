@@ -88,6 +88,7 @@ const QUICK_COURSES = [
   { label: "Tech",  sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
   { label: "CDS",      sublabel: "Revision Batch",    route: "/rev",  icon: MilitaryTechIcon,   emoji: "🎯", iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)", dot: "#111" },
   { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
+  { label: "Notes",  sublabel: "Best Notes",   route: "/notes",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
 ];
 
 const ADMIN_NAV = [
