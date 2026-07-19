@@ -10,6 +10,7 @@ import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import BatchPredictionIcon from "@mui/icons-material/BatchPrediction";
 import VideoClipIcon from "@mui/icons-material/Videocam";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
 import DreamIcon from "@mui/icons-material/Psychology";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
@@ -35,6 +36,7 @@ import axios from "axios";
 
 
 import Dsaclass from "./Algorithms/dsaclass";
+import NotesBrowsePage from "./Notesbrowsepage";
 import Courses from "./Batches/Courses";
 import PreBatch from "./Batches/PreBatch";
 import RevBatch from "./Revision/RevBatch";
@@ -52,7 +54,7 @@ import NotesManager from "./Notesmanager";
 import VideoSplit from "./VideoSplit";
 import LogoutIcon from "@mui/icons-material/Logout";
 
-const COURSE_ROUTES = ["/dsac", "/cou", "/pre", "/rev", "/col"];
+const COURSE_ROUTES = ["/dsac", "/cou", "/pre", "/rev", "/col", "/batches"];
 
 const VIEW_HOME          = "home";
 const VIEW_MYBATCHES     = "mybatches";
@@ -85,10 +87,10 @@ const SOCIAL = [
 const QUICK_COURSES = [
   { label: "IIT JEE",  sublabel: "Premium Batches",  route: "/pre",  icon: AutoAwesomeIcon,    emoji: "⚡", iconBg: "linear-gradient(135deg, #2c2c2c 0%, #555555 100%)", dot: "#333" },
   { label: "Jee Mains",  sublabel: "All Courses",       route: "/cou",  icon: LayersIcon,         emoji: "📚", iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)", dot: "#1a1a1a" },
-  { label: "Tech",  sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
+  { label: "Tech",       sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
   { label: "CDS",      sublabel: "Revision Batch",    route: "/rev",  icon: MilitaryTechIcon,   emoji: "🎯", iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)", dot: "#111" },
   { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
-  { label: "Notes",  sublabel: "Best Notes",   route: "/notes",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
+  { label: "Notes",   sublabel: "Best Notes",        route: "/batches",icon: MenuBookIcon,     emoji: "📚",iconBg: "linear-gradient(135deg, #43A047 0%, #1B5E20 100%)",dot: "#2E7D32",}
 ];
 
 const ADMIN_NAV = [
@@ -320,6 +322,7 @@ const Dashboard = () => {
           else if (title === "DsaAlgo")         route = "/dsac";
           else if (title === "premium Batches") route = "/pre";
           else if (title === "CDS")             route = "/cds";
+          else if (title === "Notes")             route = "/batches";
           return { title, route, price: item.price, expiryDate: item.expiryDate, classId: item.classId };
         });
         setPurchases(mapped);
@@ -1006,6 +1009,7 @@ const Dashboard = () => {
                 <Route path="/admin-dashboard" element={<></>} />
                 <Route path="/dsac"            element={<Dsaclass />} />
                 <Route path="/cou"             element={<Courses />} />
+                <Route path="/batches"             element={<NotesBrowsePage />} />
                 <Route path="/pre"             element={<PreBatch />} />
                 <Route path="/rev"             element={<RevBatch />} />
                 <Route path="/col"             element={<ColBatch />} />

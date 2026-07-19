@@ -67,7 +67,7 @@ const NotesChapterDetail = () => {
 
   return (
     <Box p={4} display="flex" justifyContent="center" sx={{ backgroundColor: "#f5f7fa", minHeight: "100vh" }}>
-      <Card sx={{ width: "95vw", maxWidth: 1100, borderRadius: 4, boxShadow: "0 4px 8px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.15)", p: 4 }}>
+      <Card sx={{ width: "95vw", maxWidth: 1400, borderRadius: 4, boxShadow: "0 4px 8px rgba(0,0,0,0.12), 0 8px 20px rgba(0,0,0,0.15)", p: 4 }}>
         <CardContent>
           <Button
             onClick={() => navigate(-1)}

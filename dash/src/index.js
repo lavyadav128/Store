@@ -125,9 +125,9 @@ root.render(
               <Route path="premium/class/:classId/mentorship"        element={<MentorshipPage />} />
 
 
-              <Route path="/notes" element={<NotesSubjectsPage />} />
-              <Route path="/notes/:subjectSlug" element={<NotesChaptersPage />} />
-              <Route path="/notes/:subjectSlug/:chapterSlug" element={<NotesChapterDetail />} />
+              <Route path="/notes/:batchSlug" element={<NotesSubjectsPage />} />
+              <Route path="/notes/:batchSlug/:subjectSlug" element={<NotesChaptersPage />} />
+              <Route path="/notes/:batchSlug/:subjectSlug/:chapterSlug" element={<NotesChapterDetail />} />
             </Route>
           </Routes>
 

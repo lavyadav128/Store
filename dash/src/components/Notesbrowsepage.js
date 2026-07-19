@@ -4,8 +4,8 @@ import {
   Box, Chip, Stack, useMediaQuery, useTheme, CircularProgress,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { makeAuthenticatedRequest } from '../makeauth';
-import server from '../../environment';
+import { makeAuthenticatedRequest } from './makeauth';
+import server from '../environment';
 
 const NotesBrowsePage = () => {
   const navigate = useNavigate();
