@@ -100,7 +100,7 @@ const ADMIN_NAV = [
   { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
   { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
   { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
-  { icon: NotesIcon,      title: "Notes",       view: VIEW_NOTES },
+  { icon: NotesIcon,      title: " Best Notes",       view: VIEW_NOTES },
 
 ];
 
