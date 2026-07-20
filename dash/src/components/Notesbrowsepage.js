@@ -145,7 +145,7 @@ const NotesBrowsePage = () => {
               width: isMobile ? '100%' : 'auto', px: 0,
             }}>
               <Card sx={{
-                width: 500, borderRadius: 4, overflow: 'hidden', boxShadow: 6,
+                width: 330, borderRadius: 4, overflow: 'hidden', boxShadow: 6,
                 display: 'flex', flexDirection: 'column', backgroundColor: '#ffffff',
                 transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                 '&:hover': { transform: 'translateY(-5px)', boxShadow: 12 },
