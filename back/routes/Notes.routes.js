@@ -96,7 +96,7 @@ router.get('/admin/batches', auth, async (req, res) => {
 
 router.post('/admin/batches', auth, async (req, res) => {
   try {
-    const { slug, title, description, imageUrl, price, isActive, order } = req.body;
+    const { slug, title, description, imageUrl, price, isActive, order, whatYouLearn  } = req.body;
 
     const existing = await NoteBatch.findOne({ slug });
     if (existing) return res.status(400).json({ message: 'A batch with this slug already exists.' });
@@ -106,6 +106,7 @@ router.post('/admin/batches', auth, async (req, res) => {
       price: price || 0,
       isActive: isActive !== undefined ? isActive : true,
       order: order || 0,
+      whatYouLearn: whatYouLearn || [],
     });
     await batch.save();
     res.status(201).json({ message: 'Batch created', batch });

@@ -2,7 +2,12 @@ import React, { useEffect, useState } from 'react';
 import {
   Card, CardContent, CardMedia, Typography, Button, CardActions,
   Box, Chip, Stack, useMediaQuery, useTheme, CircularProgress,
+  Dialog, DialogContent, DialogActions, IconButton,
 } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useNavigate } from 'react-router-dom';
 import { makeAuthenticatedRequest } from './makeauth';
 import server from '../environment';
@@ -15,6 +20,9 @@ const NotesBrowsePage = () => {
   const [batches, setBatches] = useState([]);
   const [loading, setLoading] = useState(true);
   const [purchaseInfo, setPurchaseInfo] = useState({});
+
+  // Explore dialog state
+  const [exploreBatch, setExploreBatch] = useState(null);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -167,7 +175,15 @@ const NotesBrowsePage = () => {
                   </Box>
                 </CardContent>
 
-                <CardActions sx={{ px: 3, pb: 3, pt: 0, mt: 'auto' }}>
+                <CardActions sx={{ px: 3, pb: 3, pt: 0, mt: 'auto', gap: 1 }}>
+                  <Button
+                    variant="outlined" fullWidth
+                    onClick={() => setExploreBatch(batch)}
+                    startIcon={<AutoAwesomeIcon sx={{ fontSize: 16 }} />}
+                    sx={{ fontWeight: 600, borderRadius: 2, textTransform: 'none' }}
+                  >
+                    Explore
+                  </Button>
                   <Button
                     variant="contained" fullWidth
                     onClick={() => (isPurchased ? navigate(`/notes/${batch.slug}`) : handleBuy(batch))}
@@ -181,6 +197,76 @@ const NotesBrowsePage = () => {
           );
         })}
       </Box>
+
+      {/* ── EXPLORE DIALOG ── */}
+      <Dialog
+        open={!!exploreBatch} onClose={() => setExploreBatch(null)}
+        maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: '22px', overflow: 'hidden', boxShadow: '0 32px 80px rgba(0,0,0,0.2)' } }}
+      >
+        {exploreBatch && (
+          <>
+            <Box sx={{ position: 'relative', height: 130 }}>
+              {exploreBatch.imageUrl ? (
+                <Box component="img" src={exploreBatch.imageUrl} alt={exploreBatch.title}
+                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Box sx={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)' }} />
+              )}
+              <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,26,46,0.1) 0%, rgba(26,26,46,0.9) 100%)' }} />
+              <IconButton onClick={() => setExploreBatch(null)} size="small"
+                sx={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,255,255,0.9)', '&:hover': { background: '#fff' } }}>
+                <CloseIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+              <Box sx={{ position: 'absolute', left: 18, bottom: 12, right: 18 }}>
+                <Typography sx={{ fontWeight: 800, fontSize: 20, color: '#fff' }}>
+                  {exploreBatch.title}
+                </Typography>
+                <Typography sx={{ fontSize: 12, color: 'rgba(255,255,255,0.75)', mt: 0.3 }}>
+                  What you'll get in this batch
+                </Typography>
+              </Box>
+            </Box>
+
+            <DialogContent sx={{ p: 3 }}>
+              {Array.isArray(exploreBatch.whatYouLearn) && exploreBatch.whatYouLearn.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.6 }}>
+                  {exploreBatch.whatYouLearn.map((item, i) => (
+                    <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2 }}>
+                      <CheckCircleIcon sx={{ fontSize: 19, color: '#43a047', mt: '1px', flexShrink: 0 }} />
+                      <Typography sx={{ fontSize: 14, color: '#333', lineHeight: 1.5 }}>
+                        {item}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 3 }}>
+                  <VisibilityIcon sx={{ fontSize: 32, color: '#e0e0e0', mb: 1 }} />
+                  <Typography sx={{ fontSize: 13, color: '#aaa' }}>
+                    No features added yet for this batch.
+                  </Typography>
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ p: 2.5, pt: 0 }}>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => {
+                  const b = exploreBatch;
+                  setExploreBatch(null);
+                  const isPurchased = !!purchaseInfo[b.slug];
+                  isPurchased ? navigate(`/notes/${b.slug}`) : handleBuy(b);
+                }}
+                sx={{ fontWeight: 700, borderRadius: 2, textTransform: 'none', py: 1.3 }}
+              >
+                {purchaseInfo[exploreBatch.slug] ? 'Study Now' : 'Buy Now'}
+              </Button>
+            </DialogActions>
+          </>
+        )}
+      </Dialog>
     </Box>
   );
 };

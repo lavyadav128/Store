@@ -8,6 +8,8 @@ const noteBatchSchema = new mongoose.Schema({
   price: { type: Number, default: 0 },                     // 0 = FREE
   isActive: { type: Boolean, default: true },
   order: { type: Number, default: 0 },
+  whatYouLearn: { type: [String], default: [] },
+
 }, { timestamps: true });
 
 export default mongoose.model('NoteBatch', noteBatchSchema);

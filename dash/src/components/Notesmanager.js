@@ -13,6 +13,9 @@ import Inventory2Icon from '@mui/icons-material/Inventory2';
 import DescriptionOutlinedIcon from '@mui/icons-material/DescriptionOutlined';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { makeAuthenticatedRequest } from './makeauth'; // adjust path
 import server from '../environment';                 // adjust path
 
@@ -34,7 +37,7 @@ const darkButtonSx = {
 };
 const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-const emptyBatchForm = { slug: '', title: '', description: '', imageUrl: '', price: 0, order: 0, isActive: true };
+const emptyBatchForm = { slug: '', title: '', description: '', imageUrl: '', price: 0, order: 0, isActive: true, whatYouLearn: '' };
 const emptySubjectForm = { slug: '', name: '', description: '', order: 0 };
 const emptyChapterForm = {
   slug: '', title: '', mindmapUrl: '', shortNotesUrl: '', completeNotesUrl: '',
@@ -98,7 +101,7 @@ const FilePicker = ({ label, value, onChangeValue, mode, onModeChange, uploading
 );
 
 // ─────────────────────────────────────────────────────────────
-// EntityCard — one card in the grid (batch / subject / chapter).
+// EntityCard — one card in the grid (subject / chapter).
 // Same visual shell as AdminFileUpload's file cards.
 // ─────────────────────────────────────────────────────────────
 const EntityCard = ({ icon, title, subtitle, tagLabel, tagColor, statusLabel, statusActive, thumbUrl, onOpen, onEdit, onDelete, onToggleStatus, openLabel }) => (
@@ -174,6 +177,139 @@ const EntityCard = ({ icon, title, subtitle, tagLabel, tagColor, statusLabel, st
 );
 
 // ─────────────────────────────────────────────────────────────
+// BatchCard — a much richer, "storefront" style card just for
+// batches: full-bleed image banner, gradient scrim, floating
+// price badge, and a dedicated Explore action that surfaces the
+// "What You'll Learn" list pulled straight from the backend.
+// ─────────────────────────────────────────────────────────────
+const BatchCard = ({ batch, onExplore, onOpen, onEdit, onDelete, onToggleStatus }) => {
+  const isFree = Number(batch.price) === 0;
+  const learnCount = Array.isArray(batch.whatYouLearn) ? batch.whatYouLearn.length : 0;
+
+  return (
+    <Box sx={{
+      position: 'relative',
+      borderRadius: '22px',
+      overflow: 'hidden',
+      background: '#fff',
+      border: '1px solid #f0f0f0',
+      boxShadow: '0 10px 30px rgba(26,26,46,0.08)',
+      transition: 'transform 0.25s ease, box-shadow 0.25s ease',
+      opacity: batch.isActive === false ? 0.65 : 1,
+      "&:hover": {
+        transform: 'translateY(-4px)',
+        boxShadow: '0 18px 44px rgba(26,26,46,0.16)',
+      },
+    }}>
+      {/* ── Banner ── */}
+      <Box sx={{ position: 'relative', height: 150, overflow: 'hidden' }}>
+        {batch.imageUrl ? (
+          <Box component="img" src={batch.imageUrl} alt={batch.title}
+            sx={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+        ) : (
+          <Box sx={{
+            width: '100%', height: '100%',
+            background: 'linear-gradient(135deg, #1a1a2e 0%, #2d2d4e 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <Inventory2Icon sx={{ fontSize: 40, color: 'rgba(255,255,255,0.35)' }} />
+          </Box>
+        )}
+
+        {/* gradient scrim for title legibility */}
+        <Box sx={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(180deg, rgba(26,26,46,0) 35%, rgba(26,26,46,0.85) 100%)',
+        }} />
+
+        {/* delete, top-right */}
+        <IconButton onClick={onDelete} size="small" sx={{
+          position: 'absolute', top: 10, right: 10,
+          background: 'rgba(255,255,255,0.9)', color: '#888', p: 0.7,
+          "&:hover": { color: '#e53935', background: '#fff' },
+        }}>
+          <DeleteOutlineIcon sx={{ fontSize: 17 }} />
+        </IconButton>
+
+        {/* price badge, top-left */}
+        <Box sx={{
+          position: 'absolute', top: 10, left: 10,
+          px: 1.3, py: 0.4, borderRadius: '10px',
+          background: isFree ? 'linear-gradient(135deg,#43e97b,#38f9d7)' : 'rgba(255,255,255,0.95)',
+          boxShadow: '0 4px 10px rgba(0,0,0,0.15)',
+        }}>
+          <Typography sx={{
+            fontFamily: "'DM Sans'", fontSize: 11.5, fontWeight: 800,
+            color: isFree ? '#0a3d24' : '#1a1a2e', letterSpacing: '0.3px',
+          }}>
+            {isFree ? 'FREE' : `₹${batch.price}`}
+          </Typography>
+        </Box>
+
+        {/* status pill, next to price */}
+        <Box onClick={onToggleStatus} sx={{
+          position: 'absolute', top: 10, left: isFree ? 72 : (String(batch.price).length > 3 ? 92 : 76),
+          px: 1.1, py: 0.4, borderRadius: '10px', cursor: 'pointer',
+          background: batch.isActive ? 'rgba(26,26,46,0.85)' : 'rgba(255,255,255,0.9)',
+        }}>
+          <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 10.5, fontWeight: 700, color: batch.isActive ? '#fff' : '#999' }}>
+            {batch.isActive ? 'Active' : 'Inactive'}
+          </Typography>
+        </Box>
+
+        {/* title over the scrim */}
+        <Box sx={{ position: 'absolute', left: 14, right: 14, bottom: 10 }}>
+          <Typography sx={{
+            fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 18,
+            color: '#fff', lineHeight: 1.2, textShadow: '0 2px 8px rgba(0,0,0,0.35)',
+            overflow: 'hidden', textOverflow: 'ellipsis',
+            display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical',
+          }}>
+            {batch.title}
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* ── Body ── */}
+      <Box sx={{ p: 2, pt: 1.6, display: 'flex', flexDirection: 'column', gap: 1.2 }}>
+        <Typography sx={{
+          fontFamily: "'DM Sans'", fontSize: 12.5, color: '#888', lineHeight: 1.5,
+          overflow: 'hidden', textOverflow: 'ellipsis',
+          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', minHeight: 34,
+        }}>
+          {batch.description}
+        </Typography>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Button
+            onClick={onExplore}
+            startIcon={<AutoAwesomeIcon sx={{ fontSize: 15 }} />}
+            size="small"
+            sx={{
+              flex: 1, fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 12.5,
+              color: '#fff', textTransform: 'none', borderRadius: '11px', py: 0.7,
+              background: 'linear-gradient(135deg, #1a1a2e, #3a3a6e)',
+              "&:hover": { background: 'linear-gradient(135deg, #2d2d4e, #4a4a8e)' },
+            }}
+          >
+            Explore{learnCount > 0 ? ` · ${learnCount}` : ''}
+          </Button>
+
+          <Button onClick={onOpen} size="small"
+            sx={{ fontFamily: "'DM Sans'", fontWeight: 700, fontSize: 12, color: '#1a1a2e', textTransform: 'none', px: 1.2, borderRadius: '11px', border: '1px solid #eee' }}>
+            Subjects →
+          </Button>
+
+          <IconButton size="small" onClick={onEdit} sx={{ color: "#aaa", p: 0.8, borderRadius: "10px", border: '1px solid #eee', "&:hover": { color: "#1a1a2e", background: "#f4f4f6" } }}>
+            <EditIcon sx={{ fontSize: 16 }} />
+          </IconButton>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
 // NotesManager — standalone admin page: Batches → Subjects → Chapters
 // ─────────────────────────────────────────────────────────────
 const NotesManager = () => {
@@ -189,6 +325,9 @@ const NotesManager = () => {
   const [editingBatch, setEditingBatch] = useState(null);
   const [batchImageMode, setBatchImageMode] = useState('url');
   const [batchImageUploading, setBatchImageUploading] = useState(false);
+
+  // Explore dialog — shows "What You'll Learn" for a batch (backend-sourced)
+  const [exploreBatch, setExploreBatch] = useState(null);
 
   const [subjects, setSubjects] = useState([]);
   const [selectedSubject, setSelectedSubject] = useState(null);
@@ -232,7 +371,11 @@ const NotesManager = () => {
   const openAddBatch = () => { setEditingBatch(null); setBatchForm(emptyBatchForm); setBatchImageMode('url'); setBatchDialogOpen(true); };
   const openEditBatch = (b) => {
     setEditingBatch(b);
-    setBatchForm({ slug: b.slug, title: b.title, description: b.description, imageUrl: b.imageUrl, price: b.price, order: b.order, isActive: b.isActive });
+    setBatchForm({
+      slug: b.slug, title: b.title, description: b.description, imageUrl: b.imageUrl,
+      price: b.price, order: b.order, isActive: b.isActive,
+      whatYouLearn: Array.isArray(b.whatYouLearn) ? b.whatYouLearn.join('\n') : '',
+    });
     setBatchImageMode('url');
     setBatchDialogOpen(true);
   };
@@ -252,7 +395,11 @@ const NotesManager = () => {
       showSnackbar('Title, Description and Image are required', 'error'); return;
     }
     const slug = editingBatch ? editingBatch.slug : (batchForm.slug || slugify(batchForm.title));
-    const payload = { ...batchForm, slug, price: Number(batchForm.price), order: Number(batchForm.order) };
+    const whatYouLearn = batchForm.whatYouLearn
+      .split('\n')
+      .map((s) => s.trim())
+      .filter(Boolean);
+    const payload = { ...batchForm, slug, price: Number(batchForm.price), order: Number(batchForm.order), whatYouLearn };
 
     try {
       if (editingBatch) {
@@ -466,7 +613,7 @@ const NotesManager = () => {
             </Button>
           </Box>
 
-          {/* ── Grid (matches AdminFileUpload's file grid) ── */}
+          {/* ── Grid ── */}
           {list.length === 0 ? (
             <Box sx={{ textAlign: "center", py: 8 }}>
               <MenuBookIcon sx={{ fontSize: 48, color: "#e0e0e0", mb: 1 }} />
@@ -477,25 +624,18 @@ const NotesManager = () => {
           ) : (
             <Box sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fill, minmax(260px, 1fr))" },
-              gap: { xs: 1.5, sm: 2 },
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(auto-fill, minmax(280px, 1fr))" },
+              gap: { xs: 2, sm: 2.5 },
             }}>
               {view === 'batches' && batches.map((b) => (
-                <EntityCard
+                <BatchCard
                   key={b._id}
-                  icon={<Inventory2Icon sx={{ fontSize: 20, color: "#1a1a2e" }} />}
-                  thumbUrl={b.imageUrl}
-                  title={b.title}
-                  subtitle={b.description}
-                  tagLabel={b.price === 0 ? 'FREE' : `₹${b.price}`}
-                  tagColor={b.price === 0 ? { bg: '#e8f5e9', text: '#2e7d32' } : undefined}
-                  statusLabel={b.isActive ? 'Active' : 'Inactive'}
-                  statusActive={b.isActive}
-                  onToggleStatus={() => toggleBatch(b._id)}
+                  batch={b}
+                  onExplore={() => setExploreBatch(b)}
                   onOpen={() => openBatchSubjects(b)}
-                  openLabel="Subjects →"
                   onEdit={() => openEditBatch(b)}
                   onDelete={() => setDeleteConfirm({ type: 'batch', item: b })}
+                  onToggleStatus={() => toggleBatch(b._id)}
                 />
               ))}
 
@@ -533,7 +673,7 @@ const NotesManager = () => {
         </Box>
       </Fade>
 
-      {/* ── ADD/EDIT BATCH DIALOG (matches AdminFileUpload's Upload dialog chrome) ── */}
+      {/* ── ADD/EDIT BATCH DIALOG ── */}
       <Dialog
         open={batchDialogOpen} onClose={() => setBatchDialogOpen(false)}
         maxWidth="sm" fullWidth fullScreen={isMobile}
@@ -578,6 +718,20 @@ const NotesManager = () => {
               onChange={(e) => setBatchForm((p) => ({ ...p, order: e.target.value }))} fullWidth sx={fieldSx} />
           </Box>
 
+          <Box>
+            <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 12.5, fontWeight: 700, color: "#888", mb: 0.8 }}>
+              What You'll Learn
+            </Typography>
+            <TextField
+              value={batchForm.whatYouLearn}
+              onChange={(e) => setBatchForm((p) => ({ ...p, whatYouLearn: e.target.value }))}
+              fullWidth multiline rows={4}
+              placeholder={"One feature per line, e.g.\nComplete NCERT-based mindmaps\nChapter-wise short notes\nWeekly live doubt sessions"}
+              helperText="Each line becomes a feature students see when they tap Explore on this batch"
+              sx={fieldSx}
+            />
+          </Box>
+
           <FormControlLabel
             control={<Switch checked={batchForm.isActive}
               onChange={(e) => setBatchForm((p) => ({ ...p, isActive: e.target.checked }))}
@@ -591,6 +745,72 @@ const NotesManager = () => {
             {editingBatch ? 'Update Batch' : 'Add Batch'}
           </Button>
         </DialogContent>
+      </Dialog>
+
+      {/* ── EXPLORE DIALOG (What You'll Learn, sourced from backend) ── */}
+      <Dialog
+        open={!!exploreBatch} onClose={() => setExploreBatch(null)}
+        maxWidth="xs" fullWidth
+        PaperProps={{ sx: { borderRadius: "22px", fontFamily: "'DM Sans'", overflow: 'hidden', boxShadow: "0 32px 80px rgba(0,0,0,0.2)" } }}
+      >
+        {exploreBatch && (
+          <>
+            <Box sx={{ position: 'relative', height: 130 }}>
+              {exploreBatch.imageUrl ? (
+                <Box component="img" src={exploreBatch.imageUrl} alt={exploreBatch.title}
+                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <Box sx={{ width: '100%', height: '100%', background: 'linear-gradient(135deg, #1a1a2e, #2d2d4e)' }} />
+              )}
+              <Box sx={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(26,26,46,0.1) 0%, rgba(26,26,46,0.9) 100%)' }} />
+              <IconButton onClick={() => setExploreBatch(null)} size="small"
+                sx={{ position: 'absolute', top: 10, right: 10, background: 'rgba(255,255,255,0.9)', "&:hover": { background: '#fff' } }}>
+                <CloseIcon sx={{ fontSize: 18 }} />
+              </IconButton>
+              <Box sx={{ position: 'absolute', left: 18, bottom: 12, right: 18 }}>
+                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 20, color: '#fff' }}>
+                  {exploreBatch.title}
+                </Typography>
+                <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 12, color: 'rgba(255,255,255,0.75)', mt: 0.3 }}>
+                  What you'll get in this batch
+                </Typography>
+              </Box>
+            </Box>
+
+            <DialogContent sx={{ p: 3 }}>
+              {Array.isArray(exploreBatch.whatYouLearn) && exploreBatch.whatYouLearn.length > 0 ? (
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.6 }}>
+                  {exploreBatch.whatYouLearn.map((item, i) => (
+                    <Box key={i} sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.2 }}>
+                      <CheckCircleIcon sx={{ fontSize: 19, color: '#43a047', mt: '1px', flexShrink: 0 }} />
+                      <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 14, color: '#333', lineHeight: 1.5 }}>
+                        {item}
+                      </Typography>
+                    </Box>
+                  ))}
+                </Box>
+              ) : (
+                <Box sx={{ textAlign: 'center', py: 3 }}>
+                  <VisibilityIcon sx={{ fontSize: 32, color: '#e0e0e0', mb: 1 }} />
+                  <Typography sx={{ fontFamily: "'DM Sans'", fontSize: 13, color: '#aaa' }}>
+                    No features added yet for this batch.
+                  </Typography>
+                </Box>
+              )}
+            </DialogContent>
+            <DialogActions sx={{ p: 2.5, pt: 0 }}>
+              <Button
+                fullWidth
+                variant="contained"
+                onClick={() => { const b = exploreBatch; setExploreBatch(null); openEditBatch(b); }}
+                startIcon={<EditIcon sx={{ fontSize: 16 }} />}
+                sx={{ ...darkButtonSx, py: 1.3 }}
+              >
+                Edit Features
+              </Button>
+            </DialogActions>
+          </>
+        )}
       </Dialog>
 
       {/* ── ADD/EDIT SUBJECT DIALOG ── */}
