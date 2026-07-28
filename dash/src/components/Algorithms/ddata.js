@@ -12639,7 +12639,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N+M)
     Space Complexity: O(M) for the map + stack`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Traverse nums2 with a monotonic decreasing stack; whenever the current number is greater than the stack's top,
+     it becomes the next greater element for all smaller elements popped from the stack, then answer each nums1 query using the constructed map.
+      
+      
+      class Solution {
         public int[] nextGreaterElement(int[] nums1, int[] nums2) {
             Map<Integer, Integer> nextGreaterMap = new HashMap<>();
             Deque<Integer> stack = new ArrayDeque<>();
@@ -12766,7 +12770,7 @@ class Solution {
       optimalCode: `class Solution {
         public boolean isValid(String s) {
             Deque<Character> stack = new ArrayDeque<>();
-            Map<Character, Character> pairs = Map.of(')', '(', '}', '{', ']', '[');
+            Map<Character, Character> pairs = Map.of(')', '(', '}', '{', ']', '[');   // its a key value pair(key-')' it's value '(' ) like this for each
     
             for (char c : s.toCharArray()) {
                 if (!pairs.containsKey(c)) {
@@ -12923,7 +12927,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Each person before or at index k can buy at most tickets[k] tickets before person k finishes, while each person after k can buy at most
+     tickets[k] - 1 tickets because person k finishes before they get one final turn.
+      
+      
+      class Solution {
         public int timeRequiredToBuy(int[] tickets, int k) {
             int time = 0;
             for (int i = 0; i < tickets.length; i++) {
@@ -13151,7 +13159,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Use a monotonic decreasing stack of indices and traverse the array twice (2*n iterations) to simulate circularity; during the
+     second pass, only resolve pending indices without pushing new ones.
+      
+      class Solution {
         public int[] nextGreaterElements(int[] nums) {
             int n = nums.length;
             int[] result = new int[n];
@@ -14536,7 +14547,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — hashmap + recursion stack`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we r 1t putting inorder elements in map and after that we r building tree with inorder list, 1st creating root node then 
+      recurssion root.left and root.right and we r geeting that is this node has children or not using the index parameter(map inorder one) with using 
+      condn that (start>end) return null that it 
+      
+      
+      class Solution {
         private Map<Integer, Integer> inorderIndexMap = new HashMap<>();
         private int preIndex = 0;
     
@@ -14598,7 +14614,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(H) recursion stack`,
     
-      optimalCode: `class Solution {
+      optimalCode: `The returned value is ignored because the root has no parent(for root node).
+      
+      
+    class Solution {
         public void toSumTree(TreeNode root) {
             computeSum(root);
         }
@@ -14653,7 +14672,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1) extra — Morris-style in-place flattening`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we r just pointing each curr's left node's rightmost node to point curr's right and curr.right to
+       point to curr's left and curr.left to point to null
+      
+      
+      class Solution {
         public void flatten(TreeNode root) {
             TreeNode curr = root;
     
@@ -14781,7 +14804,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Give every node the index it would have in a complete binary tree, then the width of each level is lastIndex - firstIndex + 1
+      
+      
+      class Solution {
         public int widthOfBinaryTree(TreeNode root) {
             if (root == null) return 0;
             int maxWidth = 0;
@@ -14789,7 +14815,7 @@ class Solution {
             Queue<TreeNode> nodeQueue = new LinkedList<>();
             Queue<Long> indexQueue = new LinkedList<>();
             nodeQueue.offer(root);
-            indexQueue.offer(0L);
+            indexQueue.offer(0L);           //Why 0? Because root always gets index
     
             while (!nodeQueue.isEmpty()) {
                 int size = nodeQueue.size();
@@ -14817,72 +14843,6 @@ class Solution {
     }`
     },
     
-    {
-      title: `QUESTION:
-    Given two integer arrays inorder and postorder where inorder is the inorder traversal of a binary tree and postorder is the postorder traversal of the same tree, construct and return the binary tree.
-    
-    EXAMPLE:
-    Input: inorder = [9,3,15,20,7], postorder = [9,15,7,20,3]
-    Output: [3,9,20,null,null,15,7]`,
-    
-      bruteForceComplexity: `Time Complexity: O(N^2) — linear search in inorder array to find root index each time
-    Space Complexity: O(N^2) — creates new subarrays at every recursive call`,
-    
-      bruteForceCode: `class Solution {
-        public TreeNode buildTree(int[] inorder, int[] postorder) {
-            if (postorder.length == 0) return null;
-    
-            int rootVal = postorder[postorder.length - 1]; // last element in postorder is root
-            TreeNode root = new TreeNode(rootVal);
-    
-            int rootIndex = 0;
-            for (int i = 0; i < inorder.length; i++) { // linear search
-                if (inorder[i] == rootVal) { rootIndex = i; break; }
-            }
-    
-            int[] leftInorder = Arrays.copyOfRange(inorder, 0, rootIndex);
-            int[] rightInorder = Arrays.copyOfRange(inorder, rootIndex + 1, inorder.length);
-            int[] leftPostorder = Arrays.copyOfRange(postorder, 0, rootIndex);
-            int[] rightPostorder = Arrays.copyOfRange(postorder, rootIndex, postorder.length - 1);
-    
-            root.left = buildTree(leftInorder, leftPostorder);
-            root.right = buildTree(rightInorder, rightPostorder);
-    
-            return root;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(N)
-    Space Complexity: O(N) — hashmap + recursion stack`,
-    
-      optimalCode: `class Solution {
-        private Map<Integer, Integer> inorderIndexMap = new HashMap<>();
-        private int postIndex;
-    
-        public TreeNode buildTree(int[] inorder, int[] postorder) {
-            for (int i = 0; i < inorder.length; i++) { // O(1) lookup instead of linear search
-                inorderIndexMap.put(inorder[i], i);
-            }
-            postIndex = postorder.length - 1;
-            return build(postorder, 0, inorder.length - 1);
-        }
-    
-        private TreeNode build(int[] postorder, int inStart, int inEnd) {
-            if (inStart > inEnd) return null;
-    
-            int rootVal = postorder[postIndex--]; // process postorder from the end (root first)
-            TreeNode root = new TreeNode(rootVal);
-    
-            int rootIndex = inorderIndexMap.get(rootVal);
-    
-            // build right subtree FIRST since we're consuming postorder from the end
-            root.right = build(postorder, rootIndex + 1, inEnd);
-            root.left = build(postorder, inStart, rootIndex - 1);
-    
-            return root;
-        }
-    }`
-    },
     
     {
       title: `QUESTION:
@@ -14928,7 +14888,13 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — queue holds at most one level's worth of nodes`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we traversing using queue and adding in a new ArrayList(using addfirst and addlast)
+     and keeping one lefttooright boolean variable which is set as true in starting and when it is true then we will
+     add in ArrayList at last and when it is false then we will addfirst and we r changing its value after each level
+     so that we can get the values in zig-zag manner that it
+      
+      
+      class Solution {
         public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
             List<List<Integer>> result = new ArrayList<>();
             if (root == null) return result;
@@ -14954,7 +14920,7 @@ class Solution {
                     if (node.right != null) queue.offer(node.right);
                 }
                 result.add(currentLevel);
-                leftToRight = !leftToRight;
+                leftToRight = !leftToRight;           // changing(if trur<-> false)
             }
             return result;
         }
@@ -15344,7 +15310,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(H) recursion stack, no extra list storage`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Do an inorder traversal (which should be sorted in a BST), find the two places where the order decreases (prev.val > current.val),
+     remember those two misplaced nodes, and swap their values at the end.
+      
+      
+      class Solution {
         private TreeNode first, second, prev;
     
         public void recoverTree(TreeNode root) {
@@ -15408,7 +15378,12 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1) extra — uses already-established next pointers instead of a queue`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Here basically we r connecting each node of same level that it and in while loop we r doing while(curr!=null)
+       means after each level at last it will point that last node of each level to null but here we have represented with # 
+      for clarity that it
+      
+      
+      class Solution {
         public Node connect(Node root) {
             if (root == null) return root;
             Node leftmost = root;
@@ -15531,7 +15506,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(1) average per next() call, O(H) for hasNext()
     Space Complexity: O(H) — only stores nodes along the current path, not the whole tree`,
     
-      optimalCode: `class BSTIterator {
+      optimalCode: `Maintain a stack of the leftmost path; next() pops the smallest node and then pushes the leftmost path of its right 
+      subtree, giving inorder traversal lazily in O(h) space.
+      
+      
+      class BSTIterator {
         private Deque<TreeNode> stack;
     
         public BSTIterator(TreeNode root) {
@@ -15596,7 +15575,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(H) recursion stack, no extra list storage`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Perform an inorder traversal, keep a prev pointer to the previously visited node, connect prev.right to
+     the current node, set prev.left = null, and update prev, producing a sorted right-skewed linked list in one traversal.
+      
+      
+      class Solution {
         private TreeNode prev = null;
         private TreeNode newHead = null;
     
