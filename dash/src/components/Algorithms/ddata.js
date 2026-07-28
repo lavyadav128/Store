@@ -157,20 +157,35 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
-        public int majorityElement(int[] nums) {
-            int count = 0;
-            int candidate = 0;
-            
-            for (int num : nums) {
-                if (count == 0) {
-                    candidate = num;
+      optimalCode: `
+        class Solution {
+            public int majorityElement(int[] nums) {
+                HashMap<Integer, Integer> map = new HashMap<>();
+
+                // Count frequencies
+                for (int num : nums) {
+                    map.put(num, map.getOrDefault(num, 0) + 1);
                 }
-                count += (num == candidate) ? 1 : -1;
+
+                // Traverse keys
+                int n = nums.length;
+                for (int key : map.keySet()) {
+                    if (map.get(key) > n / 2) {
+                        return key;
+                    }
+                }
+
+
+                // or this also 
+                for (Map.Entry<Integer, Integer> entry : map.entrySet()) {
+                    if (entry.getValue() > n / 2) {
+                        return entry.getKey();
+                    }
+                }
+
+                return -1;
             }
-            return candidate;
-        }
-    }`
+        }`
     },
 
     {
