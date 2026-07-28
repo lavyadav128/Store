@@ -46,6 +46,15 @@ const resourceSchema = new mongoose.Schema(
       type: String,
       default: "admin",
     },
+
+    resourceType: {
+      type: String, // "image" | "video" | "raw" | null (for URL-only entries)
+      default: null,
+    },
+
+
+
+    
     order: { type: Number, default: 0 }
   },
   {
