@@ -883,7 +883,11 @@ const questionsData = {
     
     Space Complexity: O(N²)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Build the triangle row by row: put 1 at the beginning and end of every row, and compute every middle element
+     as the sum of the two elements directly above it from the previous row.
+      
+      
+      class Solution {
         public List<List<Integer>> generate(int numRows) {
             List<List<Integer>> triangle = new ArrayList<>();
             for (int i = 0; i < numRows; i++) {
@@ -1253,7 +1257,7 @@ const questionsData = {
                     result.add(current);
                 }
             }
-            return result.toArray(new int[result.size()][]);
+            return result.toArray(new int[result.size()][]);  //Converts an ArrayList<int[]> into an int[][] by creating an array of the required type and copying all list elements into it.
         }
     }`
     },
