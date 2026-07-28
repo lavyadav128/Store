@@ -594,7 +594,11 @@ const questionsData = {
     
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `Use the first row and first column as marker arrays to remember which rows and columns should be
+     set to zero, then update the matrix in a second pass.
+      
+      
+      class Solution {
         public void setZeroes(int[][] matrix) {
             int m = matrix.length;
             int n = matrix[0].length;
