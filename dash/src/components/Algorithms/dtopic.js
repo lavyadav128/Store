@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 const topics = [
+  { id: "sorting-algorithm", name: "Sorting-Algorithm" },
   { id: "arrays", name: "Arrays" },
   { id: "binary-search", name: "Binary Search" },
   { id: "strings", name: "Strings" },

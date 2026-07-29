@@ -1,6 +1,229 @@
  
 const questionsData = {
 
+"sorting-algorithm": [
+    {
+        title: `QUESTION:
+    Given an array of integers nums.
+    Sort the array in ascending order using Bubble Sort.
+
+    EXAMPLE:
+    Input:  nums = [5, 1, 4, 2, 8]
+    Output: [1, 2, 4, 5, 8]`,
+
+        bruteForceComplexity: ``,
+
+        bruteForceCode: ``,
+
+        optimalComplexity: `Time Complexity: O(N²) worst/average, O(N) best (with swapped flag)
+    - Two nested loops; inner loop shrinks each pass, early exit if no swaps.
+
+    Space Complexity: O(1)
+    - Sorting is done in place.`,
+
+        optimalCode: `repeatedly swap adjacent elements if out of order; stop early if a pass has no swaps
+
+
+    class Solution {
+        public int[] bubbleSort(int[] nums) {
+            int n = nums.length;
+            for (int i = 0; i < n - 1; i++) {
+                boolean swapped = false;
+                for (int j = 0; j < n - 1 - i; j++) {
+                    if (nums[j] > nums[j + 1]) {
+                        int temp = nums[j];
+                        nums[j] = nums[j + 1];
+                        nums[j + 1] = temp;
+                        swapped = true;
+                    }
+                }
+                if (!swapped) break;
+            }
+            return nums;
+        }
+    }`
+    },
+
+    {
+        title: `QUESTION:
+    Given an array of integers nums.
+    Sort the array in ascending order using Insertion Sort.
+
+    EXAMPLE:
+    Input:  nums = [9, 5, 1, 4, 3]
+    Output: [1, 3, 4, 5, 9]`,
+
+        bruteForceComplexity: ``,
+
+        bruteForceCode: ``,
+
+        optimalComplexity: `Time Complexity: O(N²) worst/average, O(N) best (already sorted)
+    - Each element is compared/shifted against the sorted prefix.
+
+    Space Complexity: O(1)
+    - Sorting is done in place.`,
+
+        optimalCode: `take key element, shift larger elements in sorted left part to the right, insert key at correct position
+
+
+    class Solution {
+        public int[] insertionSort(int[] nums) {
+            int n = nums.length;
+            for (int i = 1; i < n; i++) {
+                int key = nums[i];
+                int j = i - 1;
+                while (j >= 0 && nums[j] > key) {
+                    nums[j + 1] = nums[j];
+                    j--;
+                }
+                nums[j + 1] = key;
+            }
+            return nums;
+        }
+    }`
+    },
+
+    {
+        title: `QUESTION:
+    Given an array of integers nums.
+    Sort the array in ascending order using Selection Sort.
+
+    EXAMPLE:
+    Input:  nums = [64, 25, 12, 22, 11]
+    Output: [11, 12, 22, 25, 64]`,
+
+        bruteForceComplexity: ``,
+
+        bruteForceCode: ``,
+
+        optimalComplexity: `Time Complexity: O(N²)
+    - For each position, scan the remaining array to find the minimum.
+
+    Space Complexity: O(1)
+    - Sorting is done in place.`,
+
+        optimalCode: `find index of minimum element in unsorted part, swap it with current index
+
+
+    class Solution {
+        public int[] selectionSort(int[] nums) {
+            int n = nums.length;
+            for (int i = 0; i < n - 1; i++) {
+                int minIdx = i;
+                for (int j = i + 1; j < n; j++) {
+                    if (nums[j] < nums[minIdx]) {
+                        minIdx = j;
+                    }
+                }
+                int temp = nums[minIdx];
+                nums[minIdx] = nums[i];
+                nums[i] = temp;
+            }
+            return nums;
+        }
+    }`
+    },
+
+    {
+        title: `QUESTION:
+    Given an array of integers nums.
+    Sort the array in ascending order using Merge Sort.
+
+    EXAMPLE:
+    Input:  nums = [38, 27, 43, 3, 9, 82, 10]
+    Output: [3, 9, 10, 27, 38, 43, 82]`,
+
+        bruteForceComplexity: ``,
+
+        bruteForceCode: ``,
+
+        optimalComplexity: `Time Complexity: O(N log N)
+    - Array is divided in half log N times, each level takes O(N) to merge.
+
+    Space Complexity: O(N)
+    - Temporary arrays are used while merging.`,
+
+        optimalCode: `divide array into halves recursively, then merge two sorted halves using a temp array
+
+
+    class Solution {
+        public int[] mergeSort(int[] nums) {
+            if (nums.length <= 1) return nums;
+            int mid = nums.length / 2;
+            int[] left = mergeSort(Arrays.copyOfRange(nums, 0, mid));
+            int[] right = mergeSort(Arrays.copyOfRange(nums, mid, nums.length));
+            return merge(left, right);
+        }
+
+        private int[] merge(int[] left, int[] right) {
+            int[] result = new int[left.length + right.length];
+            int i = 0, j = 0, k = 0;
+            while (i < left.length && j < right.length) {
+                result[k++] = (left[i] <= right[j]) ? left[i++] : right[j++];
+            }
+            while (i < left.length) result[k++] = left[i++];
+            while (j < right.length) result[k++] = right[j++];
+            return result;
+        }
+    }`
+    },
+
+    {
+        title: `QUESTION:
+    Given an array of integers nums.
+    Sort the array in ascending order using Quick Sort.
+
+    EXAMPLE:
+    Input:  nums = [10, 7, 8, 9, 1, 5]
+    Output: [1, 5, 7, 8, 9, 10]`,
+
+        bruteForceComplexity: ``,
+
+        bruteForceCode: ``,
+
+        optimalComplexity: `Time Complexity: O(N log N) average, O(N²) worst (bad pivot choices)
+    - Partition around a pivot, then recursively sort each side.
+
+    Space Complexity: O(log N) average
+    - Recursion stack depth (in-place partitioning).`,
+
+        optimalCode: `pick a pivot (usually last element), partition array so smaller elements go left and larger go right, recurse on both sides
+
+
+    class Solution {
+        public int[] quickSort(int[] nums) {
+            quickSortHelper(nums, 0, nums.length - 1);
+            return nums;
+        }
+
+        private void quickSortHelper(int[] nums, int low, int high) {
+            if (low < high) {
+                int pi = partition(nums, low, high);
+                quickSortHelper(nums, low, pi - 1);
+                quickSortHelper(nums, pi + 1, high);
+            }
+        }
+
+        private int partition(int[] nums, int low, int high) {
+            int pivot = nums[high];
+            int i = low - 1;
+            for (int j = low; j < high; j++) {
+                if (nums[j] < pivot) {
+                    i++;
+                    int temp = nums[i];
+                    nums[i] = nums[j];
+                    nums[j] = temp;
+                }
+            }
+            int temp = nums[i + 1];
+            nums[i + 1] = nums[high];
+            nums[high] = temp;
+            return i + 1;
+        }
+    }`
+    }
+    ],
+
   "arrays":[
     {
       title: `QUESTION:
