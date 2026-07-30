@@ -9,7 +9,8 @@ const questionsData = {
 
     EXAMPLE:
     Input:  nums = [5, 1, 4, 2, 8]
-    Output: [1, 2, 4, 5, 8]`,
+    Output: [1, 2, 4, 5, 8]
+    Explanation: [5,1,4,2,8] -> [1,5,4,2,8] -> [1,4,5,2,8] -> [1,4,2,5,8] -> [1,2,4,5,8]`,
 
         bruteForceComplexity: ``,
 
@@ -21,13 +22,14 @@ const questionsData = {
     Space Complexity: O(1)
     - Sorting is done in place.`,
 
-        optimalCode: `repeatedly swap adjacent elements if out of order; stop early if a pass has no swaps
+        optimalCode: `Nested for loop till n-1(as after each treverse of sorting length decreases) then if(nums[j]>nums[j+1] swap i and j
+        and mark swaped as true and outside of inner loop if(!swaped) break(as it make sures that array has sorted).
 
 
     class Solution {
         public int[] bubbleSort(int[] nums) {
             int n = nums.length;
-            for (int i = 0; i < n - 1; i++) {
+            for (int i = 0; i < n - 1; i++) {          //Each pass places one largest unsorted element in its correct position, so after n - 1 passes, all elements are sorted and the last element is automatically in the correct position.
                 boolean swapped = false;
                 for (int j = 0; j < n - 1 - i; j++) {
                     if (nums[j] > nums[j + 1]) {
@@ -37,7 +39,7 @@ const questionsData = {
                         swapped = true;
                     }
                 }
-                if (!swapped) break;
+                if (!swapped) break;     //If no swaps occur in an entire pass, the array is already sorted, so we stop early to avoid unnecessary passes.
             }
             return nums;
         }
@@ -51,7 +53,8 @@ const questionsData = {
 
     EXAMPLE:
     Input:  nums = [9, 5, 1, 4, 3]
-    Output: [1, 3, 4, 5, 9]`,
+    Output: [1, 3, 4, 5, 9]
+    Explanation: [9,5,1,4,3] -> [5,9,1,4,3] -> [1,5,9,4,3] -> [1,4,5,9,3] -> [1,3,4,5,9]`,
 
         bruteForceComplexity: ``,
 
@@ -63,7 +66,10 @@ const questionsData = {
     Space Complexity: O(1)
     - Sorting is done in place.`,
 
-        optimalCode: `take key element, shift larger elements in sorted left part to the right, insert key at correct position
+        optimalCode: `Here basically we start from index 1 and initialie j as(i-1) thwn in while(nums[j]>key) then put
+         nums[j+1]=key and then j--(here it makes sure that every element is sorted before i index) when for loop ends
+         and at last outside of while loop we put nums[j+1]=key as when we replace in while we did't assign any new
+         no to j place so there will 2 same no so al last we make suretly of that.
 
 
     class Solution {
@@ -90,7 +96,8 @@ const questionsData = {
 
     EXAMPLE:
     Input:  nums = [64, 25, 12, 22, 11]
-    Output: [11, 12, 22, 25, 64]`,
+    Output: [11, 12, 22, 25, 64]
+    Explanation: [64,25,12,22,11] -> [11,25,12,22,64] -> [11,12,25,22,64] -> [11,12,22,25,64] -> [11,12,22,25,64]`,
 
         bruteForceComplexity: ``,
 
@@ -102,7 +109,8 @@ const questionsData = {
     Space Complexity: O(1)
     - Sorting is done in place.`,
 
-        optimalCode: `find index of minimum element in unsorted part, swap it with current index
+        optimalCode: `Here basically we use nested loop and in inner loop we find the min(the smallest element)
+       and outside of inner loop we swap nums[i] and nums[minidx] and so on for the rest
 
 
     class Solution {
@@ -131,7 +139,8 @@ const questionsData = {
 
     EXAMPLE:
     Input:  nums = [38, 27, 43, 3, 9, 82, 10]
-    Output: [3, 9, 10, 27, 38, 43, 82]`,
+    Output: [3, 9, 10, 27, 38, 43, 82]
+    Explanation: [38,27,43,3,9,82,10] -> [27,38,43] & [3,9,10,82] -> [3,9,10,27,38,43,82]`,
 
         bruteForceComplexity: ``,
 
@@ -150,7 +159,7 @@ const questionsData = {
         public int[] mergeSort(int[] nums) {
             if (nums.length <= 1) return nums;
             int mid = nums.length / 2;
-            int[] left = mergeSort(Arrays.copyOfRange(nums, 0, mid));
+            int[] left = mergeSort(Arrays.copyOfRange(nums, 0, mid));         //Take the right half of the array and recursively sort it.
             int[] right = mergeSort(Arrays.copyOfRange(nums, mid, nums.length));
             return merge(left, right);
         }
@@ -175,7 +184,8 @@ const questionsData = {
 
     EXAMPLE:
     Input:  nums = [10, 7, 8, 9, 1, 5]
-    Output: [1, 5, 7, 8, 9, 10]`,
+    Output: [1, 5, 7, 8, 9, 10]
+    Explanation: [10,7,8,9,1,5] -> [1,5,8,9,10,7] -> [1,5,7,9,10,8] -> [1,5,7,8,10,9] -> [1,5,7,8,9,10]`,
 
         bruteForceComplexity: ``,
 
@@ -187,7 +197,8 @@ const questionsData = {
     Space Complexity: O(log N) average
     - Recursion stack depth (in-place partitioning).`,
 
-        optimalCode: `pick a pivot (usually last element), partition array so smaller elements go left and larger go right, recurse on both sides
+        optimalCode: `Quick Sort selects a pivot, partitions the array so smaller elements come before the pivot and larger
+         elements after it, then recursively sorts both sides.
 
 
     class Solution {
@@ -9357,7 +9368,23 @@ class Solution {
     
     EXAMPLE:
     Input: matrix = [[2,1,3],[6,5,4],[7,8,9]]
-    Output: 13`,
+    Output: 13
+
+                helper(0,0)
+            │
+            ├── helper(1,0)=13
+            │      ├──7
+            │      ├──INF
+            │      └──8
+            │
+            ├── helper(1,-1)=INF
+            │
+            └── helper(1,1)=12
+                ├──8
+                ├──7
+                └──9
+
+            Result = 2(matrix[i][j]) +12=14           similarly for helper(0,1) and helper(0,2) of for loop`,
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -9740,7 +9767,7 @@ class Solution {
             // s1 = j, s2 = total - j, diff = |s2 - s1| = |total - 2*j|
             int minDiff = Integer.MAX_VALUE;
             for (int j = 0; j <= total / 2; j++) {
-                if (dp[n][j] == true) {
+                if (dp[n][j] == true) {             //Using ALL elements, can I make subset sum = j ?
                     minDiff = Math.min(minDiff, Math.abs(total - 2 * j));
                 }
             }
@@ -10858,7 +10885,7 @@ class Solution {
                         dp[i] = dp[j] + 1;
                         prev[i] = j;
                     }
-                }
+                }               // dp- 1 1 1 2 2 3 4 4   // prev-  -1 -1 -1  2  2  3  5  5
                 if (dp[i] > maxLen) {
                     maxLen = dp[i];
                     lastIdx = i;
@@ -10868,7 +10895,7 @@ class Solution {
             List<Integer> lis = new ArrayList<>();
             while (lastIdx != -1) {
                 lis.add(nums[lastIdx]);
-                lastIdx = prev[lastIdx];
+                lastIdx = prev[lastIdx];    //lastIdx = prev[lastIdx] follows the stored parent pointers from the last element of the longest increasing subsequence back to its first element, thereby reconstructing the complete LIS.
             }
             Collections.reverse(lis);
             return lis;
@@ -10925,7 +10952,8 @@ class Solution {
             
             for (int i = 1; i < n; i++) {
                 for (int j = 0; j < i; j++) {
-                    if (nums[i] % nums[j] == 0 && dp[j] + 1 > dp[i]) {
+                    if (nums[i] % nums[j] == 0 && dp[j] + 1 > dp[i]) {       
+        //  If nums[i] can be added after nums[j] and doing so creates a longer divisible subset than the current best for nums[i], then update it.           
                         dp[i] = dp[j] + 1;
                         prev[i] = j;
                     }
