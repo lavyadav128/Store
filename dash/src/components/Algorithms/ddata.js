@@ -1860,6 +1860,8 @@ const questionsData = {
             long hours = 0;
             for (int p : piles) {
                 hours += (p + speed - 1) / speed;  // ceil(p / speed)
+                //or
+                hours += (int) Math.ceil((double) p / speed);
             }
             return hours <= h;
         }
@@ -2125,7 +2127,7 @@ const questionsData = {
             int low = 0, high = arr.length - 1;
             while (low <= high) {
                 int mid = low + (high - low) / 2;
-                if (arr[mid] - mid - 1 < k) {
+                if (arr[mid] - mid - 1 < k) {    //It calculates how many positive numbers are missing before arr[mid].
                     low = mid + 1;
                 } else {
                     high = mid - 1;
@@ -2143,7 +2145,8 @@ const questionsData = {
     
     EXAMPLE:
     Input: stalls = [1,2,4,8,9], k = 3
-    Output: 3`,
+    Output: 3
+    Place cows at 1, 4, 8`,
     
       bruteForceComplexity: `Time Complexity: O(N² log MaxDist) or worse
     Space Complexity: O(1)`,
@@ -2308,7 +2311,7 @@ const questionsData = {
         private boolean possible(int[] stations, int k, double dist) {
             int count = 0;
             for (int i = 1; i < stations.length; i++) {
-                count += Math.ceil((stations[i] - stations[i-1]) / dist) - 1;
+                count += Math.ceil((stations[i] - stations[i-1]) / dist) - 1;  //If a gap is divided into n pieces, you need n - 1 new stations.
             }
             return count <= k;
         }
@@ -2733,7 +2736,9 @@ Space Complexity: O(N*M)`,
 Space Complexity: O(1)`,
 
   optimalCode: `we find required(mediean element) then while loop and call function to count how may element less than mid
-       in function also we r checking using BS only
+       in function also we r checking using BS only.
+       Binary search on the value range and find the smallest value x such that the number of elements ≤ x is at least
+       required = (n*m+1)/2; that value is the median.
   
   
   class Solution {
