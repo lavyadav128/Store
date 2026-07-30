@@ -10616,7 +10616,8 @@ class Solution {
                 if (str1.charAt(i-1) == str2.charAt(j-1)) {
                     sb.append(str1.charAt(i-1));
                     i--; j--;
-                } else if (dp[i-1][j] > dp[i][j-1]) {
+                } else if (dp[i-1][j] > dp[i][j-1]) {     
+ //means the upper cell has a longer LCS, so we take str1.charAt(i-1) and move up (i--) to keep more common characters in the final SCS.
                     sb.append(str1.charAt(i-1));
                     i--;
                 } else {
@@ -11142,8 +11143,30 @@ class Solution {
     Given a chain of matrices, find the minimum number of scalar multiplications needed to multiply them all together.
     
     EXAMPLE:
-    Input: arr = [40, 20, 30, 10, 30]
-    Output: 26000`,
+        Input: arr = [40, 20, 30]
+        Output: 24000
+                                helper(1,2)
+                                |
+                    -------------------------
+                    |                       |
+                helper(1,1)            helper(2,2)
+                    |                       |
+                return 0               return 0
+
+        Cost = 0 + 0 + (40 × 20 × 30)
+            = 24000
+
+        Return 24000
+        
+    // for DP one
+                    j
+                0      1        2
+            ------------------------
+        i=0 |   0      0        0
+
+        i=1 |   0      0     24000
+
+        i=2 |   0      0        0`,
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -11178,11 +11201,11 @@ class Solution {
             int n = arr.length;
             int[][] dp = new int[n][n];
             
-            for (int len = 2; len < n; len++) {
-                for (int i = 1; i < n - len + 1; i++) {
-                    int j = i + len - 1;
+            for (int len = 2; len < n; len++) {   //len decides how many matrices are included in the current chain.
+                for (int i = 1; i < n - len + 1; i++) {  //i decides the starting matrix of the current chain.
+                    int j = i + len - 1;                 //j calculates the ending matrix of the current chain.
                     dp[i][j] = Integer.MAX_VALUE;
-                    for (int k = i; k < j; k++) {
+                    for (int k = i; k < j; k++) {   //k tries every possible place to split the current chain and chooses the minimum cost.
                         int cost = dp[i][k] + dp[k+1][j] + arr[i-1] * arr[k] * arr[j];
                         dp[i][j] = Math.min(dp[i][j], cost);
                     }
@@ -11303,7 +11326,13 @@ class Solution {
     EXAMPLE:
     Input: nums = [3,1,5,8]
     Output: 167
-    120 + 3 + 5 + 40 = 168`,
+    
+    Coins collected are:
+    Burst 1: 3 × 1 × 5 = 15
+    Burst 5: 3 × 5 × 8 = 120
+    Burst 3: 1 × 3 × 8 = 24
+    Burst 8: 1 × 8 × 1 = 8
+    Total= 15 + 120 + 24 + 8 = 167`,
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
