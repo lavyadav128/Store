@@ -85,12 +85,60 @@ const SOCIAL = [
 ];
 
 const QUICK_COURSES = [
-  { label: "IIT JEE",  sublabel: "Premium Batches",  route: "/pre",  icon: AutoAwesomeIcon,    emoji: "⚡", iconBg: "linear-gradient(135deg, #2c2c2c 0%, #555555 100%)", dot: "#333" },
-  { label: "Jee Mains",  sublabel: "All Courses",       route: "/cou",  icon: LayersIcon,         emoji: "📚", iconBg: "linear-gradient(135deg, #1a1a1a 0%, #4a4a4a 100%)", dot: "#1a1a1a" },
-  { label: "Tech",       sublabel: "DSA & Algorithms",  route: "/dsac", icon: CodeIcon,           emoji: "💻", iconBg: "linear-gradient(135deg, #3a3a3a 0%, #707070 100%)", dot: "#3a3a3a" },
-  { label: "CDS",      sublabel: "Revision Batch",    route: "/rev",  icon: MilitaryTechIcon,   emoji: "🎯", iconBg: "linear-gradient(135deg, #111111 0%, #444444 100%)", dot: "#111" },
-  { label: "College",  sublabel: "University Prep",   route: "/col",  icon: AccountBalanceIcon, emoji: "🏛️", iconBg: "linear-gradient(135deg, #222222 0%, #606060 100%)", dot: "#222" },
-  { label: "Notes",   sublabel: "Best Notes",        route: "/batches",icon: MenuBookIcon,     emoji: "📚",iconBg: "linear-gradient(135deg, #43A047 0%, #1B5E20 100%)",dot: "#2E7D32",}
+  { 
+    label: "IIT JEE", 
+    sublabel: "Premium Batches", 
+    route: "/pre", 
+    icon: AutoAwesomeIcon, 
+    emoji: "⚡", 
+    iconBg: "linear-gradient(135deg, #F7971E 0%, #FFD200 100%)", // premium gold - flagship feel
+    dot: "#F7971E" 
+  },
+  { 
+    label: "Jee Mains", 
+    sublabel: "All Courses", 
+    route: "/cou", 
+    icon: LayersIcon, 
+    emoji: "📚", 
+    iconBg: "linear-gradient(135deg, #1E3C72 0%, #2A5298 100%)", // deep academic blue - trust & depth
+    dot: "#1E3C72" 
+  },
+  { 
+    label: "Tech", 
+    sublabel: "DSA & Algorithms", 
+    route: "/dsac", 
+    icon: CodeIcon, 
+    emoji: "💻", 
+    iconBg: "linear-gradient(135deg, #6A11CB 0%, #2575FC 100%)", // purple-to-blue - modern/tech energy
+    dot: "#6A11CB" 
+  },
+  { 
+    label: "CDS", 
+    sublabel: "Revision Batch", 
+    route: "/rev", 
+    icon: MilitaryTechIcon, 
+    emoji: "🎯", 
+    iconBg: "linear-gradient(135deg, #3E5151 0%, #6E8B3D 100%)", // olive/army tone - military association
+    dot: "#4B5320" 
+  },
+  { 
+    label: "College", 
+    sublabel: "University Prep", 
+    route: "/col", 
+    icon: AccountBalanceIcon, 
+    emoji: "🏛️", 
+    iconBg: "linear-gradient(135deg, #7B0F1A 0%, #C0392B 100%)", // deep maroon - university/prestige
+    dot: "#7B0F1A" 
+  },
+  { 
+    label: "Notes", 
+    sublabel: "Best Notes", 
+    route: "/batches", 
+    icon: MenuBookIcon, 
+    emoji: "📚", 
+    iconBg: "linear-gradient(135deg, #11998E 0%, #38EF7D 100%)", // fresh teal-to-green - clarity/notes
+    dot: "#11998E" 
+  }
 ];
 
 const ADMIN_NAV = [
