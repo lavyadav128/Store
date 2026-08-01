@@ -8873,17 +8873,20 @@ class Solution {
 
     {
       title: `QUESTION:
-    Given a directed graph with V vertices and E edges, find the number of Strongly Connected Components (SCCs) using Kosaraju's Algorithm.
-    
+    Given a directed graph with V vertices and E edges, find the number of Strongly Connected Components (SCCs) using Kosaraju's Algorithm,
+    The question is asking you to find how many groups of vertices exist where every vertex can reach every other vertex in the same group.    
     EXAMPLE:
     Input: V = 5, edges = [[0,1],[1,2],[2,0],[1,3],[3,4],[4,3]]
-    Output: 2`,
+    Output: 2 
+    {0,1,2} and {3,4}`,
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
     
       optimalCode: `traverse all nodes and push them in stack using dfs in such a way that all neigh visited first 
-      then should go in stack then transpose the matrix and remove each node from stack through dfs and count scc
+      then should go in stack then transpose the matrix and remove each node from stack through dfs and count scc.
+      First store nodes in decreasing finishing time using DFS, then run DFS on the reversed graph in that 
+      order so that each DFS visits exactly one Strongly Connected Component (SCC).
       
       
       class Solution {

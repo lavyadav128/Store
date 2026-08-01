@@ -61,6 +61,10 @@ import batchRoutes from './routes/batches.routes.js';
 
 import notesRouter from './routes/Notes.routes.js';
 
+// Import redis.js so the Redis connection is created as soon as the server boots
+// (just importing it runs the `new Redis(...)` code inside that file)
+import './config/redis.js';
+
 import dns from 'node:dns';
 
 dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
