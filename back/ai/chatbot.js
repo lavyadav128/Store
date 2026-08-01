@@ -28,6 +28,7 @@ import fs from "fs";                               // fs = File System — lets 
 import path from "path";                           // path helps us work with file paths (like folder/file.json)
 import fetch from "node-fetch";                    // fetch lets us make HTTP requests (call APIs) from Node.js
 import { createRequire } from "module";            // createRequire lets us use old-style "require()" in modern ES module files
+import { rateLimiter } from "../middleware/rateLimit.js"; // Protects this route from being spammed (it costs money per API call)
 
 const require = createRequire(import.meta.url);    // Creates a custom require() function so we can import CommonJS packages
 const pdfParse = require("pdf-parse");             // pdf-parse is a library that reads text out of PDF files
@@ -369,8 +370,8 @@ async function callLLM(messages) {
 // This is the actual HTTP endpoint — POST /chatbot
 // It receives the user's message and returns the AI's reply
 
-router.post("/chatbot", async (req, res) => {
-  // router.post sets up a POST route at "/chatbot"
+router.post("/chatbot", rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:chatbot' }), async (req, res) => {
+    // router.post sets up a POST route at "/chatbot"
   // req = request object (contains what the client sent)
   // res = response object (used to send data back to the client)
 

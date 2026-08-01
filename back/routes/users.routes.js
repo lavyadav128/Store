@@ -29,7 +29,7 @@ import { User } from '../schema/user.model.js';
 
 import auth from '../controller/authh.js'; // Custom auth middleware for protecting routes
 
- 
+import { rateLimiter } from '../middleware/rateLimit.js';
  
 // ─────────────────────────────────────────────────────────────
 // ROUTER — a mini Express app just for auth routes
@@ -51,8 +51,7 @@ const router = express.Router();
 // "async" means this function can use "await" to wait for database/async operations
 // "req" = the incoming request (contains body, headers, etc.)
 // "res" = the response object (we use it to send data back to the client)
-router.post('/login', async (req, res) => {
- 
+router.post('/login', rateLimiter({ requests: 5, window: '10 m', prefix: 'rl:login' }), async (req, res) => { 
   // req.body contains the data sent by the frontend (username and password)
   // destructuring pulls them out into two separate variables
   const { username, password } = req.body;
@@ -136,8 +135,7 @@ router.post('/login', async (req, res) => {
 // ══════════════════════════════════════════════════════════════
  
 // Similar structure to login — POST route, async, req and res
-router.post('/register', async (req, res) => {
- 
+router.post('/register', rateLimiter({ requests: 5, window: '10 m', prefix: 'rl:register' }), async (req, res) => { 
   // Pull name, username, and password from the request body
   // (register needs name too, unlike login)
   const { name, username, password } = req.body;

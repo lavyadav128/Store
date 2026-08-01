@@ -61,6 +61,7 @@ import batchRoutes from './routes/batches.routes.js';
 
 import notesRouter from './routes/Notes.routes.js';
 
+import { rateLimiter } from './middleware/rateLimit.js';
 // Import redis.js so the Redis connection is created as soon as the server boots
 // (just importing it runs the `new Redis(...)` code inside that file)
 import './config/redis.js';
@@ -86,6 +87,10 @@ dotenv.config();
 // express() creates our main application object
 // we attach middleware and routes to this "app"
 const app = express();
+
+// Render (and most hosts) sit your app behind a proxy — without this,
+// req.ip would always be the proxy's IP, not the real visitor's.
+app.set('trust proxy', 1);
 
 
 // ═════════════════════════════════════════════════════════════
@@ -198,8 +203,7 @@ const razorpay = new Razorpay({
 
 // POST /api/create-order
 // The frontend calls this to create a payment order before showing the Razorpay payment popup
-app.post('/api/create-order', async (req, res) => {
-
+app.post('/api/create-order', rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:create-order' }), async (req, res) => {
   // Pull amount and receipt from the request body (sent by the frontend)
   const { amount, receipt } = req.body;
 
