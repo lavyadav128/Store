@@ -11,15 +11,27 @@ import {
   Snackbar,
   Alert,
   Modal,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
   IconButton,
+  Tooltip,
   useMediaQuery,
   CircularProgress,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 import DownloadIcon from "@mui/icons-material/Download";
+import NoteAddIcon from "@mui/icons-material/NoteAdd";
+import EditNoteIcon from "@mui/icons-material/EditNote";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const API_BASE = process.env.REACT_APP_API_URL || "https://storee-6wri.onrender.com";
+// Cloudinary upload happens on the backend (it already has CLOUDINARY_CLOUD_NAME,
+// CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET in its .env), so the frontend only
+// ever talks to our own API below — no Cloudinary keys live in the browser.
 
 const formatLabel = (key) => {
   switch (key) {
@@ -51,9 +63,18 @@ const NotesChapterDetail = () => {
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("warning");
   const [viewerContent, setViewerContent] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const modalRef = useRef(null);
+
+  // ---- Personal note state ----
+  const [noteText, setNoteText] = useState("");       // saved note text (from server)
+  const [noteUrl, setNoteUrl] = useState("");          // cloudinary url of saved note
+  const [noteDialogOpen, setNoteDialogOpen] = useState(false);
+  const [noteDraft, setNoteDraft] = useState("");      // text currently being edited
+  const [savingNote, setSavingNote] = useState(false);
+  const [deletingNote, setDeletingNote] = useState(false);
 
   // Prevent ctrl+scroll zoom / pinch gestures, same as ChapterDetail
   useEffect(() => {
@@ -85,6 +106,9 @@ const NotesChapterDetail = () => {
         if (!res.ok) throw new Error("not found");
         const data = await res.json();
         setChapter(data);
+        // Chapter document is expected to (optionally) carry the saved note
+        setNoteText(data.myNoteText || "");
+        setNoteUrl(data.myNoteUrl || "");
       } catch (err) {
         console.error("Failed to fetch chapter:", err);
         setChapter(null);
@@ -97,17 +121,94 @@ const NotesChapterDetail = () => {
 
   const handleBack = () => navigate(-1);
   const handleSnackbarClose = () => setSnackbarOpen(false);
+  const showSnackbar = (message, severity = "warning") => {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  };
+
   const handleModalClose = () => {
     setModalOpen(false);
     setViewerContent(null);
+  };
+
+  // ---- Note dialog handlers ----
+  const openNoteDialog = () => {
+    setNoteDraft(noteText || "");
+    setNoteDialogOpen(true);
+  };
+  const closeNoteDialog = () => {
+    if (savingNote || deletingNote) return;
+    setNoteDialogOpen(false);
+  };
+
+  const saveNote = async () => {
+    const trimmed = noteDraft.trim();
+    if (!trimmed) {
+      showSnackbar("Note can't be empty.", "warning");
+      return;
+    }
+    setSavingNote(true);
+    try {
+      // Backend receives the raw text, uploads it to Cloudinary itself
+      // (using its own CLOUDINARY_* env vars) and returns the saved copy.
+      const saveRes = await fetch(`${API_BASE}/api/notes/chapters/note`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          batch: batchSlug,
+          subject: subjectSlug,
+          chapter: chapterSlug,
+          noteText: trimmed,
+        }),
+      });
+      if (!saveRes.ok) throw new Error("Failed to save note");
+      const saved = await saveRes.json();
+
+      setNoteText(saved.noteText ?? trimmed);
+      setNoteUrl(saved.noteUrl ?? "");
+      setNoteDialogOpen(false);
+      showSnackbar("Note saved.", "success");
+    } catch (err) {
+      console.error("Save note error:", err);
+      showSnackbar("Could not save your note. Please try again.", "error");
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
+  const deleteNote = async () => {
+    setDeletingNote(true);
+    try {
+      const res = await fetch(`${API_BASE}/api/notes/chapters/note`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          batch: batchSlug,
+          subject: subjectSlug,
+          chapter: chapterSlug,
+        }),
+      });
+      if (!res.ok) throw new Error("Failed to delete note");
+
+      setNoteText("");
+      setNoteUrl("");
+      setNoteDraft("");
+      setNoteDialogOpen(false);
+      showSnackbar("Note deleted.", "success");
+    } catch (err) {
+      console.error("Delete note error:", err);
+      showSnackbar("Could not delete your note. Please try again.", "error");
+    } finally {
+      setDeletingNote(false);
+    }
   };
 
   const openPdfIfExists = async (e, linkObj, label) => {
     e.preventDefault();
 
     if (loading) {
-      setSnackbarMessage("Loading, please try again in a moment...");
-      setSnackbarOpen(true);
+      showSnackbar("Loading, please try again in a moment...", "warning");
       return;
     }
 
@@ -133,8 +234,7 @@ const NotesChapterDetail = () => {
           }
         } catch (err) {
           console.error("Invalid video URL:", err);
-          setSnackbarMessage("Invalid video link.");
-          setSnackbarOpen(true);
+          showSnackbar("Invalid video link.", "warning");
           return;
         }
         setViewerContent(
@@ -181,8 +281,7 @@ const NotesChapterDetail = () => {
       }
 
       if (!linkObj.pdf) {
-        setSnackbarMessage("This PDF file does not exist yet.");
-        setSnackbarOpen(true);
+        showSnackbar("This PDF file does not exist yet.", "warning");
         return;
       }
 
@@ -204,8 +303,7 @@ const NotesChapterDetail = () => {
       setModalOpen(true);
     } catch (error) {
       console.error("Viewer open error:", error);
-      setSnackbarMessage("Error checking the files.");
-      setSnackbarOpen(true);
+      showSnackbar("Error checking the files.", "warning");
     }
   };
 
@@ -238,6 +336,8 @@ const NotesChapterDetail = () => {
     ? subjectSlug.charAt(0).toUpperCase() + subjectSlug.slice(1)
     : "";
 
+  const hasNote = Boolean(noteText);
+
   const content = (
     <CardContent>
       <Button
@@ -266,9 +366,45 @@ const NotesChapterDetail = () => {
       <Typography variant="h4" textAlign="center" sx={{ fontWeight: 700, mb: 1 }}>
         {subjectTitle}
       </Typography>
-      <Typography variant="h5" textAlign="center" sx={{ fontWeight: 600, mb: 4 }}>
-        Chapter: {chapter.title}
-      </Typography>
+
+      {/* Chapter title row with the "My Note" circular action on the right */}
+      <Box
+        sx={{
+          position: "relative",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          mb: 4,
+        }}
+      >
+        <Typography variant="h5" textAlign="center" sx={{ fontWeight: 600 }}>
+          Chapter: {chapter.title}
+        </Typography>
+
+        <Tooltip title={hasNote ? "View / edit your note" : "Add a note"}>
+          <IconButton
+            onClick={openNoteDialog}
+            sx={{
+              position: { xs: "static", sm: "absolute" },
+              right: { sm: 0 },
+              ml: { xs: 1.5, sm: 0 },
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              bgcolor: hasNote ? "primary.main" : "#fff",
+              color: hasNote ? "#fff" : "#333",
+              border: "1px solid #ddd",
+              boxShadow: 1,
+              "&:hover": {
+                bgcolor: hasNote ? "primary.dark" : "#f5f5f5",
+                boxShadow: 2,
+              },
+            }}
+          >
+            {hasNote ? <EditNoteIcon /> : <NoteAddIcon />}
+          </IconButton>
+        </Tooltip>
+      </Box>
 
       <Grid container spacing={3}>
         {Object.entries(links).map(([label, link]) => (
@@ -379,13 +515,77 @@ const NotesChapterDetail = () => {
         </Box>
       </Modal>
 
+      {/* My Note dialog */}
+      <Dialog
+        open={noteDialogOpen}
+        onClose={closeNoteDialog}
+        fullWidth
+        maxWidth="sm"
+        PaperProps={{ sx: { borderRadius: 3 } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>
+          {hasNote ? "Your Note" : "Add a Note"}
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            fullWidth
+            multiline
+            minRows={6}
+            maxRows={14}
+            placeholder="Write your note for this chapter..."
+            value={noteDraft}
+            onChange={(e) => setNoteDraft(e.target.value)}
+            disabled={savingNote || deletingNote}
+            sx={{ mt: 1 }}
+          />
+          {noteUrl && (
+            <Typography
+              variant="caption"
+              color="text.secondary"
+              sx={{ mt: 1, display: "block" }}
+            >
+              Last saved copy stored securely in the cloud.
+            </Typography>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2 }}>
+          {hasNote && (
+            <Button
+              onClick={deleteNote}
+              color="error"
+              startIcon={<DeleteIcon />}
+              disabled={savingNote || deletingNote}
+              sx={{ mr: "auto", textTransform: "none" }}
+            >
+              {deletingNote ? "Deleting..." : "Delete"}
+            </Button>
+          )}
+          <Button
+            onClick={closeNoteDialog}
+            disabled={savingNote || deletingNote}
+            sx={{ textTransform: "none" }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={saveNote}
+            variant="contained"
+            disabled={savingNote || deletingNote}
+            sx={{ textTransform: "none" }}
+          >
+            {savingNote ? "Saving..." : "Save"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         open={snackbarOpen}
         autoHideDuration={4000}
         onClose={handleSnackbarClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >
-        <Alert onClose={handleSnackbarClose} severity="warning" sx={{ width: "100%" }}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: "100%" }}>
           {snackbarMessage}
         </Alert>
       </Snackbar>
