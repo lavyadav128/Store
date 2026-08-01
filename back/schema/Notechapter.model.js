@@ -11,6 +11,11 @@ const noteChapterSchema = new mongoose.Schema({
   completeNotesUrl: { type: String, default: '' },
   videoUrl: { type: String, default: '' },
 
+  // Personal note for this chapter — text saved directly for fast reads,
+  // plus the Cloudinary URL of the same content for the permanent copy.
+  myNoteText: { type: String, default: '' },
+  myNoteUrl: { type: String, default: '' },
+
   order: { type: Number, default: 0 },
   isActive: { type: Boolean, default: true },
 }, { timestamps: true });

@@ -367,36 +367,21 @@ const NotesChapterDetail = () => {
         {subjectTitle}
       </Typography>
 
-      {/* Chapter title row with the "My Note" circular action on the right */}
-      <Box
-        sx={{
-          position: "relative",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          mb: 4,
-        }}
-      >
-        <Typography variant="h5" textAlign="center" sx={{ fontWeight: 600 }}>
-          Chapter: {chapter.title}
-        </Typography>
-
+      {/* "My Note" circular action, sits above the chapter title */}
+      <Box sx={{ display: "flex", justifyContent: "center", mb: 1.5 }}>
         <Tooltip title={hasNote ? "View / edit your note" : "Add a note"}>
           <IconButton
             onClick={openNoteDialog}
             sx={{
-              position: { xs: "static", sm: "absolute" },
-              right: { sm: 0 },
-              ml: { xs: 1.5, sm: 0 },
               width: 44,
               height: 44,
               borderRadius: "50%",
-              bgcolor: hasNote ? "primary.main" : "#fff",
-              color: hasNote ? "#fff" : "#333",
+              bgcolor: "#fff",
+              color: "#333",
               border: "1px solid #ddd",
               boxShadow: 1,
               "&:hover": {
-                bgcolor: hasNote ? "primary.dark" : "#f5f5f5",
+                backgroundColor: "#f5f5f5",
                 boxShadow: 2,
               },
             }}
@@ -405,6 +390,10 @@ const NotesChapterDetail = () => {
           </IconButton>
         </Tooltip>
       </Box>
+
+      <Typography variant="h5" textAlign="center" sx={{ fontWeight: 600, mb: 4 }}>
+        Chapter: {chapter.title}
+      </Typography>
 
       <Grid container spacing={3}>
         {Object.entries(links).map(([label, link]) => (
