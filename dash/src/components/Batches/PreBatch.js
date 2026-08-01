@@ -271,7 +271,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         {/* BUY / STUDY BUTTON — label and action change based on purchase status */}
         <Button
           variant="contained"          // filled/solid button style
-          onClick={() => (isPurchased ? navigate(`/class/${id}`) : handleBuyRedirect())}
+          onClick={() => (isPurchased ? navigate(`/premium/class/${id}`) : handleBuyRedirect())}
           // if already purchased → go directly to the class page
           // if not purchased     → trigger the buy/payment flow
           sx={{

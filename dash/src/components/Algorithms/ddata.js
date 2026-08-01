@@ -2127,13 +2127,15 @@ const questionsData = {
             int low = 0, high = arr.length - 1;
             while (low <= high) {
                 int mid = low + (high - low) / 2;
-                if (arr[mid] - mid - 1 < k) {    //It calculates how many positive numbers are missing before arr[mid].
+               // arr[i] = i + 1(this logic is used) in place of i replace with mid 
+                if (arr[mid] - mid - 1 < k) {    //  It calculates how many positive numbers are missing before arr[mid].
                     low = mid + 1;
                 } else {
                     high = mid - 1;
                 }
             }
-            return low + k;
+    //low numbers that exist in the array and k numbers that are missing.
+            return low + k;   
         }
     }`
     },
@@ -6877,7 +6879,8 @@ class Solution {
     
     EXAMPLE:
     Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
-    Output: 5`,
+    Output: 5
+    hit → hot → dot → dog → cog`,
 
 
     bruteForceCode:`
@@ -6994,7 +6997,16 @@ class Solution {
     
     EXAMPLE:
     Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
-    Output: [["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]`,
+    Output: [["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
+        hit
+        |
+        hot
+        | \
+        dot lot
+        |    |
+        dog  log
+        \   /
+        cog`,
     
       optimalComplexity: `Time Complexity: O(N * L²)
     Space Complexity: O(N)`,
@@ -7026,11 +7038,11 @@ class Solution {
                             if (!distance.containsKey(next)) {
                                 distance.put(next, distance.get(curr) + 1);
                                 queue.offer(next);
+                                graph.putIfAbsent(curr, new ArrayList<>());  // here we r constructing graph
+                                graph.get(curr).add(next);                // by adding with next
+                            } else if (distance.get(next) == distance.get(curr) + 1) {  //it checks that when we form new letter(by changing chars) then is that new char is alredy there, if then add 
                                 graph.putIfAbsent(curr, new ArrayList<>());
-                                graph.get(curr).add(next);
-                            } else if (distance.get(next) == distance.get(curr) + 1) {
-                                graph.putIfAbsent(curr, new ArrayList<>());
-                                graph.get(curr).add(next);
+                                graph.get(curr).add(next);                 // here see in graph we have added log to cog(as when we change each char of log we will get cog) which is already there
                             }
                         }
                     }
@@ -7047,6 +7059,7 @@ class Solution {
             return result;
         }
         
+        // here we r using dfs basically to get all path from startword to endword by traversing the graph(look graph above)
         private void dfs(String curr, String endWord, Map<String, List<String>> graph, 
                          Map<String, Integer> distance, List<String> path, List<List<String>> result) {
             if (curr.equals(endWord)) {
@@ -7583,7 +7596,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `u may think that suppose a node has 2 path to reach there with diff length and in this code there is nothing to update 
+      distance then is it wrong? NO,  This is correct, because BFS explores nodes level by level. The first time a node is visited, 
+      it is guaranteed to be through the shortest path.
+      
+      class Solution {
         public int[] shortestPath(int[][] edges, int n, int m, int src) {
             ArrayList<ArrayList<Integer>> adj = new ArrayList<>();
             for (int i = 0; i < n; i++) adj.add(new ArrayList<>());
@@ -8991,7 +9008,59 @@ class Solution {
     
     EXAMPLE:
     Input: heights = [2, 1, 3, 5, 4]
-    Output: 2`,
+    Output: 2
+            helper(4)
+        │
+        ├── One Step → helper(3) + |4-5|
+        │              = helper(3) + 1
+        │
+        │   helper(3)
+        │   │
+        │   ├── One Step → helper(2) + |5-3|
+        │   │              = helper(2) + 2
+        │   │
+        │   │   helper(2)
+        │   │   │
+        │   │   ├── One Step → helper(1) + |3-1|
+        │   │   │              = helper(1) + 2
+        │   │   │
+        │   │   │   helper(1)
+        │   │   │   │
+        │   │   │   ├── One Step → helper(0) + |1-2|
+        │   │   │   │              = 0 + 1
+        │   │   │   │              = 1
+        │   │   │   │
+        │   │   │   └── helper(1)=1
+        │   │   │
+        │   │   ├── Cost = 1 + 2 = 3
+        │   │   │
+        │   │   ├── Two Step → helper(0) + |3-2|
+        │   │   │              = 0 + 1
+        │   │   │              = 1
+        │   │   │
+        │   │   └── helper(2)=min(3,1)=1
+        │   │
+        │   ├── Cost = 1 + 2 = 3
+        │   │
+        │   ├── Two Step → helper(1) + |5-1|
+        │   │
+        │   │   helper(1)=1
+        │   │
+        │   ├── Cost = 1 + 4 = 5
+        │   │
+        │   └── helper(3)=min(3,5)=3
+        │
+        ├── Cost = 3 + 1 = 4
+        │
+        ├── Two Step → helper(2) + |4-3|
+        │
+        │   helper(2)
+        │   │
+        │   └── =1
+        │
+        ├── Cost = 1 + 1 = 2
+        │
+        └── helper(4)=min(4,2)=2`,
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -9050,7 +9119,61 @@ class Solution {
     
     EXAMPLE:
     Input: heights = [10, 5, 20, 0, 15], k = 2
-    Output: 15`,
+    Output: 15
+            helper(4)
+        │
+        ├── Jump 1 → helper(3) + |15-0|
+        │            = helper(3) + 15
+        │
+        │   helper(3)
+        │   │
+        │   ├── Jump 1 → helper(2) + |0-20|
+        │   │            = helper(2) + 20
+        │   │
+        │   │   helper(2)
+        │   │   │
+        │   │   ├── Jump 1 → helper(1) + |20-5|
+        │   │   │            = helper(1) + 15
+        │   │   │
+        │   │   │   helper(1)
+        │   │   │   │
+        │   │   │   ├── Jump 1 → helper(0) + |5-10|
+        │   │   │   │            = 0 + 5
+        │   │   │   │            = 5
+        │   │   │   │
+        │   │   │   └── helper(1)=5
+        │   │   │
+        │   │   ├── Cost = 5 + 15 = 20
+        │   │   │
+        │   │   ├── Jump 2 → helper(0) + |20-10|
+        │   │   │            = 0 + 10
+        │   │   │            = 10
+        │   │   │
+        │   │   └── helper(2)=min(20,10)=10
+        │   │
+        │   ├── Cost = 10 + 20 = 30
+        │   │
+        │   ├── Jump 2 → helper(1) + |0-5|
+        │   │
+        │   │   helper(1)
+        │   │   │
+        │   │   └── =5
+        │   │
+        │   ├── Cost = 5 + 5 = 10
+        │   │
+        │   └── helper(3)=min(30,10)=10
+        │
+        ├── Cost = 10 + 15 = 25
+        │
+        ├── Jump 2 → helper(2) + |15-20|
+        │
+        │   helper(2)
+        │   │
+        │   └── =10
+        │
+        ├── Cost = 10 + 5 = 15
+        │
+        └── helper(4)=min(25,15)=15`,
     
       bruteForceComplexity: `Time Complexity: O(k^N)
     Space Complexity: O(N)`,
@@ -9772,6 +9895,7 @@ class Solution {
             // s1 = j, s2 = total - j, diff = |s2 - s1| = |total - 2*j|
             int minDiff = Integer.MAX_VALUE;
             for (int j = 0; j <= total / 2; j++) {
+    //So if one subset has sum j, then the other subset must have sum (total - j) and That's why every true represents one valid partition of the array.
                 if (dp[n][j] == true) {             //Using ALL elements, can I make subset sum = j ?
                     minDiff = Math.min(minDiff, Math.abs(total - 2 * j));
                 }
