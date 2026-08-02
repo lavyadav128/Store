@@ -40,7 +40,7 @@ const purchaseSchema = new mongoose.Schema({
   razorpayPaymentId: {
     type: String,
     default: undefined,
-  }
+  },
 }, { 
   timestamps: true,
   strict: true,
