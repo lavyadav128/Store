@@ -333,7 +333,7 @@ async function callLLM(messages) {
         "X-Title": "AI Study Copilot"                   // Optional — names your app in OpenRouter's dashboard
       },
       body: JSON.stringify({
-        model: "openai/gpt-oss-20b:free",                // ✅ updated
+        model: "nvidia/nemotron-nano-9b-v2:free",                // ✅ updated
         messages,                                        // The full conversation to send
         temperature: 0.7                                 // Controls randomness: 0 = very focused, 1 = very creative
       })
