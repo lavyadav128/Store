@@ -36,6 +36,10 @@ const purchaseSchema = new mongoose.Schema({
   isPremium: { 
     type: Boolean, // ✅ updated to Boolean
     required: true 
+  },
+  razorpayPaymentId: {
+    type: String,
+    default: undefined,
   }
 }, { 
   timestamps: true,
@@ -46,7 +50,8 @@ const purchaseSchema = new mongoose.Schema({
 // — this compound UNIQUE index makes that fast AND stops duplicate purchase
 // records for the same user+class from ever being created
 purchaseSchema.index({ userId: 1, classId: 1 }, { unique: true });
-
+// IDEMPOTENCY: a given Razorpay payment can only ever be recorded ONCE.
+purchaseSchema.index({ razorpayPaymentId: 1 }, { unique: true, sparse: true });
 // GET /user-purchases filters { userId, expiryDate: { $gt: now } }
 purchaseSchema.index({ userId: 1, expiryDate: 1 });
 export default mongoose.model('Purchase', purchaseSchema);

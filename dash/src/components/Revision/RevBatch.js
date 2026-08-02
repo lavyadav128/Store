@@ -142,8 +142,12 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
           // response contains payment details from Razorpay
           try {
             // Save the purchase record in our database now that payment is confirmed
-            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', purchasePayload);
-            // Update the parent component's state to mark this class as purchased
+            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+              ...purchasePayload,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });            // Update the parent component's state to mark this class as purchased
             onPurchase(id);
             // Redirect to the class content page
             navigate(`/class/${id}`);

@@ -4,14 +4,75 @@ import Purchase from '../schema/purchase.model.js'; // Mongoose model for handli
 import auth from '../controller/authh.js'; // Custom auth middleware for protecting routes
 import { User } from '../schema/user.model.js'; // Mongoose model for user data
 import { sendWhatsAppMessage } from '../services/twilioservice.js'; // Twilio service for sending WhatsApp notifications
-
+import * as Sentry from '@sentry/node';
+import crypto from 'crypto';
 // Create a new Express router
 const router = express.Router();
 
 //  POST /api/save-purchase
+// router.post('/save-purchase', auth, async (req, res) => {
+//   // Destructure required fields from request body
+//   const { classId, batchTitle, price, description, imageUrl, isPremium } = req.body;
+
+//   // Extract userId from the decoded JWT payload (set in auth middleware)
+//   const userId = req.user._id;
+
+//   // Log incoming purchase payload for debugging
+//   console.log(" Purchase Payload:", {
+//     classId, batchTitle, price, description, imageUrl, isPremium,
+//   });
+
+//   try {
+//     // Calculate expiry date (10 months from now)
+//     const expiryDate = new Date();
+//     expiryDate.setMonth(expiryDate.getMonth() + 10);
+
+//     // Construct purchase object with fallbacks
+//     const purchaseData = {
+//       userId,
+//       classId,
+//       title: batchTitle,
+//       price: price || 0,
+//       description: description || '',
+//       imageUrl: imageUrl || '',
+//       expiryDate,
+//       isPremium: !!isPremium, //  Ensure it's stored as a boolean
+//     };
+
+//     // Upsert (update if exists, otherwise insert) the purchase entry
+//     await Purchase.findOneAndUpdate(
+//       { userId, classId },          // Match on user and class
+//       { $set: purchaseData },       // Set new values
+//       { upsert: true, new: true }   // Insert if not exists, and return the new document
+//     );
+
+//     // If the purchase has a price > 0, send a WhatsApp confirmation
+//     if (price > 0) {
+//       const user = await User.findById(userId); // Find user by ID
+//       if (user?.phone) {                        // If user has a phone number
+//         const formattedPhone = `whatsapp:+91${user.phone}`; // Format number for WhatsApp
+//         await sendWhatsAppMessage(batchTitle, formattedPhone); // Send message
+//       }
+//     }
+
+//     // Respond with success
+//     res.status(200).json({ message: 'Purchase saved' });
+//   } catch (err) {
+//     // Log and handle errors
+//     console.error(" Error saving purchase:", err);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
+
+//  POST /api/save-purchase
 router.post('/save-purchase', auth, async (req, res) => {
   // Destructure required fields from request body
-  const { classId, batchTitle, price, description, imageUrl, isPremium } = req.body;
+  const {
+    classId, batchTitle, price, description, imageUrl, isPremium,
+    // These 3 come from Razorpay's popup after a successful PAID payment.
+    // Free purchases (price 0) won't have these — that's fine, see below.
+    razorpay_order_id, razorpay_payment_id, razorpay_signature,
+  } = req.body;
 
   // Extract userId from the decoded JWT payload (set in auth middleware)
   const userId = req.user._id;
@@ -22,6 +83,42 @@ router.post('/save-purchase', auth, async (req, res) => {
   });
 
   try {
+    // ═══════════════════════════════════════════════════════════
+    // PAID PURCHASE: verify the payment is real before saving anything
+    // ═══════════════════════════════════════════════════════════
+    if (price > 0) {
+      if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        // Someone is calling this route directly without ever going through
+        // Razorpay's actual payment flow — reject immediately.
+        return res.status(400).json({ error: 'Missing payment verification details' });
+      }
+
+      // Razorpay signs order_id + payment_id using YOUR secret key (RAZORPAY_SECRET).
+      // We recompute that same signature here. If it matches what the frontend
+      // sent, the payment is provably genuine — nobody can fake this without
+      // knowing your secret key, which never leaves the backend.
+      const expectedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_SECRET)
+        .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+        .digest('hex');
+
+      if (expectedSignature !== razorpay_signature) {
+        console.error('❌ Payment signature mismatch — possible forged request', { userId, classId });
+        Sentry.captureMessage('Payment signature mismatch (possible fraud attempt)', 'warning');
+        return res.status(400).json({ error: 'Payment verification failed' });
+      }
+
+      // ── IDEMPOTENCY CHECK ──
+      // Has this EXACT payment already been recorded? If yes, this call is a
+      // retry (double-click, network retry, etc.) — return success immediately
+      // WITHOUT re-sending the WhatsApp message or touching the database again.
+      const alreadyProcessed = await Purchase.findOne({ razorpayPaymentId: razorpay_payment_id });
+      if (alreadyProcessed) {
+        console.log(`🔁 Duplicate save-purchase call for payment ${razorpay_payment_id} — already processed, skipping`);
+        return res.status(200).json({ message: 'Purchase already saved' });
+      }
+    }
+
     // Calculate expiry date (10 months from now)
     const expiryDate = new Date();
     expiryDate.setMonth(expiryDate.getMonth() + 10);
@@ -36,6 +133,9 @@ router.post('/save-purchase', auth, async (req, res) => {
       imageUrl: imageUrl || '',
       expiryDate,
       isPremium: !!isPremium, //  Ensure it's stored as a boolean
+      // Only attach a payment ID for paid purchases — free ones stay
+      // undefined, which the schema's sparse index is fine with.
+      ...(price > 0 && { razorpayPaymentId: razorpay_payment_id }),
     };
 
     // Upsert (update if exists, otherwise insert) the purchase entry
@@ -46,6 +146,8 @@ router.post('/save-purchase', auth, async (req, res) => {
     );
 
     // If the purchase has a price > 0, send a WhatsApp confirmation
+    // (only reached the FIRST time this payment is processed, thanks to the
+    // idempotency check above — never fires again on a retry)
     if (price > 0) {
       const user = await User.findById(userId); // Find user by ID
       if (user?.phone) {                        // If user has a phone number
@@ -57,8 +159,19 @@ router.post('/save-purchase', auth, async (req, res) => {
     // Respond with success
     res.status(200).json({ message: 'Purchase saved' });
   } catch (err) {
+    // If two requests for the SAME payment somehow race each other and both
+    // slip past the idempotency check above before either finishes writing,
+    // the unique index on razorpayPaymentId catches it here (MongoDB error
+    // code 11000 = duplicate key). That's not a real failure — the purchase
+    // WAS saved by the other request — so we respond with success, not 500.
+    if (err.code === 11000) {
+      console.log('🔁 Race condition on duplicate payment — safely ignored');
+      return res.status(200).json({ message: 'Purchase already saved' });
+    }
+
     // Log and handle errors
     console.error(" Error saving purchase:", err);
+    Sentry.captureException(err); // this is a PAID transaction failing to save — high priority to catch
     res.status(500).json({ error: 'Server error' });
   }
 });

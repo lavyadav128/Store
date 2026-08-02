@@ -86,9 +86,14 @@ const NotesBrowsePage = () => {
         name: 'Atom Classes',
         description: `Payment for ${batch.title}`,
         order_id: orderRes.id,
-        handler: async function () {
+        handler: async function (response) {
           try {
-            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', purchasePayload);
+            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+              ...purchasePayload,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
             setPurchaseInfo((prev) => ({ ...prev, [batch.slug]: { expiryDate: new Date().toISOString() } }));
             navigate(`/notes/${batch.slug}`);
           } catch (err) {
