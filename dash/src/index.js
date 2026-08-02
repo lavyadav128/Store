@@ -79,7 +79,7 @@ root.render(
         this catches it, sends the error+stack trace to Sentry, and shows a
         simple fallback message instead of a blank white screen for the user */}
     <Sentry.ErrorBoundary fallback={<p style={{ textAlign: 'center', marginTop: '3rem' }}>Something went wrong. Please refresh the page.</p>}>
-    <GoogleOAuthProvider clientId="738xxxxxxxxxxxx-abcdef.apps.googleusercontent.329565102343-1fom4l27tdc9shurgtokgrv2kej6eaje.apps.googleusercontent.com">
+    <GoogleOAuthProvider clientId="631382593567-6vvhqv3hhts3m1s9ggp52gm78psuueq6.apps.googleusercontent.com">
     <BrowserRouter>
         <>
         <Routes>
