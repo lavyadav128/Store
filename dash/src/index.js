@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import * as Sentry from "@sentry/react"; // Error monitoring — catches crashes/errors in the browser
+import SocketManager from './components/SocketManager';
 
 import Home from "./components/Home";
 import Dsa from './components/Algorithms/Dsa';
@@ -176,6 +177,7 @@ root.render(
 
           {/* ChatBot on all pages */}
           <ChatBot />
+          <SocketManager />
         </>
     </BrowserRouter>
   </GoogleOAuthProvider>

@@ -79,10 +79,15 @@ const NotificationsPage = () => {
 
     fetchNotifications();
 
-    // Optional: Polling every 30 seconds for new notifications
+    const handleLiveReply = () => fetchNotifications();
+    window.addEventListener('doubt-reply', handleLiveReply);
+    
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, [username]);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('doubt-reply', handleLiveReply);
+    };
+    }, [username]);
 
   return (
     <Box sx={{ p: isMobile ? 2 : 4 }}>

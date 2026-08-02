@@ -63,7 +63,8 @@ import notesRouter from './routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
-
+import http from 'node:http';
+import { initSocket } from './socket/io.js';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 
@@ -283,13 +284,11 @@ const PORT = 5000;
 // If DB fails, connectDB() calls process.exit(1) and the server never starts
 connectDB().then(() => {
 
-  // app.listen() starts the HTTP server and begins accepting incoming requests
-  // PORT = which port to listen on (e.g. 3000)
-  // "0.0.0.0" = listen on ALL network interfaces, not just localhost
-  //   → this is important for cloud hosting (Render, Railway, etc.)
-  //   → without it, the server might only be accessible inside the machine
-  // The callback (arrow function) runs once the server has started
-  app.listen(PORT, "0.0.0.0", () => {
+  const httpServer = http.createServer(app);
+  initSocket(httpServer);
+
+  httpServer.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`🔌 Socket.io ready for real-time connections`);
   });
 });

@@ -75,8 +75,15 @@ const AdminDashboard = () => {
       setDoubts(res.data || []);
     } catch (err) { console.error("Failed to fetch doubts", err); }
   };
-  useEffect(() => { fetchDoubts(); }, []);
+  useEffect(() => {
+    const handleNewDoubt = (e) => {
+      setDoubts((prev) => [e.detail, ...prev]);
+    };
+    window.addEventListener('new-doubt', handleNewDoubt);
+    return () => window.removeEventListener('new-doubt', handleNewDoubt);
+  }, []);
 
+  
   /* ── send message ── */
   const sendMessage = async () => {
     if (!message.trim()) return;
