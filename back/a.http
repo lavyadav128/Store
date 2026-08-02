@@ -1,17 +1,4 @@
-### Login test
 POST http://localhost:5000/api/login
 Content-Type: application/json
 
-{
-  "username": "test",
-  "password": "test123"
-}
-
-### Create order test
-POST http://localhost:5000/api/create-order
-Content-Type: application/json
-
-{
-  "amount": 100,
-  "receipt": "test123"
-}
+{ "username": { "$ne": null }, "password": { "$ne": null } }

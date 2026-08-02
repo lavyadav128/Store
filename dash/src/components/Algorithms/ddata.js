@@ -3713,6 +3713,20 @@ Space Complexity: O(1)`,
                 curr = curr.next;
             }
             return head; // value not found, list unchanged
+
+
+            // or this way also
+            if (head == null) return null;
+            if (head.val == val)
+                return head.next;
+            ListNode curr = head;
+            while (curr.next != null && curr.next.val != val) {
+                curr = curr.next;
+            }
+            if (curr.next != null) {
+                curr.next = curr.next.next;
+            }
+            return head;
         }
     }`
       },
@@ -3810,7 +3824,8 @@ Space Complexity: O(1)`,
                 slow = slow.next;
                 fast = fast.next.next;
             }
-            return slow;
+                // in question is asks to return head means we r returning whole updated ll got it na
+            return slow; // in ll when we return a node(it means it will return all nodes after that including that node also)
         }
     }`
     },
@@ -4010,6 +4025,23 @@ Space Complexity: O(1)`,
    
           slow.next = slow.next.next; // unlink the nth node from end
           return dummy.next;
+
+          // or this way also
+                int length = 0;
+                ListNode temp = head;
+                while (temp != null) {
+                    length++;
+                    temp = temp.next;
+                }
+                if (length == n) {    //If n = 5, then we have to remove the 5th node from the end.
+                    return head.next;
+                }
+                temp = head;
+                for (int i = 1; i < length - n; i++) {
+                    temp = temp.next;
+                }
+                temp.next = temp.next.next;
+                return head;
       }
   }`
     },
@@ -4548,16 +4580,48 @@ Space Complexity: O(1)`,
     
             for (int i = 0; i < left - 1; i++) prev = prev.next; // node before left
     
-            ListNode curr = prev.next;
+            ListNode curr = prev.next;   //  2
             // reverse in-place using pointer manipulation, no extra storage
             for (int i = 0; i < right - left; i++) {
-                ListNode nextNode = curr.next;
-                curr.next = nextNode.next;
-                nextNode.next = prev.next;
-                prev.next = nextNode;
+                ListNode nextNode = curr.next;   //  3
+                curr.next = nextNode.next;     // 2 ->4
+                nextNode.next = prev.next;     // 3 -> 2
+                prev.next = nextNode;          // 1 -> 3  (1 → 3 → 2 → 4 → 5)
             }
     
             return dummy.next;
+
+
+            // or this way also
+                if (head == null || left == right)
+                    return head;
+
+                ListNode dummy = new ListNode(0);
+                dummy.next = head;
+
+                ListNode prev = dummy;
+
+                // Move prev before left
+                for (int i = 1; i < left; i++)
+                    prev = prev.next;
+
+                ListNode start = prev.next;
+                ListNode curr = start;
+                ListNode prevNode = null;
+
+                // Reverse right-left+1 nodes
+                for (int i = 0; i <= right - left; i++) {
+                    ListNode next = curr.next;
+                    curr.next = prevNode;
+                    prevNode = curr;
+                    curr = next;
+                }
+
+                // Reconnect
+                prev.next = prevNode;
+                start.next = curr;
+
+                return dummy.next;
         }
     }`
     },

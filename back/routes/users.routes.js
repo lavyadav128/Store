@@ -56,13 +56,8 @@ router.post('/login', rateLimiter({ requests: 5, window: '10 m', prefix: 'rl:log
   // destructuring pulls them out into two separate variables
   const { username, password } = req.body;
  
-  // ── VALIDATION: check that both fields were actually sent ──
-  // if either is missing (undefined, null, or empty string), send a 400 Bad Request error
-  if (!username || !password) {
-    return res
-      .status(httpStatus.BAD_REQUEST)        // HTTP 400 — client sent incomplete data
-      .json({ message: "Please provide all fields." });
-    // "return" stops the function here — we don't continue to the database
+  if (typeof username !== 'string' || typeof password !== 'string') {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Invalid request format." });
   }
  
   // ── MAIN LOGIC wrapped in try/catch ──
@@ -141,10 +136,17 @@ router.post('/register', rateLimiter({ requests: 5, window: '10 m', prefix: 'rl:
   const { name, username, password } = req.body;
  
   // ── VALIDATION: all three fields must be present ──
-  if (!name || !username || !password) {
-    return res
-      .status(httpStatus.BAD_REQUEST)       // HTTP 400 — incomplete data
-      .json({ message: "Please provide all fields." });
+  if (typeof name !== 'string' || typeof username !== 'string' || typeof password !== 'string') {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Invalid request format." });
+  }
+  
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(username)) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Please provide a valid email address." });
+  }
+  
+  if (password.length < 6) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Password must be at least 6 characters long." });
   }
  
   try {

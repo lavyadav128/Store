@@ -63,6 +63,10 @@ import notesRouter from './routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
+
+import helmet from 'helmet';
+import mongoSanitize from 'express-mongo-sanitize';
+
 import { rateLimiter } from './middleware/rateLimit.js';
 // Import redis.js so the Redis connection is created as soon as the server boots
 // (just importing it runs the `new Redis(...)` code inside that file)
@@ -124,11 +128,15 @@ app.use(cors({
 // Without this, cross-origin POST requests would fail
 app.options('*', cors());
 
+app.use(helmet());
+
 // ── JSON BODY PARSER ──
 // Without this, req.body would be undefined for JSON requests
 // express.json() reads the raw request body and parses it into a JavaScript object
 // limit: "20mb" allows large payloads (e.g. base64 images, video thumbnails)
 app.use(express.json({ limit: "20mb" }));
+
+app.use(mongoSanitize());
 
 // ── URL-ENCODED BODY PARSER ──
 // Parses data sent from HTML <form> submissions (key=value&key=value format)
@@ -175,6 +183,7 @@ app.use("/api/video-splitter", videoSplitterRoutes);
 app.use('/api/batches', batchRoutes);
 
 app.use('/api/notes', notesRouter);
+
 
 
 // ── HEALTH CHECK ROUTE ──
