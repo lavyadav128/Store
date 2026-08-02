@@ -31,6 +31,9 @@ import auth from '../controller/authh.js'; // Custom auth middleware for protect
 
 import { rateLimiter } from '../middleware/rateLimit.js';
  
+
+import { OAuth2Client } from 'google-auth-library';
+const googleClient = new OAuth2Client();
 // ─────────────────────────────────────────────────────────────
 // ROUTER — a mini Express app just for auth routes
 // ─────────────────────────────────────────────────────────────
@@ -223,6 +226,72 @@ router.get("/user/profile", auth, async (req, res) => {
 });
 
 
+
+// ══════════════════════════════════════════════════════════════
+//  GOOGLE LOGIN ROUTE
+//  URL: POST /api/auth/google
+//  What it does: verifies the Google access token, finds or creates
+//  a user, and returns our own JWT token
+// ══════════════════════════════════════════════════════════════
+router.post('/auth/google', async (req, res) => {
+  const { access_token } = req.body;
+
+  if (!access_token) {
+    return res.status(httpStatus.BAD_REQUEST).json({ message: "Missing access token." });
+  }
+
+  try {
+    // Ask Google for the user's profile info using the access token
+    const googleRes = await fetch(
+      `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${access_token}`
+    );
+
+    if (!googleRes.ok) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Invalid Google token." });
+    }
+
+    const profile = await googleRes.json();
+    // profile contains: { email, name, picture, sub, ... }
+
+    if (!profile.email) {
+      return res.status(httpStatus.UNAUTHORIZED).json({ message: "Google account has no email." });
+    }
+
+    // Find existing user by email, or create a new one
+    let user = await User.findOne({ username: profile.email });
+
+    if (!user) {
+      // Create a new user with a random password (they'll never use it directly,
+      // since they'll always log in via Google)
+      const randomPassword = await bcrypt.hash(profile.sub + Date.now(), 10);
+      user = new User({
+        name: profile.name || profile.email,
+        username: profile.email,
+        password: randomPassword,
+      });
+      await user.save();
+    }
+
+    // Create our own JWT token, same as normal login
+    const token = jwt.sign(
+      { _id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    return res.status(httpStatus.OK).json({
+      token,
+      username: user.username,
+      name: user.name,
+    });
+
+  } catch (e) {
+    return res
+      .status(httpStatus.INTERNAL_SERVER_ERROR)
+      .json({ message: `Error: ${e.message}` });
+  }
+});
+
 // ─────────────────────────────────────────────────────────────
 // EXPORT THE ROUTER
 // ─────────────────────────────────────────────────────────────
@@ -230,6 +299,8 @@ router.get("/user/profile", auth, async (req, res) => {
 // Export the router so the main server file can import and use it
 // In server.js it would be used like: app.use('/api', router)
 // which means our routes become /api/login and /api/register
+
+
 
 
 export default router;
