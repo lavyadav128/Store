@@ -42,5 +42,11 @@ const purchaseSchema = new mongoose.Schema({
   strict: true,
   validateBeforeSave: true
 });
+// POST /save-purchase does findOneAndUpdate({ userId, classId }, ..., { upsert: true })
+// — this compound UNIQUE index makes that fast AND stops duplicate purchase
+// records for the same user+class from ever being created
+purchaseSchema.index({ userId: 1, classId: 1 }, { unique: true });
 
+// GET /user-purchases filters { userId, expiryDate: { $gt: now } }
+purchaseSchema.index({ userId: 1, expiryDate: 1 });
 export default mongoose.model('Purchase', purchaseSchema);

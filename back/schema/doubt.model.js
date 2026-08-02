@@ -11,5 +11,6 @@ const doubtSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// GET /admin/doubts (no filter) sorts by { createdAt: -1 }
+doubtSchema.index({ createdAt: -1 });
 export default mongoose.model("Doubt", doubtSchema);

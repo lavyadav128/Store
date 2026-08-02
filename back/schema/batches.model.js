@@ -14,5 +14,10 @@ const batchSchema = new mongoose.Schema({
   sortOrder: { type: Number, default: 0 },
   // pageType, category — REMOVED
 });
-
+// The public GET /api/batches route filters by { isActive: true, folder }
+// and sorts by sortOrder — this index lets MongoDB satisfy that ENTIRE
+// query (filter + sort) directly from the index, without scanning documents
+// or sorting in memory. Order matters: equality fields first (isActive,
+// folder), then the sort field (sortOrder).
+batchSchema.index({ isActive: 1, folder: 1, sortOrder: 1 });
 export default mongoose.model('Batch', batchSchema);

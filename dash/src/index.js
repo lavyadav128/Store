@@ -4,6 +4,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 
+
+import * as Sentry from "@sentry/react";
+
 import Home from "./components/Home";
 import Dsa from './components/Algorithms/Dsa';
 import DtopicPage from './components/Algorithms/dtopic'; // Practice Page Component
@@ -58,7 +61,11 @@ import TestAttemptPage from "./components/Batches/testattempt";
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute   from './components/AdminRoute';
 
-
+Sentry.init({
+  dsn: process.env.REACT_APP_SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 0.2,
+});
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

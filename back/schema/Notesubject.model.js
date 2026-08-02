@@ -11,5 +11,8 @@ const noteSubjectSchema = new mongoose.Schema({
 
 // slug only needs to be unique WITHIN a batch, not globally
 noteSubjectSchema.index({ batchSlug: 1, slug: 1 }, { unique: true });
-
+// GET /api/notes/subjects?batch=X filters { batchSlug, isActive: true }
+// and sorts by order — this index covers that query specifically
+// (separate from the existing unique index, which is for slug lookups)
+noteSubjectSchema.index({ batchSlug: 1, isActive: 1, order: 1 });
 export default mongoose.model('NoteSubject', noteSubjectSchema);

@@ -21,5 +21,7 @@ const noteChapterSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 noteChapterSchema.index({ batchSlug: 1, subjectSlug: 1, slug: 1 }, { unique: true });
-
+// GET /api/notes/chapters?batch=X&subject=Y filters { batchSlug, subjectSlug,
+// isActive: true } and sorts by order
+noteChapterSchema.index({ batchSlug: 1, subjectSlug: 1, isActive: 1, order: 1 });
 export default mongoose.model('NoteChapter', noteChapterSchema);

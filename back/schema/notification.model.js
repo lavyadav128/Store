@@ -9,5 +9,6 @@ const notificationSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
+// GET /notifications/:username filters { username } and sorts by createdAt desc
+notificationSchema.index({ username: 1, createdAt: -1 });
 export default mongoose.model("Notification", notificationSchema);

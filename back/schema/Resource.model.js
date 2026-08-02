@@ -61,5 +61,9 @@ const resourceSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+// GET /resources/:category filters { category } and sorts by createdAt desc
+resourceSchema.index({ category: 1, createdAt: -1 });
 
+// The full listing route (no filter) sorts by { order: 1, createdAt: -1 }
+resourceSchema.index({ order: 1, createdAt: -1 });
 export default mongoose.model("Resource", resourceSchema);

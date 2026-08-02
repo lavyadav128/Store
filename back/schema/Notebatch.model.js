@@ -11,5 +11,7 @@ const noteBatchSchema = new mongoose.Schema({
   whatYouLearn: { type: [String], default: [] },
 
 }, { timestamps: true });
-
+// GET /api/notes/batches filters { isActive: true } and sorts by order —
+// this index covers that filter + sort together
+noteBatchSchema.index({ isActive: 1, order: 1 });
 export default mongoose.model('NoteBatch', noteBatchSchema);

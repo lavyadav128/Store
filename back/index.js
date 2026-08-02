@@ -61,6 +61,8 @@ import batchRoutes from './routes/batches.routes.js';
 
 import notesRouter from './routes/Notes.routes.js';
 
+import * as Sentry from '@sentry/node';
+
 import { rateLimiter } from './middleware/rateLimit.js';
 // Import redis.js so the Redis connection is created as soon as the server boots
 // (just importing it runs the `new Redis(...)` code inside that file)
@@ -87,6 +89,12 @@ dotenv.config();
 // express() creates our main application object
 // we attach middleware and routes to this "app"
 const app = express();
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV || 'development',
+  tracesSampleRate: 0.2,
+});
 
 // Render (and most hosts) sit your app behind a proxy — without this,
 // req.ip would always be the proxy's IP, not the real visitor's.
@@ -238,11 +246,12 @@ app.post('/api/create-order', rateLimiter({ requests: 10, window: '1 m', prefix:
   } catch (error) {
     // If Razorpay's API fails (network issue, invalid keys, etc.), log it and send an error
     console.error('Error creating Razorpay order:', error);
+    Sentry.captureException(error);
     res.status(500).json({ error: 'Failed to create Razorpay order' });
   }
 });
 
-
+Sentry.setupExpressErrorHandler(app);
 // ═════════════════════════════════════════════════════════════
 //  DATABASE CONNECTION
 // ═════════════════════════════════════════════════════════════
