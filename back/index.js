@@ -90,12 +90,6 @@ dotenv.config();
 // we attach middleware and routes to this "app"
 const app = express();
 
-Sentry.init({
-  dsn: process.env.SENTRY_DSN,
-  environment: process.env.NODE_ENV || 'development',
-  tracesSampleRate: 0.2,
-});
-
 // Render (and most hosts) sit your app behind a proxy — without this,
 // req.ip would always be the proxy's IP, not the real visitor's.
 app.set('trust proxy', 1);
