@@ -333,7 +333,7 @@ async function callLLM(messages) {
         "X-Title": "AI Study Copilot"                   // Optional — names your app in OpenRouter's dashboard
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3-8b-instruct",        // Which AI model to use (LLaMA 3 8B by Meta)
+        model: "openai/gpt-oss-20b:free",                // ✅ updated
         messages,                                        // The full conversation to send
         temperature: 0.7                                 // Controls randomness: 0 = very focused, 1 = very creative
       })
