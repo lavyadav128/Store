@@ -505,28 +505,44 @@ const NotesChapterDetail = () => {
       </Modal>
 
       {/* My Note dialog */}
+      {/* CHANGED: fullScreen + full-viewport PaperProps so this dialog covers
+          the entire screen edge-to-edge on both PC and mobile. */}
       <Dialog
         open={noteDialogOpen}
         onClose={closeNoteDialog}
-        fullWidth
-        maxWidth="sm"
-        PaperProps={{ sx: { borderRadius: 3 } }}
+        fullScreen
+        PaperProps={{
+          sx: {
+            borderRadius: 0,
+            width: "100vw",
+            height: "100vh",
+            maxWidth: "100vw",
+            maxHeight: "100vh",
+            m: 0,
+          },
+        }}
       >
-        <DialogTitle sx={{ fontWeight: 700 }}>
+        <DialogTitle sx={{ fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           {hasNote ? "Your Note" : "Add a Note"}
+          <IconButton
+            onClick={closeNoteDialog}
+            disabled={savingNote || deletingNote}
+            aria-label="Close"
+          >
+            <CloseIcon />
+          </IconButton>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ flex: 1 }}>
           <TextField
             autoFocus
             fullWidth
             multiline
-            minRows={6}
-            maxRows={14}
+            minRows={10}
             placeholder="Write your note for this chapter..."
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
             disabled={savingNote || deletingNote}
-            sx={{ mt: 1 }}
+            sx={{ mt: 1, height: "100%", "& .MuiInputBase-root": { height: "100%", alignItems: "flex-start" } }}
           />
           {noteUrl && (
             <Typography

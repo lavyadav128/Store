@@ -859,21 +859,21 @@ const NotesManager = () => {
           <TextField label="Chapter Title *" value={chapterForm.title}
             onChange={(e) => setChapterForm((p) => ({ ...p, title: e.target.value }))} fullWidth sx={fieldSx} />
 
-          <FilePicker label="Mindmap PDF" value={chapterForm.mindmapUrl} accept="application/pdf"
-            onChangeValue={(v) => setChapterForm((p) => ({ ...p, mindmapUrl: v }))}
-            mode={mindmapMode} onModeChange={setMindmapMode}
-            uploading={uploadingField === 'mindmapUrl'} onFileSelected={(f) => handleChapterFileSelected('mindmapUrl', f)} />
+            <FilePicker label="Mindmap PDF" value={chapterForm.mindmapUrl} accept="application/pdf,image/*"
+              onChangeValue={(v) => setChapterForm((p) => ({ ...p, mindmapUrl: v }))}
+              mode={mindmapMode} onModeChange={setMindmapMode}
+              uploading={uploadingField === 'mindmapUrl'} onFileSelected={(f) => handleChapterFileSelected('mindmapUrl', f)} />
 
-          <FilePicker label="Short Notes PDF" value={chapterForm.shortNotesUrl} accept="application/pdf"
-            onChangeValue={(v) => setChapterForm((p) => ({ ...p, shortNotesUrl: v }))}
-            mode={shortNotesMode} onModeChange={setShortNotesMode}
-            uploading={uploadingField === 'shortNotesUrl'} onFileSelected={(f) => handleChapterFileSelected('shortNotesUrl', f)} />
+            <FilePicker label="Short Notes PDF" value={chapterForm.shortNotesUrl} accept="application/pdf,image/*"
+              onChangeValue={(v) => setChapterForm((p) => ({ ...p, shortNotesUrl: v }))}
+              mode={shortNotesMode} onModeChange={setShortNotesMode}
+              uploading={uploadingField === 'shortNotesUrl'} onFileSelected={(f) => handleChapterFileSelected('shortNotesUrl', f)} />
 
-          <FilePicker label="Complete Notes PDF" value={chapterForm.completeNotesUrl} accept="application/pdf"
-            onChangeValue={(v) => setChapterForm((p) => ({ ...p, completeNotesUrl: v }))}
-            mode={completeNotesMode} onModeChange={setCompleteNotesMode}
-            uploading={uploadingField === 'completeNotesUrl'} onFileSelected={(f) => handleChapterFileSelected('completeNotesUrl', f)} />
-
+            <FilePicker label="Complete Notes PDF" value={chapterForm.completeNotesUrl} accept="application/pdf,image/*"
+              onChangeValue={(v) => setChapterForm((p) => ({ ...p, completeNotesUrl: v }))}
+              mode={completeNotesMode} onModeChange={setCompleteNotesMode}
+              uploading={uploadingField === 'completeNotesUrl'} onFileSelected={(f) => handleChapterFileSelected('completeNotesUrl', f)} />
+              
           <TextField label="Video URL" value={chapterForm.videoUrl}
             onChange={(e) => setChapterForm((p) => ({ ...p, videoUrl: e.target.value }))} fullWidth
             helperText="YouTube / hosted video link — leave blank if not ready" sx={fieldSx} />
