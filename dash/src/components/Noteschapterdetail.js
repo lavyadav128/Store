@@ -288,15 +288,11 @@ const NotesChapterDetail = () => {
       setViewerContent(
         <Box sx={{ display: "flex", flexDirection: "column", height: "100%", bgcolor: "#f9f9f9" }}>
           <Box sx={{ flex: 1, overflow: "auto", WebkitOverflowScrolling: "touch", p: 1 }}>
-            <iframe
-              src={
-                isMobile
-                  ? `https://docs.google.com/gview?embedded=true&url=${linkObj.pdf}`
-                  : linkObj.pdf
-              }
-              title="PDF Viewer"
-              style={{ width: "100%", height: "100%", border: "none" }}
-            />
+          <iframe
+            src={`https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(linkObj.pdf)}`}
+            title="PDF Viewer"
+            style={{ width: "100%", height: "100%", border: "none" }}
+          />
           </Box>
         </Box>
       );

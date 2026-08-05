@@ -232,6 +232,7 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
             type: "upload",
             access_mode: "public",
             public_id: `${Date.now()}-${req.file.originalname}`,
+            format: isPDF ? "pdf" : undefined,   // ADD THIS
           },
           (error, result) => {
             if (error) {
