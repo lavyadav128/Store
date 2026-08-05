@@ -6854,7 +6854,13 @@ class Solution {
     
     EXAMPLE:
     Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
-    Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]`,
+    Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+    why using dfs? when we can directly put #, see this example
+    X X X X           X X X X
+    O O X X -->       O O X X
+    X O O X           X O O X
+    X X X X           X X X X   
+    `,
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -7062,15 +7068,18 @@ class Solution {
     EXAMPLE:
     Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
     Output: [["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
-        hit
-        |
-        hot
-        | \
-        dot lot
-        |    |
-        dog  log
-        \   /
-        cog`,
+                Level/Distance
+
+                0                 hit (0)
+                                    |
+                1                 hot (1)
+                                /       \
+                2          dot (2)      lot (2)
+                            |             |
+                3         dog (3)      log (3)
+                             \           /
+                              \         /
+                4                cog (4)`,
     
       optimalComplexity: `Time Complexity: O(N * L²)
     Space Complexity: O(N)`,
