@@ -7908,7 +7908,7 @@ class Solution {
 
     {
       title: `QUESTION:
-    Find the cheapest price from src to dst with at most k stops.
+    Find the cheapest price from src to dst with at most k stops(means we can stop at k nodes).
     
     EXAMPLE:
     Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
@@ -16548,7 +16548,7 @@ class Solution {
     
     EXAMPLE:
     Input: heap = [1,3,5,7,9], insert 2
-    Output: [1,3,5,7,9,2]  (heap array after insertion, satisfies min-heap property)`,
+    Output: [1,3,2,7,9,5]  (heap array after insertion, satisfies min-heap property)`,
     
       bruteForceComplexity: `Time Complexity: O(N log N) — appends element then re-sorts and re-validates entire heap structure
     Space Complexity: O(N)`,
@@ -17933,8 +17933,8 @@ class Solution {
         // DFS only descends through nodes marked isEndOfWord -> guarantees all prefixes exist
         private void dfs(TrieNode node, StringBuilder path, StringBuilder result) {
             if (path.length() > result.length() ||
-                (path.length() == result.length() && path.toString().compareTo(result.toString()) < 0)) {
-                result.setLength(0);
+                (path.length() == result.length() && path.toString().compareTo(result.toString()) < 0)) {   //for lexicographically
+                result.setLength(0);       // to set result to null
                 result.append(path);
             }
     
