@@ -13753,98 +13753,6 @@ class Solution {
         }
     }`
     },
-
-    {
-      title: `QUESTION:
-    You are given an m x n grid where each cell can have one of three values: 0 (empty), 1 (fresh orange), or 2 (rotten orange). Every minute, any fresh orange adjacent (4-directionally) to a rotten orange becomes rotten. Return the minimum number of minutes until no fresh orange remains, or -1 if impossible.
-    
-    EXAMPLE:
-    Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
-    Output: 4`,
-    
-      bruteForceComplexity: `Time Complexity: O((M*N)^2) — repeatedly rescans entire grid each minute until no changes occur
-    Space Complexity: O(1) extra`,
-    
-      bruteForceCode: `class Solution {
-        public int orangesRotting(int[][] grid) {
-            int rows = grid.length, cols = grid[0].length;
-            int minutes = 0;
-    
-            while (true) {
-                boolean changed = false;
-                int[][] next = deepCopy(grid);
-    
-                for (int r = 0; r < rows; r++) { // rescan the whole grid every minute
-                    for (int c = 0; c < cols; c++) {
-                        if (grid[r][c] == 2) {
-                            int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-                            for (int[] d : dirs) {
-                                int nr = r + d[0], nc = c + d[1];
-                                if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1) {
-                                    next[nr][nc] = 2;
-                                    changed = true;
-                                }
-                            }
-                        }
-                    }
-                }
-                grid = next;
-                if (!changed) break;
-                minutes++;
-            }
-    
-            for (int[] row : grid) { // check leftover fresh oranges
-                for (int val : row) if (val == 1) return -1;
-            }
-            return minutes;
-        }
-    
-        private int[][] deepCopy(int[][] grid) {
-            int[][] copy = new int[grid.length][];
-            for (int i = 0; i < grid.length; i++) copy[i] = grid[i].clone();
-            return copy;
-        }
-    }`,
-    
-      optimalComplexity: `Time Complexity: O(M*N)
-    Space Complexity: O(M*N) for the queue`,
-    
-      optimalCode: `class Solution {
-        public int orangesRotting(int[][] grid) {
-            int rows = grid.length, cols = grid[0].length;
-            Queue<int[]> queue = new LinkedList<>();
-            int freshCount = 0;
-    
-            for (int r = 0; r < rows; r++) { // single pass to find all rotten + count fresh
-                for (int c = 0; c < cols; c++) {
-                    if (grid[r][c] == 2) queue.offer(new int[]{r, c});
-                    else if (grid[r][c] == 1) freshCount++;
-                }
-            }
-    
-            int minutes = 0;
-            int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};
-    
-            while (!queue.isEmpty() && freshCount > 0) { // multi-source BFS
-                int size = queue.size();
-                for (int i = 0; i < size; i++) {
-                    int[] cell = queue.poll();
-                    for (int[] d : dirs) {
-                        int nr = cell[0] + d[0], nc = cell[1] + d[1];
-                        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols && grid[nr][nc] == 1) {
-                            grid[nr][nc] = 2;
-                            freshCount--;
-                            queue.offer(new int[]{nr, nc});
-                        }
-                    }
-                }
-                minutes++;
-            }
-    
-            return freshCount == 0 ? minutes : -1;
-        }
-    }`
-    },
     
     {
       title: `QUESTION:
@@ -13995,13 +13903,16 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
     
-      optimalCode: `class Solution {
+      optimalCode: `  //here totalTank makes sure that if it is >=0 then from that station we can reach every other station
+      as it is calculating sum of (gas[i]-cost[i]) got it 
+      
+      class Solution {
         public int canCompleteCircuit(int[] gas, int[] cost) {
             int totalTank = 0, currTank = 0, start = 0;
     
             for (int i = 0; i < gas.length; i++) {
                 int diff = gas[i] - cost[i];
-                totalTank += diff;
+                totalTank += diff;                
                 currTank += diff;
     
                 if (currTank < 0) { // can't reach next station from current start
@@ -16589,8 +16500,8 @@ class Solution {
     Delete the root (minimum) element from a binary heap (min-heap), maintaining the heap property.
     
     EXAMPLE:
-    Input: heap = [1,2,5,7,9,3]
-    Output: [2,3,5,7,9]  (heap array after removing the min)`,
+    Input: heap = [1,2,3,7,9,5]
+    Output: [2,5,3,7,9]  (heap array after removing the min)`,
     
       bruteForceComplexity: `Time Complexity: O(N log N) — removes root then re-sorts entire array from scratch
     Space Complexity: O(N)`,
@@ -16675,7 +16586,7 @@ class Solution {
             }
     
             for (int i = n - 1; i > 0; i--) { // extract max repeatedly, place at end
-                int temp = nums[0];
+                int temp = nums[0];           //here we r swapping num[0] and last and then heapify for maxheap as in maxheap largest element stays at root and we r swapping at end and reducing i--
                 nums[0] = nums[i];
                 nums[i] = temp;
                 heapify(nums, i, 0);
