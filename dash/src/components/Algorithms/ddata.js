@@ -13088,7 +13088,10 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N) for push, O(1) for pop — using a single queue
     Space Complexity: O(N)`,
     
-      optimalCode: `class MyStack {
+      optimalCode: `To maintain the Stack (LIFO) property, we use this for loop to move all previous elements behind 
+      the newly added element, making it the front/top of the queue.
+      
+      class MyStack {
         Queue<Integer> q = new LinkedList<>();
     
         public void push(int x) {
@@ -13669,6 +13672,8 @@ class Solution {
     
       optimalCode: `Use a monotonic decreasing stack of indices and traverse the array twice (2*n iterations) to simulate circularity; during the
      second pass, only resolve pending indices without pushing new ones.
+     Keep smaller numbers waiting in a stack until a bigger number comes; when a bigger number arrives, 
+     it becomes the answer for all those smaller numbers.
       
       class Solution {
         public int[] nextGreaterElements(int[] nums) {
