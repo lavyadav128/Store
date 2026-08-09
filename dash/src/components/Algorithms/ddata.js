@@ -16809,7 +16809,11 @@ class Solution {
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(K) for the deque`,
     
-      optimalCode: `class Solution {
+      optimalCode: `👉 Use a monotonic decreasing deque of indices: remove expired indices from the front, remove smaller elements from
+      the back because a new larger element makes them useless, then the front always represents the maximum of the current sliding window.
+      
+      
+      class Solution {
         public int[] maxSlidingWindow(int[] nums, int k) {
             int n = nums.length;
             int[] result = new int[n - k + 1];
@@ -17599,7 +17603,20 @@ class Solution {
     
     EXAMPLE:
     Input: strs = ["flower","flow","flight"]
-    Output: "fl"`,
+    Output: "fl"
+                        root
+                        |
+                      f(3)
+                        |
+                      l(3)
+                     /    \
+                  o(2)    i(1)
+                   |        |
+                 w(2)      g(1)
+                /    \       |
+             e(1)    ...    h(1)
+               |             |
+             r(1)           t(1)`,
     
         bruteForceComplexity: `Time Complexity: O(N^2 * S) worst case — repeatedly compares the shrinking prefix against every other string pairwise (S = length of shortest string, N = number of strings)
     Space Complexity: O(1) extra space`,
@@ -17640,27 +17657,27 @@ class Solution {
             while (true) {
                 int childIdx = -1, childCount = 0;
                 for (int i = 0; i < 26; i++) {
-                    if (curr.children[i] != null) {
+                    if (curr.children[i] != null) {      //when i=5 as (contain f)
                         childIdx = i;
                         childCount++;
                     }
                 }
                 // stop as soon as branching occurs, or not all strings pass through here
-                if (childCount != 1 || curr.count != strs.length) break;
-                curr = curr.children[childIdx];
-                prefix.append((char) ('a' + childIdx));
+                if (childCount != 1 || curr.count != strs.length) break;      // when it fails directly brek 
+                curr = curr.children[childIdx];          // ccur=root.children[5] (f)
+                prefix.append((char) ('a' + childIdx));   // append 'f' to prefix ('a' + 5 = 'f')
             }
             return prefix.toString();
         }
     
         private void insert(TrieNode root, String word) {
             TrieNode curr = root;
-            curr.count++;
+            curr.count++;               // root count=1 
             for (char c : word.toCharArray()) {
-                int idx = c - 'a';
+                int idx = c - 'a';                   // for f
                 if (curr.children[idx] == null) curr.children[idx] = new TrieNode();
                 curr = curr.children[idx];
-                curr.count++; // track how many words pass through this node
+                curr.count++;                   // f count=1  (for 1st iteration only)
             }
         }
     }`
@@ -17855,7 +17872,7 @@ class Solution {
             }
     
             for (char c = 'a'; c <= 'z'; c++) {
-                int idx = c - 'a';
+                int idx = c - 'a';             //node(root).children[22].isEndWord=true  its->  w
                 if (node.children[idx] != null && node.children[idx].isEndOfWord) {
                     path.append(c);
                     dfs(node.children[idx], path, result);
@@ -17871,7 +17888,7 @@ class Solution {
     Implement a Phone Directory that supports adding a contact, searching for all contacts matching a given prefix (autocomplete), and deleting a contact.
     
     EXAMPLE:
-    Input: add("john"), add("jane"), search("ja")
+    Input: add("john"), add("jane"), search("ja"), delete(jane)
     Output: ["jane"]`,
     
       bruteForceComplexity: `Time Complexity: O(N*L) per search — N = number of contacts, L = contact length
@@ -17909,7 +17926,7 @@ class Solution {
     
         private TrieNode root = new TrieNode();
     
-        public void add(String name) {
+        public void add(String name) {                  // for insert
             TrieNode curr = root;
             for (char c : name.toCharArray()) {
                 int idx = c - 'a';
@@ -17919,7 +17936,7 @@ class Solution {
             curr.isEndOfWord = true;
         }
     
-        public List<String> search(String prefix) {
+        public List<String> search(String prefix) {         // serch -> prefix store search word here-> ja
             List<String> result = new ArrayList<>();
             TrieNode node = root;
             for (char c : prefix.toCharArray()) { // navigate directly to prefix node
@@ -17927,13 +17944,13 @@ class Solution {
                 if (node.children[idx] == null) return result; // no matches
                 node = node.children[idx];
             }
-            collectWords(node, new StringBuilder(prefix), result); // DFS only from prefix node onward
+            collectWords(node, new StringBuilder(prefix), result); // (a, prefix("ja"), result)
             return result;
         }
     
         private void collectWords(TrieNode node, StringBuilder path, List<String> result) {
-            if (node.isEndOfWord) result.add(path.toString());
-            for (char c = 'a'; c <= 'z'; c++) {
+            if (node.isEndOfWord) result.add(path.toString());     // a.isEndOfWord=false
+            for (char c = 'a'; c <= 'z'; c++) {                   // a children-> n 
                 int idx = c - 'a';
                 if (node.children[idx] != null) {
                     path.append(c);
@@ -17947,13 +17964,13 @@ class Solution {
             deleteHelper(root, name, 0);
         }
     
-        private boolean deleteHelper(TrieNode node, String name, int depth) {
-            if (depth == name.length()) {
+        private boolean deleteHelper(TrieNode node, String name, int depth) {  
+            if (depth == name.length()) {                // 0== name.length()=4  -> false    (jane)
                 if (!node.isEndOfWord) return false;
                 node.isEndOfWord = false;
                 return isEmpty(node);
             }
-            int idx = name.charAt(depth) - 'a';
+            int idx = name.charAt(depth) - 'a';              //name.charAt(0)='j'-'a'  -> idx=9
             TrieNode child = node.children[idx];
             if (child == null) return false;
     
