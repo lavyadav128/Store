@@ -6342,7 +6342,7 @@ class Solution {
     Given two strings s and t, return the minimum window substring of s such that every character in t is included in the window.
     
     EXAMPLE:
-    Input: s = "ADOBECODEBANC"
+    Input: s = "BANC"
            t = "ABC"
     
     Output: "BANC"`,
@@ -6404,15 +6404,15 @@ class Solution {
                   freq[ch]++;
               }
               int left = 0;
-              int count = t.length();
+              int count = t.length();              
               int minLen = Integer.MAX_VALUE;
               int start = 0;
               for(int right = 0; right < s.length(); right++) {
                   // If current character is still needed
-                  if(freq[s.charAt(right)] > 0) {
-                      count--;            // One required character found
+                  if(freq[s.charAt(right)] > 0) {               
+                      count--;            // One required character found, if get 0 then all got found
                   }
-                  freq[s.charAt(right)]--;
+                  freq[s.charAt(right)]--;                     //freq[E]=-1
                   while(count == 0) {
                       if(right - left + 1 < minLen) {
                           minLen = right - left + 1;
@@ -6427,7 +6427,7 @@ class Solution {
               }
               return minLen == Integer.MAX_VALUE
                     ? ""
-                    : s.substring(start, start + minLen);   // if(2,2+3)-> (2,5) substring (excluding 5)
+                    : s.substring(start, start + minLen);   // if(1,1+4)-> (1,5) substring (excluding 5)
           }
       }`
     },
@@ -6439,7 +6439,7 @@ class Solution {
     
     EXAMPLE:
     Input:
-    s1 = "abcdebdde"
+    s1 = "abcde"
     s2 = "bde"
     
     Output:
@@ -6508,25 +6508,25 @@ class Solution {
                         if(j == m) break;
                     }
                     i++;
-                }
+                }                 // after this inner loop completes i=4 and j=2
                 if(i == n) break;
-                int end = i + 1;
-                j = m - 1;
+                int end = i + 1;             // end=5
+                j = m - 1;                   // j=2
                 while(i >= 0) {
                     if(s1.charAt(i) == s2.charAt(j)) {       // to shrink forward if unnecessary there abcde -> bcde  using backward
                         j--;
                         if(j < 0) break;
                     }
                     i--;
-                }
-                int windowLen = end - i;
+                }                          // when this loop completes i=1 and j=-1
+                int windowLen = end - i;    // windowLen=5-1=4
                 if(windowLen < minLen) {
                     minLen = windowLen;
                     start = i;
                 }
-                i++;
+                i++;                          // to move forward for next substring
             }
-            return start == -1 ? "": s1.substring(start, start + minLen);
+            return start == -1 ? "": s1.substring(start, start + minLen);  // if(start=1, 1+4=5) substring(1,5) -> bcde
         }
     }`
     },
