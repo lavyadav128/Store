@@ -5719,7 +5719,7 @@ class Solution {
                     left = lastIndex[ch] + 1;
                 }
     
-                lastIndex[ch] = right;
+                lastIndex[ch] = right;             // lastIndex['a'] = 0
                 maxLen = Math.max(maxLen, right - left + 1);
             }
     
@@ -5932,9 +5932,9 @@ class Solution {
                 maxFreq = Math.max(maxFreq,
                                    freq[s.charAt(right)-'A']);
     
-                while((right - left + 1) - maxFreq > k) {
-                    freq[s.charAt(left)-'A']--;
-                    left++;
+                while((right - left + 1) - maxFreq > k) {     // (3-0+1)-1 >2   when right=3  for "ABCD"
+                    freq[s.charAt(left)-'A']--;               // we remove A
+                    left++;                                   // left=1
                 }
     
                 ans = Math.max(ans, right - left + 1);
@@ -6074,7 +6074,7 @@ class Solution {
     
     EXAMPLE:
     Input: s = "abcabc"
-    Output: 10`,
+    Output: 10  ("abc", "abca", "abcab", "abcabc", "bca", "bcab", "bcabc", "cab", "cabc", "abc")`,
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -6117,12 +6117,12 @@ class Solution {
       
       class Solution {
         public int numberOfSubstrings(String s) {
-            int[] last = {-1,-1,-1};
+            int[] last = {-1,-1,-1};     // last=[-1,-1,-1]
     
             int count = 0;
     
             for(int i = 0; i < s.length(); i++) {
-                last[s.charAt(i)-'a'] = i;
+                last[s.charAt(i)-'a'] = i;         // last['a'-'a'=0] = 0, last['b'-'a'=1] = 1, last['c'-'a'=2] = 2
     
                 if(last[0] != -1 &&
                    last[1] != -1 &&
@@ -6184,14 +6184,14 @@ class Solution {
             int n = cardPoints.length;
             int leftSum = 0;
             for(int i = 0; i < k; i++) {
-                leftSum += cardPoints[i];
+                leftSum += cardPoints[i];    //6
             }
             int maxSum = leftSum;
             int rightSum = 0;
             for(int i = k - 1; i >= 0; i--) {
-                leftSum -= cardPoints[i];
-                rightSum += cardPoints[n - (k - i)];
-                maxSum = Math.max(maxSum, leftSum + rightSum);
+                leftSum -= cardPoints[i];            //leftsum=6-3=3
+                rightSum += cardPoints[n - (k - i)];  //rightsum=0+1=1
+                maxSum = Math.max(maxSum, leftSum + rightSum);    //(0,4)
             }
             return maxSum;
         }
