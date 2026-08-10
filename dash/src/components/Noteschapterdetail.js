@@ -528,17 +528,28 @@ const NotesChapterDetail = () => {
             <CloseIcon />
           </IconButton>
         </DialogTitle>
-        <DialogContent sx={{ flex: 1 }}>
+        <DialogContent sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}>
           <TextField
             autoFocus
             fullWidth
             multiline
-            minRows={10}
             placeholder="Write your note for this chapter..."
             value={noteDraft}
             onChange={(e) => setNoteDraft(e.target.value)}
             disabled={savingNote || deletingNote}
-            sx={{ mt: 1, height: "100%", "& .MuiInputBase-root": { height: "100%", alignItems: "flex-start" } }}
+            sx={{
+              mt: 1,
+              flex: 1,
+              display: "flex",
+              "& .MuiInputBase-root": {
+                height: "100%",
+                alignItems: "flex-start",
+              },
+              "& .MuiInputBase-inputMultiline": {
+                height: "100% !important",
+                overflowY: "auto !important",
+              },
+            }}
           />
           {noteUrl && (
             <Typography
