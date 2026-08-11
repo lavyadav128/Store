@@ -2827,18 +2827,18 @@ Space Complexity: O(1)`,
                 freq.put(c, freq.getOrDefault(c, 0) + 1);
             }
             
-            List<Character>[] bucket = new List[s.length() + 1];
+            List<Character>[] bucket = new List[s.length() + 1];   //why bucket length > s.length(s.length() + 1) ->We use the index itself as the frequency:
             for (char c : freq.keySet()) {
                 int count = freq.get(c);
                 if (bucket[count] == null) bucket[count] = new ArrayList<>();
-                bucket[count].add(c);
+                bucket[count].add(c);        //bucket[4] → null | bucket[3] → null | bucket[2] → [e] | bucket[1] → [t,r] | bucket[0] → null
             }
             
             StringBuilder sb = new StringBuilder();
             for (int i = bucket.length - 1; i >= 0; i--) {
                 if (bucket[i] != null) {
-                    for (char c : bucket[i]) {
-                        for (int j = 0; j < i; j++) sb.append(c);
+                    for (char c : bucket[i]) {            //c = 'e'  when i=2
+                        for (int j = 0; j < i; j++) sb.append(c);      //sb.append(e)  2 times
                     }
                 }
             }
@@ -2890,7 +2890,14 @@ Space Complexity: O(1)`,
     Input: s = "III"
     Output: 3
     Input: s = "LVIII"
-    Output: 58`,
+    Output: 58
+    Subtraction rules(when we can subtract only)
+    IV = 5 - 1 = 4
+    IX = 10 - 1 = 9
+    XL = 50 - 10 = 40
+    XC = 100 - 10 = 90
+    CD = 500 - 100 = 400
+    CM = 1000 - 100 = 900`,
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -3032,12 +3039,12 @@ Space Complexity: O(1)`,
             if (s == null || s.length() < 1) return "";
             int start = 0, end = 0;
             for (int i = 0; i < s.length(); i++) {
-                int len1 = expandAroundCenter(s, i, i);
-                int len2 = expandAroundCenter(s, i, i + 1);
+                int len1 = expandAroundCenter(s, i, i);     //Check odd-length palindrome  ex-aba
+                int len2 = expandAroundCenter(s, i, i + 1);   //Check even-length palindrome  ex-aba
                 int len = Math.max(len1, len2);
                 if (len > end - start) {
-                    start = i - (len - 1) / 2;
-                    end = i + len / 2;
+                    start = i - (len - 1) / 2;     //Find the starting index of the palindrome.   ex-aba  here i=1  then start=0
+                    end = i + len / 2;        //The ending index of the palindrome.    and end=2 with formula
                 }
             }
             return s.substring(start, end + 1);
@@ -3060,7 +3067,8 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: s = "aabcb"
-    Output: 5`,
+    Output: 5  i=0 (0+0+1+1+1​) ​+ i=1 (0+0+0+1​​) + i=2 (0+0+1)​ ​+ i=3 (0+0) ​​+ i=4 (0)​​
+     =3+1+1+0+0=5`,
     
       bruteForceComplexity: `Time Complexity: O(N³)
     Space Complexity: O(1)`,
@@ -3074,18 +3082,18 @@ Space Complexity: O(1)`,
         public int beautySum(String s) {
             int total = 0;
             int n = s.length();
-            for (int i = 0; i < n; i++) {
+            for (int i = 0; i < n; i++) {       // outer loop for getting all substring 
                 int[] freq = new int[26];
-                for (int j = i; j < n; j++) {
-                    freq[s.charAt(j) - 'a']++;
+                for (int j = i; j < n; j++) {     // 1st substring "aabcb"
+                    freq[s.charAt(j) - 'a']++;            freq['a'-'a']=freq[0]=1
                     int maxF = 0, minF = Integer.MAX_VALUE;
                     for (int f : freq) {
                         if (f > 0) {
-                            maxF = Math.max(maxF, f);
-                            minF = Math.min(minF, f);
+                            maxF = Math.max(maxF, f);           //maxF=1
+                            minF = Math.min(minF, f);           //minF=1
                         }
                     }
-                    total += (maxF - minF);
+                    total += (maxF - minF);          //total=0
                 }
             }
             return total;
@@ -3179,10 +3187,10 @@ Space Complexity: O(1)`,
     Input: n = 4
     Output: "1211"
     Explanation: 
-    countAndSay(1) = "1"
-    countAndSay(2) = "11"
-    countAndSay(3) = "21"
-    countAndSay(4) = "1211"`,
+    countAndSay(1) = "1"  read previous one that it
+    countAndSay(2) = "11"     previous 11
+    countAndSay(3) = "21"     previous 21
+    countAndSay(4) = "1211"`,     
     
       bruteForceComplexity: `Time Complexity: O(N * L) where L is length of string
     Space Complexity: O(L)`,
@@ -3206,7 +3214,7 @@ Space Complexity: O(1)`,
                     count = 1;
                 }
             }
-            sb.append(count).append(s.charAt(s.length()-1));
+            sb.append(count).append(s.charAt(s.length()-1));   //sb('11')
             return sb.toString();
         }
     }`,
