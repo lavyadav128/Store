@@ -3322,7 +3322,10 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: text = "ABABDABACDABABCABAB", pattern = "ABABCABAB"
-    Output: Pattern found at index 10`,
+    Output: Pattern found at index 10
+    Index:    0 1 2 3 4 5 6 7 8
+    Pattern:  A B A B C A B A B
+    LPS:      0 0 1 2 0 1 2 3 4`,
     
       bruteForceComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(1)`,
@@ -3352,7 +3355,7 @@ Space Complexity: O(1)`,
             return result;
         }
         
-        private int[] computeLPS(String pattern) {
+        private int[] computeLPS(String pattern) {      //Longest Proper Prefix which is also Suffix
             int m = pattern.length();
             int[] lps = new int[m];
             int len = 0, i = 1;
@@ -3381,7 +3384,10 @@ Space Complexity: O(1)`,
     
     EXAMPLE:
     Input: s = "aacecaaa"
-    Output: "aaacecaaa"`,
+    Output: "aaacecaaa"
+    Index:     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
+    Character: a a c e c a a a # a  a  a  c  e  c  a  a
+    LPS:       0 1 0 0 0 1 2 2 0 1  2  2  3  4  5  6  7`,
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
@@ -3393,11 +3399,11 @@ Space Complexity: O(1)`,
     
       optimalCode: `class Solution {
         public String shortestPalindrome(String s) {
-            String rev = new StringBuilder(s).reverse().toString();
+            String rev = new StringBuilder(s).reverse().toString();  //rev="aaacecaa"
             String combined = s + "#" + rev;
             int[] lps = computeLPS(combined);
-            int palinLen = lps[lps.length - 1];
-            return rev.substring(0, s.length() - palinLen) + s;
+            int palinLen = lps[lps.length - 1];      //lps[17-1]=lps[16]=7
+            return rev.substring(0, s.length() - palinLen) + s;   //rev.substring(0, 8-7) = "a"+"aacecaaa" = aaacecaaa
         }
         
         private int[] computeLPS(String s) {
@@ -3425,10 +3431,11 @@ Space Complexity: O(1)`,
     A string is called a happy prefix if it is a non-empty prefix which is also a suffix (and not the entire string). Return the longest happy prefix of s. Return empty string if no such prefix exists.
     
     EXAMPLE:
-    Input: s = "level"
-    Output: "l"
     Input: s = "ababab"
-    Output: "abab"`,
+    Output: "abab"
+    Index:    0 1 2 3 4 5
+    String:   a b a b a b
+    LPS:      0 0 1 2 3 4`,
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
