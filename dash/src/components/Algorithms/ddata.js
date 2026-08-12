@@ -5068,12 +5068,12 @@ class Solution {
             if (head == null) return null;
             
             // Step 1: Insert copy nodes
-            Node curr = head;
+            Node curr = head;              //7
             while (curr != null) {
-                Node copy = new Node(curr.val);
-                copy.next = curr.next;
-                curr.next = copy;
-                curr = copy.next;
+                Node copy = new Node(curr.val);   //7'
+                copy.next = curr.next;            //7'.next = 13
+                curr.next = copy;                 //7.next = 7'
+                curr = copy.next;                 //13
             }
             
             // Step 2: Set random pointers
@@ -5088,13 +5088,13 @@ class Solution {
             // Step 3: Separate original and copy list
             Node dummy = new Node(0);
             Node copyCurr = dummy;
-            curr = head;
+            curr = head;                      //7
             
             while (curr != null) {
-                copyCurr.next = curr.next;
-                copyCurr = copyCurr.next;
-                curr.next = curr.next.next;
-                curr = curr.next;
+                copyCurr.next = curr.next;     //7'  (copyCurr.next = 7')
+                copyCurr = copyCurr.next;      //7'
+                curr.next = curr.next.next;    //7.next = 13
+                curr = curr.next;              //13
             }
             
             return dummy.next;
