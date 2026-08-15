@@ -5136,10 +5136,11 @@ class Solution {
     x | (x-1) = sets all bits after rightmost set bit
     
     // 3. Important Techniques
+    //If n is a power of 2, it has only one 1 in binary, and n-1 makes that 1 become 0, so n & (n-1) = 0.
     Check if power of 2
     bool isPowerOf2 = (n > 0) && (n & (n-1)) == 0;
     
-    // Count set bits (Brian Kernighan)
+    // Count set bits (Brian Kernighan) ->  no. of 1 in binary representation of n
     int countSetBits(int n) {
         int count = 0;
         while (n > 0) {
@@ -5150,6 +5151,7 @@ class Solution {
     }
     
     // Get ith bit
+    //1 << i puts 1 at position i, and n & (1 << i) checks whether n has 1 at that position.
     int getBit(int n, int i) {
         return (n & (1 << i)) != 0 ? 1 : 0;
     }
@@ -5165,6 +5167,7 @@ class Solution {
     }
     
     // Toggle ith bit
+    //1 << i creates 1 at position i, and XOR with 1 toggles that bit: 0 → 1 and 1 → 0.
     int toggleBit(int n, int i) {
         return n ^ (1 << i);
     }
@@ -5175,6 +5178,11 @@ class Solution {
     a = a ^ b;
     
     // Find missing number in 1 to n
+    arr = [1, 2, 4]
+    n = 4  ans=missing=3
+    Basically ye sab XOR ho raha hai:  0 ^ 1 ^ 2 ^ 4 ^ 1 ^ 2 ^ 3 ^ 4
+    Ab same numbers ko pair bana do:   (1 ^ 1) ^ (2 ^ 2) ^ (4 ^ 4) ^ 3
+    Same numbers cancel:  0 ^ 0 ^ 0 ^ 3
     int missing = 0;
     for (int num : arr) missing ^= num;
     for (int i = 1; i <= n; i++) missing ^= i;
@@ -5184,6 +5192,7 @@ class Solution {
     for (int num : nums) single ^= num;
     
     // Single Number II (appears once, others thrice)
+    ones stores numbers seen once, twos stores numbers seen twice, and on the 3rd time the number is removed from both.
     int ones = 0, twos = 0;
     for (int num : nums) {
         ones = (ones ^ num) & ~twos;
@@ -5216,11 +5225,11 @@ class Solution {
       
       class Solution {
         public int minBitFlips(int start, int goal) {
-            int xor = start ^ goal;
+            int xor = start ^ goal;        //  1010 ^ 0111= 1101 ->13  (3 diff bits)
             int count = 0;
             while (xor > 0) {
-                count += xor & 1;
-                xor >>= 1;
+                count += xor & 1;          //  1101 & 0001=0001 -> count=1
+                xor >>= 1;             //  1101 >> 1=0110
             }
             return count;
         }
@@ -5289,7 +5298,8 @@ class Solution {
     
       bruteForceCode: `Loop i from 0 to 2ⁿ-1, treat each i's binary form as an include/exclude switch for every element in nums
       (i & (1 << j))-> checks the bit at the j-th place of i if it is 1(means some value other than 0) then add in subset and if 
-      0 dont add it
+      0 dont add it.  Every element has exactly 2 choices: include it (1) or exclude it (0). Binary numbers from 0 to 2ⁿ−1
+      generate every possible combination of these 0/1 choices exactly once.
       
       class Solution {
         public List<List<Integer>> subsets(int[] nums) {
@@ -5298,7 +5308,7 @@ class Solution {
             for (int i = 0; i < (1 << n); i++) {   // 0 to 2^n - 1
                 List<Integer> subset = new ArrayList<>();
                 for (int j = 0; j < n; j++) {
-                    if ((i & (1 << j)) != 0) {
+                    if ((i & (1 << j)) != 0) {       //Is the j-th bit of i equal to 1?
                         subset.add(nums[j]);
                     }
                 }
@@ -5384,9 +5394,9 @@ class Solution {
             int xor = 0;
             for (int num : nums) xor ^= num;
             
-            // Find rightmost set bit
+            //rightmost set(1'st) bit of xor (6=110  and  rightmost=010 )
             int rightmost = xor & -xor;        // for -xor  1. 1's complement then add 1 
-                                              // ex: -6(0110)= 1001(9) + 1 =1010
+                                               // ex: -6(0110)= 1001(9) + 1 =1010
             int num1 = 0, num2 = 0;
             for (int num : nums) {
                 if ((num & rightmost) != 0) {
@@ -5657,7 +5667,7 @@ class Solution {
             return fastPow(x, n);
         }
         
-        private double fastPow(double x, long n) {
+        private double fastPow(double x, long n) {           //long stores whole numbers, while double stores decimal numbers.
             if (n == 0) return 1.0;
             if (n == 1) return x;
             
@@ -10045,7 +10055,7 @@ class Solution {
             for (int j = 1; j <= K; j++) dp[0][j] = 0;
     
             for (int i = 1; i <= n; i++) {
-                for (int j = 0; j <= K; j++) {
+                for (int j = 1; j <= K; j++) {
     
                     if (arr[i-1] <= j) {
                         int include = dp[i-1][j - arr[i-1]]; // count with current
@@ -10130,7 +10140,7 @@ class Solution {
             for (int j = 1; j <= target; j++) dp[0][j] = 0;
     
             for (int i = 1; i <= n; i++) {
-                for (int j = 0; j <= target; j++) {
+                for (int j = 1; j <= target; j++) {
     
                     if (arr[i-1] <= j) {
                         int include = dp[i-1][j - arr[i-1]]; // count with current
