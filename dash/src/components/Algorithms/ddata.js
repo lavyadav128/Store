@@ -11292,21 +11292,21 @@ class Solution {
             for (int i = 1; i < n; i++) {
                 for (int j = 0; j < i; j++) {
                     if (nums[i] > nums[j]) lis[i] = Math.max(lis[i], lis[j] + 1);
-                }
+                }                                //lis:   1  2  2  3  4  2  1
             }
             
             // Longest Decreasing from right
             for (int i = n-2; i >= 0; i--) {
                 for (int j = n-1; j > i; j--) {
                     if (nums[i] > nums[j]) lds[i] = Math.max(lds[i], lds[j] + 1);
-                }
+                }                                 //lds:   1  3  2  3  3  2  1
             }
             
             int max = 0;
             for (int i = 0; i < n; i++) {
-                max = Math.max(max, lis[i] + lds[i] - 1);
+                max = Math.max(max, lis[i] + lds[i] - 1);    //Why -1? ->Because the peak element is counted in both arrays.
             }
-            return max;
+            return max;          //1 → 2 → 3 → 5 → 2 → 1
         }
     }`
     },
@@ -18374,6 +18374,1136 @@ class Solution {
     }`
     },
   ],
+
+  "segment-tree": [
+
+        {
+            title: `QUESTION:
+    Given an integer array nums, build a Segment Tree that supports finding the sum of elements in any given range [left, right].
+
+    EXAMPLE:
+    Input: nums = [1, 3, 5, 7, 9, 11]
+    Query: sum(1, 3)
+
+    Output: 15
+
+    Explanation:
+    nums[1] + nums[2] + nums[3]
+    = 3 + 5 + 7
+    = 15
+
+    A Segment Tree stores information about different ranges of the array so that range queries can be answered efficiently.`,
+
+            bruteForceComplexity: `Time Complexity: O(N) per query
+    - Traverse every element from left to right and calculate the sum.
+
+    Space Complexity: O(1)`,
+
+            bruteForceCode: `
+    class Solution {
+        public int rangeSum(int[] nums, int left, int right) {
+            int sum = 0;
+            for (int i = left; i <= right; i++) {
+                sum += nums[i];
+            }
+            return sum;
+        }
+    }`,
+
+            optimalComplexity: `Build:
+    Time Complexity: O(N)
+
+    Range Sum Query:
+    Time Complexity: O(log N)
+
+    Point Update:
+    Time Complexity: O(log N)
+
+    Space Complexity: O(N)
+    - Segment Tree generally uses approximately 4*N space.`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return 0;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            int leftSum = query(2 * node + 1, start, mid, left, right);
+            int rightSum = query(2 * node + 2, mid + 1, end, left, right);
+
+            return leftSum + rightSum;
+        }
+
+        void update(int index, int value) {
+            update(0, 0, n - 1, index, value);
+        }
+
+        void update(int node, int start, int end, int index, int value) {
+            if (start == end) {
+                tree[node] = value;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+
+            if (index <= mid)
+                update(2 * node + 1, start, mid, index, value);
+            else
+                update(2 * node + 2, mid + 1, end, index, value);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Understand the basic structure of a Segment Tree.
+
+    EXAMPLE:
+    nums = [1, 3, 5, 7]
+
+    Segment Tree:
+
+                        [0,3] = 16
+                    /          \\
+                [0,1] = 4       [2,3] = 12
+                /    \\          /      \\
+            [0,0]=1 [1,1]=3 [2,2]=5 [3,3]=7
+
+    Each node represents a range.
+
+    Root represents [0,3].
+    Left child represents [0,1].
+    Right child represents [2,3].
+
+    The array is repeatedly divided into two halves until every leaf represents one element.
+
+    For a sum Segment Tree:
+    parent = left child + right child.`,
+
+            bruteForceComplexity: `Without a Segment Tree, a range query may require checking every element.
+
+    Range Query:
+    O(N)`,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Query:
+    O(log N)
+
+    Point Update:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+
+        SegmentTree(int[] nums) {
+            tree = new int[4 * nums.length];
+            build(nums, 0, 0, nums.length - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Perform a range sum query using a Segment Tree.
+
+    Input:
+    nums = [1, 3, 5, 7, 9, 11]
+
+    Query:
+    sum(1, 4)
+
+    Output:
+    24
+
+    Explanation:
+    3 + 5 + 7 + 9 = 24
+
+    During a query, every segment falls into one of three cases:
+
+    1. Completely outside → return 0.
+    2. Completely inside → return tree[node].
+    3. Partially overlapping → go to both children.`,
+
+            bruteForceComplexity: `Time Complexity: O(N)
+    - Traverse all elements in the requested range.
+
+    Space Complexity: O(1)`,
+
+            bruteForceCode: `
+    int sum = 0;
+    for (int i = left; i <= right; i++) {
+        sum += nums[i];
+    }
+    return sum;`,
+
+            optimalComplexity: `Time Complexity: O(log N)
+    - The Segment Tree allows us to skip complete segments.
+
+    Space Complexity:
+    O(log N) recursion stack.`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return 0;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            int leftSum = query(2 * node + 1, start, mid, left, right);
+            int rightSum = query(2 * node + 2, mid + 1, end, left, right);
+
+            return leftSum + rightSum;
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Perform a point update in a Segment Tree.
+
+    Input:
+    nums = [1, 3, 5, 7, 9]
+
+    Update:
+    nums[2] = 10
+
+    New array:
+    [1, 3, 10, 7, 9]
+
+    Only the nodes containing index 2 need to be changed.
+
+    We travel from the root to the required leaf and then recalculate all its ancestors.`,
+
+            bruteForceComplexity: `If the whole Segment Tree is rebuilt after every update:
+
+    Time Complexity:
+    O(N)
+
+    This becomes inefficient when there are many updates.`,
+
+            bruteForceCode: `
+    nums[index] = value;`,
+
+            optimalComplexity: `Time Complexity: O(log N)
+    - Only one path from root to leaf is updated.
+
+    Space Complexity:
+    O(log N) recursion stack.`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        void update(int index, int value) {
+            update(0, 0, n - 1, index, value);
+        }
+
+        void update(int node, int start, int end, int index, int value) {
+            if (start == end) {
+                tree[node] = value;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+
+            if (index <= mid)
+                update(2 * node + 1, start, mid, index, value);
+            else
+                update(2 * node + 2, mid + 1, end, index, value);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Find the minimum value in a given range using a Segment Tree.
+
+    Input:
+    nums = [5, 2, 7, 1, 6, 3]
+
+    Query:
+    minimum(1, 4)
+
+    Output:
+    1
+
+    For a minimum Segment Tree:
+    tree[node] = min(leftChild, rightChild)
+
+    For a completely outside range, return Integer.MAX_VALUE because it does not affect the minimum.`,
+
+            bruteForceComplexity: `Time Complexity: O(N) per query
+
+    Space Complexity: O(1)`,
+
+            bruteForceCode: `
+    int answer = Integer.MAX_VALUE;
+    for (int i = left; i <= right; i++) {
+        answer = Math.min(answer, nums[i]);
+    }
+    return answer;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Minimum Query:
+    O(log N)
+
+    Point Update:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return Integer.MAX_VALUE;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            int leftMin = query(2 * node + 1, start, mid, left, right);
+            int rightMin = query(2 * node + 2, mid + 1, end, left, right);
+
+            return Math.min(leftMin, rightMin);
+        }
+
+        void update(int index, int value) {
+            update(0, 0, n - 1, index, value);
+        }
+
+        void update(int node, int start, int end, int index, int value) {
+            if (start == end) {
+                tree[node] = value;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+
+            if (index <= mid)
+                update(2 * node + 1, start, mid, index, value);
+            else
+                update(2 * node + 2, mid + 1, end, index, value);
+
+            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Find the maximum value in a range using a Segment Tree.
+
+    Input:
+    nums = [2, 8, 1, 6, 4, 9]
+
+    Query:
+    maximum(1, 4)
+
+    Output:
+    8
+
+    For a maximum Segment Tree:
+    tree[node] = max(leftChild, rightChild)
+
+    For a completely outside range, return Integer.MIN_VALUE.`,
+
+            bruteForceComplexity: `Time Complexity: O(N) per query
+
+    Space Complexity: O(1)`,
+
+            bruteForceCode: `
+    int answer = Integer.MIN_VALUE;
+    for (int i = left; i <= right; i++) {
+        answer = Math.max(answer, nums[i]);
+    }
+    return answer;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Maximum Query:
+    O(log N)
+
+    Point Update:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class SegmentTree {
+        int[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = Math.max(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return Integer.MIN_VALUE;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            int leftMax = query(2 * node + 1, start, mid, left, right);
+            int rightMax = query(2 * node + 2, mid + 1, end, left, right);
+
+            return Math.max(leftMax, rightMax);
+        }
+
+        void update(int index, int value) {
+            update(0, 0, n - 1, index, value);
+        }
+
+        void update(int node, int start, int end, int index, int value) {
+            if (start == end) {
+                tree[node] = value;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+
+            if (index <= mid)
+                update(2 * node + 1, start, mid, index, value);
+            else
+                update(2 * node + 2, mid + 1, end, index, value);
+
+            tree[node] = Math.max(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Implement a Segment Tree with Lazy Propagation.
+
+    Operations:
+    1. Add value to every element in a range [left, right].
+    2. Find the sum of elements in a range [left, right].
+
+    EXAMPLE:
+    nums = [1, 2, 3, 4, 5]
+
+    Update:
+    add 2 to [1, 3]
+
+    Array becomes:
+    [1, 4, 5, 6, 5]
+
+    Query:
+    sum(1, 3)
+
+    Output:
+    15
+
+    Lazy propagation avoids updating every element individually.
+
+    We store pending updates in lazy[node].
+    When a segment is needed, we push the pending update to its children.`,
+
+            bruteForceComplexity: `Range Update:
+    O(N)
+
+    Range Query:
+    O(N)
+
+    With many operations, this becomes slow.`,
+
+            bruteForceCode: `
+    for (int i = left; i <= right; i++) {
+        nums[i] += value;
+    }`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Update:
+    O(log N)
+
+    Range Sum Query:
+    O(log N)
+
+    Space:
+    O(N)
+
+    Lazy propagation makes range updates efficient.`,
+
+            optimalCode: `
+    class LazySegmentTree {
+        long[] tree;
+        long[] lazy;
+        int n;
+
+        LazySegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new long[4 * n];
+            lazy = new long[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        void push(int node, int start, int end) {
+            if (lazy[node] == 0) return;
+
+            long value = lazy[node];
+            tree[node] += (end - start + 1) * value;
+
+            if (start != end) {
+                lazy[2 * node + 1] += value;
+                lazy[2 * node + 2] += value;
+            }
+
+            lazy[node] = 0;
+        }
+
+        void update(int left, int right, int value) {
+            update(0, 0, n - 1, left, right, value);
+        }
+
+        void update(int node, int start, int end, int left, int right, int value) {
+            push(node, start, end);
+
+            if (right < start || end < left) return;
+
+            if (left <= start && end <= right) {
+                lazy[node] += value;
+                push(node, start, end);
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            update(2 * node + 1, start, mid, left, right, value);
+            update(2 * node + 2, mid + 1, end, left, right, value);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        long query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        long query(int node, int start, int end, int left, int right) {
+            push(node, start, end);
+
+            if (right < start || end < left) return 0;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            long leftSum = query(2 * node + 1, start, mid, left, right);
+            long rightSum = query(2 * node + 2, mid + 1, end, left, right);
+
+            return leftSum + rightSum;
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Implement a Segment Tree for Range Add Update and Range Minimum Query using Lazy Propagation.
+
+    Input:
+    nums = [1, 3, 5, 7, 9]
+
+    Operation:
+    Add 4 to range [1, 3]
+
+    Array becomes:
+    [1, 7, 9, 11, 9]
+
+    Query:
+    minimum(1, 3)
+
+    Output:
+    7
+
+    The tree stores minimum values.
+
+    For a range update, instead of changing every element immediately, we store the pending addition in lazy[node].`,
+
+            bruteForceComplexity: `Range Update:
+    O(N)
+
+    Range Minimum Query:
+    O(N)`,
+
+            bruteForceCode: `
+    for (int i = left; i <= right; i++) {
+        nums[i] += value;
+    }
+
+    int answer = Integer.MAX_VALUE;
+    for (int i = left; i <= right; i++) {
+        answer = Math.min(answer, nums[i]);
+    }
+    return answer;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Add:
+    O(log N)
+
+    Range Minimum Query:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class LazyMinSegmentTree {
+        long[] tree;
+        long[] lazy;
+        int n;
+
+        LazyMinSegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new long[4 * n];
+            lazy = new long[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        void push(int node) {
+            if (lazy[node] == 0) return;
+
+            long value = lazy[node];
+            tree[2 * node + 1] += value;
+            tree[2 * node + 2] += value;
+            lazy[2 * node + 1] += value;
+            lazy[2 * node + 2] += value;
+
+            lazy[node] = 0;
+        }
+
+        void update(int left, int right, int value) {
+            update(0, 0, n - 1, left, right, value);
+        }
+
+        void update(int node, int start, int end, int left, int right, int value) {
+            if (right < start || end < left) return;
+
+            if (left <= start && end <= right) {
+                tree[node] += value;
+                lazy[node] += value;
+                return;
+            }
+
+            push(node);
+
+            int mid = start + (end - start) / 2;
+            update(2 * node + 1, start, mid, left, right, value);
+            update(2 * node + 2, mid + 1, end, left, right, value);
+
+            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        long query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        long query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return Long.MAX_VALUE;
+            if (left <= start && end <= right) return tree[node];
+
+            push(node);
+
+            int mid = start + (end - start) / 2;
+            long leftMin = query(2 * node + 1, start, mid, left, right);
+            long rightMin = query(2 * node + 2, mid + 1, end, left, right);
+
+            return Math.min(leftMin, rightMin);
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Implement a Segment Tree for GCD queries.
+
+    Input:
+    nums = [12, 18, 6, 24, 30]
+
+    Query:
+    GCD(1, 4)
+
+    Output:
+    6
+
+    A Segment Tree can store GCD instead of sum.
+
+    For every parent:
+    tree[node] = gcd(leftChild, rightChild)
+
+    For a completely outside range, return 0 because gcd(x, 0) = x.`,
+
+            bruteForceComplexity: `Time Complexity:
+    O(N) per query
+
+    Space Complexity:
+    O(1)`,
+
+            bruteForceCode: `
+    int answer = nums[left];
+    for (int i = left + 1; i <= right; i++) {
+        answer = gcd(answer, nums[i]);
+    }
+    return answer;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    GCD Query:
+    O(log N * log V)
+
+    Point Update:
+    O(log N * log V)
+
+    V = maximum value in the array.`,
+
+            optimalCode: `
+    class GCDSegmentTree {
+        int[] tree;
+        int n;
+
+        GCDSegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        int gcd(int a, int b) {
+            while (b != 0) {
+                int temp = a % b;
+                a = b;
+                b = temp;
+            }
+            return Math.abs(a);
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = nums[start];
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = gcd(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return 0;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            int leftGcd = query(2 * node + 1, start, mid, left, right);
+            int rightGcd = query(2 * node + 2, mid + 1, end, left, right);
+
+            return gcd(leftGcd, rightGcd);
+        }
+
+        void update(int index, int value) {
+            update(0, 0, n - 1, index, value);
+        }
+
+        void update(int node, int start, int end, int index, int value) {
+            if (start == end) {
+                tree[node] = value;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+
+            if (index <= mid)
+                update(2 * node + 1, start, mid, index, value);
+            else
+                update(2 * node + 2, mid + 1, end, index, value);
+
+            tree[node] = gcd(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Find the number of elements in a range using a Segment Tree.
+
+    Input:
+    nums = [1, 2, 3, 4, 5]
+
+    Query:
+    count(1, 3)
+
+    Output:
+    3
+
+    A Segment Tree can store count/frequency information.
+
+    Each leaf stores 1 because every position contains one element.
+
+    Each parent stores:
+    leftCount + rightCount.`,
+
+            bruteForceComplexity: `Time Complexity:
+    O(N)
+
+    Space Complexity:
+    O(1)`,
+
+            bruteForceCode: `
+    int count = 0;
+    for (int i = left; i <= right; i++) {
+        count++;
+    }
+    return count;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Count Query:
+    O(log N)
+
+    Point Update:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class CountSegmentTree {
+        int[] tree;
+        int n;
+
+        CountSegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new int[4 * n];
+            build(0, 0, n - 1);
+        }
+
+        void build(int node, int start, int end) {
+            if (start == end) {
+                tree[node] = 1;
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(2 * node + 1, start, mid);
+            build(2 * node + 2, mid + 1, end);
+
+            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
+        }
+
+        int query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        int query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return 0;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            return query(2 * node + 1, start, mid, left, right)
+                + query(2 * node + 2, mid + 1, end, left, right);
+        }
+    }` 
+        },
+
+        {
+            title: `QUESTION:
+    Find the maximum subarray sum in a range using a Segment Tree.
+
+    Input:
+    nums = [-2, 3, -1, 5, -6, 4]
+
+    Query:
+    maximumSubarraySum(0, 3)
+
+    Output:
+    7
+
+    Explanation:
+    The best subarray is [3, -1, 5]
+    Sum = 7
+
+    For this problem each Segment Tree node stores four values:
+
+    sum = total sum of the segment
+    prefix = maximum prefix sum
+    suffix = maximum suffix sum
+    answer = maximum subarray sum
+
+    When combining two nodes, we calculate these four values from the left and right children.`,
+
+            bruteForceComplexity: `For every query, check all possible subarrays.
+
+    Time Complexity:
+    O(N²) per query.
+
+    Space Complexity:
+    O(1)`,
+
+            bruteForceCode: `
+    int answer = Integer.MIN_VALUE;
+
+    for (int i = left; i <= right; i++) {
+        int sum = 0;
+        for (int j = i; j <= right; j++) {
+            sum += nums[j];
+            answer = Math.max(answer, sum);
+        }
+    }
+
+    return answer;`,
+
+            optimalComplexity: `Build:
+    O(N)
+
+    Range Maximum Subarray Query:
+    O(log N)
+
+    Point Update:
+    O(log N)
+
+    Space:
+    O(N)`,
+
+            optimalCode: `
+    class SegmentTree {
+        class Node {
+            int sum, prefix, suffix, answer;
+
+            Node(int value) {
+                sum = prefix = suffix = answer = value;
+            }
+        }
+
+        Node[] tree;
+        int n;
+
+        SegmentTree(int[] nums) {
+            n = nums.length;
+            tree = new Node[4 * n];
+            build(nums, 0, 0, n - 1);
+        }
+
+        Node merge(Node left, Node right) {
+            Node result = new Node(0);
+
+            result.sum = left.sum + right.sum;
+            result.prefix = Math.max(left.prefix, left.sum + right.prefix);
+            result.suffix = Math.max(right.suffix, right.sum + left.suffix);
+            result.answer = Math.max(Math.max(left.answer, right.answer), left.suffix + right.prefix);
+
+            return result;
+        }
+
+        void build(int[] nums, int node, int start, int end) {
+            if (start == end) {
+                tree[node] = new Node(nums[start]);
+                return;
+            }
+
+            int mid = start + (end - start) / 2;
+            build(nums, 2 * node + 1, start, mid);
+            build(nums, 2 * node + 2, mid + 1, end);
+
+            tree[node] = merge(tree[2 * node + 1], tree[2 * node + 2]);
+        }
+
+        Node query(int left, int right) {
+            return query(0, 0, n - 1, left, right);
+        }
+
+        Node query(int node, int start, int end, int left, int right) {
+            if (right < start || end < left) return null;
+            if (left <= start && end <= right) return tree[node];
+
+            int mid = start + (end - start) / 2;
+            Node leftNode = query(2 * node + 1, start, mid, left, right);
+            Node rightNode = query(2 * node + 2, mid + 1, end, left, right);
+
+            if (leftNode == null) return rightNode;
+            if (rightNode == null) return leftNode;
+
+            return merge(leftNode, rightNode);
+        }
+    }` 
+        }
+
+    ],
   
   };
   

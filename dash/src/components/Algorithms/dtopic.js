@@ -28,6 +28,8 @@ const topics = [
   { id: "sliding-and-two-pointer", name: "Sliding and two pointer" },
   { id: "graphs", name: "Graphs" },
   { id: "dynamic-programming", name: "Dynamic Programming" },
+  { id: "segment-tree", name: "Segment Tree" },
+
 ];
 
 const TopicPage = () => {
