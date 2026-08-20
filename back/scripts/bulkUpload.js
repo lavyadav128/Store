@@ -1,31 +1,4 @@
-/**
- * scripts/bulkUpload.js
- *
- * One-off migration script: pushes every file already sitting in
- * NoteNova/dash/public/images/{completenotes, dsa_files, fullstack,
- * mindmap, pyq, shortnotes} to Cloudinary, then records each as a
- * Resource document in MongoDB. The "songs" folder is intentionally
- * skipped (no matching category enum value yet).
- *
- * This does NOT touch your existing /upload route, auth, or multer setup.
- * It talks to Cloudinary and MongoDB directly, matching exactly what your
- * /upload route already does per-file, just looped over your existing
- * local folder structure. Any file type is accepted (pdf, docx, zip,
- * mp3, code files, etc.) — resource_type is picked generically by extension.
- *
- * Run once from anywhere (path resolution no longer depends on cwd):
- *   node scripts/bulkUpload.js
- *
- * Safe to re-run: it skips any (title + category) pair that already
- * exists in the DB, so partial runs / failures can just be re-run.
- *
- * PDF COMPRESSION: Cloudinary's free-plan raw file cap is 10MB, enforced
- * even with chunked upload. Any PDF over 10MB gets auto-compressed with
- * Ghostscript before upload. Install Ghostscript first:
- *   https://ghostscript.com/releases/gsdnld.html
- * If Ghostscript isn't found, oversized PDFs will fail with a clear message
- * instead of being silently skipped.
- */
+
 
 import fs from "fs";
 import path from "path";

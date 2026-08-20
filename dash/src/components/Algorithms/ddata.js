@@ -16610,7 +16610,7 @@ class Solution {
       optimalCode: `class Solution {
         public int[] heapSort(int[] nums) {
             int n = nums.length;
-    
+              //Only parent nodes need to be heapified
             for (int i = n / 2 - 1; i >= 0; i--) { // build max heap in-place
                 heapify(nums, n, i);
             }
