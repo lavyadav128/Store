@@ -17,7 +17,7 @@ const openrouter = new OpenAI({
 // You can swap this for any model OpenRouter offers. Claude via
 // OpenRouter keeps the "Claude reasons about the agent's decisions"
 // story for your video even though billing goes through OpenRouter.
-const MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
+const MODEL = process.env.OPENROUTER_MODEL;
 
 const VALID_ACTIONS = ['retry_now', 'retry_later', 'nudge_customer', 'offer_discount', 'escalate_human', 'give_up'];
 
