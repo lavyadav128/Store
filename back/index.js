@@ -135,6 +135,9 @@ app.options('*', cors());
 
 app.use(helmet());
 
+app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
+
+
 // ── JSON BODY PARSER ──
 // Without this, req.body would be undefined for JSON requests
 // express.json() reads the raw request body and parses it into a JavaScript object
@@ -188,8 +191,6 @@ app.use("/api/video-splitter", videoSplitterRoutes);
 app.use('/api/batches', batchRoutes);
 
 app.use('/api/notes', notesRouter);
-
-app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 
