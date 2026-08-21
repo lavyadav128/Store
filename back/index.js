@@ -63,6 +63,10 @@ import notesRouter from './routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
+
+import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
+import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
+
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
 import helmet from 'helmet';
@@ -185,7 +189,9 @@ app.use('/api/batches', batchRoutes);
 
 app.use('/api/notes', notesRouter);
 
+app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
 
+app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive

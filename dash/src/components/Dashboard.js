@@ -8,6 +8,7 @@ import SchoolIcon from "@mui/icons-material/School";
 import AdminFileUpload from "./AdminFileUpload";
 import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import BoltIcon from "@mui/icons-material/Bolt";
 import BatchPredictionIcon from "@mui/icons-material/BatchPrediction";
 import VideoClipIcon from "@mui/icons-material/Videocam";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
@@ -47,6 +48,7 @@ import server from "../environment";
 import NotificationPage from "./notification"
 import DoubtPage from "./doubt";
 import PaymentsPage from "./payment";
+import RevenueRecoveryDashboard from "./RevenueRecoveryDashboard";
 import AdminDashboard from "./AdminDashboard";
 import Dreams from "./Dreams";
 import Batches from "./Batches";
@@ -68,6 +70,7 @@ const VIEW_DREAMS        = "dreams";
 const VIEW_FILES         = "files";
 const VIEW_BATCH         = "batches";
 const VIEW_NOTES         = "notes";
+const VIEW_REVENUE_RECOVERY = "revenue-recovery";
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -149,6 +152,7 @@ const ADMIN_NAV = [
   { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
   { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
   { icon: NotesIcon,      title: " Best Notes",       view: VIEW_NOTES },
+  { icon: BoltIcon, title: "Revenue Recovery", view: VIEW_REVENUE_RECOVERY },
 
 ];
 
@@ -1086,6 +1090,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_NOTES && (
                     <Fade in timeout={400}><Box><NotesManager /></Box></Fade>
+                  )}
+                  {activeView === VIEW_REVENUE_RECOVERY && (
+                    <Fade in timeout={400}><Box><RevenueRecoveryDashboard /></Box></Fade>
                   )}
 
                 </>
