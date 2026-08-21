@@ -1,24 +1,44 @@
 // reasoningService.js
-import Anthropic from '@anthropic-ai/sdk';
+// ─────────────────────────────────────────────────────────────
+// THE "WHY". Calls an LLM via OpenRouter (OpenAI-compatible API),
+// forces structured JSON, and returns a PROPOSAL only — this file
+// never touches Razorpay, Twilio, or the database write for
+// execution. It only proposes. gateService.js decides if the
+// proposal is allowed to run.
+// ─────────────────────────────────────────────────────────────
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+import OpenAI from 'openai';
 
-const MODEL = 'claude-sonnet-4-6';
+const openrouter = new OpenAI({
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: 'https://openrouter.ai/api/v1',
+});
+
+// You can swap this for any model OpenRouter offers. Claude via
+// OpenRouter keeps the "Claude reasons about the agent's decisions"
+// story for your video even though billing goes through OpenRouter.
+const MODEL = process.env.OPENROUTER_MODEL || 'anthropic/claude-3.5-sonnet';
 
 const VALID_ACTIONS = ['retry_now', 'retry_later', 'nudge_customer', 'offer_discount', 'escalate_human', 'give_up'];
 
+/**
+ * @param {Object} failedPayment - plain object snapshot of the signal
+ * @returns {Object} { rootCause, explanation, confidence, proposedAction: { type, params }, model, rawResponse }
+ */
 export async function reasonAboutSignal(failedPayment) {
   const prompt = buildPrompt(failedPayment);
 
-  const response = await anthropic.messages.create({
+  const response = await openrouter.chat.completions.create({
     model: MODEL,
     max_tokens: 500,
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = response.content.find((b) => b.type === 'text')?.text || '{}';
+  const text = response.choices?.[0]?.message?.content || '{}';
   const parsed = safeParseJSON(text);
 
+  // Guard rails on the LLM's own output — never trust it blindly,
+  // even before it reaches the gate.
   const actionType = VALID_ACTIONS.includes(parsed.action) ? parsed.action : 'escalate_human';
 
   return {
