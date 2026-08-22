@@ -79,6 +79,16 @@ function scoreProduct(product, query) {
 
   let score = 0;
   const reasons = [];
+  const normalizedQuery = query.toLowerCase();
+
+const isJeeGoal =
+  /\bjee\b|\biit\b|jee main|jee mains|jee advanced/.test(normalizedQuery);
+
+const isHandwrittenNotesProduct =
+  product.type === "note-batch" &&
+  /handwritten|notes/.test(
+    `${product.title} ${product.description}`.toLowerCase()
+  );
 
   const expandedTerms = new Set(
     queryWords.flatMap((word) => [word, ...(ALIASES[word] || [])])
@@ -92,6 +102,15 @@ function scoreProduct(product, query) {
 
   if (score > 0) {
     reasons.push("Its title, category, curriculum, or listed features match your goal.");
+  }
+
+  // Cross-sell handwritten notes only for students interested in IIT JEE/JEE Main.
+  if (isJeeGoal && isHandwrittenNotesProduct) {
+    score += 45;
+
+    reasons.push(
+      "These handwritten notes support JEE preparation for Class 11 and Class 12, so they are useful alongside a JEE batch."
+    );
   }
 
   if (product.price === 0) {
