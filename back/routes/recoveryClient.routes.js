@@ -14,7 +14,9 @@ router.post('/payment-failed', auth, async (req, res) => {
   const { razorpayOrderId, razorpayPaymentId, reason } = req.body || {};
   const attempt = await PaymentAttempt.findOne({ razorpayOrderId, userId: req.user._id });
   if (!attempt) return res.status(404).json({ error: 'Matching payment attempt not found' });
-  const existing = await FailedPayment.findOne({ $or: [{ razorpayPaymentId: razorpayPaymentId || null }, { razorpayOrderId }] });
+    const duplicateFilters = [{ razorpayOrderId }];
+    if (razorpayPaymentId) duplicateFilters.push({ razorpayPaymentId });
+    const existing = await FailedPayment.findOne({ $or: duplicateFilters });
   if (existing) return res.json({ success: true, signal: existing, duplicate: true });
   const user = await User.findById(req.user._id).select('name username phone').lean();
   attempt.status = 'failed'; attempt.razorpayPaymentId = razorpayPaymentId || attempt.razorpayPaymentId; attempt.failureReason = reason || 'payment_failed'; await attempt.save();

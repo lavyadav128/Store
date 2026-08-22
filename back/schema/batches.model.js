@@ -47,17 +47,22 @@ const batchSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+
+  // Structured course facts used by the AI assistant. Keeping these as
+  // separate fields prevents the assistant from guessing what a batch has.
   examFocus: {
     type: [String],
-    default: [],
+    default: []
   },
+
   targetAudience: {
     type: String,
-    default: "",
+    default: ''
   },
+
   includedFeatures: {
     type: [String],
-    default: [],
+    default: []
   },
 
   isActive: {

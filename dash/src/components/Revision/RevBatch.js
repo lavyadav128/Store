@@ -168,7 +168,8 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         notes: { batchId: id },
 
         // theme.color changes the colour of the Razorpay popup header
-        theme: { color: '#1976d2' },
+        theme: { color: '#1a1a2e' },
+        modal: { confirm_close: true, handleback: true },
       };
 
       // ── STEP 3: Create a Razorpay instance and open the payment popup ──

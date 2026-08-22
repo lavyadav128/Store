@@ -709,7 +709,8 @@ const CombinedClassPage = () => {
 
         notes: { batchId: batch.id },
 
-        theme: { color: "#1976d2" },
+        theme: { color: "#1a1a2e" },
+        modal: { confirm_close: true, handleback: true },
       };
 
       const rzp = new window.Razorpay(options);

@@ -105,7 +105,8 @@ const NotesBrowsePage = () => {
         },
         prefill: { name: '', email: '', contact: '' },
         notes: { batchId: batch.slug },
-        theme: { color: '#1976d2' },
+        theme: { color: '#1a1a2e' },
+        modal: { confirm_close: true, handleback: true },
       };
 
       const rzp = new window.Razorpay(options);

@@ -2,6 +2,22 @@ import Batch from "../../../schema/batches.model.js";
 import NoteBatch from "../../../schema/Notebatch.model.js";
 import Purchase from "../../../schema/purchase.model.js";
 
+// These are category-level facts for the existing course groups. Admin-entered
+// values on an individual batch always take priority, so a course can never be
+// forced to advertise a benefit it does not actually include.
+const CATEGORY_DEFAULTS = {
+  "IIT JEE": {
+    examFocus: ["JEE Main", "JEE Advanced"],
+    targetAudience: "Students targeting IIT JEE, including JEE Advanced preparation",
+    includedFeatures: ["Chapter-wise PYQs", "Full-length test series", "Personal mentorship", "Doubt support", "Study plan"],
+  },
+  "Jee Mains": {
+    examFocus: ["JEE Main"],
+    targetAudience: "Students focused specifically on JEE Main preparation",
+    includedFeatures: ["JEE Main PYQs", "Topic-wise practice", "Mock tests", "Performance analysis"],
+  },
+};
+
 /**
  * Builds the commerce information that the chatbot
  * can safely use for recommendations.
@@ -23,20 +39,23 @@ export async function getCommerceContext(userId = null) {
   ]);
 
   const products = [
-    ...batches.map((batch) => ({
-      id: `batch:${batch.batchId}`,
-      purchaseId: batch.batchId,
-      type: "batch",
-      title: batch.title,
-      description: batch.description,
-      price: batch.price,
-      category: batch.folder,
-      whatYouLearn: batch.whatYouLearn || [],
-      includedFeatures: batch.includedFeatures || [],
-      examFocus: batch.examFocus || [],
-      targetAudience: batch.targetAudience || "",
-      destination: batch.redirectPath || `/class/${batch.batchId}`,
-    })),
+    ...batches.map((batch) => {
+      const defaults = CATEGORY_DEFAULTS[batch.folder] || {};
+      return {
+        id: `batch:${batch.batchId}`,
+        purchaseId: batch.batchId,
+        type: "batch",
+        title: batch.title,
+        description: batch.description,
+        price: batch.price,
+        category: batch.folder,
+        whatYouLearn: batch.whatYouLearn || [],
+        includedFeatures: batch.includedFeatures?.length ? batch.includedFeatures : (defaults.includedFeatures || []),
+        examFocus: batch.examFocus?.length ? batch.examFocus : (defaults.examFocus || []),
+        targetAudience: batch.targetAudience || defaults.targetAudience || "",
+        destination: batch.redirectPath || `/class/${batch.batchId}`,
+      };
+    }),
     ...noteBatches.map((batch) => ({
       id: `note:${batch.slug}`,
       purchaseId: batch.slug,

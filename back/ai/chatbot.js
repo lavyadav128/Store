@@ -301,6 +301,10 @@ function buildMessages(message, context, chunks, history, commerceContext, perso
   - discounts
   - guarantees
 
+  When comparing batches, use each product's exact examFocus,
+  targetAudience, whatYouLearn, and includedFeatures from the LIVE CATALOG.
+  Clearly say when a feature is not listed instead of assuming it exists.
+
   Never claim that a student purchased something unless it
   appears in USER ALREADY OWNS.
 

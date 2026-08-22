@@ -107,7 +107,7 @@ const NotificationsPage = () => {
           await axios.post(`${server}/api/save-purchase`, { classId: order.classId, price: order.price, recoveryOfferId: order.offerId, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature }, { headers: { Authorization: `Bearer ${token}` } });
           window.location.assign(order.destination);
         },
-        modal: { ondismiss: () => setClaiming(null) }, theme: { color: '#1976d2' },
+        modal: { ondismiss: () => setClaiming(null), confirm_close: true, handleback: true }, theme: { color: '#1a1a2e' },
       });
       rzp.open();
     } catch (err) {

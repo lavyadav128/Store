@@ -167,7 +167,10 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         notes: { batchId: id },
 
         // theme.color changes the colour of the Razorpay popup header
-        theme: { color: '#1976d2' },
+        theme: { color: '#1a1a2e' },
+        // Razorpay owns the secure iframe layout; these supported options keep
+        // mobile back/close actions predictable without overriding its UI.
+        modal: { confirm_close: true, handleback: true },
       };
 
       // ── STEP 3: Create a Razorpay instance and open the payment popup ──

@@ -77,13 +77,15 @@ const S = {
   fab: {
     position: "fixed", bottom: 24, right: 24, zIndex: 9999,
     fontFamily: "'DM Sans', system-ui, sans-serif",
+    width: 86, height: 86,
+    display: "flex", alignItems: "center", justifyContent: "center",
   },
   fabBtn: (open) => ({
     width: 52, height: 52, borderRadius: "50%",
-    background: open ? "#0F6E56" : "#1D9E75",
+    background: open ? "#0F6E56" : "#1a1a2e",
     border: "none", cursor: "pointer",
     display: "flex", alignItems: "center", justifyContent: "center",
-    boxShadow: "0 4px 16px rgba(29,158,117,0.35)",
+    boxShadow: "0 4px 16px rgba(26,26,46,0.32)",
     color: "#fff", fontSize: 22, transition: "background 0.15s",
   }),
   panel: (open) => ({
@@ -706,6 +708,14 @@ export default function ChatbotWidget() {
 
       {/* FAB */}
       <div style={S.fab}>
+        <svg aria-hidden="true" viewBox="0 0 100 100" width="86" height="86" style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
+          <defs>
+            <path id="assistant-ring-path" d="M 16,52 A 36,36 0 1,1 84,52" fill="none" />
+          </defs>
+          <text fill="#1a1a2e" fontSize="8.2" fontWeight="700" letterSpacing="0.7" style={{ fontFamily: "DM Sans, system-ui, sans-serif" }}>
+            <textPath href="#assistant-ring-path" startOffset="3%">AI ASSISTANT · DOUBTS TO CLARITY</textPath>
+          </text>
+        </svg>
         <button
           style={S.fabBtn(open)}
           onClick={() => setOpen((v) => !v)}

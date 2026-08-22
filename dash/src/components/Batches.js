@@ -109,6 +109,9 @@ const emptyForm = {
   price: 0,
   redirectPath: '',
   whatYouLearn: '',   // comma separated in form, converted to array on save
+  examFocus: '',      // comma separated, e.g. JEE Main, JEE Advanced
+  targetAudience: '',
+  includedFeatures: '', // one feature per line
   isActive: true,
   sortOrder: 0,
 };
@@ -276,6 +279,9 @@ const BatchManager = () => {
       price: batch.price,
       redirectPath: batch.redirectPath || '',
       whatYouLearn: (batch.whatYouLearn || []).join(', '),
+      examFocus: (batch.examFocus || []).join(', '),
+      targetAudience: batch.targetAudience || '',
+      includedFeatures: (batch.includedFeatures || []).join('\n'),
       isActive: batch.isActive,
       sortOrder: batch.sortOrder || 0,
     });
@@ -297,6 +303,13 @@ const BatchManager = () => {
       sortOrder: Number(form.sortOrder),
       whatYouLearn: form.whatYouLearn
         ? form.whatYouLearn.split(',').map(s => s.trim()).filter(Boolean)
+        : [],
+      examFocus: form.examFocus
+        ? form.examFocus.split(',').map(s => s.trim()).filter(Boolean)
+        : [],
+      targetAudience: form.targetAudience.trim(),
+      includedFeatures: form.includedFeatures
+        ? form.includedFeatures.split('\n').map(s => s.trim()).filter(Boolean)
         : [],
     };
 
@@ -603,17 +616,44 @@ const BatchManager = () => {
                 <TextField label="Redirect Path" value={form.redirectPath}
                   onChange={handleFormChange('redirectPath')} fullWidth
                   helperText='e.g. /dsa, /web, /data-analysis' sx={fieldSx} />
-
-                <TextField
-                  label="What You'll Learn"
-                  value={form.whatYouLearn}
-                  onChange={handleFormChange('whatYouLearn')}
-                  fullWidth multiline rows={4}
-                  sx={{ gridColumn: { xs: '1', sm: '1 / -1' }, ...fieldSx }}
-                  helperText="Enter points separated by commas"
-                />
               </>
             )}
+
+            <TextField
+              label="What You'll Learn"
+              value={form.whatYouLearn}
+              onChange={handleFormChange('whatYouLearn')}
+              fullWidth multiline rows={4}
+              sx={{ gridColumn: { xs: '1', sm: '1 / -1' }, ...fieldSx }}
+              helperText="Enter points separated by commas"
+            />
+
+            <TextField
+                  label="Exam Focus"
+                  value={form.examFocus}
+                  onChange={handleFormChange('examFocus')}
+                  fullWidth
+                  helperText="Comma separated, e.g. JEE Main, JEE Advanced"
+                  sx={fieldSx}
+                />
+
+            <TextField
+                  label="Target Audience"
+                  value={form.targetAudience}
+                  onChange={handleFormChange('targetAudience')}
+                  fullWidth
+                  helperText="Who should buy this batch?"
+                  sx={fieldSx}
+                />
+
+            <TextField
+                  label="Included Features"
+                  value={form.includedFeatures}
+                  onChange={handleFormChange('includedFeatures')}
+                  fullWidth multiline rows={4}
+                  helperText="One feature per line. The AI will use only these stated benefits."
+                  sx={{ gridColumn: { xs: '1', sm: '1 / -1' }, ...fieldSx }}
+            />
 
             <TextField label="Sort Order" value={form.sortOrder} type="number"
               onChange={handleFormChange('sortOrder')} fullWidth

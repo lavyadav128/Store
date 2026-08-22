@@ -80,7 +80,9 @@ export function buildPaymentStatusReply(message, personal) {
 
   if (latestCase) {
     const title = latestCase.title || "your batch";
-    const amount = latestCase.amount ? `₹${latestCase.amount}` : "the attempted amount";
+    const amount = Number.isFinite(Number(latestCase.amount))
+      ? `₹${(Number(latestCase.amount) / 100).toFixed(2)}`
+      : "the attempted amount";
     const offer = personal.activeRecoveryOffers?.find((item) => item.batchId === latestCase.batchId);
     const offerText = offer ? ` An approved **${offer.discountPercent}% discount** is available until ${new Date(offer.expiresAt).toLocaleString()}. [Open Notifications to claim it](/dashboard?view=notifications).` : '';
     return `For **${title}** (${amount}), I can see a **${latestCase.source}** recovery case. Its current status is **${latestCase.status}**. ${latestCase.explanation} Failure reason: ${latestCase.failureReason || "not supplied by Razorpay"}.${offerText}`;

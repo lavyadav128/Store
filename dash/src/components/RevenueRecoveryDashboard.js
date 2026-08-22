@@ -235,6 +235,15 @@ const RevenueRecoveryDashboard = () => {
         .rr-card:hover { transform: translateY(-4px) !important; box-shadow: 0 18px 48px rgba(0,0,0,0.10) !important; }
         .rr-row:hover { background: #fafafc !important; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @media (max-width: 600px) {
+          .rr-feed-table .MuiTableHead { display: none; }
+          .rr-feed-table .MuiTable, .rr-feed-table .MuiTableBody { display: block; }
+          .rr-feed-table .MuiTableRow { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding: 10px 12px; border-bottom: 1px solid #ececf0; }
+          .rr-feed-table .MuiTableCell { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; padding: 7px 5px !important; border: 0; min-width: 0; overflow-wrap: anywhere; }
+          .rr-feed-table .MuiTableCell::before { content: attr(data-label); color: #999; font-size: 10px; font-weight: 700; letter-spacing: .55px; text-transform: uppercase; }
+          .rr-feed-table .rr-actions { grid-column: 1 / -1; align-items: stretch; }
+          .rr-feed-table .rr-actions > * { width: 100%; margin: 3px 0 !important; }
+        }
       `}</style>
 
       <Fade in timeout={500}>
@@ -295,7 +304,7 @@ const RevenueRecoveryDashboard = () => {
                   border: "1px solid #f0f0f0", borderRadius: "14px", transition: "background 0.15s ease",
                   flexWrap: "wrap",
                 }}>
-                  <Typography sx={{ fontFamily: font, fontSize: 14, fontWeight: 600, color: "#1a1a2e", minWidth: 140 }}>
+                  <Typography sx={{ fontFamily: font, fontSize: 14, fontWeight: 600, color: "#1a1a2e", minWidth: { xs: "100%", sm: 140 } }}>
                     {s.customerName}
                   </Typography>
                   <Typography sx={{ fontFamily: font, fontSize: 13, color: "#555", minWidth: 100 }}>
@@ -304,7 +313,7 @@ const RevenueRecoveryDashboard = () => {
                   <Box sx={{ px: 1.1, py: 0.3, borderRadius: "8px", background: "#f4f4f6" }}>
                     <Typography sx={{ fontFamily: font, fontSize: 11, fontWeight: 600, color: "#888" }}>{s.source}</Typography>
                   </Box>
-                  <Box sx={{ ml: "auto", display: "flex", gap: 1 }}>
+                  <Box sx={{ ml: { xs: 0, sm: "auto" }, width: { xs: "100%", sm: "auto" }, display: "flex", gap: 1 }}>
                     <Button size="small" onClick={() => openDetail(s._id)} sx={ghostBtnSx}>View</Button>
                     <Button size="small" variant="contained" onClick={() => approveSignal(s._id)} sx={{ ...primaryBtnSx, px: 2.2, py: 0.8 }}>
                       Approve
@@ -369,7 +378,7 @@ const RevenueRecoveryDashboard = () => {
               </FormControl>
             </Box>
 
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: "16px", border: "1px solid #f0f0f0", boxShadow: "none" }}>
+            <TableContainer className="rr-feed-table" component={Paper} variant="outlined" sx={{ borderRadius: "16px", border: "1px solid #f0f0f0", boxShadow: "none" }}>
               <Table size="small">
                 <TableHead>
                   <TableRow sx={{ "& th": { fontFamily: font, fontSize: 11, fontWeight: 700, color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase", borderBottom: "1px solid #f0f0f0", background: "#fafafc" } }}>
@@ -385,17 +394,17 @@ const RevenueRecoveryDashboard = () => {
                 <TableBody>
                   {signals.map((s) => (
                     <TableRow key={s._id} className="rr-row" sx={{ "& td": { fontFamily: font, fontSize: 13, color: "#333", borderBottom: "1px solid #f4f4f6" }, transition: "background 0.15s ease" }}>
-                      <TableCell sx={{ fontWeight: 600, color: "#1a1a2e !important" }}>{s.customerName || "—"}</TableCell>
-                      <TableCell>₹{(s.amount / 100).toLocaleString()}</TableCell>
-                      <TableCell>
+                      <TableCell data-label="Customer" sx={{ fontWeight: 600, color: "#1a1a2e !important" }}>{s.customerName || "—"}</TableCell>
+                      <TableCell data-label="Amount">₹{(s.amount / 100).toLocaleString()}</TableCell>
+                      <TableCell data-label="Source">
                         <Box sx={{ display: "inline-block", px: 1, py: 0.25, borderRadius: "8px", background: "#f4f4f6", fontSize: 11, fontWeight: 600, color: "#888" }}>
                           {s.source}
                         </Box>
                       </TableCell>
-                      <TableCell sx={{ color: "#888 !important" }}>{s.failureReason}</TableCell>
-                      <TableCell>{s.attempts}</TableCell>
-                      <TableCell><StatusChip status={s.status} /></TableCell>
-                      <TableCell align="right">
+                      <TableCell data-label="Reason" sx={{ color: "#888 !important" }}>{s.failureReason}</TableCell>
+                      <TableCell data-label="Attempts">{s.attempts}</TableCell>
+                      <TableCell data-label="Status"><StatusChip status={s.status} /></TableCell>
+                      <TableCell data-label="Actions" className="rr-actions" align="right">
                         <Tooltip title="Run the agent on this signal">
                           <Button size="small" startIcon={<BoltIcon sx={{ fontSize: 15 }} />} onClick={() => runAgent(s._id)} disabled={loading} sx={{ ...primaryBtnSx, px: 1.4, py: 0.5, mr: 0.5 }}>
                             Run

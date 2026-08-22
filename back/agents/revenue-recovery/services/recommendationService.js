@@ -18,7 +18,7 @@ function scoreProduct(product, query) {
   const haystack = {
     title: words(product.title),
     category: words(product.category),
-    description: words(`${product.description} ${(product.whatYouLearn || []).join(" ")}`),
+    description: words(`${product.description} ${(product.whatYouLearn || []).join(" ")} ${(product.includedFeatures || []).join(" ")} ${(product.examFocus || []).join(" ")} ${product.targetAudience || ""}`),
   };
   let score = 0;
   const reasons = [];
