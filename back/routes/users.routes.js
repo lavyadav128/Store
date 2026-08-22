@@ -300,7 +300,58 @@ router.post('/auth/google', async (req, res) => {
 // In server.js it would be used like: app.use('/api', router)
 // which means our routes become /api/login and /api/register
 
+router.get("/user/chat-onboarding", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id)
+      .select("chatOnboardingShownAt chatOnboardingGoal");
 
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.json({
+      shown: Boolean(user.chatOnboardingShownAt),
+      goal: user.chatOnboardingGoal || "",
+    });
+  } catch {
+    return res.status(500).json({ message: "Could not load chat onboarding" });
+  }
+});
+
+router.patch("/user/chat-onboarding", auth, async (req, res) => {
+  try {
+    const update = {};
+
+    if (req.body?.shown === true) {
+      update.chatOnboardingShownAt = new Date();
+    }
+
+    if (typeof req.body?.goal === "string") {
+      const goal = req.body.goal.trim();
+
+      if (goal.length > 500) {
+        return res.status(400).json({
+          message: "Goal must be 500 characters or fewer."
+        });
+      }
+
+      if (goal) update.chatOnboardingGoal = goal;
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { $set: update },
+      { new: true }
+    ).select("chatOnboardingShownAt chatOnboardingGoal");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    return res.json({
+      shown: Boolean(user.chatOnboardingShownAt),
+      goal: user.chatOnboardingGoal || "",
+    });
+  } catch {
+    return res.status(500).json({ message: "Could not save chat onboarding" });
+  }
+});
 
 
 export default router;

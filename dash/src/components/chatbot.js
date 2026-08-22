@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import server from "../environment";
 
 // ─────────────────────────────────────────────
@@ -362,6 +362,7 @@ function CheckoutConfirmation({ intent, onConfirm, onCancel }) {
 // MAIN WIDGET
 // ─────────────────────────────────────────────
 export default function ChatbotWidget() {
+  const location = useLocation();
   const navigate = useNavigate();
   const [open, setOpen]                       = useState(false);
   const [messages, setMessages]               = useState([]);
@@ -373,6 +374,7 @@ export default function ChatbotWidget() {
   const [pdfFile, setPdfFile]                 = useState(null);   // { name, base64 }
   const [pdfUploading, setPdfUploading]       = useState(false);
   const [awaitingGoal, setAwaitingGoal] = useState(false);
+  const [onboardingMode, setOnboardingMode] = useState(false);
 
   const bottomRef     = useRef(null);
   const textareaRef   = useRef(null);
@@ -380,8 +382,56 @@ export default function ChatbotWidget() {
   const styleInjected = useRef(false);
   const loadingRef    = useRef(false);
   const messagesRef   = useRef([]);
+  const onboardingCheckStarted = useRef(false);
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
+
+  const isLearningRoute =
+  /\/(class|notes|revision|college|cds|dsa|web|data-analysis|aptitude)(\/|$)/
+    .test(location.pathname);
+
+useEffect(() => {
+  if (location.pathname !== "/dashboard" || !localStorage.getItem("token")) return;
+  if (onboardingCheckStarted.current) return;
+
+  onboardingCheckStarted.current = true;
+  let cancelled = false;
+
+  const checkOnboarding = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await fetch(`${server}/api/user/chat-onboarding`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || cancelled || data.shown) return;
+
+      setOnboardingMode(true);
+      setAwaitingGoal(true);
+      setOpen(true);
+
+      fetch(`${server}/api/user/chat-onboarding`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ shown: true }),
+      }).catch(() => {});
+    } catch {
+      // Never block dashboard if onboarding is unavailable.
+    }
+  };
+
+  checkOnboarding();
+
+  return () => {
+    cancelled = true;
+  };
+}, [location.pathname]);
 
   // Inject global CSS once
   useEffect(() => {
@@ -406,7 +456,11 @@ export default function ChatbotWidget() {
     setPdfFile(null);
     setMessages([{
       role: "bot",
-      text: `Hi! I can see you're studying **"${topic}"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly. I can also use our **live course catalog** to help you find the right batch.`,
+      text: onboardingMode
+      ? "## Welcome to EduPortal! 👋\n\nI can help you find the right **live batch or notes**, answer study questions, create quick quizzes, summarise PDFs, and guide you through your learning path.\n\n**What are you hoping to achieve here?** Tell me your class, exam, subject, skill, or career goal—for example: *IIT JEE maths*, *Class 10 science notes*, or *DSA interview preparation*."
+      : isLearningRoute
+        ? `Hi! I can see you're studying **"${topic}"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly. I can also use our **live course catalog** to help you find the right batch.`
+        : "Hi! I’m your EduPortal learning assistant. I can help you find live batches and notes, answer study questions, create quizzes, summarise PDFs, or guide your learning plan. What would you like to do?",
       time: new Date(),
     }]);
     setTimeout(() => textareaRef.current?.focus(), 80);
@@ -698,11 +752,12 @@ export default function ChatbotWidget() {
           </div>
         </div>
 
-        {/* Context pill */}
-        <div style={S.contextPill}>
-          <span>📍</span>
-          <span>{topicLabel || "detecting topic…"}</span>
-        </div>
+        {isLearningRoute && !onboardingMode && (
+          <div style={S.contextPill}>
+            <span>📍</span>
+            <span>{topicLabel || "detecting topic…"}</span>
+          </div>
+        )}
 
         {/* PDF banner */}
         <div style={S.pdfBanner(!!pdfFile || pdfUploading)}>

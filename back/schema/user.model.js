@@ -14,8 +14,10 @@ const userScheme = new Schema(
         password: { type: String, required: true },
 
         // Optional JWT token (can be used for sessions or refresh tokens)
-        token: { type: String }
-    }
+        token: { type: String },
+
+        chatOnboardingShownAt: { type: Date, default: null },
+        chatOnboardingGoal: { type: String, trim: true, maxlength: 500, default: "" }    }
 );
 
 // Create a Mongoose model named "User" using the schema
