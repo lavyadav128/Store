@@ -73,6 +73,8 @@ import catalogRouter from "./routes/catalog.routes.js";
 import commerceRouter, { CommerceAudit } from "./routes/commerce.routes.js";
 import Batch from './schema/batches.model.js';
 import NoteBatch from './schema/Notebatch.model.js';
+import { User } from './schema/user.model.js';
+import recoveryOfferRoutes from './routes/recoveryOffer.routes.js';
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -189,6 +191,7 @@ app.use('/api', userRoutes);
 
 // Purchase routes — e.g. POST /api/purchase, GET /api/purchases
 app.use('/api', purchaseRoutes);
+app.use('/api/recovery-offers', recoveryOfferRoutes);
 
 // Chatbot routes — e.g. POST /api/chat
 app.use('/api', chatbotRoutes);
@@ -285,6 +288,7 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
 
     // Get the authenticated student
     const userId = req.user._id;
+    const customer = await User.findById(userId).select('name username phone').lean();
     
     // Save the payment attempt BEFORE the student pays
     await PaymentAttempt.create({
@@ -293,6 +297,9 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
       batchTitle: product.title,
       amount: product.price,
       currency: "INR",
+      customerName: customer?.name || customer?.username || '',
+      customerEmail: customer?.username || '',
+      customerPhone: customer?.phone || '',
       razorpayOrderId: order.id,
     
       metadata: {
@@ -311,11 +318,11 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
       metadata: { razorpayOrderId: order.id },
     });
     
-    res.status(200).json({
-      ...order,
-      key: process.env.RAZORPAY_KEY_ID,
-    });
-    
+    // Return the public key that belongs to the exact account which created
+    // this order. This prevents a stale frontend .env key from opening an
+    // order with a different Razorpay account (which fails before methods load).
+    res.status(200).json({ ...order, key: process.env.RAZORPAY_KEY_ID });
+
   } catch (error) {
     // If Razorpay's API fails (network issue, invalid keys, etc.), log it and send an error
     console.error('Error creating Razorpay order:', error);

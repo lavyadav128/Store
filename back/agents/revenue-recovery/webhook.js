@@ -6,6 +6,7 @@ import crypto from 'crypto';
 
 import FailedPayment from './schema/FailedPayment.model.js';
 import PaymentAttempt from './schema/PaymentAttempt.model.js';
+import { User } from '../../schema/user.model.js';
 import { processSignal } from './services/orchestrator.js';
 
 const router = express.Router();
@@ -63,6 +64,12 @@ router.post(
             razorpayOrderId: p.order_id
           });
 
+        // Older attempts did not contain customer details. Resolve them from
+        // the linked account so the admin feed is useful for real payments.
+        const customer = paymentAttempt?.userId
+          ? await User.findById(paymentAttempt.userId).select('name username phone').lean()
+          : null;
+
         // Razorpay retries webhook delivery until it receives a 2xx response.
         // Idempotently reuse a signal we have already processed for this payment
         // so duplicate deliveries can never produce duplicate customer nudges.
@@ -96,15 +103,17 @@ router.post(
             p.currency,
 
           customerName:
-            paymentAttempt?.customerName || '',
+            paymentAttempt?.customerName || customer?.name || customer?.username || '',
 
           customerEmail:
             paymentAttempt?.customerEmail ||
+            customer?.username ||
             p.email ||
             '',
 
           customerPhone:
             paymentAttempt?.customerPhone ||
+            customer?.phone ||
             p.contact ||
             '',
 
@@ -112,6 +121,10 @@ router.post(
             p.error_reason ||
             p.error_code ||
             'unknown',
+
+          // Every real payment failure is held for admin review before an
+          // incentive/retry offer can reach the student.
+          status: 'escalated',
 
           rawPayload: p,
         });
@@ -133,13 +146,10 @@ router.post(
 
         // Start recovery only for the first webhook delivery. Reprocessing a
         // duplicate delivery would duplicate actions and audit records.
-        if (!existingSignal) processSignal(signal._id).catch(
-          (err) =>
-            console.error(
-              'Agent processing error:',
-              err
-            )
-        );
+        // The live payment failure is deliberately escalated immediately.
+        // Admin approval, not an LLM call, is the authority that can issue a
+        // discount offer. The admin can still run the agent for an auditable
+        // explanation, but no student action happens without approval.
       }
 
       return res.status(200).json({

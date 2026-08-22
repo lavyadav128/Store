@@ -266,7 +266,6 @@ const GLOBAL_CSS = `
   .copilot-md a{color:#1D9E75;text-decoration:underline}
 `;
 
-
 const dot = (delay) => ({
   width: 6, height: 6, borderRadius: "50%", background: "#bbb",
   display: "inline-block",
@@ -362,8 +361,8 @@ function CheckoutConfirmation({ intent, onConfirm, onCancel }) {
 // MAIN WIDGET
 // ─────────────────────────────────────────────
 export default function ChatbotWidget() {
-  const location = useLocation();
   const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen]                       = useState(false);
   const [messages, setMessages]               = useState([]);
   const [input, setInput]                     = useState("");
@@ -373,8 +372,8 @@ export default function ChatbotWidget() {
   const [apiError, setApiError]               = useState("");
   const [pdfFile, setPdfFile]                 = useState(null);   // { name, base64 }
   const [pdfUploading, setPdfUploading]       = useState(false);
-  const [awaitingGoal, setAwaitingGoal] = useState(false);
-  const [onboardingMode, setOnboardingMode] = useState(false);
+  const [awaitingGoal, setAwaitingGoal]       = useState(false);
+  const [onboardingMode, setOnboardingMode]   = useState(false);
 
   const bottomRef     = useRef(null);
   const textareaRef   = useRef(null);
@@ -386,52 +385,40 @@ export default function ChatbotWidget() {
 
   useEffect(() => { messagesRef.current = messages; }, [messages]);
 
-  const isLearningRoute =
-  /\/(class|notes|revision|college|cds|dsa|web|data-analysis|aptitude)(\/|$)/
-    .test(location.pathname);
+  const isLearningRoute = /\/(class|notes|revision|college|cds|dsa|web|data-analysis|aptitude)(\/|$)/.test(location.pathname);
 
-useEffect(() => {
-  if (location.pathname !== "/dashboard" || !localStorage.getItem("token")) return;
-  if (onboardingCheckStarted.current) return;
-
-  onboardingCheckStarted.current = true;
-  let cancelled = false;
-
-  const checkOnboarding = async () => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const res = await fetch(`${server}/api/user/chat-onboarding`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const data = await res.json();
-
-      if (!res.ok || cancelled || data.shown) return;
-
-      setOnboardingMode(true);
-      setAwaitingGoal(true);
-      setOpen(true);
-
-      fetch(`${server}/api/user/chat-onboarding`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ shown: true }),
-      }).catch(() => {});
-    } catch {
-      // Never block dashboard if onboarding is unavailable.
-    }
-  };
-
-  checkOnboarding();
-
-  return () => {
-    cancelled = true;
-  };
-}, [location.pathname]);
+  // First dashboard visit only: open a general (not page-specific) assistant.
+  // The server flag makes this reliable across browsers and devices.
+  useEffect(() => {
+    if (location.pathname !== "/dashboard" || !localStorage.getItem("token")) return;
+    if (onboardingCheckStarted.current) return;
+    onboardingCheckStarted.current = true;
+    let cancelled = false;
+    const checkOnboarding = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await fetch(`${server}/api/user/chat-onboarding`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const data = await res.json();
+        if (!res.ok || cancelled || data.shown) return;
+        setOnboardingMode(true);
+        setAwaitingGoal(true);
+        setOpen(true);
+        // Mark display immediately so closing the welcome card does not cause
+        // an unwanted popup on every later dashboard visit.
+        fetch(`${server}/api/user/chat-onboarding`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ shown: true }),
+        }).catch(() => {});
+      } catch (_) {
+        // Onboarding is optional; do not block the dashboard if it is unavailable.
+      }
+    };
+    checkOnboarding();
+    return () => { cancelled = true; };
+  }, [location.pathname]);
 
   // Inject global CSS once
   useEffect(() => {
@@ -454,13 +441,14 @@ useEffect(() => {
     setApiError("");
     setShowSuggestions(true);
     setPdfFile(null);
+    setAwaitingGoal(false);
     setMessages([{
       role: "bot",
       text: onboardingMode
-      ? "## Welcome to EduPortal! 👋\n\nI can help you find the right **live batch or notes**, answer study questions, create quick quizzes, summarise PDFs, and guide you through your learning path.\n\n**What are you hoping to achieve here?** Tell me your class, exam, subject, skill, or career goal—for example: *IIT JEE maths*, *Class 10 science notes*, or *DSA interview preparation*."
-      : isLearningRoute
-        ? `Hi! I can see you're studying **"${topic}"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly. I can also use our **live course catalog** to help you find the right batch.`
-        : "Hi! I’m your EduPortal learning assistant. I can help you find live batches and notes, answer study questions, create quizzes, summarise PDFs, or guide your learning plan. What would you like to do?",
+        ? "## Welcome to EduPortal! 👋\n\nI can help you find the right **live batch or notes**, answer study questions, create quick quizzes, summarise PDFs, and guide you through your learning path.\n\n**What are you hoping to achieve here?** Tell me your class, exam, subject, skill, or career goal—for example: *IIT JEE maths*, *Class 10 science notes*, or *DSA interview preparation*."
+        : isLearningRoute
+          ? `Hi! I can see you're studying **\"${topic}\"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly. I can also use our **live course catalog** to help you find the right batch.`
+          : "Hi! I’m your EduPortal learning assistant. I can help you find live batches and notes, answer study questions, create quizzes, summarise PDFs, or guide your learning plan. What would you like to do?",
       time: new Date(),
     }]);
     setTimeout(() => textareaRef.current?.focus(), 80);
@@ -511,10 +499,22 @@ useEffect(() => {
     const userText  = (overrideText !== undefined ? overrideText : input).trim();
     const shownText = (displayText  !== undefined ? displayText  : userText);
     if (!userText || loadingRef.current) return;
+
+    // The catalog button deliberately asks for a goal first. The next answer is
+    // sent to the deterministic recommendation endpoint, not to the study RAG.
     if (awaitingGoal && !pdfPayload) {
       setAwaitingGoal(false);
+      setOnboardingMode(false);
       setInput("");
       if (textareaRef.current) textareaRef.current.style.height = "auto";
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetch(`${server}/api/user/chat-onboarding`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ goal: userText }),
+        }).catch(() => {});
+      }
       recommendCourses(userText);
       return;
     }
@@ -752,6 +752,8 @@ useEffect(() => {
           </div>
         </div>
 
+        {/* A study-context label is useful inside a lesson, but misleading on
+            dashboard/admin pages where the assistant is platform-wide. */}
         {isLearningRoute && !onboardingMode && (
           <div style={S.contextPill}>
             <span>📍</span>

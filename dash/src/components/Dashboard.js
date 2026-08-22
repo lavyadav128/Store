@@ -331,7 +331,7 @@ const Dashboard = () => {
   }
   const isAdminRoute = localStorage.getItem("isAdmin") === "true";
 
-  const [activeView, setActiveView] = useState(isAdminRoute ? VIEW_DREAMS : VIEW_HOME);  const [purchases,    setPurchases]    = useState([]);
+  const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));  const [purchases,    setPurchases]    = useState([]);
   const [showPopup,    setShowPopup]    = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [mobileDrawer, setMobileDrawer] = useState(false);
@@ -352,7 +352,9 @@ const Dashboard = () => {
         });
         const name = res.data?.fullName || res.data?.name || res.data?.username || localStorage.getItem("username") || "Student";
         setUserName(name);
-        localStorage.setItem("username", name);
+        // Keep localStorage.username as the login email. Notifications are
+        // authorised by that account ID; overwriting it with display name made
+        // recovery notifications impossible to fetch.
       } catch {
         setUserName(localStorage.getItem("username") || "Student");
       }
@@ -382,6 +384,23 @@ const Dashboard = () => {
     };
     fetchPurchases();
   }, []);
+
+  // On each fresh login/dashboard load, surface a newly approved recovery
+  // offer immediately. The full one-time checkout button remains under
+  // Notifications so the learner explicitly chooses to pay.
+  useEffect(() => {
+    const loadRecoveryPopup = async () => {
+      const username = localStorage.getItem('username');
+      const token = localStorage.getItem('token');
+      if (!username || !token || isAdminRoute) return;
+      try {
+        const res = await axios.get(`${server}/api/notifications/${username}`, { headers: { Authorization: `Bearer ${token}` } });
+        const offer = res.data.find((n) => n.type === 'RECOVERY_DISCOUNT' && !n.isRead);
+        if (offer) { setPopupMessage(`${offer.text} Open Notifications to claim it.`); setShowPopup(true); }
+      } catch (_) {}
+    };
+    loadRecoveryPopup();
+  }, [isAdminRoute]);
 
   useEffect(() => {
     const handleStorage = (e) => {

@@ -9,6 +9,8 @@ import auth from '../controller/authh.js';
 import PaymentAttempt from '../agents/revenue-recovery/schema/PaymentAttempt.model.js';
 import CommerceAudit from '../schema/CommerceAudit.model.js';
 import { sendWhatsAppMessage } from '../services/twilioservice.js';
+import RecoveryOffer from '../agents/revenue-recovery/schema/RecoveryOffer.model.js';
+import FailedPayment from '../agents/revenue-recovery/schema/FailedPayment.model.js';
 
 const router = express.Router();
 
@@ -25,13 +27,20 @@ async function getLiveProduct(classId) {
 // Save enrolment only after the server verifies the live product price. Paid
 // products additionally require a valid Razorpay signature.
 router.post('/save-purchase', auth, async (req, res) => {
-  const { classId, price, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const { classId, price, razorpay_order_id, razorpay_payment_id, razorpay_signature, recoveryOfferId } = req.body;
   const userId = req.user._id;
   try {
     if (!classId || typeof classId !== 'string') return res.status(400).json({ error: 'A valid batch identifier is required' });
     const product = await getLiveProduct(classId);
     if (!product) return res.status(404).json({ error: 'Active batch not found' });
-    const serverPrice = Number(product.price) || 0;
+    const standardPrice = Number(product.price) || 0;
+    let serverPrice = standardPrice;
+    let recoveryOffer = null;
+    if (recoveryOfferId) {
+      recoveryOffer = await RecoveryOffer.findOne({ _id: recoveryOfferId, userId, batchId: classId, razorpayOrderId: razorpay_order_id, status: 'order_created', expiresAt: { $gt: new Date() } });
+      if (!recoveryOffer) return res.status(400).json({ error: 'Recovery offer is invalid, expired, or does not match this payment.' });
+      serverPrice = Math.round(standardPrice * 100 * (100 - recoveryOffer.discountPercent) / 100) / 100;
+    }
     if (Number(price) !== serverPrice) return res.status(400).json({ error: 'Price verification failed. Refresh the batch and try again.' });
 
     if (serverPrice > 0) {
@@ -57,6 +66,10 @@ router.post('/save-purchase', auth, async (req, res) => {
 
     if (serverPrice > 0) {
       await PaymentAttempt.findOneAndUpdate({ razorpayOrderId: razorpay_order_id }, { $set: { status: 'paid', razorpayPaymentId: razorpay_payment_id } });
+      if (recoveryOffer) {
+        recoveryOffer.status = 'claimed'; recoveryOffer.razorpayPaymentId = razorpay_payment_id; await recoveryOffer.save();
+        await FailedPayment.findByIdAndUpdate(recoveryOffer.failedPaymentId, { $set: { status: 'recovered' } });
+      }
       await CommerceAudit.create({ userId, eventType: 'payment_verified', product: { id: `${product.type}:${classId}`, purchaseId: classId, type: product.type, title: product.title, price: serverPrice, destination: product.destination }, reason: 'Razorpay payment signature was verified and access was granted.', gate: { decision: 'approved', rule: 'razorpay_signature_verified', explanation: 'The server verified the signature and the original order/product match.' }, metadata: { razorpayOrderId: razorpay_order_id, razorpayPaymentId: razorpay_payment_id } }).catch((error) => console.error('Payment audit write failed:', error.message));
       const user = await User.findById(userId);
       if (user?.phone) await sendWhatsAppMessage(product.title, `whatsapp:+91${user.phone}`).catch((error) => console.error('WhatsApp receipt failed:', error.message));

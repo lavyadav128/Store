@@ -5,7 +5,9 @@ const notificationSchema = new mongoose.Schema(
     username: { type: String, required: true },
     type: { type: String, default: "DOUBT_REPLY" },
     text: { type: String, required: true },
-    isRead: { type: Boolean, default: false }
+    isRead: { type: Boolean, default: false },
+    // Safe structured data for actionable notifications, e.g. a recovery offer.
+    metadata: { type: mongoose.Schema.Types.Mixed, default: {} }
   },
   { timestamps: true }
 );

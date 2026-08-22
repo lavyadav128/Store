@@ -132,8 +132,8 @@ const RevenueRecoveryDashboard = () => {
 
   const approveSignal = async (signalId) => {
     try {
-      await axios.post(`${BASE}/signals/${signalId}/approve`, {}, authHeader());
-      showSnack("Approved — status moved to recovering.");
+      const res = await axios.post(`${BASE}/signals/${signalId}/approve`, {}, authHeader());
+      showSnack(`Approved — ${res.data.discountPercent}% discount offer was sent to the student notification centre.`);
       refreshAll();
     } catch (err) {
       showSnack("Failed to approve", "error");

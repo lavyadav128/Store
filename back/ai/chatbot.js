@@ -32,6 +32,7 @@ import { rateLimiter } from "../middleware/rateLimit.js"; // Protects this route
 
 import optionalAuth from "../middleware/optionalAuth.js";
 import { getCommerceContext } from "../agents/revenue-recovery/services/commerceContext.js";
+import { buildPaymentStatusReply, getStudentAssistantContext, recordStudentInterests } from "./studentContext.js";
 
 const require = createRequire(import.meta.url);    // Creates a custom require() function so we can import CommonJS packages
 const pdfParse = require("pdf-parse");             // pdf-parse is a library that reads text out of PDF files
@@ -244,7 +245,7 @@ function enrichMessage(message, topic) {
 // Constructs the full array of messages to send to the AI API
 // Includes: system instructions, study material, chat history, and the user's message
 
-function buildMessages(message, context, chunks, history, commerceContext) {
+function buildMessages(message, context, chunks, history, commerceContext, personalContext) {
   const studyMaterial = chunks.map(c => c.text).join("\n\n");
   // Extract just the text from each retrieved chunk and join them with blank lines
 
@@ -252,6 +253,7 @@ function buildMessages(message, context, chunks, history, commerceContext) {
   // Convert the URL slug into a readable topic name
   const commerceInfo=`AVAILABLE PRODUCTS:${JSON.stringify(commerceContext.availableProducts, null,2)}
   USER ALREADY OWNS:${JSON.stringify(commerceContext.ownedProducts, null,2)}`;
+  const personalInfo = JSON.stringify(personalContext, null, 2);
 
   const systemPrompt = `
   You are an AI Study Copilot inside an EdTech platform.
@@ -310,6 +312,16 @@ function buildMessages(message, context, chunks, history, commerceContext) {
   If the student is clearly interested in purchasing,
   provide a concise recommendation and invite them to view
   or purchase it.
+
+  PERSONAL ACCOUNT CONTEXT (LIVE, PRIVATE TO THIS USER):
+  ${personalInfo}
+
+  PERSONALIZATION AND PAYMENT RULES:
+  - Use this context only for the currently authenticated learner; never imply access to another learner's account.
+  - Use their goal and interests to personalise recommendations. For Class 10 learners unsure about PCM/PCB, explain the decision factors, ask about their interests/strengths/career goals, and never force a stream choice.
+  - For payment/recovery questions, state only the live status in PERSONAL ACCOUNT CONTEXT. "escalated" means waiting for admin approval; "recovering" means an approved bounded action is in progress.
+  - Never promise a refund, payment success, enrolment, date, discount, or admin decision unless it appears in the live context.
+  - Explain next safe steps: wait for approval when escalated, retry checkout when appropriate, or contact support for a confirmed transaction that is missing access.
   `;
   // The system prompt sets the AI's role and gives it the study material + formatting rules
   // Template literals (backticks) let us embed variables with ${}
@@ -428,7 +440,11 @@ router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",
 
     const userId = req.user?._id || null;
 
-    const commerceContext = await getCommerceContext(userId);
+    const [commerceContext, personalContext] = await Promise.all([
+      getCommerceContext(userId),
+      getStudentAssistantContext(userId),
+    ]);
+    recordStudentInterests(userId, message).catch(() => {});
     // Destructure the request body into individual variables
     // message = the user's chat message (required)
     // context = page info like topic, URL (defaults to empty object if not sent)
@@ -484,10 +500,13 @@ router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",
     // NORMAL CHAT (RAG)
     // =========================
 
+    const paymentReply = buildPaymentStatusReply(message, personalContext);
+    if (paymentReply) return res.json({ reply: paymentReply, detected: { chapter: "Account", subject: "Live payment and recovery status" } });
+
     const chunks = await searchChunks(message, 6);
     // Find the 6 most relevant text chunks from the vector store for this user message
 
-    const msgs = buildMessages(message, context, chunks, history, commerceContext );
+    const msgs = buildMessages(message, context, chunks, history, commerceContext, personalContext);
     // Build the full message array (system prompt + study material + history + user message)
 
     const reply = await callLLM(msgs);

@@ -9,6 +9,7 @@ import {
   Divider,
   Snackbar,
   Alert,
+  Button,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
@@ -26,6 +27,7 @@ const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [popupNotif, setPopupNotif] = useState(null);
   const [open, setOpen] = useState(false);
+  const [claiming, setClaiming] = useState(null);
 
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -52,6 +54,8 @@ const NotificationsPage = () => {
               ? 'Message from Admin'
               : 'Notification',
           message: n.text,
+          type: n.type,
+          metadata: n.metadata || {},
           timestamp: n.createdAt,
           isNew: !n.isRead,
         }));
@@ -87,7 +91,29 @@ const NotificationsPage = () => {
       clearInterval(interval);
       window.removeEventListener('doubt-reply', handleLiveReply);
     };
-    }, [username]);
+  }, [username]);
+
+  const claimRecoveryOffer = async (offerId) => {
+    try {
+      setClaiming(offerId);
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`${server}/api/recovery-offers/${offerId}/create-order`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      const order = res.data;
+      if (!window.Razorpay) throw new Error('Payment gateway did not load. Refresh and try again.');
+      const rzp = new window.Razorpay({
+        key: order.key, amount: order.amount, currency: order.currency, name: 'EduPortal',
+        description: `${order.discountPercent}% recovery discount for ${order.title}`, order_id: order.id,
+        handler: async (response) => {
+          await axios.post(`${server}/api/save-purchase`, { classId: order.classId, price: order.price, recoveryOfferId: order.offerId, razorpay_order_id: response.razorpay_order_id, razorpay_payment_id: response.razorpay_payment_id, razorpay_signature: response.razorpay_signature }, { headers: { Authorization: `Bearer ${token}` } });
+          window.location.assign(order.destination);
+        },
+        modal: { ondismiss: () => setClaiming(null) }, theme: { color: '#1976d2' },
+      });
+      rzp.open();
+    } catch (err) {
+      alert(err.response?.data?.error || err.message || 'Could not start recovery checkout.');
+    } finally { setClaiming(null); }
+  };
 
   return (
     <Box sx={{ p: isMobile ? 2 : 4 }}>
@@ -145,6 +171,11 @@ const NotificationsPage = () => {
                   <Typography variant="caption" color="text.secondary">
                     {formatDate(notif.timestamp)}
                   </Typography>
+                  {notif.type === 'RECOVERY_DISCOUNT' && notif.metadata.recoveryOfferId && (
+                    <Button size="small" variant="contained" sx={{ mt: 1.5, textTransform: 'none' }} disabled={claiming === notif.metadata.recoveryOfferId} onClick={() => claimRecoveryOffer(notif.metadata.recoveryOfferId)}>
+                      {claiming === notif.metadata.recoveryOfferId ? 'Opening checkout…' : `Claim ${notif.metadata.discountPercent || 10}% discount`}
+                    </Button>
+                  )}
                 </CardContent>
               </Card>
             </Grid>

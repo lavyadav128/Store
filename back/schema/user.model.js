@@ -16,8 +16,14 @@ const userScheme = new Schema(
         // Optional JWT token (can be used for sessions or refresh tokens)
         token: { type: String },
 
+        // Stored server-side so the welcome assistant is shown once per
+        // account, even if the learner changes device or clears browser data.
         chatOnboardingShownAt: { type: Date, default: null },
-        chatOnboardingGoal: { type: String, trim: true, maxlength: 500, default: "" }    }
+        chatOnboardingGoal: { type: String, trim: true, maxlength: 500, default: "" },
+        // A small, transparent preference memory inferred from the learner's
+        // own chat requests (never from other students' activity).
+        chatInterests: { type: [String], default: [] }
+    }
 );
 
 // Create a Mongoose model named "User" using the schema
