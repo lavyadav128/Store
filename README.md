@@ -193,3 +193,26 @@ The assistant recommends suitable live courses, compares batches using real data
 ## Author
 
 Built for the Razorpay Buildathon as an AI-powered learning and revenue-recovery platform.
+
+
+## Screenshots
+
+### AI Course Guidance
+
+![AI Course Guidance](./screenshots/chatbot.png)
+
+### IIT JEE vs JEE Main Comparison
+
+![Batch Comparison](./screenshots/batch-comparison.png)
+
+### Razorpay Test Checkout
+
+![Razorpay Test Checkout](./screenshots/razorpay-checkout.png)
+
+### AI Revenue Recovery Dashboard
+
+![Revenue Recovery Dashboard](./screenshots/revenue-dashboard.png)
+
+### Student Recovery Notification
+
+![Recovery Notification](./screenshots/recovery-notification.png)

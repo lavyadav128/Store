@@ -52,13 +52,13 @@ router.post(
       }
 
 
-      return res.json({
-
-        success: true,
-
-        recommendations
-
+      const result = await getRecommendations({
+        userId: req.user?._id || null,
+        query,
+        limit,
       });
+      
+      return res.json(result);
 
 
     } catch (error) {

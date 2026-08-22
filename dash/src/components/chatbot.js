@@ -619,12 +619,30 @@ export default function ChatbotWidget() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) throw new Error(data.error || "Could not load recommendations");
-      setMessages((prev) => [...prev, {
-        role: "bot",
-        text: "## Suggested from the live catalog\nThese are based on your goal and current catalog. Prices and availability are live.",
-        recommendations: data.recommendations,
-        time: new Date(),
-      }]);
+      if (!data.recommendations || data.recommendations.length === 0) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            role: "bot",
+            text:
+              data.noMatchMessage ||
+              "I could not find an active batch matching that class or goal.",
+            time: new Date(),
+          },
+        ]);
+      
+        return;
+      }
+      
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "bot",
+          text: "## Suggested from the live catalog\nThese are based on your goal and requested class. Prices and availability are live.",
+          recommendations: data.recommendations,
+          time: new Date(),
+        },
+      ]);
     } catch (err) {
       setApiError(err.message || "Could not load recommendations.");
     } finally {
@@ -712,9 +730,17 @@ export default function ChatbotWidget() {
           <defs>
             <path id="assistant-ring-path" d="M 16,52 A 36,36 0 1,1 84,52" fill="none" />
           </defs>
-          <text fill="#1a1a2e" fontSize="8.2" fontWeight="700" letterSpacing="0.7" style={{ fontFamily: "DM Sans, system-ui, sans-serif" }}>
-            <textPath href="#assistant-ring-path" startOffset="3%">AI ASSISTANT · DOUBTS TO CLARITY</textPath>
-          </text>
+          <text fill="#1a1a2e" fontSize="10" fontWeight="1000" letterSpacing="1" style={{ fontFamily: "DM Sans, system-ui, sans-serif" }}>
+          <textPath
+              href="#assistant-ring-path"
+              startOffset="50%"
+              textAnchor="middle"
+              textLength="113"
+              lengthAdjust="spacingAndGlyphs"
+            >
+              AI ASSISTANT
+            </textPath>          
+            </text>
         </svg>
         <button
           style={S.fabBtn(open)}
@@ -732,8 +758,8 @@ export default function ChatbotWidget() {
         <div style={S.header}>
           <div style={S.headerIcon}>🌿</div>
           <div>
-            <p style={S.headerTitle}>Study Copilot</p>
-            <p style={S.headerSub}>Powered by your course material</p>
+            <p style={S.headerTitle}>AI Assistant</p>
+            <p style={S.headerSub}>Powered by EduPortal</p>
           </div>
           <div style={S.headerActions}>
             <button
