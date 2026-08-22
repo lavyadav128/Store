@@ -47,6 +47,18 @@ const batchSchema = new mongoose.Schema({
     type: [String],
     default: []
   },
+  examFocus: {
+    type: [String],
+    default: [],
+  },
+  targetAudience: {
+    type: String,
+    default: "",
+  },
+  includedFeatures: {
+    type: [String],
+    default: [],
+  },
 
   isActive: {
     type: Boolean,

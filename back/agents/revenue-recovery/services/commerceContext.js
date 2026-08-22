@@ -13,7 +13,7 @@ export async function getCommerceContext(userId = null) {
 
   const [batches, noteBatches] = await Promise.all([
     Batch.find({ isActive: true })
-      .select("batchId title description price whatYouLearn folder redirectPath")
+      .select("batchId title description price whatYouLearn includedFeatures examFocus targetAudience folder redirectPath")
       .sort({ sortOrder: 1, createdAt: 1 })
       .lean(),
     NoteBatch.find({ isActive: true })
@@ -32,6 +32,9 @@ export async function getCommerceContext(userId = null) {
       price: batch.price,
       category: batch.folder,
       whatYouLearn: batch.whatYouLearn || [],
+      includedFeatures: batch.includedFeatures || [],
+      examFocus: batch.examFocus || [],
+      targetAudience: batch.targetAudience || "",
       destination: batch.redirectPath || `/class/${batch.batchId}`,
     })),
     ...noteBatches.map((batch) => ({

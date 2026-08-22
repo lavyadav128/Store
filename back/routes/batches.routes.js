@@ -50,8 +50,8 @@ router.post('/admin', auth, async (req, res) => {
   try {
     const {
       batchId, folder, title, description, imageUrl, screenshot,
-      price, redirectPath, whatYouLearn,
-      isActive, sortOrder,
+      price, redirectPath, whatYouLearn,examFocus, targetAudience,
+      includedFeatures,  isActive, sortOrder,
     } = req.body;
 
     // Check if batchId already exists
@@ -66,6 +66,7 @@ router.post('/admin', auth, async (req, res) => {
       price: price || 0,
       redirectPath: redirectPath || '',
       whatYouLearn: whatYouLearn || [],
+      examFocus,targetAudience,includedFeatures,
       isActive: isActive !== undefined ? isActive : true,
       sortOrder: sortOrder || 0,
     });
