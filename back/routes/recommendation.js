@@ -4,7 +4,7 @@ import auth from "../controller/authh.js";
 
 import {
   getRecommendations
-} from "../services/recommendationService.js";
+} from "../agents/revenue-recovery/services/recommendationService.js";
 
 
 const router = express.Router();

@@ -31,7 +31,7 @@ import { createRequire } from "module";            // createRequire lets us use 
 import { rateLimiter } from "../middleware/rateLimit.js"; // Protects this route from being spammed (it costs money per API call)
 
 import optionalAuth from "../middleware/optionalAuth.js";
-import { getCommerceContext } from "../services/commerceContext.js";
+import { getCommerceContext } from "../agents/revenue-recovery/services/commerceContext.js";
 
 const require = createRequire(import.meta.url);    // Creates a custom require() function so we can import CommonJS packages
 const pdfParse = require("pdf-parse");             // pdf-parse is a library that reads text out of PDF files

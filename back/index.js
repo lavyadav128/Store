@@ -63,8 +63,8 @@ import notesRouter from './routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
-import auth from './controllers/auth.js';
-import PaymentAttemptModel from './schema/PaymentAttempt.model.js';
+import auth from './controller/authh.js';
+import PaymentAttemptModel from './agents/revenue-recovery/schema/PaymentAttempt.model.js';
 
 import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
 import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
