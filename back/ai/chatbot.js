@@ -30,6 +30,9 @@ import fetch from "node-fetch";                    // fetch lets us make HTTP re
 import { createRequire } from "module";            // createRequire lets us use old-style "require()" in modern ES module files
 import { rateLimiter } from "../middleware/rateLimit.js"; // Protects this route from being spammed (it costs money per API call)
 
+import optionalAuth from "../middleware/optionalAuth.js";
+import { getCommerceContext } from "../services/commerceContext.js";
+
 const require = createRequire(import.meta.url);    // Creates a custom require() function so we can import CommonJS packages
 const pdfParse = require("pdf-parse");             // pdf-parse is a library that reads text out of PDF files
 
@@ -241,27 +244,73 @@ function enrichMessage(message, topic) {
 // Constructs the full array of messages to send to the AI API
 // Includes: system instructions, study material, chat history, and the user's message
 
-function buildMessages(message, context, chunks, history) {
+function buildMessages(message, context, chunks, history, commerceContext) {
   const studyMaterial = chunks.map(c => c.text).join("\n\n");
   // Extract just the text from each retrieved chunk and join them with blank lines
 
   const topic = topicFromUrl(context);
   // Convert the URL slug into a readable topic name
+  const commerceInfo=`AVAILABLE PRODUCTS:${JSON.stringify(commerceContext.availableProducts, null,2)}
+  USER ALREADY OWNS:${JSON.stringify(commerceContext.ownedProducts, null,2)}`;
 
   const systemPrompt = `
-You are an AI Study Copilot inside an EdTech platform.
+  You are an AI Study Copilot inside an EdTech platform.
 
-Current Topic: ${topic}
-URL: ${context.fullUrl || "unknown"}
+  Current Topic: ${topic}
+  URL: ${context.fullUrl || "unknown"}
 
-Use study material first, then general knowledge.
+  Use study material first, then general knowledge.
 
-Study Material:
-${studyMaterial}
+  Study Material:
+  ${studyMaterial}
 
-Rules:
-${FORMAT_RULES}
-`;
+  Rules:
+  ${FORMAT_RULES}
+
+  COMMERCE INFORMATION:
+  ${commerceInfo}
+
+  COMMERCE RULES:
+  You are also a helpful shopping assistant for this
+  educational platform.
+
+  You may recommend products only from AVAILABLE PRODUCTS.
+
+  Never recommend a product that appears under
+  USER ALREADY OWNS.
+
+  Recommend a product only when it is genuinely relevant
+  to the student's goal or question.
+
+  Use the student's current topic, question and learning
+  goal to determine relevance.
+
+  If a product directly complements something the student
+  already owns, you may suggest it as a cross-sell.
+
+  If a more advanced or better-suited product naturally
+  extends what the student already has, you may suggest it
+  as an upsell.
+
+  Never invent:
+  - product names
+  - prices
+  - features
+  - discounts
+  - guarantees
+
+  Never claim that a student purchased something unless it
+  appears in USER ALREADY OWNS.
+
+  Do not aggressively push products into unrelated
+  conversations.
+
+  When recommending a product, explain WHY it is relevant.
+
+  If the student is clearly interested in purchasing,
+  provide a concise recommendation and invite them to view
+  or purchase it.
+  `;
   // The system prompt sets the AI's role and gives it the study material + formatting rules
   // Template literals (backticks) let us embed variables with ${}
 
@@ -370,13 +419,16 @@ async function callLLM(messages) {
 // This is the actual HTTP endpoint — POST /chatbot
 // It receives the user's message and returns the AI's reply
 
-router.post("/chatbot", rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:chatbot' }), async (req, res) => {
-    // router.post sets up a POST route at "/chatbot"
+router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",  prefix: "rl:chatbot"}),async (req, re) =>{    // router.post sets up a POST route at "/chatbot"
   // req = request object (contains what the client sent)
   // res = response object (used to send data back to the client)
 
   try {
     const { message, context = {}, history = [], pdf } = req.body;
+
+    const userId = req.user?.id || null;
+
+    const commerceContext = await getCommerceContext(userId);
     // Destructure the request body into individual variables
     // message = the user's chat message (required)
     // context = page info like topic, URL (defaults to empty object if not sent)
@@ -435,7 +487,7 @@ router.post("/chatbot", rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:c
     const chunks = await searchChunks(message, 6);
     // Find the 6 most relevant text chunks from the vector store for this user message
 
-    const msgs = buildMessages(message, context, chunks, history);
+    const msgs = buildMessages(message, context, chunks, history, commerceContext );
     // Build the full message array (system prompt + study material + history + user message)
 
     const reply = await callLLM(msgs);

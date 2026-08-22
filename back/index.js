@@ -63,9 +63,12 @@ import notesRouter from './routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
+import auth from './controllers/auth.js';
+import PaymentAttemptModel from './schema/PaymentAttempt.model.js';
 
 import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
 import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
+import recommendationRouter from "./routes/recommendation.js";
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -194,6 +197,8 @@ app.use('/api/notes', notesRouter);
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 
+app.use("/api/recommendations",recommendationRouter);
+
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive
 // Useful for uptime monitoring tools or to verify deployment works
@@ -222,9 +227,15 @@ const razorpay = new Razorpay({
 
 // POST /api/create-order
 // The frontend calls this to create a payment order before showing the Razorpay payment popup
-app.post('/api/create-order', rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:create-order' }), async (req, res) => {
+app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:create-order' }), async (req, res) => {
   // Pull amount and receipt from the request body (sent by the frontend)
-  const { amount, receipt } = req.body;
+  const { amount, receipt ,batchId, batchTitle} = req.body;
+
+  if (!amount || !batchId || !batchTitle) {
+    return res.status(400).json({
+      error: "amount, batchId and batchTitle are required"
+    });
+  }
 
   // Build the "options" object that Razorpay's API expects
   const options = {
@@ -250,8 +261,24 @@ app.post('/api/create-order', rateLimiter({ requests: 10, window: '1 m', prefix:
     // This returns an order object with an order ID, status, etc.
     const order = await razorpay.orders.create(options);
 
-    // Send the created order back to the frontend
-    // The frontend uses order.id to open the Razorpay payment popup
+    // Get the authenticated student
+    const userId = req.user._id;
+    
+    // Save the payment attempt BEFORE the student pays
+    await PaymentAttempt.create({
+      userId,
+      batchId,
+      batchTitle,
+      amount,
+      currency: "INR",
+      razorpayOrderId: order.id,
+    
+      metadata: {
+        receipt: order.receipt,
+        source: "website_checkout"
+      }
+    });
+    
     res.status(200).json(order);
 
   } catch (error) {

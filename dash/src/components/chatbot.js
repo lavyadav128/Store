@@ -447,9 +447,16 @@ export default function ChatbotWidget() {
         body.pdf = pdf; // { name, base64 }
       }
 
+      const token = localStorage.getItem("token");
       const res = await fetch(`${server}/api/chatbot`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: {"Content-Type": "application/json",
+          ...(token
+            ? {
+                Authorization: `Bearer ${token}`,
+              }
+            : {}),
+        },
         body:    JSON.stringify(body),
       });
 

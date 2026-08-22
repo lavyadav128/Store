@@ -123,6 +123,9 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
       const order = await makeAuthenticatedRequest(`${server}/api/create-order`, 'POST', {
         amount: price,                          // amount in rupees (backend converts to paise)
         receipt: `receipt_${id}_${Date.now()}`, // unique receipt ID using class id + timestamp
+        batchId: id,
+        batchTitle: title,
+        
       });
 
       // ── STEP 2: Configure the Razorpay payment popup ──

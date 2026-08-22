@@ -667,6 +667,8 @@ const CombinedClassPage = () => {
         {
           amount: batch.price,
           receipt: `receipt_${batch.id}_${Date.now()}`,
+          batchId: batch.id,
+          batchTitle: batch.title,
         }
       );
 

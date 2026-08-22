@@ -34,6 +34,22 @@ const failedPaymentSchema = new mongoose.Schema({
     ref: 'User',
     default: null,
   },
+  
+  batchId: {
+    type: String,
+    default: null,
+  },
+  
+  batchTitle: {
+    type: String,
+    default: null,
+  },
+  
+  paymentAttemptId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "PaymentAttempt",
+    default: null,
+  },
 
   // Razorpay identifiers — populated for real test-mode events,
   // left blank for seeded/synthetic overdue-receivable style signals
