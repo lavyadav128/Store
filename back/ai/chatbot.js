@@ -419,7 +419,7 @@ async function callLLM(messages) {
 // This is the actual HTTP endpoint — POST /chatbot
 // It receives the user's message and returns the AI's reply
 
-router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",  prefix: "rl:chatbot"}),async (req, re) =>{    // router.post sets up a POST route at "/chatbot"
+router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",  prefix: "rl:chatbot"}),async (req, res) =>{    // router.post sets up a POST route at "/chatbot"
   // req = request object (contains what the client sent)
   // res = response object (used to send data back to the client)
 

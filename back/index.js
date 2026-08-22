@@ -311,8 +311,11 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
       metadata: { razorpayOrderId: order.id },
     });
     
-    res.status(200).json(order);
-
+    res.status(200).json({
+      ...order,
+      key: process.env.RAZORPAY_KEY_ID,
+    });
+    
   } catch (error) {
     // If Razorpay's API fails (network issue, invalid keys, etc.), log it and send an error
     console.error('Error creating Razorpay order:', error);

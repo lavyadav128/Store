@@ -130,7 +130,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
       // ── STEP 2: Configure the Razorpay payment popup ──
       // "options" is the config object that tells Razorpay how to display the payment form
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_LIVE_KEY, // our Razorpay public key (from .env)
+        key: order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
         amount: order.amount,      // amount in paise (as returned by backend)
         currency: order.currency,  // "INR"
         name: 'Atom Classes',      // shown at the top of the payment popup

@@ -266,6 +266,7 @@ const GLOBAL_CSS = `
   .copilot-md a{color:#1D9E75;text-decoration:underline}
 `;
 
+
 const dot = (delay) => ({
   width: 6, height: 6, borderRadius: "50%", background: "#bbb",
   display: "inline-block",
@@ -371,6 +372,7 @@ export default function ChatbotWidget() {
   const [apiError, setApiError]               = useState("");
   const [pdfFile, setPdfFile]                 = useState(null);   // { name, base64 }
   const [pdfUploading, setPdfUploading]       = useState(false);
+  const [awaitingGoal, setAwaitingGoal] = useState(false);
 
   const bottomRef     = useRef(null);
   const textareaRef   = useRef(null);
@@ -455,6 +457,13 @@ export default function ChatbotWidget() {
     const userText  = (overrideText !== undefined ? overrideText : input).trim();
     const shownText = (displayText  !== undefined ? displayText  : userText);
     if (!userText || loadingRef.current) return;
+    if (awaitingGoal && !pdfPayload) {
+      setAwaitingGoal(false);
+      setInput("");
+      if (textareaRef.current) textareaRef.current.style.height = "auto";
+      recommendCourses(userText);
+      return;
+    }
 
     loadingRef.current = true;
     setApiError("");
@@ -593,7 +602,13 @@ export default function ChatbotWidget() {
   const applySuggestion = (chipLabel) => {
     setShowSuggestions(false);
     if (chipLabel === "Find a course for my goal") {
-      recommendCourses();
+      setAwaitingGoal(true);
+      setMessages((prev) => [...prev, {
+        role: "bot",
+        text: "Tell me your goal first: for example **“I am preparing for DSA interviews”**, **“I need Class 10 science notes”**, or **“I want IIT JEE maths.”** I will then rank only the matching live batches and explain each choice.",
+        time: new Date(),
+      }]);
+      setTimeout(() => textareaRef.current?.focus(), 80);
       return;
     }
     const ctx = getContext();
