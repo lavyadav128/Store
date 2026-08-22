@@ -77,7 +77,7 @@ const NotesBrowsePage = () => {
       const orderRes = await makeAuthenticatedRequest(`${server}/api/create-order`, 'POST', {
         amount: batch.price,
         receipt: `receipt_${batch.slug}_${Date.now()}`,
-        batchId: batch.id,
+        batchId: batch.slug,
         batchTitle: batch.title,
       });
 

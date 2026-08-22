@@ -1,5 +1,6 @@
-// import Batch from "../schema/batches.model.js";
-// import Purchase from "../schema/purchase.model.js";
+import Batch from "../../../schema/batches.model.js";
+import NoteBatch from "../../../schema/Notebatch.model.js";
+import Purchase from "../../../schema/purchase.model.js";
 
 /**
  * Builds the commerce information that the chatbot
@@ -10,14 +11,41 @@ export async function getCommerceContext(userId = null) {
   // 1. Get all active products/batches
   // --------------------------------------------------
 
-  const batches = await Batch.find({
-    isActive: true,
-  })
-    .select(
-      "batchId title description price whatYouLearn folder redirectPath"
-    )
-    .sort({ sortOrder: 1, createdAt: 1 })
-    .lean();
+  const [batches, noteBatches] = await Promise.all([
+    Batch.find({ isActive: true })
+      .select("batchId title description price whatYouLearn folder redirectPath")
+      .sort({ sortOrder: 1, createdAt: 1 })
+      .lean(),
+    NoteBatch.find({ isActive: true })
+      .select("slug title description price whatYouLearn order")
+      .sort({ order: 1, createdAt: 1 })
+      .lean(),
+  ]);
+
+  const products = [
+    ...batches.map((batch) => ({
+      id: `batch:${batch.batchId}`,
+      purchaseId: batch.batchId,
+      type: "batch",
+      title: batch.title,
+      description: batch.description,
+      price: batch.price,
+      category: batch.folder,
+      whatYouLearn: batch.whatYouLearn || [],
+      destination: batch.redirectPath || `/class/${batch.batchId}`,
+    })),
+    ...noteBatches.map((batch) => ({
+      id: `note:${batch.slug}`,
+      purchaseId: batch.slug,
+      type: "note-batch",
+      title: batch.title,
+      description: batch.description,
+      price: batch.price,
+      category: "Notes",
+      whatYouLearn: batch.whatYouLearn || [],
+      destination: `/notes/${batch.slug}`,
+    })),
+  ];
 
   // --------------------------------------------------
   // 2. Get user's existing purchases
@@ -35,7 +63,7 @@ export async function getCommerceContext(userId = null) {
   }
 
   // IDs of products already owned by the user
-  const ownedBatchIds = new Set(
+  const ownedPurchaseIds = new Set(
     purchases.map((purchase) => purchase.classId)
   );
 
@@ -43,8 +71,8 @@ export async function getCommerceContext(userId = null) {
   // 3. Remove already purchased products
   // --------------------------------------------------
 
-  const availableForRecommendation = batches.filter(
-    (batch) => !ownedBatchIds.has(batch.batchId)
+  const availableForRecommendation = products.filter(
+    (product) => !ownedPurchaseIds.has(product.purchaseId)
   );
 
   // --------------------------------------------------
@@ -52,14 +80,7 @@ export async function getCommerceContext(userId = null) {
   // --------------------------------------------------
 
   return {
-    availableProducts: availableForRecommendation.map((batch) => ({
-      id: batch.batchId,
-      title: batch.title,
-      description: batch.description,
-      price: batch.price,
-      category: batch.folder,
-      whatYouLearn: batch.whatYouLearn || [],
-    })),
+    availableProducts: availableForRecommendation,
 
     ownedProducts: purchases.map((purchase) => ({
       id: purchase.classId,

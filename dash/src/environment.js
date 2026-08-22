@@ -1,9 +1,5 @@
 
-let IS_PROD = true;
-const server = IS_PROD ?
-    // "https://notess-ucwp.onrender.com":
-    "https://storee-6wri.onrender.com":
-    "http://localhost:5000"
+const server = process.env.REACT_APP_API_BASE_URL || "https://storee-6wri.onrender.com";
 
 export default server;
 

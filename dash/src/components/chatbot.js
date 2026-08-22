@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import server from "../environment";
 
 // ─────────────────────────────────────────────
@@ -308,7 +309,7 @@ function enrichMessage(message, topicSlug) {
   return `${message} (I am studying "${topic}")`;
 }
 
-const DEFAULT_SUGGESTIONS = ["Summarise this topic", "Give me key points", "Quiz me on this"];
+const DEFAULT_SUGGESTIONS = ["Summarise this topic", "Give me key points", "Quiz me on this", "Find a course for my goal"];
 
 // ─────────────────────────────────────────────
 // MARKDOWN MESSAGE BUBBLE
@@ -323,10 +324,29 @@ function BotBubble({ text }) {
   );
 }
 
+function RecommendationCards({ recommendations, onView }) {
+  return (
+    <div style={{ display: "grid", gap: 8, marginTop: 8, width: "100%" }}>
+      {recommendations.map(({ product, reasons }) => (
+        <div key={product.id} style={{ background: "#F0FAF5", border: "1px solid #B7E5D5", borderRadius: 10, padding: "10px 11px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "start" }}>
+            <strong style={{ fontSize: 13 }}>{product.title}</strong>
+            <span style={{ fontSize: 12, color: "#0F6E56", fontWeight: 700, whiteSpace: "nowrap" }}>{product.price === 0 ? "FREE" : `₹${product.price}`}</span>
+          </div>
+          <div style={{ color: "#666", fontSize: 11.5, marginTop: 3 }}>{product.category} · {product.type === "note-batch" ? "Notes batch" : "Course batch"}</div>
+          <div style={{ color: "#333", fontSize: 11.5, lineHeight: 1.4, marginTop: 5 }}>{reasons[0]}</div>
+          <button onClick={() => onView(product.destination)} style={{ marginTop: 8, border: "none", borderRadius: 7, padding: "6px 9px", background: "#1D9E75", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>View batch</button>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // ─────────────────────────────────────────────
 // MAIN WIDGET
 // ─────────────────────────────────────────────
 export default function ChatbotWidget() {
+  const navigate = useNavigate();
   const [open, setOpen]                       = useState(false);
   const [messages, setMessages]               = useState([]);
   const [input, setInput]                     = useState("");
@@ -369,7 +389,7 @@ export default function ChatbotWidget() {
     setPdfFile(null);
     setMessages([{
       role: "bot",
-      text: `Hi! I can see you're studying **"${topic}"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly.`,
+      text: `Hi! I can see you're studying **"${topic}"**.\n\nAsk me anything — definitions, examples, a quick quiz, or **upload a PDF** to summarise it instantly. I can also use our **live course catalog** to help you find the right batch.`,
       time: new Date(),
     }]);
     setTimeout(() => textareaRef.current?.focus(), 80);
@@ -494,8 +514,43 @@ export default function ChatbotWidget() {
     setLoading(false);
   };
 
+  const recommendCourses = async (query = "") => {
+    if (loadingRef.current) return;
+    loadingRef.current = true;
+    setApiError("");
+    setShowSuggestions(false);
+    setLoading(true);
+    const question = query || "I want help choosing the right course for my goal";
+    setMessages((prev) => [...prev, { role: "user", text: question, time: new Date() }]);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${server}/api/recommendations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+        body: JSON.stringify({ query: question }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) throw new Error(data.error || "Could not load recommendations");
+      setMessages((prev) => [...prev, {
+        role: "bot",
+        text: "## Suggested from the live catalog\nThese are based on your goal and current catalog. Prices and availability are live.",
+        recommendations: data.recommendations,
+        time: new Date(),
+      }]);
+    } catch (err) {
+      setApiError(err.message || "Could not load recommendations.");
+    } finally {
+      loadingRef.current = false;
+      setLoading(false);
+    }
+  };
+
   const applySuggestion = (chipLabel) => {
     setShowSuggestions(false);
+    if (chipLabel === "Find a course for my goal") {
+      recommendCourses();
+      return;
+    }
     const ctx = getContext();
     const enriched = enrichMessage(chipLabel, ctx.topic);
     sendMessage(enriched, chipLabel);
@@ -615,7 +670,7 @@ export default function ChatbotWidget() {
           {messages.map((m, i) => (
             <div key={i} style={S.msgWrap(m.role)}>
               {m.role === "bot"
-                ? <BotBubble text={m.text} />
+                ? <><BotBubble text={m.text} />{m.recommendations && <RecommendationCards recommendations={m.recommendations} onView={navigate} />}</>
                 : <div style={S.bubble("user")}>{m.text}</div>
               }
               <span style={S.msgMeta}>{formatTime(m.time)}</span>

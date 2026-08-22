@@ -1,403 +1,58 @@
-// import Batch from "../schema/batches.model.js";
-// import Purchase from "../schema/purchase.model.js";
+import { getCommerceContext } from "./commerceContext.js";
 
+const ALIASES = {
+  placement: ["dsa", "web", "data", "aptitude", "interview"],
+  coding: ["dsa", "web", "data"],
+  developer: ["dsa", "web", "data"],
+  engineering: ["computer", "civil", "electrical", "electronics"],
+  jee: ["iit", "jee", "class 11", "class 12"],
+  neet: ["neet", "biology", "class 11", "class 12"],
+};
 
-/**
- * Convert text into normalized words.
- *
- * Example:
- *
- * "I want to learn DSA for placements"
- *
- * becomes:
- *
- * ["want", "learn", "dsa", "placements"]
- */
-function tokenize(text = "") {
-  return text
-    .toLowerCase()
-    .replace(/[^a-z0-9\s]/g, " ")
-    .split(/\s+/)
-    .filter(word => word.length >= 3);
+function words(value = "") {
+  return value.toLowerCase().match(/[a-z0-9]+/g) || [];
 }
 
-
-/**
- * Calculate how relevant a batch is to the user's query.
- */
-function calculateRelevanceScore(batch, query) {
-
-  const queryWords = tokenize(query);
-
-  if (queryWords.length === 0) {
-    return {
-      score: 0,
-      reasons: []
-    };
-  }
-
-
-  const title = (batch.title || "").toLowerCase();
-
-  const description =
-    (batch.description || "").toLowerCase();
-
-  const folder =
-    (batch.folder || "").toLowerCase();
-
-  const learningContent =
-    (batch.whatYouLearn || [])
-      .join(" ")
-      .toLowerCase();
-
-
+function scoreProduct(product, query) {
+  const queryWords = words(query);
+  const haystack = {
+    title: words(product.title),
+    category: words(product.category),
+    description: words(`${product.description} ${(product.whatYouLearn || []).join(" ")}`),
+  };
   let score = 0;
-
   const reasons = [];
+  const expandedTerms = new Set(queryWords.flatMap((word) => [word, ...(ALIASES[word] || [])]));
 
-  let titleMatches = 0;
-  let descriptionMatches = 0;
-  let learningMatches = 0;
-  let folderMatches = 0;
-
-
-  // -----------------------------------------
-  // Check every word in user's query
-  // -----------------------------------------
-
-  for (const word of queryWords) {
-
-    // TITLE
-    if (title.includes(word)) {
-      titleMatches++;
-    }
-
-    // DESCRIPTION
-    if (description.includes(word)) {
-      descriptionMatches++;
-    }
-
-    // WHAT YOU LEARN
-    if (learningContent.includes(word)) {
-      learningMatches++;
-    }
-
-    // FOLDER
-    if (folder.includes(word)) {
-      folderMatches++;
-    }
+  for (const term of expandedTerms) {
+    if (haystack.title.includes(term)) score += 35;
+    if (haystack.category.includes(term)) score += 20;
+    if (haystack.description.includes(term)) score += 8;
   }
-
-
-  // -----------------------------------------
-  // TITLE SCORE
-  // -----------------------------------------
-
-  if (titleMatches > 0) {
-
-    score += Math.min(
-      titleMatches * 20,
-      40
-    );
-
-    reasons.push(
-      "The batch title matches your request."
-    );
+  if (score > 0) reasons.push("Its title, category, or curriculum matches your stated goal.");
+  if (product.price === 0) {
+    score += 2;
+    reasons.push("It is currently free to enrol in.");
   }
-
-
-  // -----------------------------------------
-  // DESCRIPTION SCORE
-  // -----------------------------------------
-
-  if (descriptionMatches > 0) {
-
-    score += Math.min(
-      descriptionMatches * 5,
-      20
-    );
-
-    reasons.push(
-      "The batch description matches your goal."
-    );
-  }
-
-
-  // -----------------------------------------
-  // LEARNING CONTENT SCORE
-  // -----------------------------------------
-
-  if (learningMatches > 0) {
-
-    score += Math.min(
-      learningMatches * 5,
-      20
-    );
-
-    reasons.push(
-      "The batch covers topics related to your request."
-    );
-  }
-
-
-  // -----------------------------------------
-  // FOLDER SCORE
-  // -----------------------------------------
-
-  if (folderMatches > 0) {
-
-    score += 15;
-
-    reasons.push(
-      "The batch belongs to a relevant learning category."
-    );
-  }
-
-
-  return {
-    score,
-    reasons
-  };
+  return { score, reasons };
 }
 
+// This deterministic path avoids consuming Study Copilot LLM quota and returns
+// only live catalog products with an explanation for each recommendation.
+export async function getRecommendations({ userId = null, query = "", limit = 3 }) {
+  const catalog = await getCommerceContext(userId);
+  const safeLimit = Math.min(Math.max(Number(limit) || 3, 1), 3);
 
-/**
- * Main recommendation function.
- */
-export async function getRecommendations({
-
-  userId = null,
-
-  query = "",
-
-  currentBatchId = null,
-
-  limit = 3
-
-}) {
-
-  // =========================================
-  // 1. GET ACTIVE BATCHES
-  // =========================================
-
-  const batches = await Batch.find({
-
-    isActive: true
-
-  })
-  .select(
-    "batchId folder title description price whatYouLearn redirectPath relatedBatchIds upgradeToBatchIds"
-  )
-    .sort({
-      sortOrder: 1
+  return catalog.availableProducts
+    .map((product) => {
+      const { score, reasons } = scoreProduct(product, query);
+      return {
+        product,
+        score,
+        type: score > 0 ? "goal_match" : "catalog_pick",
+        reasons: reasons.length ? reasons : ["This is an active course currently available in the catalog."],
+      };
     })
-    .lean();
-
-
-  // =========================================
-  // 2. GET USER'S ACTIVE PURCHASES
-  // =========================================
-
-  let purchases = [];
-
-  if (userId) {
-
-    purchases = await Purchase.find({
-
-      userId,
-
-      expiryDate: {
-        $gt: new Date()
-      }
-
-    })
-      .select(
-        "classId title description price expiryDate"
-      )
-      .lean();
-  }
-
-
-  // =========================================
-  // 3. CREATE SET OF OWNED PRODUCTS
-  // =========================================
-
-  const ownedBatchIds = new Set(
-    purchases.map(
-      purchase => String(purchase.classId)
-    )
-  );
-
-
-  // =========================================
-  // 4. REMOVE ALREADY OWNED PRODUCTS
-  // =========================================
-
-  const candidates = batches.filter(
-
-    batch =>
-      !ownedBatchIds.has(
-        String(batch.batchId)
-      )
-
-  );
-
-
-  // =========================================
-  // 5. SCORE EVERY CANDIDATE
-  // =========================================
-
-  const scored = candidates.map(batch => {
-
-    const relevance =
-      calculateRelevanceScore(
-        batch,
-        query
-      );
-
-
-      let score =relevance.score +relationshipScore;
-
-      const reasons = [
-        ...relevance.reasons,
-        ...relationshipReasons
-      ];
-
-
-    // =======================================
-    // CURRENT BATCH CONTEXT
-    // =======================================
-
-    if (
-      currentBatchId &&
-      String(batch.batchId) !==
-        String(currentBatchId)
-    ) {
-
-      score += 5;
-
-    }
-
-    let recommendationType = "recommended";
-
-let relationshipScore = 0;
-
-const relationshipReasons = [];
-
-
-for (const purchase of purchases) {
-
-    const purchasedBatch =
-      batches.find(
-        b =>
-          String(b.batchId) ===
-          String(purchase.classId)
-      );
-  
-  
-    if (!purchasedBatch) {
-      continue;
-    }
-  
-  
-    // =======================================
-    // UPSELL
-    // =======================================
-  
-    if (
-      purchasedBatch.upgradeToBatchIds?.includes(
-        String(batch.batchId)
-      )
-    ) {
-  
-      recommendationType = "upsell";
-  
-      relationshipScore += 40;
-  
-      relationshipReasons.push(
-        `This is an upgrade from ${purchase.title}.`
-      );
-    }
-  
-  
-    // =======================================
-    // CROSS-SELL
-    // =======================================
-  
-    if (
-      purchasedBatch.relatedBatchIds?.includes(
-        String(batch.batchId)
-      )
-    ) {
-  
-      // Don't overwrite a stronger upsell
-      if (
-        recommendationType !== "upsell"
-      ) {
-        recommendationType =
-          "cross_sell";
-      }
-  
-      relationshipScore += 25;
-  
-      relationshipReasons.push(
-        `This complements ${purchase.title}.`
-      );
-    }
-  }
-
-
-  return {
-
-    product: {
-  
-      id: batch.batchId,
-  
-      title: batch.title,
-  
-      description: batch.description,
-  
-      price: batch.price,
-  
-      category: batch.folder,
-  
-      whatYouLearn:
-        batch.whatYouLearn || [],
-  
-      redirectPath:
-        batch.redirectPath || null
-  
-    },
-  
-    score,
-  
-    type: recommendationType,
-  
-    reasons
-  
-  };
-
-  });
-
-
-  // =========================================
-  // 6. SORT BY RELEVANCE
-  // =========================================
-
-  scored.sort(
-
-    (a, b) =>
-      b.score - a.score
-
-  );
-
-
-  // =========================================
-  // 7. RETURN TOP PRODUCTS
-  // =========================================
-
-  return scored.slice(
-    0,
-    limit
-  );
+    .sort((left, right) => right.score - left.score || left.product.price - right.product.price)
+    .slice(0, safeLimit);
 }

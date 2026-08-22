@@ -64,11 +64,12 @@ import notesRouter from './routes/Notes.routes.js';
 import * as Sentry from '@sentry/node';
 
 import auth from './controller/authh.js';
-import PaymentAttemptModel from './agents/revenue-recovery/schema/PaymentAttempt.model.js';
+import PaymentAttempt from './agents/revenue-recovery/schema/PaymentAttempt.model.js';
 
 import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
 import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
 import recommendationRouter from "./routes/recommendation.js";
+import catalogRouter from "./routes/catalog.routes.js";
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -198,6 +199,7 @@ app.use('/api/notes', notesRouter);
 app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 
 app.use("/api/recommendations",recommendationRouter);
+app.use("/api/catalog", catalogRouter);
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive

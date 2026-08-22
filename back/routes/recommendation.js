@@ -1,6 +1,6 @@
 import express from "express";
 
-import auth from "../controller/authh.js";
+import optionalAuth from "../middleware/optionalAuth.js";
 
 import {
   getRecommendations
@@ -13,7 +13,7 @@ const router = express.Router();
 router.post(
   "/",
 
-  auth,
+  optionalAuth,
 
   async (req, res) => {
 
@@ -29,7 +29,7 @@ router.post(
         await getRecommendations({
 
           userId:
-            req.user._id,
+            req.user?._id || null,
 
           query,
 
