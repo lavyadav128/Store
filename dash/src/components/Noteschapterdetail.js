@@ -101,7 +101,8 @@ const NotesChapterDetail = () => {
             batchSlug
           )}&subject=${encodeURIComponent(subjectSlug)}&chapter=${encodeURIComponent(
             chapterSlug
-          )}`
+          )}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem("token") || ""}` } }
         );
         if (!res.ok) throw new Error("not found");
         const data = await res.json();
@@ -154,7 +155,7 @@ const NotesChapterDetail = () => {
       // (using its own CLOUDINARY_* env vars) and returns the saved copy.
       const saveRes = await fetch(`${API_BASE}/api/notes/chapters/note`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
         body: JSON.stringify({
           batch: batchSlug,
           subject: subjectSlug,
@@ -182,7 +183,7 @@ const NotesChapterDetail = () => {
     try {
       const res = await fetch(`${API_BASE}/api/notes/chapters/note`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${localStorage.getItem("token") || ""}` },
         body: JSON.stringify({
           batch: batchSlug,
           subject: subjectSlug,

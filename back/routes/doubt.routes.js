@@ -3,15 +3,18 @@ import express from "express";
 import Doubt from "../schema/doubt.model.js";
 import Notification from "../schema/notification.model.js";
 import { getIO } from "../socket/io.js";
+import auth from "../controller/authh.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = express.Router();
 
 /* ----------------------------------------------------
    USER: SUBMIT DOUBT
 ---------------------------------------------------- */
-router.post("/submit-doubt", async (req, res) => {
+router.post("/submit-doubt", auth, async (req, res) => {
   try {
-    const { username, subject, message, contact } = req.body;
+    const { subject, message, contact } = req.body;
+    const username = req.user.username;
 
     if (!username || !subject || !message) {
       return res.status(400).json({
@@ -50,7 +53,7 @@ router.post("/submit-doubt", async (req, res) => {
 /* ----------------------------------------------------
    ADMIN: GET ALL DOUBTS
 ---------------------------------------------------- */
-router.get("/admin/doubts", async (req, res) => {
+router.get("/admin/doubts", auth, requireAdmin, async (req, res) => {
   try {
     const doubts = await Doubt.find().sort({ createdAt: -1 });
     return res.json(doubts);
@@ -66,7 +69,7 @@ router.get("/admin/doubts", async (req, res) => {
 /* ----------------------------------------------------
    ADMIN: REPLY TO DOUBT
 ---------------------------------------------------- */
-router.post("/admin/reply-doubt/:id", async (req, res) => {
+router.post("/admin/reply-doubt/:id", auth, requireAdmin, async (req, res) => {
   try {
     const { reply } = req.body;
 

@@ -5,11 +5,12 @@ import express from "express";
 import Resource from "../schema/Resource.model.js";
 import { upload, cloudinary } from "../config/cloudinary.js";
 import auth from "../controller/authh.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = express.Router();
 
 // ── UPLOAD file (admin only) ──
-router.post("/upload", auth, upload.single("file"), async (req, res) => {
+router.post("/upload", auth, requireAdmin, upload.single("file"), async (req, res) => {
   try {
     console.log("BODY:", req.body);
     console.log("FILE:", req.file?.originalname);
@@ -120,7 +121,7 @@ router.get("/", async (req, res) => {
 
 
 // ── SAVE order ──
-router.post("/reorder", auth, async (req, res) => {
+router.post("/reorder", auth, requireAdmin, async (req, res) => {
   try {
     const { ids } = req.body; // array of ids in new order
     if (!Array.isArray(ids)) {
@@ -139,7 +140,7 @@ router.post("/reorder", auth, async (req, res) => {
 });
 
 // ── DELETE file ──
-router.delete("/:id", auth, async (req, res) => {
+router.delete("/:id", auth, requireAdmin, async (req, res) => {
   try {
     const resource = await Resource.findById(req.params.id);
     if (!resource) return res.status(404).json({ message: "Not found" });

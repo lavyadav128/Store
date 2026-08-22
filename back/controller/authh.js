@@ -14,9 +14,6 @@ const auth = (req, res, next) => {
       return res.status(401).json({ error: 'No token provided' });
     }
 
-    // Log the received token for debugging (optional but helpful during development)
-    console.log('Token received:', token); 
-
     // Verify the token using the secret key stored in environment variable JWT_SECRET
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 

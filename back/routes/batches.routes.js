@@ -3,8 +3,10 @@
 import express from 'express';
 import Batch from "../schema/batches.model.js";
 import auth from '../controller/authh.js'; // Custom auth middleware for protecting routes
+import requireAdmin from '../middleware/requireAdmin.js';
 import { cache, clearCache } from '../middleware/cache.js'; // Redis caching
 const router = express.Router();
+router.use('/admin', auth, requireAdmin);
 // ─────────────────────────────────────────────
 // PUBLIC ROUTES — used by frontend pages
 // ─────────────────────────────────────────────

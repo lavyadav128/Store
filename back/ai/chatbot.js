@@ -426,7 +426,7 @@ router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",
   try {
     const { message, context = {}, history = [], pdf } = req.body;
 
-    const userId = req.user?.id || null;
+    const userId = req.user?._id || null;
 
     const commerceContext = await getCommerceContext(userId);
     // Destructure the request body into individual variables

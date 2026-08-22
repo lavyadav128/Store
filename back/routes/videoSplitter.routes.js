@@ -12,8 +12,12 @@ import axios             from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import os                from "os";
 import https             from "https";
+import auth              from "../controller/authh.js";
 
 const router    = Router();
+// Video processing can consume significant compute and storage. Require an
+// authenticated platform user for every operation, including URL imports.
+router.use(auth);
 const execAsync = promisify(exec);
 
 const httpsAgent = new https.Agent({

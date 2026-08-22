@@ -1,5 +1,6 @@
 import express from "express";
-import jwt from "jsonwebtoken";
+import auth from "../controller/authh.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 import { User } from "../schema/user.model.js";
 import { Message } from "../schema/message.model.js";
 import Notification from "../schema/notification.model.js";
@@ -7,29 +8,7 @@ import Notification from "../schema/notification.model.js";
 const router = express.Router();
 
 /* ---------------- ADMIN AUTH ---------------- */
-const adminAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-
-  if (!authHeader) {
-    return res.status(401).json({ message: "No token provided" });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    // 👇 ONLY adminbrand allowed
-    if (decoded.username !== "adminbrand@gmail.com") {
-      return res.status(403).json({ message: "Access denied" });
-    }
-
-    req.user = decoded;
-    next();
-  } catch (err) {
-    return res.status(401).json({ message: "Invalid token" });
-  }
-};
+const adminAuth = [auth, requireAdmin];
 
 /* ---------------- GET ALL USERNAMES ---------------- */
 router.get("/users", adminAuth, async (req, res) => {

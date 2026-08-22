@@ -63,8 +63,12 @@ router.post(
             razorpayOrderId: p.order_id
           });
 
-        // Create revenue-recovery signal
-        const signal = await FailedPayment.create({
+        // Razorpay retries webhook delivery until it receives a 2xx response.
+        // Idempotently reuse a signal we have already processed for this payment
+        // so duplicate deliveries can never produce duplicate customer nudges.
+        const existingSignal = await FailedPayment.findOne({ razorpayPaymentId: p.id });
+        let signal = existingSignal;
+        if (!signal) signal = await FailedPayment.create({
           source: 'payment_failure',
 
           userId:
@@ -127,8 +131,9 @@ router.post(
           await paymentAttempt.save();
         }
 
-        // Start AI Revenue Recovery Agent
-        processSignal(signal._id).catch(
+        // Start recovery only for the first webhook delivery. Reprocessing a
+        // duplicate delivery would duplicate actions and audit records.
+        if (!existingSignal) processSignal(signal._id).catch(
           (err) =>
             console.error(
               'Agent processing error:',

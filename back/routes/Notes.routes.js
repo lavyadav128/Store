@@ -5,11 +5,15 @@ import multer from 'multer';
 import NoteBatch from '../schema/Notebatch.model.js';
 import NoteSubject from '../schema/Notesubject.model.js';
 import NoteChapter from '../schema/Notechapter.model.js';
+import UserChapterNote from '../schema/UserChapterNote.model.js';
 import { cloudinary } from '../config/cloudinary.js';
 import auth from '../controller/authh.js';
+import optionalAuth from '../middleware/optionalAuth.js';
+import requireAdmin from '../middleware/requireAdmin.js';
 import { cache, clearCache } from '../middleware/cache.js';
 
 const router = express.Router();
+router.use('/admin', auth, requireAdmin);
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
@@ -72,13 +76,21 @@ router.get('/chapters', cache(60), async (req, res) => {
 });
 
 // GET /api/notes/chapters/single?batch=X&subject=physics&chapter=redox-reactions
-router.get('/chapters/single', cache(120), async (req, res) => {
+router.get('/chapters/single', optionalAuth, async (req, res) => {
   try {
     const { batch, subject, chapter } = req.query;
     if (!batch || !subject || !chapter) return res.status(400).json({ message: 'batch, subject and chapter are required' });
     const found = await NoteChapter.findOne({ batchSlug: batch, subjectSlug: subject, slug: chapter, isActive: true });
     if (!found) return res.status(404).json({ message: 'Chapter not found' });
-    res.json(found);
+    const response = found.toObject();
+    delete response.myNoteText;
+    delete response.myNoteUrl;
+    if (req.user?._id) {
+      const personal = await UserChapterNote.findOne({ userId: req.user._id, batchSlug: batch, subjectSlug: subject, chapterSlug: chapter }).lean();
+      response.myNoteText = personal?.noteText || '';
+      response.myNoteUrl = '';
+    }
+    res.json(response);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch chapter', error: err.message });
   }
@@ -89,7 +101,7 @@ router.get('/chapters/single', cache(120), async (req, res) => {
 // ═════════════════════════════════════════════════════════════
 
 // PUT /api/notes/chapters/note — create/overwrite the note for a chapter
-router.put('/chapters/note', async (req, res) => {
+router.put('/chapters/note', auth, async (req, res) => {
   try {
     const { batch, subject, chapter, noteText } = req.body;
 
@@ -97,37 +109,21 @@ router.put('/chapters/note', async (req, res) => {
       return res.status(400).json({ message: 'batch, subject, chapter and noteText are required' });
     }
 
-    const chapterDoc = await NoteChapter.findOne({ batchSlug: batch, subjectSlug: subject, slug: chapter });
+    const chapterDoc = await NoteChapter.exists({ batchSlug: batch, subjectSlug: subject, slug: chapter });
     if (!chapterDoc) return res.status(404).json({ message: 'Chapter not found' });
-
-    // Fixed public_id so re-saving overwrites the same Cloudinary file
-    // instead of creating a new one every time.
-    const publicId = `notes/${batch}/${subject}/${chapter}/my-note`;
-
-    const uploadFromBuffer = () => new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { resource_type: 'raw', public_id: publicId, overwrite: true, invalidate: true },
-        (error, result) => (error ? reject(error) : resolve(result))
-      );
-      stream.end(Buffer.from(noteText, 'utf-8'));
-    });
-
-    const result = await uploadFromBuffer();
-
-    chapterDoc.myNoteText = noteText;
-    chapterDoc.myNoteUrl = result.secure_url;
-    await chapterDoc.save();
-
-    await clearCache('cache:/api/notes/chapters*');
-
-    res.json({ message: 'Note saved', noteText: chapterDoc.myNoteText, noteUrl: chapterDoc.myNoteUrl });
+    const saved = await UserChapterNote.findOneAndUpdate(
+      { userId: req.user._id, batchSlug: batch, subjectSlug: subject, chapterSlug: chapter },
+      { $set: { noteText: noteText.trim() } },
+      { new: true, upsert: true, runValidators: true }
+    );
+    res.json({ message: 'Personal note saved', noteText: saved.noteText, noteUrl: '' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to save note', error: err.message });
   }
 });
 
 // DELETE /api/notes/chapters/note — remove the note for a chapter
-router.delete('/chapters/note', async (req, res) => {
+router.delete('/chapters/note', auth, async (req, res) => {
   try {
     const { batch, subject, chapter } = req.body;
 
@@ -135,24 +131,8 @@ router.delete('/chapters/note', async (req, res) => {
       return res.status(400).json({ message: 'batch, subject and chapter are required' });
     }
 
-    const chapterDoc = await NoteChapter.findOne({ batchSlug: batch, subjectSlug: subject, slug: chapter });
-    if (!chapterDoc) return res.status(404).json({ message: 'Chapter not found' });
-
-    const publicId = `notes/${batch}/${subject}/${chapter}/my-note`;
-    try {
-      await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-    } catch (cloudErr) {
-      // Don't block clearing the reference even if the Cloudinary file is already gone
-      console.error('Cloudinary destroy error:', cloudErr.message);
-    }
-
-    chapterDoc.myNoteText = '';
-    chapterDoc.myNoteUrl = '';
-    await chapterDoc.save();
-
-    await clearCache('cache:/api/notes/chapters*');
-
-    res.json({ message: 'Note deleted' });
+    await UserChapterNote.deleteOne({ userId: req.user._id, batchSlug: batch, subjectSlug: subject, chapterSlug: chapter });
+    res.json({ message: 'Personal note deleted' });
   } catch (err) {
     res.status(500).json({ message: 'Failed to delete note', error: err.message });
   }

@@ -7,7 +7,7 @@ const router = express.Router();
 // Single customer-safe, live source of truth for the Study Copilot's catalog.
 router.get("/ai", optionalAuth, async (req, res) => {
   try {
-    const catalog = await getCommerceContext(req.user?.id || null);
+    const catalog = await getCommerceContext(req.user?._id || null);
     res.set("Cache-Control", "no-store");
     res.json({
       generatedAt: new Date().toISOString(),

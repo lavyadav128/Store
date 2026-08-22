@@ -324,7 +324,7 @@ function BotBubble({ text }) {
   );
 }
 
-function RecommendationCards({ recommendations, onView }) {
+function RecommendationCards({ recommendations, onView, onStartCheckout }) {
   return (
     <div style={{ display: "grid", gap: 8, marginTop: 8, width: "100%" }}>
       {recommendations.map(({ product, reasons }) => (
@@ -335,11 +335,26 @@ function RecommendationCards({ recommendations, onView }) {
           </div>
           <div style={{ color: "#666", fontSize: 11.5, marginTop: 3 }}>{product.category} · {product.type === "note-batch" ? "Notes batch" : "Course batch"}</div>
           <div style={{ color: "#333", fontSize: 11.5, lineHeight: 1.4, marginTop: 5 }}>{reasons[0]}</div>
-          <button onClick={() => onView(product.destination)} style={{ marginTop: 8, border: "none", borderRadius: 7, padding: "6px 9px", background: "#1D9E75", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>View batch</button>
+          <div style={{ display: "flex", gap: 7, marginTop: 8 }}>
+            <button onClick={() => onView(product.destination)} style={{ border: "1px solid #1D9E75", borderRadius: 7, padding: "6px 9px", background: "#fff", color: "#0F6E56", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>View batch</button>
+            <button onClick={() => onStartCheckout(product)} style={{ border: "none", borderRadius: 7, padding: "6px 9px", background: "#1D9E75", color: "#fff", fontSize: 12, cursor: "pointer", fontWeight: 700 }}>Checkout safely</button>
+          </div>
         </div>
       ))}
     </div>
   );
+}
+
+function CheckoutConfirmation({ intent, onConfirm, onCancel }) {
+  const isFree = intent.product.price === 0;
+  return <div style={{ marginTop: 8, padding: 11, borderRadius: 10, background: "#FFF8E8", border: "1px solid #EACB85", fontSize: 12 }}>
+    <strong>Confirm checkout</strong>
+    <div style={{ marginTop: 4, lineHeight: 1.45 }}>You selected <b>{intent.product.title}</b> for <b>{isFree ? "FREE" : `₹${intent.product.price}`}</b>. {isFree ? "This will use direct enrolment." : "The existing Razorpay test checkout will open only after you confirm."}</div>
+    <div style={{ display: "flex", gap: 7, marginTop: 9 }}>
+      <button onClick={() => onConfirm(intent)} style={{ border: "none", borderRadius: 7, padding: "6px 9px", background: "#1D9E75", color: "#fff", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>Confirm and continue</button>
+      <button onClick={() => onCancel(intent)} style={{ border: "1px solid #999", borderRadius: 7, padding: "6px 9px", background: "#fff", color: "#555", fontWeight: 700, cursor: "pointer", fontSize: 12 }}>Cancel</button>
+    </div>
+  </div>;
 }
 
 // ─────────────────────────────────────────────
@@ -545,6 +560,36 @@ export default function ChatbotWidget() {
     }
   };
 
+  const startCheckout = async (product) => {
+    const token = localStorage.getItem("token");
+    if (!token) { setApiError("Please log in before starting checkout."); return; }
+    try {
+      const res = await fetch(`${server}/api/commerce/checkout-intents`, {
+        method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ productId: product.id, reason: "Student selected the guided-selling checkout action." }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Unable to start checkout");
+      setMessages((prev) => [...prev, { role: "bot", text: "## Your action needs confirmation\nThe catalog price is locked for this confirmation. No payment has started yet.", checkoutIntent: { intentId: data.intentId, product: data.product }, time: new Date() }]);
+    } catch (err) { setApiError(err.message || "Unable to start checkout."); }
+  };
+
+  const confirmCheckout = async (intent) => {
+    const token = localStorage.getItem("token");
+    try {
+      const res = await fetch(`${server}/api/commerce/checkout-intents/${intent.intentId}/confirm`, { method: "POST", headers: { Authorization: `Bearer ${token}` } });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Checkout confirmation failed");
+      navigate(data.destination);
+    } catch (err) { setApiError(err.message || "Checkout confirmation failed."); }
+  };
+
+  const cancelCheckout = async (intent) => {
+    const token = localStorage.getItem("token");
+    try { await fetch(`${server}/api/commerce/checkout-intents/${intent.intentId}/cancel`, { method: "POST", headers: { Authorization: `Bearer ${token}` } }); } catch (_) { /* UI cancellation remains safe even if the audit write is unavailable. */ }
+    setMessages((prev) => [...prev, { role: "bot", text: `Checkout for **${intent.product.title}** was cancelled. No payment was started.`, time: new Date() }]);
+  };
+
   const applySuggestion = (chipLabel) => {
     setShowSuggestions(false);
     if (chipLabel === "Find a course for my goal") {
@@ -670,7 +715,7 @@ export default function ChatbotWidget() {
           {messages.map((m, i) => (
             <div key={i} style={S.msgWrap(m.role)}>
               {m.role === "bot"
-                ? <><BotBubble text={m.text} />{m.recommendations && <RecommendationCards recommendations={m.recommendations} onView={navigate} />}</>
+                ? <><BotBubble text={m.text} />{m.recommendations && <RecommendationCards recommendations={m.recommendations} onView={navigate} onStartCheckout={startCheckout} />}{m.checkoutIntent && <CheckoutConfirmation intent={m.checkoutIntent} onConfirm={confirmCheckout} onCancel={cancelCheckout} />}</>
                 : <div style={S.bubble("user")}>{m.text}</div>
               }
               <span style={S.msgMeta}>{formatTime(m.time)}</span>

@@ -674,7 +674,7 @@ const CombinedClassPage = () => {
 
       const options = {
         key: process.env.REACT_APP_RAZORPAY_LIVE_KEY,
-        amount: batch.price * 100,
+        amount: order.amount,
         currency: "INR",
         name: "Atom Classes",
         description: `Payment for ${batch.title}`,

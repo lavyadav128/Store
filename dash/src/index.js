@@ -59,6 +59,7 @@ import TestAttemptPage from "./components/Batches/testattempt";
 
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute   from './components/AdminRoute';
+import CommerceAuditDashboard from './components/CommerceAuditDashboard';
 import PurchaseProtectedRoute from './components/PurchaseProtectedRoute';
 
 
@@ -90,6 +91,7 @@ root.render(
             {/* ── ADMIN ONLY ── */}
             <Route element={<AdminRoute />}>
               <Route path="/admin-dashboard" element={<Home />} />
+              <Route path="/commerce-audit" element={<CommerceAuditDashboard />} />
             </Route>
 
             {/* ── ALL LOGGED-IN USERS ── */}

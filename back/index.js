@@ -70,6 +70,9 @@ import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
 import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
 import recommendationRouter from "./routes/recommendation.js";
 import catalogRouter from "./routes/catalog.routes.js";
+import commerceRouter, { CommerceAudit } from "./routes/commerce.routes.js";
+import Batch from './schema/batches.model.js';
+import NoteBatch from './schema/Notebatch.model.js';
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -200,6 +203,7 @@ app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 
 app.use("/api/recommendations",recommendationRouter);
 app.use("/api/catalog", catalogRouter);
+app.use("/api/commerce", commerceRouter);
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive
@@ -231,12 +235,28 @@ const razorpay = new Razorpay({
 // The frontend calls this to create a payment order before showing the Razorpay payment popup
 app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', prefix: 'rl:create-order' }), async (req, res) => {
   // Pull amount and receipt from the request body (sent by the frontend)
-  const { amount, receipt ,batchId, batchTitle} = req.body;
+  const { receipt, batchId } = req.body;
 
-  if (!amount || !batchId || !batchTitle) {
+  if (!batchId) {
     return res.status(400).json({
-      error: "amount, batchId and batchTitle are required"
+      error: "batchId is required"
     });
+  }
+
+  // Never trust a browser-provided amount or title. Resolve the product and
+  // price from MongoDB immediately before creating the Razorpay order.
+  const [batch, noteBatch] = await Promise.all([
+    Batch.findOne({ batchId, isActive: true }).lean(),
+    NoteBatch.findOne({ slug: batchId, isActive: true }).lean(),
+  ]);
+  const product = batch
+    ? { id: batch.batchId, title: batch.title, price: batch.price, type: 'batch', destination: batch.redirectPath || `/class/${batch.batchId}` }
+    : noteBatch
+      ? { id: noteBatch.slug, title: noteBatch.title, price: noteBatch.price, type: 'note-batch', destination: `/notes/${noteBatch.slug}` }
+      : null;
+
+  if (!product || product.price <= 0) {
+    return res.status(400).json({ error: 'A currently active paid batch is required for Razorpay checkout.' });
   }
 
   // Build the "options" object that Razorpay's API expects
@@ -244,7 +264,7 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
     // Razorpay requires the amount in the SMALLEST unit of the currency
     // For INR: 1 Rupee = 100 paise, so multiply by 100
     // e.g. ₹499 → 49900 paise
-    amount: amount * 100,
+    amount: product.price * 100,
 
     // Currency code — INR = Indian Rupee
     currency: 'INR',
@@ -270,15 +290,25 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
     await PaymentAttempt.create({
       userId,
       batchId,
-      batchTitle,
-      amount,
+      batchTitle: product.title,
+      amount: product.price,
       currency: "INR",
       razorpayOrderId: order.id,
     
       metadata: {
         receipt: order.receipt,
-        source: "website_checkout"
+        source: "website_checkout",
+        productType: product.type,
+        destination: product.destination,
       }
+    });
+    await CommerceAudit.create({
+      userId,
+      eventType: 'payment_order_created',
+      product: { id: `${product.type}:${product.id}`, purchaseId: product.id, type: product.type, title: product.title, price: product.price, destination: product.destination },
+      reason: 'Server-created Razorpay test-mode order using the live database price.',
+      gate: { decision: 'approved', rule: 'server_price_verified', explanation: 'The order amount was resolved from the active product record, not accepted from the browser.' },
+      metadata: { razorpayOrderId: order.id },
     });
     
     res.status(200).json(order);
@@ -286,6 +316,15 @@ app.post('/api/create-order',auth, rateLimiter({ requests: 10, window: '1 m', pr
   } catch (error) {
     // If Razorpay's API fails (network issue, invalid keys, etc.), log it and send an error
     console.error('Error creating Razorpay order:', error);
+    if (req.user?._id && product) {
+      await CommerceAudit.create({
+        userId: req.user._id,
+        eventType: 'payment_order_failed',
+        product: { id: `${product.type}:${product.id}`, purchaseId: product.id, type: product.type, title: product.title, price: product.price, destination: product.destination },
+        reason: 'Razorpay order creation failed.',
+        gate: { decision: 'blocked', rule: 'payment_order_creation_failed', explanation: error.message || 'The payment provider did not create an order.' },
+      }).catch(() => {});
+    }
     Sentry.captureException(error);
     res.status(500).json({ error: 'Failed to create Razorpay order' });
   }

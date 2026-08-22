@@ -24,7 +24,7 @@ router.post("/save-to-cloudinary", auth, upload.single("video"), async (req, res
   try {
     if (!req.file) return res.status(400).json({ message: "No video file received" });
 
-    const filename = `video_studio_${req.user?.id || "user"}_${Date.now()}`;
+    const filename = `video_studio_${req.user?._id || "user"}_${Date.now()}`;
 
     const uploadResult = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(

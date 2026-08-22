@@ -5,6 +5,7 @@ import optionalAuth from "../middleware/optionalAuth.js";
 import {
   getRecommendations
 } from "../agents/revenue-recovery/services/recommendationService.js";
+import CommerceAudit from "../schema/CommerceAudit.model.js";
 
 
 const router = express.Router();
@@ -38,6 +39,17 @@ router.post(
           limit: 3
 
         });
+
+      if (req.user?._id) {
+        await Promise.all(recommendations.map(({ product, reasons }) => CommerceAudit.create({
+          userId: req.user._id,
+          eventType: "recommendation_shown",
+          product: { id: product.id, purchaseId: product.purchaseId, type: product.type, title: product.title, price: product.price, destination: product.destination },
+          reason: reasons.join(" "),
+          gate: { decision: "approved", rule: "live_catalog_only", explanation: "Recommendation came from the active live catalog and excludes owned products." },
+          metadata: { query },
+        })));
+      }
 
 
       return res.json({
