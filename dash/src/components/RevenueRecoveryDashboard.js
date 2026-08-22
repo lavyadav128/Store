@@ -256,7 +256,7 @@ const RevenueRecoveryDashboard = () => {
                 Autonomous Agent
               </Typography>
               <Typography sx={{ fontFamily: display, fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>
-                Revenue Recovery
+                AI Revenue Recovery
               </Typography>
               <Typography sx={{ fontFamily: font, fontSize: 14, color: "#aaa", mt: 0.8 }}>
                 Detects failed payments, decides a recovery action, and asks for approval when it's unsure.

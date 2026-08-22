@@ -331,7 +331,7 @@ const Dashboard = () => {
   }
   const isAdminRoute = localStorage.getItem("isAdmin") === "true";
 
-  const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_ADMIN : VIEW_HOME));  const [purchases,    setPurchases]    = useState([]);
+  const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));  const [purchases,    setPurchases]    = useState([]);
   const [showPopup,    setShowPopup]    = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [mobileDrawer, setMobileDrawer] = useState(false);
