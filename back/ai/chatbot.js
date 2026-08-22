@@ -34,6 +34,36 @@ import optionalAuth from "../middleware/optionalAuth.js";
 import { getCommerceContext } from "../agents/revenue-recovery/services/commerceContext.js";
 import { buildPaymentStatusReply, getStudentAssistantContext, recordStudentInterests } from "./studentContext.js";
 
+
+
+function buildClassAvailabilityReply(message, commerceContext) {
+  const match = message.toLowerCase().match(
+    /\bclass\s*(9|10|11|12)\b|\b(9th|10th|11th|12th)\b/
+  );
+
+  if (!match) return null;
+
+  const requestedClass = match[1] || match[2].replace("th", "");
+  const className = `Class ${requestedClass}`;
+
+  const matchingBatches = (commerceContext.availableProducts || []).filter(
+    (product) => product.academicLevel === className
+  );
+
+  if (matchingBatches.length === 0) {
+    return `There are currently no active ${className} batches available. I will not recommend batches from another class.`;
+  }
+
+  const batchList = matchingBatches
+    .map((product) => {
+      const features = (product.includedFeatures || []).slice(0, 3).join(", ");
+      return `- **${product.title}** (${product.category})${features ? ` — includes ${features}` : ""}`;
+    })
+    .join("\n");
+
+  return `Here are the active batches specifically available for **${className}**:\n\n${batchList}\n\nTell me your exam goal or subject and I will help you choose the best one.`;
+}
+
 const require = createRequire(import.meta.url);    // Creates a custom require() function so we can import CommonJS packages
 const pdfParse = require("pdf-parse");             // pdf-parse is a library that reads text out of PDF files
 
@@ -305,6 +335,12 @@ function buildMessages(message, context, chunks, history, commerceContext, perso
   targetAudience, whatYouLearn, and includedFeatures from the LIVE CATALOG.
   Clearly say when a feature is not listed instead of assuming it exists.
 
+  IMPORTANT CATALOG RULE:
+- batchId and product id are internal identifiers, not academic class levels.
+- Never interpret batch:9, batch:11, or any numeric ID as Class 9, Class 11, etc.
+- Use only academicLevel, title, targetAudience, examFocus, and includedFeatures to identify who a batch is for.
+- If there is no exact batch for a student's class, clearly say no active batch is available. Never suggest an unrelated batch.
+
   Never claim that a student purchased something unless it
   appears in USER ALREADY OWNS.
 
@@ -506,6 +542,18 @@ router.post("/chatbot",optionalAuth,rateLimiter({  requests: 10,  window: "1 m",
 
     const paymentReply = buildPaymentStatusReply(message, personalContext);
     if (paymentReply) return res.json({ reply: paymentReply, detected: { chapter: "Account", subject: "Live payment and recovery status" } });
+
+    const classReply = buildClassAvailabilityReply(message, commerceContext);
+    if (classReply) {
+      return res.json({
+        reply: classReply,
+        detected: {
+          chapter: "Course Catalog",
+          subject: "Class-specific batch availability",
+        },
+      });
+    }
+
 
     const chunks = await searchChunks(message, 6);
     // Find the 6 most relevant text chunks from the vector store for this user message

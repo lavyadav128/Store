@@ -18,6 +18,21 @@ const CATEGORY_DEFAULTS = {
   },
 };
 
+function getAcademicLevel(batch) {
+  const searchableText = [
+    batch.title,
+    batch.description,
+    batch.targetAudience,
+    ...(batch.whatYouLearn || []),
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  const match = searchableText.match(/\bclass\s*(9|10|11|12)\b/);
+
+  return match ? `Class ${match[1]}` : null;
+}
+
 /**
  * Builds the commerce information that the chatbot
  * can safely use for recommendations.
@@ -49,6 +64,7 @@ export async function getCommerceContext(userId = null) {
         description: batch.description,
         price: batch.price,
         category: batch.folder,
+        academicLevel: getAcademicLevel(batch),
         whatYouLearn: batch.whatYouLearn || [],
         includedFeatures: batch.includedFeatures?.length ? batch.includedFeatures : (defaults.includedFeatures || []),
         examFocus: batch.examFocus?.length ? batch.examFocus : (defaults.examFocus || []),
