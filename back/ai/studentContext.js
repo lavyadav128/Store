@@ -73,7 +73,7 @@ export async function getStudentAssistantContext(userId) {
 }
 
 export function buildPaymentStatusReply(message, personal) {
-  if (!personal.authenticated || !/\b(payment|refund|failed|failure|charged|recovery|cancelled|canceled)\b/i.test(message)) return null;
+  if (!personal.authenticated || !/\b(payment|refund|failed|failure|charged|recovery|cancelled|canceled|discount|offer|approve|approval)\b/i.test(message)) return null;
   const latestCase = personal.recoveryCases?.[0];
   const latestAttempt = personal.recentPaymentAttempts?.[0];
   if (!latestCase && !latestAttempt) return "I cannot see a recent payment attempt on your account. If you just tried, refresh in a moment; otherwise start checkout again from the batch page.";

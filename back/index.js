@@ -75,6 +75,7 @@ import Batch from './schema/batches.model.js';
 import NoteBatch from './schema/Notebatch.model.js';
 import { User } from './schema/user.model.js';
 import recoveryOfferRoutes from './routes/recoveryOffer.routes.js';
+import recoveryClientRoutes from './routes/recoveryClient.routes.js';
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -192,6 +193,7 @@ app.use('/api', userRoutes);
 // Purchase routes — e.g. POST /api/purchase, GET /api/purchases
 app.use('/api', purchaseRoutes);
 app.use('/api/recovery-offers', recoveryOfferRoutes);
+app.use('/api/recovery', recoveryClientRoutes);
 
 // Chatbot routes — e.g. POST /api/chat
 app.use('/api', chatbotRoutes);

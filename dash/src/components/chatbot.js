@@ -309,7 +309,9 @@ function enrichMessage(message, topicSlug) {
   return `${message} (I am studying "${topic}")`;
 }
 
-const DEFAULT_SUGGESTIONS = ["Summarise this topic", "Give me key points", "Quiz me on this", "Find a course for my goal"];
+// The assistant starts as an open conversation. Learners can still ask for a
+// summary, quiz, PDF help or recommendations in their own words.
+const DEFAULT_SUGGESTIONS = [];
 
 // ─────────────────────────────────────────────
 // MARKDOWN MESSAGE BUBBLE
@@ -435,13 +437,19 @@ export default function ChatbotWidget() {
 
   useEffect(() => {
     if (!open) return;
+    // Closing the panel must not discard an active learner's conversation.
+    // A full logout reloads the app and starts a fresh session naturally.
+    if (messagesRef.current.length > 0) {
+      setTimeout(() => textareaRef.current?.focus(), 80);
+      return;
+    }
     const ctx   = getContext();
     const topic = capitalize(ctx.topic.replace(/-/g, " "));
     setTopicLabel(getTopicLabel());
     setApiError("");
-    setShowSuggestions(true);
+    setShowSuggestions(false);
     setPdfFile(null);
-    setAwaitingGoal(false);
+    if (!onboardingMode) setAwaitingGoal(false);
     setMessages([{
       role: "bot",
       text: onboardingMode
@@ -732,7 +740,7 @@ export default function ChatbotWidget() {
               title="Clear conversation"
               onClick={() => {
                 setMessages([{ role: "bot", text: "Conversation cleared. Ask me anything!", time: new Date() }]);
-                setShowSuggestions(true);
+                setShowSuggestions(false);
                 clearPdf();
               }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "#FFF0F0"; e.currentTarget.style.color = "#CC3333"; }}

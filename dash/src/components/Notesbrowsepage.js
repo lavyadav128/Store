@@ -11,6 +11,7 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import { useNavigate } from 'react-router-dom';
 import { makeAuthenticatedRequest } from './makeauth';
 import server from '../environment';
+import { reportCheckoutFailure } from '../recoveryClient';
 
 const NotesBrowsePage = () => {
   const navigate = useNavigate();
@@ -108,6 +109,7 @@ const NotesBrowsePage = () => {
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => reportCheckoutFailure(orderRes.id, response));
       rzp.open();
     } catch (err) {
       alert('Payment initialization failed. Please try again.');

@@ -561,6 +561,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { useNavigate } from "react-router-dom";
 import { makeAuthenticatedRequest } from "../makeauth";
 import server from "../../environment";
+import { reportCheckoutFailure } from "../../recoveryClient";
 
 const CombinedClassPage = () => {
   const navigate = useNavigate();
@@ -712,6 +713,7 @@ const CombinedClassPage = () => {
       };
 
       const rzp = new window.Razorpay(options);
+      rzp.on("payment.failed", (response) => reportCheckoutFailure(orderRes.id, response));
 
       rzp.open();
     } catch (err) {

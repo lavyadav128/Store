@@ -33,6 +33,7 @@ import { makeAuthenticatedRequest } from '../makeauth';
 // "server" is the base URL of our backend (e.g. "https://our-api.onrender.com")
 // imported from a config file so we don't hardcode the URL everywhere
 import server from '../../environment';
+import { reportCheckoutFailure } from '../../recoveryClient';
 
 
 // ═════════════════════════════════════════════════════════════
@@ -171,6 +172,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
       // ── STEP 3: Create a Razorpay instance and open the payment popup ──
       // new window.Razorpay(options) creates the payment modal with our config
       const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
       // rzp.open() actually shows the payment popup to the student
       rzp.open();
 
