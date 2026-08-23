@@ -49,8 +49,7 @@ router.get('/signals/:id', async (req, res) => {
 
 router.post('/signals/:id/process', async (req, res) => {
   try {
-    const { simulateFailure } = req.body || {};
-    const result = await processSignal(req.params.id, { simulateFailure: !!simulateFailure });
+    const result = await processSignal(req.params.id);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });

@@ -104,27 +104,33 @@ const RevenueRecoveryDashboard = () => {
 
   useEffect(() => { refreshAll(); }, [refreshAll]);
 
-  const runAgent = async (signalId, simulateFailure = false) => {
+  const runAgent = async (signalId) => {
     setLoading(true);
+  
     try {
       const res = await axios.post(
         `${BASE}/signals/${signalId}/process`,
-        { simulateFailure },
+        {},
         authHeader()
       );
+  
       const gateDecision = res.data.actionLog.gate.decision;
+  
       showSnack(
-        simulateFailure
-          ? "Simulated failure run complete — check the audit trail for the graceful-failure log."
-          : `Agent decision: ${gateDecision.toUpperCase()}`,
+        `Agent decision: ${gateDecision.toUpperCase()}`,
         gateDecision === "blocked" ? "warning" : "success"
       );
+  
       refreshAll();
+  
       if (selectedSignal && selectedSignal._id === signalId) {
         openDetail(signalId);
       }
     } catch (err) {
-      showSnack(err.response?.data?.error || "Failed to run agent", "error");
+      showSnack(
+        err.response?.data?.error || "Could not run recovery agent.",
+        "error"
+      );
     } finally {
       setLoading(false);
     }
@@ -408,11 +414,6 @@ const RevenueRecoveryDashboard = () => {
                         <Tooltip title="Run the agent on this signal">
                           <Button size="small" startIcon={<BoltIcon sx={{ fontSize: 15 }} />} onClick={() => runAgent(s._id)} disabled={loading} sx={{ ...primaryBtnSx, px: 1.4, py: 0.5, mr: 0.5 }}>
                             Run
-                          </Button>
-                        </Tooltip>
-                        <Tooltip title="Demo the graceful-failure path (simulates a Razorpay timeout)">
-                          <Button size="small" onClick={() => runAgent(s._id, true)} disabled={loading} sx={{ ...ghostBtnSx, px: 1.4, py: 0.5, mr: 0.5, border: "1px solid #e0e0e0" }}>
-                            Simulate Fail
                           </Button>
                         </Tooltip>
                         <Button size="small" onClick={() => openDetail(s._id)} sx={{ ...ghostBtnSx, px: 1.4, py: 0.5 }}>Audit Trail</Button>

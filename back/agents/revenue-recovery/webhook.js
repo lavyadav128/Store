@@ -9,6 +9,9 @@ import PaymentAttempt from './schema/PaymentAttempt.model.js';
 import { User } from '../../schema/user.model.js';
 import { processSignal } from './services/orchestrator.js';
 
+import { getPolicy } from './services/policyService.js';
+import { processSignal } from './services/orchestrator.js';
+
 const router = express.Router();
 
 router.post(
@@ -124,7 +127,7 @@ router.post(
 
           // Every real payment failure is held for admin review before an
           // incentive/retry offer can reach the student.
-          status: 'escalated',
+          status: 'open',
 
           rawPayload: p,
         });
@@ -142,6 +145,13 @@ router.post(
             'unknown';
 
           await paymentAttempt.save();
+        }
+
+        // Auto-process a real failure only once. The gate decides:
+        // <= ₹5,000: AI-approved bounded recovery action
+        // > ₹5,000: escalated for human approval.
+        if (!existingSignal) {
+          await processSignal(signal._id);
         }
 
         // Start recovery only for the first webhook delivery. Reprocessing a

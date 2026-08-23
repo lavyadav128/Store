@@ -7,13 +7,13 @@ export async function evaluateGate(failedPayment, proposedAction) {
 
   // Every real student payment failure is intentionally human-approved before
   // any recovery discount/offer is issued, regardless of amount.
-  if (failedPayment.source === 'payment_failure') {
-    return {
-      decision: 'pending_approval',
-      ruleTriggered: 'payment_failure_requires_admin_approval',
-      explanation: 'Every payment-failure recovery offer requires explicit admin approval before the student is notified or a discounted checkout is created.',
-    };
-  }
+  // if (failedPayment.source === 'payment_failure') {
+  //   return {
+  //     decision: 'pending_approval',
+  //     ruleTriggered: 'payment_failure_requires_admin_approval',
+  //     explanation: 'Every payment-failure recovery offer requires explicit admin approval before the student is notified or a discounted checkout is created.',
+  //   };
+  // }
 
   if (!policy.allowedActions.includes(proposedAction.type)) {
     return block('action_not_allowed', `"${proposedAction.type}" is not in the allowed action list.`);

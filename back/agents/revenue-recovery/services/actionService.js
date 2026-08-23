@@ -9,9 +9,6 @@ import {
 
 export async function executeAction(failedPayment, action, options = {}) {
   try {
-    if (options.simulateFailure) {
-      throw new Error('SIMULATED_RAZORPAY_TIMEOUT: Razorpay API did not respond in time.');
-    }
 
     switch (action.type) {
       case 'retry_now':
