@@ -64,25 +64,30 @@ For example, the platform differentiates IIT JEE preparation (JEE Main + Advance
 - Payment attempts are saved for support and recovery.
 - Razorpay Test Mode supports a safe end-to-end demo.
 
+
 ### AI Revenue Recovery
 
-- Detects failed-payment signals.
-- Shows customer, amount, source, reason, attempts, and status in the admin dashboard.
-- Tracks open, recovering, recovered, escalated, and closed cases.
-- Provides policy controls for retries, cooldown, discount cap, and approval threshold.
-- Maintains an audit trail for agent decisions and actions.
+- Detects verified failed-payment signals from Razorpay Test Mode.
+- Shows customer, batch, amount, source, failure reason, attempts, and status in the admin dashboard.
+- Tracks open, recovering, recovered, escalated, and closed/lost cases.
+- Applies bounded policy controls for retry limits, cooldown, maximum discount percentage, and automatic-approval threshold.
+- Automatically approves a bounded recovery discount when the failed amount is **₹5,000 or below**.
+- Escalates payments **above ₹5,000** to the admin dashboard for explicit human approval.
+- Maintains a complete audit trail showing the policy decision, reason, action, and result.
 - Uses a responsive mobile signal feed while preserving the desktop dashboard layout.
 
-### Admin-Controlled Recovery Offers
+### Recovery Offers and Approval Flow
 
-1. A payment fails and creates a recovery signal.
-2. The signal appears in the Revenue Recovery dashboard.
-3. The admin approves a time-limited discount offer.
-4. The student sees a login popup and notification.
-5. The student claims a secure discounted retry checkout.
-6. A verified retry marks the recovery case as recovered.
+1. A Razorpay payment fails and creates a recovery signal.
+2. The policy engine checks the amount and recovery rules.
+3. For failures of **₹5,000 or below**, the policy engine automatically approves a time-limited recovery discount and creates a student notification.
+4. For failures **above ₹5,000**, the signal appears in the Revenue Recovery dashboard and waits for human/admin approval.
+5. After automatic or human approval, the student sees a login popup and Notification Centre message.
+6. The student claims a secure discounted retry checkout link.
+7. The backend verifies the successful Razorpay payment signature before granting course access.
+8. The recovery case is marked as recovered and the complete action history remains available in the audit trail.
 
-Every failed-payment offer requires explicit admin approval. The platform never automatically charges a student, grants access without verified payment, or promises a refund.
+The platform never automatically charges a student, grants access without verified payment, or promises a refund. Automatic approval is limited to the configured ₹5,000 threshold and bounded discount policy.
 
 ## Architecture
 
@@ -162,14 +167,25 @@ Frontend: `http://localhost:3000`
 
 ## Recommended Buildathon Demo
 
-1. Student logs in and tells the AI assistant a learning goal.
-2. The assistant compares IIT JEE and JEE Main batches with live batch data.
-3. Student starts Razorpay Test Mode checkout.
-4. A payment failure creates a Revenue Recovery signal.
-5. Admin reviews and approves a recovery discount, run, simulate fail, audit trial.
-6. Student receives a popup and notification.
-7. Student asks the chatbot about payment status and receives live recovery information.
-8. Student claims the discount, retries checkout, and receives verified course access.
+1.Student logs in and tells the AI assistant a learning goal.
+
+T2.he assistant compares IIT JEE and JEE Main batches using live batch data, including exam focus, PYQs, test series, mentorship, and notes.
+
+3.Student starts secure Razorpay Test Mode checkout.
+
+3.A payment failure creates a live Revenue Recovery signal with the student, batch, amount, and failure reason.
+
+4.The policy engine checks the failed amount:
+    - If the amount is ₹5,000 or below, it automatically approves a bounded recovery discount, creates a student notification, and records the decision in the audit trail.
+    - If the amount is above ₹5,000, it is escalated to the Revenue Recovery dashboard for explicit human/admin approval.
+
+5.Admin can review high-value recovery signals, inspect the reasoning and audit trail, approve the recovery offer, and monitor recovery status.
+
+6.Student receives a login popup and Notification Centre message with the approved discount retry link.
+
+7.Student asks the chatbot about payment status and receives live information about the failed payment, approval status, available discount, and next safe action.
+
+8.Student claims the discount, retries Razorpay checkout, receives verified course access after server-side signature validation, and the recovery case is marked as recovered.
 
 ## Buildathon Fit
 
