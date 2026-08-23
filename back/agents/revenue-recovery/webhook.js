@@ -8,9 +8,9 @@ import FailedPayment from './schema/FailedPayment.model.js';
 import PaymentAttempt from './schema/PaymentAttempt.model.js';
 import { User } from '../../schema/user.model.js';
 import { processSignal } from './services/orchestrator.js';
-
-import { getPolicy } from './services/policyService.js';
-import { processSignal } from './services/orchestrator.js';
+import AgentAction from "./schema/AgentAction.model.js";
+import { getPolicy } from "./services/policyService.js";
+import { issueRecoveryOffer } from "./services/recoveryOfferService.js";
 
 const router = express.Router();
 
@@ -150,8 +150,94 @@ router.post(
         // Auto-process a real failure only once. The gate decides:
         // <= ₹5,000: AI-approved bounded recovery action
         // > ₹5,000: escalated for human approval.
-        if (!existingSignal) {
-          await processSignal(signal._id);
+        // Re-check open cases on webhook retry. This makes auto approval safe if
+        // a temporary database/notification error occurred during the first attempt.
+        if (signal.status === "open") {
+          const policy = await getPolicy();
+
+          const canAutoApprove =
+            signal.amount <= policy.autoApproveMaxAmount &&
+            signal.source === "payment_failure" &&
+            signal.userId &&
+            signal.batchId;
+
+          if (canAutoApprove) {
+            const offer = await issueRecoveryOffer(signal, {
+              approvedBy: "policy_engine",
+            });
+
+            await AgentAction.create({
+              failedPaymentId: signal._id,
+              signalSnapshot: signal.toObject(),
+              reasoning: {
+                rootCause: signal.failureReason || "payment_failed",
+                explanation:
+                  "The failed amount is at or below the configured ₹5,000 automatic approval ceiling. A bounded discount retry offer was created.",
+                confidence: 1,
+                model: "policy-engine",
+                rawResponse: {
+                  amountPaise: signal.amount,
+                  autoApproveMaxAmount: policy.autoApproveMaxAmount,
+                },
+              },
+              proposedAction: {
+                type: "offer_discount",
+                params: {
+                  discountPercent: offer.discountPercent,
+                },
+              },
+              gate: {
+                decision: "approved",
+                ruleTriggered: "amount_at_or_below_auto_approve_ceiling",
+                explanation:
+                  "Automatically approved by the configured recovery policy.",
+              },
+              execution: {
+                attempted: true,
+                success: true,
+                error: null,
+                result: {
+                  recoveryOfferId: String(offer._id),
+                  approvedBy: "policy_engine",
+                },
+              },
+            });
+          } else {
+            signal.status = "escalated";
+            await signal.save();
+
+            await AgentAction.create({
+              failedPaymentId: signal._id,
+              signalSnapshot: signal.toObject(),
+              reasoning: {
+                rootCause: signal.failureReason || "payment_failed",
+                explanation:
+                  "The amount exceeds the automatic approval ceiling or the payment is not safely linked to a student and batch.",
+                confidence: 1,
+                model: "policy-engine",
+                rawResponse: {
+                  amountPaise: signal.amount,
+                  autoApproveMaxAmount: policy.autoApproveMaxAmount,
+                },
+              },
+              proposedAction: {
+                type: "escalate_human",
+                params: {},
+              },
+              gate: {
+                decision: "pending_approval",
+                ruleTriggered: "amount_above_auto_approve_ceiling",
+                explanation:
+                  "Human approval is required before a recovery offer can be sent.",
+              },
+              execution: {
+                attempted: false,
+                success: false,
+                error: null,
+                result: {},
+              },
+            });
+          }
         }
 
         // Start recovery only for the first webhook delivery. Reprocessing a

@@ -9,9 +9,10 @@ import { getPolicy, updatePolicy } from './services/policyService.js';
 import { confirmPromiseToPay } from './services/actionService.js';
 import auth from '../../controller/authh.js';
 import requireAdmin from '../../middleware/requireAdmin.js';
-import RecoveryOffer from './schema/RecoveryOffer.model.js';
-import Notification from '../../schema/notification.model.js';
-import { User } from '../../schema/user.model.js';
+// import RecoveryOffer from './schema/RecoveryOffer.model.js';
+// import Notification from '../../schema/notification.model.js';
+// import { User } from '../../schema/user.model.js';
+import { issueRecoveryOffer } from "./services/recoveryOfferService.js";
 
 const router = express.Router();
 
@@ -67,23 +68,16 @@ router.post('/signals/:id/approve', async (req, res) => {
   if (signal.source !== 'payment_failure' || !signal.userId || !signal.batchId) {
     return res.status(400).json({ error: 'A linked payment-failure signal is required to create a student recovery offer.' });
   }
-  const policy = await getPolicy();
-  const discountPercent = policy.maxDiscountPercent;
-  const user = await User.findById(signal.userId).select('username');
-  if (!user) return res.status(404).json({ error: 'Student account not found' });
-  const offer = await RecoveryOffer.findOneAndUpdate(
-    { failedPaymentId: signal._id },
-    { $setOnInsert: { userId: signal.userId, failedPaymentId: signal._id, batchId: signal.batchId, discountPercent, expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), status: 'approved' } },
-    { upsert: true, new: true }
-  );
-  signal.status = 'recovering';
-  await signal.save();
-  await Notification.findOneAndUpdate(
-    { username: user.username, type: 'RECOVERY_DISCOUNT', 'metadata.recoveryOfferId': String(offer._id) },
-    { $setOnInsert: { username: user.username, type: 'RECOVERY_DISCOUNT', text: `Your ${discountPercent}% recovery discount has been approved for ${signal.batchTitle || 'your batch'}. Open Notifications to claim your one-time retry offer within 24 hours.`, metadata: { recoveryOfferId: String(offer._id), batchId: signal.batchId, discountPercent } } },
-    { upsert: true, new: true }
-  );
-  res.json({ success: true, signal, offerId: offer._id, discountPercent });
+  const offer = await issueRecoveryOffer(signal, {
+    approvedBy: "admin",
+  });
+  
+  res.json({
+    success: true,
+    signal,
+    offerId: offer._id,
+    discountPercent: offer.discountPercent,
+  });
 });
 
 router.post('/signals/:id/promise-to-pay', async (req, res) => {
