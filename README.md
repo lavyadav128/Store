@@ -166,7 +166,7 @@ Frontend: `http://localhost:3000`
 2. The assistant compares IIT JEE and JEE Main batches with live batch data.
 3. Student starts Razorpay Test Mode checkout.
 4. A payment failure creates a Revenue Recovery signal.
-5. Admin reviews and approves a recovery discount.
+5. Admin reviews and approves a recovery discount, run, simulate fail, audit trial.
 6. Student receives a popup and notification.
 7. Student asks the chatbot about payment status and receives live recovery information.
 8. Student claims the discount, retries checkout, and receives verified course access.
