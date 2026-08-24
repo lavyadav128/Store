@@ -97,8 +97,7 @@ dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
 // dotenv.config() reads the .env file from the project root
 // and loads all key=value pairs into process.env
 // MUST be called before any code that uses process.env.SOMETHING
-dotenv.config();
-
+dotenv.config({ override: true });
 
 // ─────────────────────────────────────────────────────────────
 // CREATE THE EXPRESS APP

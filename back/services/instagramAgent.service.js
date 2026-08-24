@@ -5,10 +5,21 @@ import InstagramContent from "../schema/InstagramContent.model.js";
 import InstagramActivity from "../schema/InstagramActivity.model.js";
 import { cloudinary } from "../config/cloudinary.js";
 
-const GRAPH_VERSION = process.env.META_GRAPH_VERSION || "v26.0";
-const GRAPH_BASE =
-  process.env.META_GRAPH_BASE_URL || "https://graph.instagram.com";
-const META_API_MODE = process.env.META_API_MODE || "instagram_login";
+// Do not read environment variables at module import time. index.js loads its
+// routes before it calls dotenv.config(), so module-level values can otherwise
+// retain an incorrect fallback for the lifetime of the server process.
+// This project uses the Instagram API with Facebook Login, whose EAA access
+// tokens must go to graph.facebook.com (not graph.instagram.com).
+function getGraphBase() {
+  const version = process.env.META_GRAPH_VERSION || "v26.0";
+  const configuredBase = String(process.env.META_GRAPH_BASE_URL || "").trim();
+  const base = configuredBase || "https://graph.facebook.com";
+  const withoutTrailingSlash = base.replace(/\/+$/, "");
+
+  return withoutTrailingSlash.endsWith(`/${version}`)
+    ? withoutTrailingSlash
+    : `${withoutTrailingSlash}/${version}`;
+}
 
 export async function getInstagramConfig() {
   let config = await InstagramAgentConfig.findOne({ key: "default" });
@@ -45,7 +56,7 @@ async function graph(path, options = {}) {
   const separator = path.includes("?") ? "&" : "?";
 
   const response = await fetch(
-    `${GRAPH_BASE}${path}${separator}access_token=${encodeURIComponent(accessToken)}`,
+    `${getGraphBase()}${path}${separator}access_token=${encodeURIComponent(accessToken)}`,
     options
   );
 
@@ -98,11 +109,12 @@ export async function getAccountSnapshot() {
   }
 
   const accountId = process.env.INSTAGRAM_ACCOUNT_ID;
+  const metaApiMode = process.env.META_API_MODE || "facebook_login";
 
   // Instagram Login supports basic profile/content information.
   // Insights require the Facebook Login setup described below.
   const fields =
-    META_API_MODE === "facebook_login"
+    metaApiMode === "facebook_login"
       ? "username,followers_count,media_count"
       : "id,username,media_count";
 
@@ -110,7 +122,7 @@ export async function getAccountSnapshot() {
 
   let insights = {};
 
-  if (META_API_MODE === "facebook_login") {
+  if (metaApiMode === "facebook_login") {
     try {
       insights = await graph(
         `/${accountId}/insights?metric=reach,accounts_engaged&period=day`
