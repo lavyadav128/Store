@@ -5,8 +5,10 @@ import InstagramContent from "../schema/InstagramContent.model.js";
 import InstagramActivity from "../schema/InstagramActivity.model.js";
 import { cloudinary } from "../config/cloudinary.js";
 
-const GRAPH_VERSION = process.env.META_GRAPH_VERSION || "v21.0";
-const GRAPH_BASE = `https://graph.facebook.com/${GRAPH_VERSION}`;
+const GRAPH_VERSION = process.env.META_GRAPH_VERSION || "v26.0";
+const GRAPH_BASE =
+  process.env.META_GRAPH_BASE_URL || "https://graph.instagram.com";
+const META_API_MODE = process.env.META_API_MODE || "instagram_login";
 
 export async function getInstagramConfig() {
   let config = await InstagramAgentConfig.findOne({ key: "default" });
@@ -53,16 +55,57 @@ export function safeCommunityReply(config) {
   return `Thanks for reaching out! We are glad you are interested in ${niche}. Our team will share helpful updates here.`;
 }
 
+
 export async function getAccountSnapshot() {
-  if (!accountConfigured()) return { connected: false, followers: null, username: "", reach: null, engagement: null };
+  if (!accountConfigured()) {
+    return {
+      connected: false,
+      followers: null,
+      username: "",
+      mediaCount: null,
+      reach: null,
+      engagement: null,
+    };
+  }
+
   const accountId = process.env.INSTAGRAM_ACCOUNT_ID;
-  const account = await graph(`/${accountId}?fields=username,followers_count,media_count`);
+
+  // Instagram Login supports basic profile/content information.
+  // Insights require the Facebook Login setup described below.
+  const fields =
+    META_API_MODE === "facebook_login"
+      ? "username,followers_count,media_count"
+      : "id,username,media_count";
+
+  const account = await graph(`/${accountId}?fields=${fields}`);
+
   let insights = {};
-  try {
-    insights = await graph(`/${accountId}/insights?metric=reach,accounts_engaged&period=day`);
-  } catch (_) { /* Some Meta permission sets do not expose account insights. */ }
-  const values = Object.fromEntries((insights.data || []).map((item) => [item.name, item.values?.at(-1)?.value ?? null]));
-  return { connected: true, username: account.username || "", followers: account.followers_count ?? null, mediaCount: account.media_count ?? null, reach: values.reach ?? null, engagement: values.accounts_engaged ?? null };
+
+  if (META_API_MODE === "facebook_login") {
+    try {
+      insights = await graph(
+        `/${accountId}/insights?metric=reach,accounts_engaged&period=day`
+      );
+    } catch (_) {
+      // Dashboard remains usable even if Meta has not approved Insights access.
+    }
+  }
+
+  const values = Object.fromEntries(
+    (insights.data || []).map((item) => [
+      item.name,
+      item.values?.at(-1)?.value ?? null,
+    ])
+  );
+
+  return {
+    connected: true,
+    username: account.username || "",
+    followers: account.followers_count ?? null,
+    mediaCount: account.media_count ?? null,
+    reach: values.reach ?? null,
+    engagement: values.accounts_engaged ?? null,
+  };
 }
 
 export async function logInstagramActivity(type, message, metadata = {}) {

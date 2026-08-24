@@ -57,11 +57,48 @@ router.use(auth, requireAdmin);
 
 router.get("/overview", async (_req, res) => {
   try {
-    const [config, account, content, promotions, activities] = await Promise.all([
-      getInstagramConfig(), getAccountSnapshot(), InstagramContent.find().sort({ createdAt: -1 }).limit(30), InstagramBrandRequest.find().sort({ createdAt: -1 }).limit(20), InstagramActivity.find().sort({ createdAt: -1 }).limit(30),
+    const [config, content, promotions, activities] = await Promise.all([
+      getInstagramConfig(),
+      InstagramContent.find().sort({ createdAt: -1 }).limit(30),
+      InstagramBrandRequest.find().sort({ createdAt: -1 }).limit(20),
+      InstagramActivity.find().sort({ createdAt: -1 }).limit(30),
     ]);
-    res.json({ config, account, content, promotions, activities, apiConfigured: accountConfigured() });
-  } catch (error) { res.status(500).json({ error: error.message }); }
+
+    let account;
+    let accountError = "";
+
+    try {
+      account = await getAccountSnapshot();
+    } catch (error) {
+      accountError = error.message;
+      account = {
+        connected: false,
+        followers: null,
+        username: "",
+        mediaCount: null,
+        reach: null,
+        engagement: null,
+      };
+
+      await logInstagramActivity(
+        "meta_connection_error",
+        `Meta account check failed: ${error.message}`
+      ).catch(() => {});
+    }
+
+    return res.json({
+      config,
+      account,
+      accountError,
+      content,
+      promotions,
+      activities,
+      apiConfigured: accountConfigured(),
+    });
+  } catch (error) {
+    console.error("Instagram overview error:", error);
+    return res.status(500).json({ error: error.message });
+  }
 });
 
 router.put("/config", async (req, res) => {
