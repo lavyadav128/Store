@@ -21,11 +21,40 @@ export const accountConfigured = () => Boolean(
 );
 
 async function graph(path, options = {}) {
-  if (!accountConfigured()) throw new Error("Instagram is not connected. Add INSTAGRAM_ACCOUNT_ID and META_ACCESS_TOKEN to the backend environment.");
+  if (!accountConfigured()) {
+    throw new Error(
+      "Instagram is not connected. Add INSTAGRAM_ACCOUNT_ID and META_ACCESS_TOKEN to the backend environment."
+    );
+  }
+
+  // Handles accidental spaces, “Bearer ”, quotes, or copying
+  // META_ACCESS_TOKEN= together with the actual token.
+  const accessToken = String(process.env.META_ACCESS_TOKEN || "")
+    .trim()
+    .replace(/^META_ACCESS_TOKEN\s*=\s*/i, "")
+    .replace(/^Bearer\s+/i, "")
+    .replace(/^["']|["']$/g, "")
+    .trim();
+
+  if (!accessToken.startsWith("EAA")) {
+    throw new Error(
+      "META_ACCESS_TOKEN is malformed. In Render, paste only the EAA... token as the variable value."
+    );
+  }
+
   const separator = path.includes("?") ? "&" : "?";
-  const response = await fetch(`${GRAPH_BASE}${path}${separator}access_token=${encodeURIComponent(process.env.META_ACCESS_TOKEN)}`, options);
+
+  const response = await fetch(
+    `${GRAPH_BASE}${path}${separator}access_token=${encodeURIComponent(accessToken)}`,
+    options
+  );
+
   const payload = await response.json();
-  if (!response.ok) throw new Error(payload?.error?.message || "Meta Graph API request failed");
+
+  if (!response.ok) {
+    throw new Error(payload?.error?.message || "Meta Graph API request failed");
+  }
+
   return payload;
 }
 
