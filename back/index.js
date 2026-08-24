@@ -52,11 +52,6 @@ import userListRoutes from './routes/userList.routes.js';
 // handles uploading and fetching study resources (PDFs, notes, etc.)
 import resourceRoutes from './routes/resource.routes.js';
 
-// handles the video studio feature (recording, uploading videos)
-import videoStudioRouter from "./routes/video.routes.js";
-
-import videoSplitterRoutes from "./routes/videoSplitter.routes.js";
-
 import batchRoutes from './routes/batches.routes.js';
 
 import notesRouter from './routes/Notes.routes.js';
@@ -76,6 +71,10 @@ import NoteBatch from './schema/Notebatch.model.js';
 import { User } from './schema/user.model.js';
 import recoveryOfferRoutes from './routes/recoveryOffer.routes.js';
 import recoveryClientRoutes from './routes/recoveryClient.routes.js';
+import instagramAgentRoutes, { instagramWebhookRouter } from './routes/instagramAgent.routes.js';
+import { startInstagramAgentScheduler } from './services/instagramScheduler.service.js';
+import clientAgentRoutes, { clientAgentPublicRouter } from './routes/clientAgent.routes.js';
+import { startClientAgentScheduler } from './services/clientAgentScheduler.service.js';
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -123,36 +122,44 @@ app.set('trust proxy', 1);
 // ── CORS CONFIGURATION ──
 // Tells the browser which external origins (domains/ports) are allowed
 // to send requests to our backend
-app.use(cors({
-  origin: [
-    'http://localhost:3001',              // local frontend during development
-    'https://note-vevp.onrender.com',     // deployed frontend on Render
-    'http://localhost:3000',           // ✅ local Docker frontend
-  ],
+const allowedOrigins = new Set([
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://note-vevp.onrender.com',
+  ...String(process.env.CORS_ALLOWED_ORIGINS || process.env.FRONTEND_ORIGIN || "").split(",").map((origin) => origin.trim()).filter(Boolean),
+]);
+const corsOptions = {
+  origin(origin, callback) {
+    // Requests without an Origin are server-to-server/health-check calls.
+    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    return callback(new Error("Origin is not allowed by CORS"));
+  },
   // List of HTTP methods we allow from those origins
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   // "credentials: true" allows cookies and Authorization headers to be sent
   credentials: true,
   // Only these two headers are allowed in requests from the frontend
   allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+};
+app.use(cors(corsOptions));
 
 // Handle "preflight" OPTIONS requests
 // Before sending POST/PUT/DELETE, browsers first send an OPTIONS request to check if CORS is allowed
 // app.options('*') tells express to respond to OPTIONS on ALL routes using the cors() settings above
 // Without this, cross-origin POST requests would fail
-app.options('*', cors());
+app.options('*', cors(corsOptions));
 
 app.use(helmet());
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
+app.use('/api/instagram-agent', instagramWebhookRouter);
 
 
 // ── JSON BODY PARSER ──
 // Without this, req.body would be undefined for JSON requests
 // express.json() reads the raw request body and parses it into a JavaScript object
 // limit: "20mb" allows large payloads (e.g. base64 images, video thumbnails)
-app.use(express.json({ limit: "20mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.use(mongoSanitize());
 
@@ -160,7 +167,7 @@ app.use(mongoSanitize());
 // Parses data sent from HTML <form> submissions (key=value&key=value format)
 // extended: true allows nested objects in form data
 // limit: "20mb" same large payload allowance as above
-app.use(express.urlencoded({ extended: true, limit: "20mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 
 // ═════════════════════════════════════════════════════════════
@@ -184,9 +191,6 @@ app.use("/api/resources", resourceRoutes);
 // User list routes — e.g. GET /api/admin/list/users
 app.use("/api/admin/list", userListRoutes);
 
-// Video studio routes — e.g. POST /api/video-studio/upload
-app.use("/api/video-studio", videoStudioRouter);
-
 // User auth routes — e.g. POST /api/login, POST /api/register
 app.use('/api', userRoutes);
 
@@ -198,7 +202,9 @@ app.use('/api/recovery', recoveryClientRoutes);
 // Chatbot routes — e.g. POST /api/chat
 app.use('/api', chatbotRoutes);
 
-app.use("/api/video-splitter", videoSplitterRoutes);
+app.use('/api/instagram-agent', instagramAgentRoutes);
+app.use('/api/client-agent/public', clientAgentPublicRouter);
+app.use('/api/client-agent', clientAgentRoutes);
 
 app.use('/api/batches', batchRoutes);
 
@@ -209,6 +215,9 @@ app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 app.use("/api/recommendations",recommendationRouter);
 app.use("/api/catalog", catalogRouter);
 app.use("/api/commerce", commerceRouter);
+
+startInstagramAgentScheduler();
+startClientAgentScheduler();
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive

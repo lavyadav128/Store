@@ -80,9 +80,11 @@ const VECTOR_STORE_PATH = path.join(path.resolve(), "ai", "vector_store.json");
 // path.resolve() gives the full absolute path of the current working directory
 // path.join(...) combines it with "ai/vector_store.json" to get the full file path
 
-const vectorStore = JSON.parse(
-  fs.readFileSync(VECTOR_STORE_PATH, "utf-8")
-);
+// The generated RAG index is optional at boot. Rebuild it after source or
+// knowledge changes; the chatbot remains available without a stale index.
+const vectorStore = fs.existsSync(VECTOR_STORE_PATH)
+  ? JSON.parse(fs.readFileSync(VECTOR_STORE_PATH, "utf-8"))
+  : [];
 // fs.readFileSync reads the file synchronously (blocking — waits until done)
 // JSON.parse converts the JSON string from the file into a JavaScript array/object
 // vectorStore now holds ALL the text chunks and their vector embeddings in memory
@@ -154,6 +156,7 @@ async function searchChunks(query, k = 6) {
   // query = the user's question
   // k = how many top results to return (default: 6)
 
+  if (vectorStore.length === 0) return [];
   const model = await getEmbedder();
   // Get the embedding model (loads it if not already loaded)
 

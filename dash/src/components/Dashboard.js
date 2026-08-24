@@ -6,17 +6,14 @@ import {
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
 import AdminFileUpload from "./AdminFileUpload";
-import Videostudio from "./Videostudio";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import BoltIcon from "@mui/icons-material/Bolt";
 import BatchPredictionIcon from "@mui/icons-material/BatchPrediction";
-import VideoClipIcon from "@mui/icons-material/Videocam";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import DreamIcon from "@mui/icons-material/Psychology";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import PaymentIcon from "@mui/icons-material/Payment";
-import VideoIcon from "@mui/icons-material/VideoLibrary";
 import NotesIcon from "@mui/icons-material/MenuBook";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
@@ -32,6 +29,7 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import BusinessCenterIcon from "@mui/icons-material/BusinessCenter";
 import { useNavigate, useLocation, Routes, Route } from "react-router-dom";
 import axios from "axios";
 
@@ -53,7 +51,10 @@ import AdminDashboard from "./AdminDashboard";
 import Dreams from "./Dreams";
 import Batches from "./Batches";
 import NotesManager from "./Notesmanager";
-import VideoSplit from "./VideoSplit";
+import InstagramGrowthAgent from "./InstagramGrowthAgent";
+import ClientAgent from "./ClientAgent";
+import ProjectEnquiry from "./ProjectEnquiry";
+import ProjectPayment from "./ProjectPayment";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 const COURSE_ROUTES = ["/dsac", "/cou", "/pre", "/rev", "/col", "/batches"];
@@ -64,8 +65,8 @@ const VIEW_NOTIFICATIONS = "notifications";
 const VIEW_DOUBTS        = "doubts";
 const VIEW_PAYMENTS      = "payments";
 const VIEW_ADMIN         = "admin";
-const VIEW_VIDEO         = "video";
-const VIEW_CLIP          = "clip";
+const VIEW_INSTAGRAM     = "instagram-agent";
+const VIEW_CLIENT_AGENT  = "client-agent";
 const VIEW_DREAMS        = "dreams";
 const VIEW_FILES         = "files";
 const VIEW_BATCH         = "batches";
@@ -148,8 +149,8 @@ const ADMIN_NAV = [
   { icon: DreamIcon,      title: "Ultimate Dreams", view: VIEW_DREAMS },
   { icon: DashboardIcon,  title: "Admin Dashboard", view: VIEW_ADMIN },
   { icon: UploadFileIcon, title: "File Manager",    view: VIEW_FILES },
-  { icon: VideoIcon,      title: "Video Pro",       view: VIEW_VIDEO },
-  { icon: VideoClipIcon,  title: "Video Clip",       view: VIEW_CLIP },
+  { icon: InstagramIcon,  title: "Instagram Agent", view: VIEW_INSTAGRAM },
+  { icon: BusinessCenterIcon, title: "AI Client Agent", view: VIEW_CLIENT_AGENT },
   { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
   { icon: NotesIcon,      title: " Best Notes",       view: VIEW_NOTES },
   { icon: BoltIcon, title: "Revenue Recovery", view: VIEW_REVENUE_RECOVERY },
@@ -338,6 +339,7 @@ const Dashboard = () => {
   const [userName,     setUserName]     = useState("Student");
 
   const isCourseRoute = COURSE_ROUTES.some((r) => location.pathname.startsWith(r));
+  const isPublicProjectRoute = location.pathname.startsWith("/project-enquiry/") || location.pathname.startsWith("/project-payment/");
 
   const theme = createTheme({
     palette: { mode: "light" },
@@ -976,26 +978,12 @@ const Dashboard = () => {
           background: rgba(10,10,20,0.4) !important;
         }
 
-        .vp-fullscreen {
-      position: fixed !important;
-      top: 0 !important;
-      left: 0 !important;
-      right: 0 !important;
-      bottom: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      height: 100dvh !important;
-      background: #000 !important;
-      z-index: 999 !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
       `}</style>
 
       <ThemeProvider theme={theme}>
         <CssBaseline />
 
-        <Box sx={{ display: "flex", height: "100vh", background: activeView === VIEW_VIDEO ? "#000" : "#fafafa", overflow: "hidden" }}>          {/* ── SIDEBAR ── */}
+        <Box sx={{ display: "flex", height: "100vh", background: "#fafafa", overflow: "hidden" }}>          {/* ── SIDEBAR ── */}
           {!isCourseRoute && (
             <>
               {!isMobile ? (
@@ -1023,7 +1011,7 @@ const Dashboard = () => {
           )}
 
           {/* ── MAIN CONTENT ── */}
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: activeView === VIEW_VIDEO ? "#000" : "transparent" }}>            {/* ── ADMIN MOBILE TOPBAR ── */}
+          <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "transparent" }}>            {/* ── ADMIN MOBILE TOPBAR ── */}
             {isAdminRoute && isMobile && !isCourseRoute && (
               <Box sx={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -1057,7 +1045,7 @@ const Dashboard = () => {
 
             {/* Scrollable content */}
 {/* Scrollable content */}
-<Box sx={{ flex: 1, overflowY: activeView === VIEW_VIDEO ? "hidden" : "auto", px: { xs: activeView === VIEW_VIDEO ? 0 : 2, sm: activeView === VIEW_VIDEO ? 0 : 3, md: activeView === VIEW_VIDEO ? 0 : 4 }, py: { xs: activeView === VIEW_VIDEO ? 0 : 2.5, sm: activeView === VIEW_VIDEO ? 0 : 3 } }}>              {isCourseRoute && (
+<Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>              {isCourseRoute && (
                 <Box sx={{ mb: 2 }}>
                   <Button
                     onClick={goBackToDashboard}
@@ -1078,6 +1066,8 @@ const Dashboard = () => {
               <Routes>
                 <Route path="/auth"            element={<Authentication />} />
                 <Route path="/admin-dashboard" element={<></>} />
+                <Route path="/project-enquiry/:slug" element={<ProjectEnquiry />} />
+                <Route path="/project-payment/:code" element={<ProjectPayment />} />
                 <Route path="/dsac"            element={<Dsaclass />} />
                 <Route path="/cou"             element={<Courses />} />
                 <Route path="/batches"             element={<NotesBrowsePage />} />
@@ -1087,7 +1077,7 @@ const Dashboard = () => {
               </Routes>
 
               {/* Admin views */}
-              {isAdminRoute && !isCourseRoute && (
+              {isAdminRoute && !isCourseRoute && !isPublicProjectRoute && (
                 <>
                   {activeView === VIEW_ADMIN && (
                     <Fade in timeout={400}><Box><AdminDashboard /></Box></Fade>
@@ -1095,11 +1085,11 @@ const Dashboard = () => {
                   {activeView === VIEW_FILES && (
                     <Fade in timeout={400}><Box><AdminFileUpload /></Box></Fade>
                   )}
-                  {activeView === VIEW_VIDEO && (
-                    <Fade in timeout={400}><Box><Videostudio /></Box></Fade>
+                  {activeView === VIEW_INSTAGRAM && (
+                    <Fade in timeout={400}><Box><InstagramGrowthAgent /></Box></Fade>
                   )}
-                  {activeView === VIEW_CLIP && (
-                    <Fade in timeout={400}><Box><VideoSplit /></Box></Fade>
+                  {activeView === VIEW_CLIENT_AGENT && (
+                    <Fade in timeout={400}><Box><ClientAgent /></Box></Fade>
                   )}
                   {activeView === VIEW_DREAMS && (
                     <Dreams onBack={() => goView(VIEW_ADMIN)} />
@@ -1118,7 +1108,7 @@ const Dashboard = () => {
               )}
 
               {/* Normal user views */}
-              {!isCourseRoute && !isAdminRoute && (
+              {!isCourseRoute && !isAdminRoute && !isPublicProjectRoute && (
                 <>
                   {activeView === VIEW_HOME && <HomeView />}
                   {activeView === VIEW_MYBATCHES && (

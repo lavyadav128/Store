@@ -2,5 +2,5 @@
 #   - type: web
 #     name: notess
 #     env: node
-#     buildCommand: apt-get install -y ffmpeg && npm install
+#     buildCommand: npm install
 #     startCommand: npm start

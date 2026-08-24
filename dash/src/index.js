@@ -60,6 +60,8 @@ import TestAttemptPage from "./components/Batches/testattempt";
 import PrivateRoute from './components/PrivateRoute';
 import AdminRoute   from './components/AdminRoute';
 import CommerceAuditDashboard from './components/CommerceAuditDashboard';
+import ProjectEnquiry from './components/ProjectEnquiry';
+import ProjectPayment from './components/ProjectPayment';
 import PurchaseProtectedRoute from './components/PurchaseProtectedRoute';
 
 
@@ -87,6 +89,8 @@ root.render(
         <Routes>
             {/* ── PUBLIC ── */}
             <Route path="/" element={<Authentication />} />
+            <Route path="/project-enquiry/:slug" element={<ProjectEnquiry />} />
+            <Route path="/project-payment/:code" element={<ProjectPayment />} />
 
             {/* ── ADMIN ONLY ── */}
             <Route element={<AdminRoute />}>

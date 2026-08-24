@@ -165,6 +165,23 @@ npm start
 Backend: `http://localhost:5000`  
 Frontend: `http://localhost:3000`
 
+## Instagram Growth Agent (Admin Only)
+
+The admin dashboard includes an Instagram Growth Agent built for an Instagram **Professional** account through Meta's official Graph API. Configure `META_ACCESS_TOKEN`, `META_APP_SECRET`, `META_WEBHOOK_VERIFY_TOKEN`, and `INSTAGRAM_ACCOUNT_ID` in `back/.env` using `back/.env.example` as the template.
+
+1. Open **Instagram Agent** in the admin dashboard, set the niche, target audience, brand voice, and post/reel mode, then save.
+2. Press **Start** to enable daily AI content drafting and allowed automation. Press **Stop** to halt scheduled drafting, publishing, and automatic replies.
+3. The agent can generate an image through Hugging Face, upload it to Cloudinary, and queue it for Meta publishing automatically. For reels, configure a compatible AI-video provider URL/key in `back/.env`; its completed public video is uploaded to Cloudinary and published in the same flow. The dashboard retrieves live follower, reach, engagement, and media metrics when Meta permissions allow it.
+4. Normal comments and DMs can receive a safe acknowledgement only when the agent is running and the respective toggle is enabled. Promotion/collaboration messages create a pending request for an admin decision; they are never accepted automatically.
+
+The agent does not buy followers, follow accounts, send spam, guarantee growth, approve follower requests (not exposed by Meta's public API), or commit to brand deals. Real growth depends on quality, consistency, audience response, and Meta platform permissions.
+
+## AI Client Agent (Admin Only)
+
+The Client Agent provides a permissioned freelancer workflow: share a public project-enquiry link, collect requirements, score leads against your configured services/budget, and require an admin approval before a proposal is accepted or work begins. It prepares a structured Codex task for an approved project, requires a second admin delivery review, and only then creates a secure Razorpay project-payment link. Payment is marked paid only after server-side Razorpay signature verification.
+
+The agent can periodically read `CLIENT_LEAD_SOURCE_URL` only when it is a source for which you have authorised API access. It does not scrape marketplaces, spam prospects, automatically agree to work, or use any unauthorised Codex automation.
+
 ## Recommended Buildathon Demo
 
 1.Student logs in and tells the AI assistant a learning goal.
