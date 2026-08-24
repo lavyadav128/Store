@@ -245,7 +245,21 @@ const isVideo = (url = "") =>
   };
   
   return (
-    <div className="vp-fullscreen">
+    // <div className="vp-fullscreen">     for covering only admin dashboard(dreams)
+        <div
+      className="vp-fullscreen"
+      style={{
+        position: "fixed",
+        inset: 0,
+        width: "100vw",
+        height: "100dvh",
+        zIndex: 2000,
+        overflowY: "auto",
+        background: "#000",
+      }}
+    >
+
+
     <style>{STYLES}</style>  
       {/* Floating Back Button */}
       <button
