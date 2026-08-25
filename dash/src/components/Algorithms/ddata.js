@@ -2269,13 +2269,11 @@ const questionsData = {
             for (int pages : arr) {
                 if (sum + pages > maxPages) {
                     students++;
-                    sum = pages;
-                    if (students > m) return false;
-                } else {
-                    sum += pages;
+                    sum = 0;
                 }
+                sum += pages;
             }
-            return true;
+            return students <= m;
         }
     }`
     },
