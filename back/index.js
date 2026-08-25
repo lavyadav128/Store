@@ -372,7 +372,7 @@ async function connectDB() {
 
 // Read the port number from .env, or default to 3000 if not set
 // process.env.PORT is usually set automatically by hosting platforms like Render or Railway
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 // connectDB() returns a Promise — .then() runs AFTER the database connects successfully
 // This ensures the server only starts AFTER we have a working DB connection
