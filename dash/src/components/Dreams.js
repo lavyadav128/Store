@@ -92,8 +92,17 @@ const isVideo = (url = "") =>
 
     const t = setTimeout(tryPlayMusic, 400);
 
+    const onPochiActive = (e) => {
+      if (e.detail?.active && audioRef.current) {
+        audioRef.current.pause();
+        setMusicOn(false);
+      }
+    };
+    window.addEventListener("pochi-active", onPochiActive);
+
     return () => {
       clearTimeout(t);
+      window.removeEventListener("pochi-active", onPochiActive);
       if (audioRef.current) {
         audioRef.current.pause();
         audioRef.current.currentTime = 0;

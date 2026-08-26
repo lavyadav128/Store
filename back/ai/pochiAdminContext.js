@@ -323,19 +323,23 @@ JSON OUTPUT FORMAT:
   ];
 
   if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_')) {
-    try {
-      const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-      const completion = await groq.chat.completions.create({
-        model: 'llama-3.3-70b-versatile',
-        temperature: 0.2,
-        messages,
-      });
-      const parsed = cleanLlmJson(completion.choices?.[0]?.message?.content);
-      if (parsed && (parsed.voiceText || parsed.visualReply)) {
-        return parsed;
+    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+    const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'llama3-70b-8192', 'llama3-8b-8192', 'gemma2-9b-it'];
+
+    for (const model of groqModels) {
+      try {
+        const completion = await groq.chat.completions.create({
+          model,
+          temperature: 0.2,
+          messages,
+        });
+        const parsed = cleanLlmJson(completion.choices?.[0]?.message?.content);
+        if (parsed && (parsed.voiceText || parsed.visualReply)) {
+          return parsed;
+        }
+      } catch (err) {
+        // try next model
       }
-    } catch (err) {
-      console.warn('Groq Pochi exception:', err.message);
     }
   }
 

@@ -2,8 +2,9 @@
 // ─────────────────────────────────────────────────────────────
 // "Pochi" — True Single-Engine Apple Siri Voice Assistant for Admin
 // • 100% Invisible when idle
-// • Zero recognition collisions (Single Unified Speech Engine)
-// • Instant wake on "Pochi" / "Hey Pochi" / "Poki" / "Pouchy"
+// • Broadcasts "pochi-active" to automatically pause Dreams music
+// • Instant wake on "Pochi" / "Hey Pochi" / "Poki" / "Pouchy" / (Ctrl+Space)
+// • Direct immediate voice query capture without blocking mic
 // • Speaks exact live answers aloud via Web Speech Synthesis
 // ─────────────────────────────────────────────────────────────
 
@@ -23,22 +24,22 @@ function playSiriChime() {
 
     osc.type = "sine";
     osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-    osc.frequency.exponentialRampToValueAtTime(880.0, ctx.currentTime + 0.1); // A5
-    osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.22); // D6
+    osc.frequency.exponentialRampToValueAtTime(880.0, ctx.currentTime + 0.08); // A5
+    osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.18); // D6
 
     gain.gain.setValueAtTime(0.01, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.08);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.32);
+    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.06);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
 
     osc.connect(gain);
     gain.connect(ctx.destination);
 
     osc.start();
-    osc.stop(ctx.currentTime + 0.32);
+    osc.stop(ctx.currentTime + 0.28);
   } catch (e) {}
 }
 
-const WAKE_PATTERN = /\b(pochi|hey pochi|ok pochi|hi pochi|poki|pochee|pochie|pouchy|puji|poshi|poche)\b/i;
+const WAKE_PATTERN = /\b(pochi|hey pochi|ok pochi|hi pochi|poki|pochee|pochie|pouchy|puji|poshi|poche|porchi)\b/i;
 
 const VIEW_MAP = {
   revenue: "revenue-recovery",
@@ -59,12 +60,12 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
   const [state, setState] = useState("idle"); // 'listening' | 'thinking' | 'speaking' | 'idle'
   const [transcript, setTranscript] = useState("");
 
-  const recognitionRef = useRef(null);
   const activeRef = useRef(false);
   const stateRef = useRef("idle");
   const silenceTimerRef = useRef(null);
   const dismissTimerRef = useRef(null);
   const speechSpeakingRef = useRef(false);
+  const recognitionRef = useRef(null);
 
   activeRef.current = active;
   stateRef.current = state;
@@ -109,6 +110,7 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         dismissTimerRef.current = setTimeout(() => {
           setActive(false);
           setTranscript("");
+          window.dispatchEvent(new CustomEvent("pochi-active", { detail: { active: false } }));
         }, 1800);
       };
 
@@ -120,6 +122,7 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         dismissTimerRef.current = setTimeout(() => {
           setActive(false);
           setTranscript("");
+          window.dispatchEvent(new CustomEvent("pochi-active", { detail: { active: false } }));
         }, 1200);
       };
 
@@ -161,7 +164,7 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         // Speak back aloud
         speakVoice(voiceReply);
       } catch (err) {
-        console.error("Pochi query error:", err);
+        console.error("Pochi error:", err);
         const errMsg = "I encountered a connection error with your admin server.";
         speakVoice(errMsg);
       }
@@ -175,6 +178,9 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
       if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
 
+      // Stop any background music (e.g. on Dreams page)
+      window.dispatchEvent(new CustomEvent("pochi-active", { detail: { active: true } }));
+
       playSiriChime();
       setActive(true);
 
@@ -183,16 +189,12 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         setTranscript(immediateQuery);
         askPochiBackend(immediateQuery);
       } else {
-        // User just said "Pochi": respond "Yes, Admin?" and listen
+        // User just said "Pochi": immediately listen for query without blocking mic with long speech
         setState("listening");
-        setTranscript("Yes, Admin?");
-        speakVoice("Yes, Admin?", () => {
-          setState("listening");
-          setTranscript("Listening for your query...");
-        });
+        setTranscript("Listening for Admin...");
       }
     },
-    [askPochiBackend, speakVoice]
+    [askPochiBackend]
   );
 
   // Initialize Microphone & Single Continuous Speech Engine
@@ -229,29 +231,26 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
       // CASE 1: Currently Idle — Looking for Wake-Word ("Pochi")
       if (!activeRef.current) {
         if (WAKE_PATTERN.test(currentSentence)) {
-          // Extract any query spoken right after the wake word
           const queryPart = currentSentence.replace(WAKE_PATTERN, "").trim();
           wakePochi(queryPart);
         }
       }
       // CASE 2: Currently Active / Listening for Admin's Question
       else if (stateRef.current === "listening") {
-        // Filter out wake-word if repeated
         const cleanQuery = currentSentence.replace(WAKE_PATTERN, "").trim();
         setTranscript(cleanQuery || currentSentence);
 
-        // Debounce silence: When user pauses for 1.3 seconds, auto-submit query
+        // Debounce silence: When user pauses for 1.1 seconds, auto-submit query
         if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
         silenceTimerRef.current = setTimeout(() => {
           if (cleanQuery && cleanQuery.length > 1) {
             askPochiBackend(cleanQuery);
           }
-        }, 1300);
+        }, 1100);
       }
     };
 
     rec.onerror = (e) => {
-      // Ignore standard background silence events
       if (e.error === "no-speech" || e.error === "network") return;
       console.warn("Speech engine event:", e.error);
     };
@@ -379,7 +378,8 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
               if (state === "speaking") {
                 window.speechSynthesis?.cancel();
                 setActive(false);
-              } else if (state === "listening" && transcript) {
+                window.dispatchEvent(new CustomEvent("pochi-active", { detail: { active: false } }));
+              } else if (state === "listening" && transcript && transcript !== "Listening for Admin...") {
                 askPochiBackend(transcript);
               }
             }}
