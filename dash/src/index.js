@@ -66,7 +66,6 @@ root.render(
         <Routes>
             {/* ── PUBLIC ── */}
             <Route path="/" element={<Authentication />} />
-            <Route path="/index.html" element={<Authentication />} />
             <Route path="/project-enquiry" element={<ProjectEnquiry />} />
             <Route path="/project-enquiry/:slug" element={<ProjectEnquiry />} />
             <Route path="/project-payment" element={<ProjectPayment />} />
