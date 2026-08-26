@@ -24,6 +24,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import HandshakeIcon from "@mui/icons-material/Handshake";
 import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
+import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import axios from "axios";
 import server from "../environment";
 
@@ -154,6 +155,27 @@ const RevenueRecoveryDashboard = () => {
       refreshAll();
     } catch (err) {
       showSnack("Failed to fulfill promise", "error");
+    }
+  };
+
+  const deleteSignal = async (signalId) => {
+    try {
+      await axios.delete(`${BASE}/signals/${signalId}`, authHeader());
+      showSnack("Signal deleted successfully.");
+      refreshAll();
+    } catch (err) {
+      showSnack("Failed to delete signal", "error");
+    }
+  };
+
+  const clearAllSignals = async () => {
+    if (!window.confirm("Are you sure you want to clear all recovery signals?")) return;
+    try {
+      await axios.delete(`${BASE}/signals`, authHeader());
+      showSnack("All signals and audit trails cleared.");
+      refreshAll();
+    } catch (err) {
+      showSnack("Failed to clear signals", "error");
     }
   };
 
@@ -444,6 +466,28 @@ const RevenueRecoveryDashboard = () => {
                 Promise-to-Pay Only
               </Button>
 
+              {signals.length > 0 && (
+                <Button
+                  size="small"
+                  variant="outlined"
+                  color="error"
+                  startIcon={<DeleteOutlineIcon sx={{ fontSize: 16 }} />}
+                  onClick={clearAllSignals}
+                  sx={{
+                    borderRadius: "12px",
+                    fontFamily: font,
+                    fontWeight: 700,
+                    fontSize: 12,
+                    textTransform: "none",
+                    borderColor: "#e11d48",
+                    color: "#e11d48",
+                    "&:hover": { bgcolor: "#ffe4e6", borderColor: "#e11d48" },
+                  }}
+                >
+                  Clear All Signals
+                </Button>
+              )}
+
               <FormControl size="small" sx={{ minWidth: 130, ...inputSx }}>
                 <InputLabel>Status</InputLabel>
                 <Select value={statusFilter} label="Status" onChange={(e) => setStatusFilter(e.target.value)} sx={{ borderRadius: "14px", fontFamily: font, fontSize: 13 }}>
@@ -543,7 +587,12 @@ const RevenueRecoveryDashboard = () => {
                             <RecordVoiceOverIcon sx={{ fontSize: 17, color: "#0f172a" }} />
                           </IconButton>
                         </Tooltip>
-                        <Button size="small" onClick={() => openDetail(s._id)} sx={{ ...ghostBtnSx, px: 1.2, py: 0.5 }}>Audit</Button>
+                        <Button size="small" onClick={() => openDetail(s._id)} sx={{ ...ghostBtnSx, px: 1.2, py: 0.5, mr: 0.5 }}>Audit</Button>
+                        <Tooltip title="Delete Signal">
+                          <IconButton size="small" onClick={() => deleteSignal(s._id)} sx={{ color: "#ef4444", "&:hover": { bgcolor: "#fee2e2" } }}>
+                            <DeleteOutlineIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   ))}

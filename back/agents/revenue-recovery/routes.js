@@ -108,7 +108,20 @@ router.post('/signals/:id/promise-to-pay/fulfill', async (req, res) => {
   signal.promiseToPay.fulfilled = true;
   signal.status = 'recovered';
   await signal.save();
-  res.json({ success: true, signal, message: 'Promise to pay marked as fulfilled & recovered!' });
+  res.json({ success: true, signal, message: 'Promise marked as fulfilled & recovered!' });
+});
+
+router.delete('/signals/:id', async (req, res) => {
+  const signal = await FailedPayment.findByIdAndDelete(req.params.id);
+  if (!signal) return res.status(404).json({ error: 'Signal not found' });
+  await AgentAction.deleteMany({ failedPaymentId: req.params.id });
+  res.json({ success: true, message: 'Signal deleted successfully' });
+});
+
+router.delete('/signals', async (req, res) => {
+  await FailedPayment.deleteMany({});
+  await AgentAction.deleteMany({});
+  res.json({ success: true, message: 'All signals and audit trails cleared.' });
 });
 
 /**
