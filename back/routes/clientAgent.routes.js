@@ -60,12 +60,9 @@ function getFrontendBaseUrl(req) {
    PUBLIC CLIENT PORTAL & ENQUIRY ROUTES
 ═════════════════════════════════════════════════════════════ */
 
-publicRouter.get("/enquiry/:slug", async (req, res) => {
+publicRouter.get(["/enquiry", "/enquiry/:slug"], async (req, res) => {
   const config = await getClientAgentConfig();
   const validSlug = config.enquirySlug || "project-enquiry";
-  if (req.params.slug !== validSlug && req.params.slug !== "project-enquiry") {
-    return res.sendStatus(404);
-  }
   res.json({
     businessName: config.businessName || "Project Studio",
     enquirySlug: validSlug,
@@ -74,15 +71,12 @@ publicRouter.get("/enquiry/:slug", async (req, res) => {
 });
 
 publicRouter.post(
-  "/enquiry/:slug",
+  ["/enquiry", "/enquiry/:slug"],
   rateLimiter({ requests: 10, window: "1 h", prefix: "client-enquiry" }),
   async (req, res) => {
     try {
       const config = await getClientAgentConfig();
       const validSlug = config.enquirySlug || "project-enquiry";
-      if (req.params.slug !== validSlug && req.params.slug !== "project-enquiry") {
-        return res.sendStatus(404);
-      }
       const {
         businessName,
         contactName = "",
@@ -408,7 +402,7 @@ router.get("/overview", async (_req, res) => {
     leads,
     projects,
     activities,
-    enquiryPath: `/project-enquiry/${config.enquirySlug}`,
+    enquiryPath: `/project-enquiry/${config.enquirySlug || "project-enquiry"}`,
   });
 });
 

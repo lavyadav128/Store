@@ -271,7 +271,8 @@ export default function ClientAgent() {
     );
 
   const set = (key, value) => setConfig((old) => ({ ...old, [key]: value }));
-  const enquiryLink = `${window.location.origin}${data.enquiryPath}`;
+  const activeSlug = (config?.enquirySlug || data?.config?.enquirySlug || (data?.enquiryPath ? data.enquiryPath.replace(/^\/project-enquiry\/?/, "") : "") || "project-enquiry").trim().replace(/^\//, "") || "project-enquiry";
+  const enquiryLink = `${window.location.origin}/project-enquiry/${activeSlug}`;
 
   const filesList = inspectingProject?.generatedCodeFiles || [];
   const activeContent =

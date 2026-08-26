@@ -339,7 +339,7 @@ const Dashboard = () => {
   const [userName,     setUserName]     = useState("Student");
 
   const isCourseRoute = COURSE_ROUTES.some((r) => location.pathname.startsWith(r));
-  const isPublicProjectRoute = location.pathname.startsWith("/project-enquiry/") || location.pathname.startsWith("/project-payment/");
+  const isPublicProjectRoute = location.pathname.startsWith("/project-enquiry") || location.pathname.startsWith("/project-payment");
 
   const theme = createTheme({
     palette: { mode: "light" },
@@ -984,7 +984,7 @@ const Dashboard = () => {
         <CssBaseline />
 
         <Box sx={{ display: "flex", height: "100vh", background: "#fafafa", overflow: "hidden" }}>          {/* ── SIDEBAR ── */}
-          {!isCourseRoute && (
+          {!isCourseRoute && !isPublicProjectRoute && (
             <>
               {!isMobile ? (
                 <Box sx={{ width: SIDEBAR_W, flexShrink: 0, height: "100vh" }}>
@@ -1012,7 +1012,7 @@ const Dashboard = () => {
 
           {/* ── MAIN CONTENT ── */}
           <Box sx={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", background: "transparent" }}>            {/* ── ADMIN MOBILE TOPBAR ── */}
-            {isAdminRoute && isMobile && !isCourseRoute && (
+            {isAdminRoute && isMobile && !isCourseRoute && !isPublicProjectRoute && (
               <Box sx={{
                 display: "flex", alignItems: "center", justifyContent: "space-between",
                 px: 2, py: 1.5,
@@ -1044,8 +1044,8 @@ const Dashboard = () => {
             )}
 
             {/* Scrollable content */}
-{/* Scrollable content */}
-<Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>              {isCourseRoute && (
+            <Box sx={{ flex: 1, overflowY: "auto", px: { xs: 2, sm: 3, md: 4 }, py: { xs: 2.5, sm: 3 } }}>
+              {isCourseRoute && (
                 <Box sx={{ mb: 2 }}>
                   <Button
                     onClick={goBackToDashboard}
@@ -1066,7 +1066,9 @@ const Dashboard = () => {
               <Routes>
                 <Route path="/auth"            element={<Authentication />} />
                 <Route path="/admin-dashboard" element={<></>} />
+                <Route path="/project-enquiry" element={<ProjectEnquiry />} />
                 <Route path="/project-enquiry/:slug" element={<ProjectEnquiry />} />
+                <Route path="/project-payment" element={<ProjectPayment />} />
                 <Route path="/project-payment/:code" element={<ProjectPayment />} />
                 <Route path="/dsac"            element={<Dsaclass />} />
                 <Route path="/cou"             element={<Courses />} />
