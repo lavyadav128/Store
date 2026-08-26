@@ -308,6 +308,19 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         const data = res.data;
         const voiceReply = data.voiceText || data.visualReply || "All systems are running properly, Admin.";
 
+        // Execute logout action if requested
+        if (data.action === "LOGOUT") {
+          speakVoice(voiceReply, () => {
+            setTimeout(() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("user");
+              localStorage.removeItem("role");
+              window.location.href = "/login";
+            }, 600);
+          });
+          return;
+        }
+
         // Execute navigation action if requested
         if (data.action === "NAVIGATE_VIEW" && data.targetView && onNavigate) {
           const mapped = VIEW_MAP[data.targetView.toLowerCase()] || data.targetView;
@@ -410,11 +423,15 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         askPochiBackend(immediateQuery);
       } else {
         setState("listening");
-        setStatusText("Listening for Admin...");
-        startListeningSession();
+        setStatusText("Yes, Admin?");
+        speakVoice("Yes, Admin?", () => {
+          setState("listening");
+          setStatusText("Listening for query...");
+          startListeningSession();
+        });
       }
     },
-    [askPochiBackend, startListeningSession]
+    [askPochiBackend, speakVoice, startListeningSession]
   );
 
   // Setup Keyboard Shortcuts

@@ -173,7 +173,15 @@ export async function askPochi(query = '', adminUser, history = []) {
   const instaNiche = context.instagramAgent?.niche || 'EdTech & Tech';
   const clientProjectCount = context.clientAgent?.totalProjects || 0;
 
-  // 1. Navigation intents
+  // 1. Navigation & System Control intents
+  if (/log\s*out|sign\s*out|logout me|log me out/i.test(q)) {
+    return {
+      voiceText: `Logging you out now, ${adminUser?.name || 'Admin'}. Have a wonderful day!`,
+      visualReply: `Logging out Admin...`,
+      action: "LOGOUT",
+      targetView: null,
+    };
+  }
   if (/take me to revenue|open revenue|show revenue|revenue recovery/i.test(q)) {
     return {
       voiceText: "Switching to the AI Revenue Recovery dashboard now.",
