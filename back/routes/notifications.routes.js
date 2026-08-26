@@ -7,11 +7,15 @@ const router = express.Router();
 // GET notifications for a specific user
 router.get("/:username", auth, async (req, res) => {
   try {
-    if (req.params.username !== req.user.username && req.user.username !== (process.env.ADMIN_USERNAME || "adminbrand@gmail.com")) {
-      return res.status(403).json({ success: false, message: "Access denied" });
-    }
+    const userParam = req.params.username;
+    const userEmail = req.user?.email || req.user?.username;
+
     const notifications = await Notification.find({
-      username: req.params.username
+      $or: [
+        { username: userParam },
+        { username: userEmail },
+        { username: "student" },
+      ],
     }).sort({ createdAt: -1 });
 
     res.json(notifications);

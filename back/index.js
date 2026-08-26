@@ -195,7 +195,10 @@ app.use("/api/admin/list", userListRoutes);
 app.use('/api', userRoutes);
 
 // Purchase routes — e.g. POST /api/purchase, GET /api/purchases
+import recoveryOfferPublicRoutes from './routes/recoveryOfferPublic.routes.js';
+
 app.use('/api', purchaseRoutes);
+app.use('/api/recovery-offers/public', recoveryOfferPublicRoutes);
 app.use('/api/recovery-offers', recoveryOfferRoutes);
 app.use('/api/recovery', recoveryClientRoutes);
 

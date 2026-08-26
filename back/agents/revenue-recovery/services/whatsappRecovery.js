@@ -73,11 +73,12 @@ Reply to this message if you need assistance or wish to change your payment meth
 /**
  * Discount Offer Nudge (Bilingual English / Hinglish)
  */
-export async function sendDiscountOffer(failedPayment, discountPercent, lang = 'hinglish') {
+export async function sendDiscountOffer(failedPayment, discountPercent, lang = 'hinglish', offerId = null) {
   const amount = (failedPayment.amount / 100).toLocaleString('en-IN');
   const discountedAmount = Math.round((failedPayment.amount / 100) * (1 - discountPercent / 100)).toLocaleString('en-IN');
   const name = failedPayment.customerName || 'there';
-  const claimUrl = `${APP_BASE_URL}/batches`;
+  const offerQuery = offerId ? `?offerId=${offerId}` : '';
+  const claimUrl = offerId ? `${APP_BASE_URL}/pay-discount/${offerId}` : `${APP_BASE_URL}/batches`;
 
   let body = '';
   if (lang === 'hinglish') {
@@ -88,7 +89,7 @@ Humne dekha aapka checkout complete nahi ho paya. As a special one-time encourag
 Original Price: ₹${amount}
 Special Recovery Price: **₹${discountedAmount}** (Valid for 24 Hours)
 
-Claim your batch now:
+Direct 1-Click Discounted Checkout Link:
 👉 ${claimUrl}`;
   } else {
     body = `Exclusive Recovery Offer for ${name}! 🎁
@@ -97,7 +98,7 @@ We noticed your payment couldn't be completed. As a one-time courtesy, we've app
 
 Original: ₹${amount} → Special Price: **₹${discountedAmount}** (Valid for 24h)
 
-Complete your enrollment here:
+Complete your discounted enrollment here:
 👉 ${claimUrl}`;
   }
 

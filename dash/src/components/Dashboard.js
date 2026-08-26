@@ -38,6 +38,7 @@ import Dsaclass from "./Algorithms/dsaclass";
 import NotesBrowsePage from "./Notesbrowsepage";
 import Courses from "./Batches/Courses";
 import PreBatch from "./Batches/PreBatch";
+import PublicDiscountCheckout from "./PublicDiscountCheckout";
 import RevBatch from "./Revision/RevBatch";
 import ColBatch from "./College/ColBatch";
 import Authentication from "./authentication";
@@ -335,7 +336,7 @@ const Dashboard = () => {
   const [userName,     setUserName]     = useState("Student");
 
   const isCourseRoute = COURSE_ROUTES.some((r) => location.pathname.startsWith(r));
-  const isPublicProjectRoute = location.pathname.startsWith("/project-enquiry") || location.pathname.startsWith("/project-payment");
+  const isPublicProjectRoute = location.pathname.startsWith("/project-enquiry") || location.pathname.startsWith("/project-payment") || location.pathname.startsWith("/pay-discount");
 
   const theme = createTheme({
     palette: { mode: "light" },
@@ -1075,6 +1076,7 @@ const Dashboard = () => {
                 <Route path="/dsac"            element={<Dsaclass />} />
                 <Route path="/cou"             element={<Courses />} />
                 <Route path="/batches"             element={<NotesBrowsePage />} />
+                <Route path="/pay-discount/:offerId" element={<PublicDiscountCheckout />} />
                 <Route path="/pre"             element={<PreBatch />} />
                 <Route path="/rev"             element={<RevBatch />} />
                 <Route path="/col"             element={<ColBatch />} />

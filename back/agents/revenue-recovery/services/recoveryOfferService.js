@@ -64,38 +64,46 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
   const origRs = (signal.amount / 100).toLocaleString('en-IN');
   const discRs = Math.round((signal.amount / 100) * (1 - discountPercent / 100)).toLocaleString('en-IN');
 
-  await Notification.findOneAndUpdate(
-    {
-      username,
-      type: "RECOVERY_DISCOUNT",
-      "metadata.recoveryOfferId": String(offer._id),
-    },
-    {
-      $setOnInsert: {
-        username,
+  const usernamesToNotify = new Set();
+  if (username) usernamesToNotify.add(username);
+  if (user?.email) usernamesToNotify.add(user.email);
+  if (signal.customerEmail) usernamesToNotify.add(signal.customerEmail);
+  usernamesToNotify.add("student");
+
+  for (const notifUser of usernamesToNotify) {
+    await Notification.findOneAndUpdate(
+      {
+        username: notifUser,
         type: "RECOVERY_DISCOUNT",
-        text:
-          `🎁 Special Recovery Offer: ${discountPercent}% DISCOUNT approved for ` +
-          `${signal.batchTitle || "your course"}! ` +
-          `Original: ₹${origRs} → Recovery Price: ₹${discRs}. ` +
-          `Click Claim Discount below to enroll now!`,
-        metadata: {
-          recoveryOfferId: String(offer._id),
-          batchId,
-          discountPercent,
-          approvedBy,
+        "metadata.recoveryOfferId": String(offer._id),
+      },
+      {
+        $setOnInsert: {
+          username: notifUser,
+          type: "RECOVERY_DISCOUNT",
+          text:
+            `🎁 Special Recovery Offer: ${discountPercent}% DISCOUNT approved for ` +
+            `${signal.batchTitle || "your course"}! ` +
+            `Original: ₹${origRs} → Recovery Price: ₹${discRs}. ` +
+            `Click Claim Discount below to enroll now!`,
+          metadata: {
+            recoveryOfferId: String(offer._id),
+            batchId,
+            discountPercent,
+            approvedBy,
+          },
         },
       },
-    },
-    {
-      upsert: true,
-      new: true,
-    }
-  );
+      {
+        upsert: true,
+        new: true,
+      }
+    );
+  }
 
-  // 5. Send Multi-Channel Nudge (WhatsApp/SMS)
+  // 5. Send Multi-Channel Nudge (WhatsApp/SMS with direct public discount link)
   try {
-    await sendDiscountOffer(signal, discountPercent, signal.language || "hinglish");
+    await sendDiscountOffer(signal, discountPercent, signal.language || "hinglish", String(offer._id));
   } catch (err) {
     console.warn("[RecoveryOffer] Multi-channel nudge warning:", err.message);
   }
