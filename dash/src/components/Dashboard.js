@@ -325,12 +325,7 @@ const Dashboard = () => {
   const muiTheme  = useTheme();
   const isMobile  = useMediaQuery(muiTheme.breakpoints.down("md"));
 
-  if (location.pathname === "/admin-dashboard") {
-    localStorage.setItem("isAdmin", "true");
-  } else if (location.pathname === "/dashboard") {
-    localStorage.removeItem("isAdmin");
-  }
-  const isAdminRoute = localStorage.getItem("isAdmin") === "true";
+  const isAdminRoute = location.pathname === "/admin-dashboard";
 
   const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));  const [purchases,    setPurchases]    = useState([]);
   const [showPopup,    setShowPopup]    = useState(false);
