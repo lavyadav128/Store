@@ -179,14 +179,6 @@ Kindly review and settle the outstanding receivable via our secure Razorpay Corp
 If the remittance has already been initiated, please share the UTR reference for immediate reconciliation.`;
 
   return sendMessage(failedPayment.customerPhone, body);
-} due**.
-
-Kindly review and settle the outstanding receivable via our secure Razorpay Corporate Portal:
-👉 [Corporate Payment Link]
-
-If the remittance has already been initiated, please share the UTR reference for immediate reconciliation.`;
-
-  return sendMessage(failedPayment.customerPhone, body);
 }
 
 async function sendMessage(toPhone, body) {
