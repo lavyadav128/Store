@@ -10,12 +10,9 @@ router.get("/:username", auth, async (req, res) => {
     const userParam = req.params.username;
     const userEmail = req.user?.email || req.user?.username;
 
+    const queryUsernames = Array.from(new Set([userParam, userEmail, req.user?.username].filter(Boolean)));
     const notifications = await Notification.find({
-      $or: [
-        { username: userParam },
-        { username: userEmail },
-        { username: "student" },
-      ],
+      username: { $in: queryUsernames }
     }).sort({ createdAt: -1 });
 
     res.json(notifications);

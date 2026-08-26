@@ -65,10 +65,9 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
   const discRs = Math.round((signal.amount / 100) * (1 - discountPercent / 100)).toLocaleString('en-IN');
 
   const usernamesToNotify = new Set();
-  if (username) usernamesToNotify.add(username);
+  if (username && username !== 'student') usernamesToNotify.add(username);
   if (user?.email) usernamesToNotify.add(user.email);
   if (signal.customerEmail) usernamesToNotify.add(signal.customerEmail);
-  usernamesToNotify.add("student");
 
   for (const notifUser of usernamesToNotify) {
     await Notification.findOneAndUpdate(

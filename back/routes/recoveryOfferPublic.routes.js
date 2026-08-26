@@ -1,5 +1,6 @@
 // back/routes/recoveryOfferPublic.routes.js
 import express from 'express';
+import mongoose from 'mongoose';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
@@ -19,7 +20,13 @@ const razorpay = new Razorpay({
 router.get('/:offerId', async (req, res) => {
   try {
     const { offerId } = req.params;
-    const offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId');
+    let offer = null;
+    if (mongoose.isValidObjectId(offerId)) {
+      offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId');
+      if (!offer) {
+        offer = await RecoveryOffer.findOne({ failedPaymentId: offerId }).populate('failedPaymentId');
+      }
+    }
     if (!offer) {
       return res.status(404).json({ success: false, message: 'Recovery offer not found or expired.' });
     }
@@ -66,7 +73,10 @@ router.get('/:offerId', async (req, res) => {
 router.post('/:offerId/create-order', async (req, res) => {
   try {
     const { offerId } = req.params;
-    const offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId');
+    let offer = null;
+    if (mongoose.isValidObjectId(offerId)) {
+      offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId') || await RecoveryOffer.findOne({ failedPaymentId: offerId }).populate('failedPaymentId');
+    }
     if (!offer) {
       return res.status(404).json({ success: false, message: 'Recovery offer not found.' });
     }
@@ -119,7 +129,10 @@ router.post('/:offerId/verify', async (req, res) => {
     const { offerId } = req.params;
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, email, name } = req.body;
 
-    const offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId');
+    let offer = null;
+    if (mongoose.isValidObjectId(offerId)) {
+      offer = await RecoveryOffer.findById(offerId).populate('failedPaymentId') || await RecoveryOffer.findOne({ failedPaymentId: offerId }).populate('failedPaymentId');
+    }
     if (!offer) {
       return res.status(404).json({ success: false, message: 'Recovery offer not found.' });
     }

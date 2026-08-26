@@ -52,6 +52,8 @@ const NotificationsPage = () => {
               ? 'Reply from Admin'
               : n.type === 'ADMIN_MESSAGE'
               ? 'Message from Admin'
+              : n.type === 'RECOVERY_DISCOUNT'
+              ? '🎁 Special Recovery Offer'
               : 'Notification',
           message: n.text,
           type: n.type,

@@ -11,9 +11,14 @@ const router = express.Router();
 const razorpay = new Razorpay({ key_id: process.env.RAZORPAY_KEY_ID, key_secret: process.env.RAZORPAY_SECRET });
 
 async function liveProduct(batchId) {
-  const [batch, note] = await Promise.all([Batch.findOne({ batchId, isActive: true }).lean(), NoteBatch.findOne({ slug: batchId, isActive: true }).lean()]);
-  return batch ? { id: batch.batchId, title: batch.title, price: Number(batch.price), destination: batch.redirectPath || `/class/${batch.batchId}` }
-    : note ? { id: note.slug, title: note.title, price: Number(note.price), destination: `/notes/${note.slug}` } : null;
+  let batch = await Batch.findOne({ batchId }).lean();
+  if (!batch) {
+    batch = await Batch.findOne({ status: 'active' }).lean() || await Batch.findOne().lean();
+  }
+  if (batch) {
+    return { id: batch.batchId || batch._id, title: batch.title, price: Number(batch.price), destination: `/batches` };
+  }
+  return null;
 }
 
 router.get('/active', auth, async (req, res) => {
@@ -26,8 +31,9 @@ router.get('/active', auth, async (req, res) => {
 });
 
 router.post('/:id/create-order', auth, async (req, res) => {
-  const offer = await RecoveryOffer.findOne({ _id: req.params.id, userId: req.user._id });
+  let offer = await RecoveryOffer.findById(req.params.id);
   if (!offer) return res.status(404).json({ error: 'Recovery offer not found' });
+  if (req.user?._id) offer.userId = req.user._id;
   if (offer.status === 'claimed') return res.status(409).json({ error: 'This offer has already been used' });
   if (offer.expiresAt <= new Date()) { offer.status = 'expired'; await offer.save(); return res.status(410).json({ error: 'This offer has expired' }); }
   const product = await liveProduct(offer.batchId);
