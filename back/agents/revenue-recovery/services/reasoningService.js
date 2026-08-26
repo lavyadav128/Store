@@ -2,13 +2,23 @@
 // ─────────────────────────────────────────────────────────────
 // The "WHY" layer. Analyzes failed payment signals, diagnoses root causes,
 // and proposes optimal recovery strategies using Groq/OpenRouter with
-// deterministic rule fallback.
+// deterministic rule fallback across all Razorpay Buildathon directions.
 // ─────────────────────────────────────────────────────────────
 
 import Groq from 'groq-sdk';
 import fetch from 'node-fetch';
+import { generateVoiceScript } from './whatsappRecovery.js';
 
-const VALID_ACTIONS = ['retry_now', 'retry_later', 'nudge_customer', 'offer_discount', 'escalate_human', 'give_up'];
+const VALID_ACTIONS = [
+  'retry_now',
+  'retry_later',
+  'nudge_customer',
+  'offer_discount',
+  'schedule_mandate',
+  'chase_invoice',
+  'escalate_human',
+  'give_up',
+];
 
 function cleanLlmJson(rawText = '') {
   if (!rawText) return null;
@@ -30,12 +40,67 @@ function cleanLlmJson(rawText = '') {
  * Deterministic expert diagnosis fallback if LLM is unavailable.
  */
 function deterministicDiagnosis(fp) {
+  const source = fp.source || 'payment_failure';
   const reason = String(fp.failureReason || '').toLowerCase();
 
+  // Direction 4: B2B Receivables / Overdue Invoice Chaser
+  if (source === 'overdue_receivable') {
+    const days = fp.invoiceDetails?.daysOverdue || 14;
+    return {
+      rootCause: 'b2b_invoice_overdue',
+      explanation: `Corporate invoice is ${days} days past due. Engaging automated B2B receivables sequence.`,
+      confidence: 0.95,
+      proposedAction: {
+        type: days > 30 ? 'escalate_human' : 'chase_invoice',
+        params: { channel: 'whatsapp_and_email', daysOverdue: days },
+      },
+    };
+  }
+
+  // Direction 5: Mandate Retry Sequencer (UPI Autopay / e-Mandate)
+  if (source === 'mandate_failure') {
+    return {
+      rootCause: 'mandate_debit_declined',
+      explanation: 'UPI Autopay mandate failed. Calculated next optimal banking window (08:30 AM - 10:30 AM IST).',
+      confidence: 0.95,
+      proposedAction: {
+        type: 'schedule_mandate',
+        params: { window: '08:30 AM - 10:30 AM IST', nextAttemptHours: 18 },
+      },
+    };
+  }
+
+  // Direction 3: Failed Subscription Recovery
+  if (source === 'subscription_failure') {
+    return {
+      rootCause: 'subscription_recurring_decline',
+      explanation: 'Recurring subscription debit failed. Initiating dunning sequence with smart retry.',
+      confidence: 0.92,
+      proposedAction: {
+        type: 'nudge_customer',
+        params: { channel: 'whatsapp', includeCardUpdateLink: true },
+      },
+    };
+  }
+
+  // Direction 2: Checkout Drop-Off Recovery
+  if (source === 'checkout_dropoff' || /cancelled|drop|closed|dismissed|abandoned/i.test(reason)) {
+    return {
+      rootCause: 'checkout_abandoned',
+      explanation: 'Customer viewed checkout but dropped off before completing payment.',
+      confidence: 0.9,
+      proposedAction: {
+        type: 'offer_discount',
+        params: { discountPercent: 10, channel: 'whatsapp' },
+      },
+    };
+  }
+
+  // Direction 1: Payment Degradation Root Cause Analysis
   if (/insufficient|balance|low_funds/i.test(reason)) {
     return {
       rootCause: 'insufficient_funds',
-      explanation: 'The bank declined the transaction due to insufficient account balance.',
+      explanation: 'The bank declined the transaction due to insufficient account balance. Scheduled smart retry.',
       confidence: 0.95,
       proposedAction: { type: 'retry_later', params: { delayMinutes: 120 } },
     };
@@ -54,24 +119,15 @@ function deterministicDiagnosis(fp) {
     return {
       rootCause: 'bank_otp_timeout',
       explanation: 'Customer faced a 3D Secure OTP verification timeout with the issuing bank.',
-      confidence: 0.9,
+      confidence: 0.92,
       proposedAction: { type: 'nudge_customer', params: { channel: 'whatsapp' } },
-    };
-  }
-
-  if (/cancelled|drop|closed|dismissed|abandoned/i.test(reason)) {
-    return {
-      rootCause: 'customer_abandoned',
-      explanation: 'Customer exited the payment gateway before completing the transaction.',
-      confidence: 0.85,
-      proposedAction: { type: 'offer_discount', params: { discountPercent: 10 } },
     };
   }
 
   return {
     rootCause: 'gateway_declined',
     explanation: `Transaction was declined by payment gateway: ${fp.failureReason}`,
-    confidence: 0.75,
+    confidence: 0.8,
     proposedAction: { type: 'nudge_customer', params: { channel: 'whatsapp' } },
   };
 }
@@ -81,41 +137,47 @@ function deterministicDiagnosis(fp) {
  * @returns {Object} { rootCause, explanation, confidence, proposedAction: { type, params }, model, rawResponse }
  */
 export async function reasonAboutSignal(failedPayment) {
-  const prompt = `You are the reasoning layer of a revenue-recovery agent for an Indian payments platform.
-You NEVER execute anything — you only diagnose and propose. A separate policy gate decides if your
-proposal is allowed to run.
+  const voiceScript = generateVoiceScript(failedPayment);
+
+  const prompt = `You are the reasoning layer of an advanced AI Revenue Recovery Agent for Razorpay payments.
+You analyze failed payment events across 5 directions:
+1. payment_failure (payment degradation, OTP timeout, bank downtime)
+2. checkout_dropoff (cart / intent abandoned)
+3. subscription_failure (recurring billing failed)
+4. overdue_receivable (B2B overdue invoice)
+5. mandate_failure (UPI Autopay mandate failure)
 
 SIGNAL:
 - source: ${failedPayment.source}
-- amount (paise): ${failedPayment.amount} (₹${((failedPayment.amount || 0) / 100).toLocaleString()})
+- amount (paise): ${failedPayment.amount} (₹${((failedPayment.amount || 0) / 100).toLocaleString('en-IN')})
 - failureReason: ${failedPayment.failureReason}
 - attempts so far: ${failedPayment.attempts}
 - customerName: ${failedPayment.customerName || 'N/A'}
-- customer has a promise-to-pay on file: ${failedPayment.promiseToPay?.promised || false}
+- has promise-to-pay: ${failedPayment.promiseToPay?.promised || false}
 
-Respond with ONLY a JSON object, no prose, no markdown fences:
+Respond with ONLY a JSON object:
 {
-  "root_cause": "short machine-readable cause, e.g. insufficient_funds | card_expired | network_error | customer_abandoned | bank_otp_timeout | gateway_declined",
-  "explanation": "one or two plain-English sentences a non-technical reviewer could read explaining the exact failure reason",
+  "root_cause": "short machine-readable cause, e.g. insufficient_funds | card_expired | bank_otp_timeout | checkout_abandoned | b2b_invoice_overdue | mandate_debit_declined | gateway_declined",
+  "explanation": "concise 1-2 sentence diagnostic explanation",
   "confidence": 0.0-1.0,
-  "action": "one of: retry_now | retry_later | nudge_customer | offer_discount | escalate_human | give_up",
-  "params": { "delayMinutes": number, "discountPercent": number }
+  "action": "one of: retry_now | retry_later | nudge_customer | offer_discount | schedule_mandate | chase_invoice | escalate_human | give_up",
+  "params": { "delayMinutes": number, "discountPercent": number, "channel": "whatsapp" }
 }`;
 
   let parsed = null;
   let modelUsed = 'rule_engine';
 
-  // 1. Try Groq (Ultra-Fast)
+  // 1. Try Groq
   if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_')) {
     try {
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
       const completion = await groq.chat.completions.create({
-        model: 'qwen/qwen3.6-27b',
+        model: 'llama-3.3-70b-versatile',
         temperature: 0.2,
         messages: [{ role: 'user', content: prompt }],
       });
       parsed = cleanLlmJson(completion.choices?.[0]?.message?.content);
-      if (parsed?.root_cause) modelUsed = 'groq:qwen3.6-27b';
+      if (parsed?.root_cause) modelUsed = 'groq:llama-3.3-70b';
     } catch (err) {
       console.warn('Groq reasoning exception:', err.message);
     }
@@ -152,6 +214,7 @@ Respond with ONLY a JSON object, no prose, no markdown fences:
     const fallback = deterministicDiagnosis(failedPayment);
     return {
       ...fallback,
+      voiceScript,
       model: 'expert_rule_engine',
       rawResponse: fallback,
     };
@@ -162,12 +225,13 @@ Respond with ONLY a JSON object, no prose, no markdown fences:
   return {
     rootCause: parsed.root_cause || 'unknown',
     explanation: parsed.explanation || 'Analyzed failure event.',
-    confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.85,
+    confidence: typeof parsed.confidence === 'number' ? parsed.confidence : 0.9,
     proposedAction: {
       type: actionType,
       params: parsed.params || {},
     },
+    voiceScript,
     model: modelUsed,
     rawResponse: parsed,
   };
-}
+}

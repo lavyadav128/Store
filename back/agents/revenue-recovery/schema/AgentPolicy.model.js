@@ -20,7 +20,16 @@ const agentPolicySchema = new mongoose.Schema({
 
   allowedActions: {
     type: [String],
-    default: ['retry_now', 'retry_later', 'nudge_customer', 'offer_discount', 'escalate_human', 'give_up'],
+    default: [
+      'retry_now',
+      'retry_later',
+      'nudge_customer',
+      'offer_discount',
+      'schedule_mandate',
+      'chase_invoice',
+      'escalate_human',
+      'give_up',
+    ],
   },
 
   maxConsecutiveFailuresBeforeEscalation: { type: Number, default: 2 },

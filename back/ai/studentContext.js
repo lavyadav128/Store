@@ -131,8 +131,96 @@ export async function getStudentAssistantContext(userId) {
   };
 }
 
+function parsePromiseDate(text = "") {
+  const t = text.toLowerCase();
+  const now = new Date();
+
+  if (/today|aaj/i.test(t)) {
+    return new Date(now.getTime() + 6 * 3600000);
+  }
+  if (/tomorrow|kal/i.test(t)) {
+    return new Date(now.getTime() + 24 * 3600000);
+  }
+  if (/day after tomorrow|parson|parso/i.test(t)) {
+    return new Date(now.getTime() + 48 * 3600000);
+  }
+  if (/next week|agle hafte/i.test(t)) {
+    return new Date(now.getTime() + 7 * 86400000);
+  }
+  if (/friday|shukrawar/i.test(t)) {
+    const d = new Date();
+    d.setDate(d.getDate() + ((5 + 7 - d.getDay()) % 7 || 7));
+    return d;
+  }
+  if (/monday|somwar/i.test(t)) {
+    const d = new Date();
+    d.setDate(d.getDate() + ((1 + 7 - d.getDay()) % 7 || 7));
+    return d;
+  }
+  if (/month end|mahine ke end|30th|31st/i.test(t)) {
+    const d = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+    return d;
+  }
+
+  // Check for specific day numbers like "28th", "29 aug", "1st"
+  const dayMatch = t.match(/\b(\d{1,2})(?:st|nd|rd|th)?\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)?\b/i);
+  if (dayMatch) {
+    const day = parseInt(dayMatch[1], 10);
+    if (day >= 1 && day <= 31) {
+      const d = new Date();
+      d.setDate(day);
+      if (d < now) d.setMonth(d.getMonth() + 1);
+      return d;
+    }
+  }
+
+  // Default fallback: 3 days from now
+  return new Date(now.getTime() + 3 * 86400000);
+}
+
+export async function handlePromiseToPayInChat(userId, message) {
+  if (!userId) return null;
+  const isPromise = /\b(pay (later|tomorrow|on|next|by|after)|kal (pay|dunga|karunga)|main.*pay karunga|will pay|promise.*pay|paise.*dunga)\b/i.test(message);
+  if (!isPromise) return null;
+
+  const latestSignal = await FailedPayment.findOne({ userId, status: { $in: ['open', 'recovering', 'escalated'] } }).sort({ updatedAt: -1 });
+  if (!latestSignal) return null;
+
+  const promisedDate = parsePromiseDate(message);
+  latestSignal.promiseToPay = {
+    promised: true,
+    promisedDate,
+    fulfilled: false,
+    note: `Committed via AI Chatbot: "${message.slice(0, 100)}"`,
+    recordedFrom: 'chatbot',
+  };
+  await latestSignal.save();
+
+  const formattedDate = promisedDate.toLocaleDateString('en-IN', { weekday: 'long', month: 'short', day: 'numeric' });
+  const amountStr = latestSignal.amount ? `₹${Math.round(latestSignal.amount / 100).toLocaleString('en-IN')}` : 'your batch fee';
+
+  return `### 🤝 Payment Commitment Confirmed & Snoozed!
+
+Thank you for confirming! I have **registered your promise-to-pay** in our system:
+
+| Parameter | Commitment Details |
+| :--- | :--- |
+| **Course / Batch** | **${latestSignal.batchTitle || 'Selected Course'}** |
+| **Pending Amount** | **${amountStr}** |
+| **Promised Payment Date** | 🗓️ **${formattedDate}** |
+| **Automated Alerts** | 🔕 **Snoozed until ${formattedDate}** |
+| **Seat Status** | 🔒 **Temporarily Reserved for You** |
+
+💡 **What happens next?**
+- Your batch seat will remain on hold for you until **${formattedDate}**.
+- We have paused automated reminders so you won't be disturbed.
+- When you're ready to complete the payment, you can simply revisit the course page or use any instant UPI app.
+
+Would you like me to share study materials or syllabus previews while your seat is reserved?`;
+}
+
 export function buildPaymentStatusReply(message, personal) {
-  if (!personal.authenticated || !/\b(payment|refund|failed|failure|declined|not paid|transaction|recovery|discount|coupon)\b/i.test(message)) {
+  if (!personal.authenticated || !/\b(payment|refund|failed|failure|declined|not paid|transaction|recovery|discount|coupon|paisa|paise)\b/i.test(message)) {
     return null;
   }
 
@@ -140,42 +228,42 @@ export function buildPaymentStatusReply(message, personal) {
   const latestAttempt = personal.recentPaymentAttempts?.[0];
 
   if (!latestFailure && !latestAttempt) {
-    return `### 💳 Payment & Account Status
+    return `### 💳 Live Payment & Account Status
 
-I checked your live transaction history and **did not find any failed or pending payments** on your account. All your active purchases are working properly!
+I checked your live transaction record and **did not find any failed or pending payments** on your account. All your transactions are in good standing!
 
-💡 **Next Steps:**
-- If you just initiated a new checkout, please allow a few moments for the bank confirmation to sync.
-- If you wish to enroll in a new batch, explore our active catalog anytime.
+💡 **Helpful Options:**
+- If you recently started a checkout, please allow a few moments for the bank confirmation to sync.
+- If you're looking for our course catalog or batch pricing, let me know which subject or exam you are targeting!
 
-Would you like help choosing a course or checking access to an existing batch?`;
+Would you like help exploring our active batches?`;
   }
 
   if (latestFailure) {
     const title = latestFailure.title || "your selected batch";
-    const amount = latestFailure.amountInRupees ? `₹${latestFailure.amountInRupees}` : "the course fee";
+    const amount = latestFailure.amountInRupees ? `₹${latestFailure.amountInRupees.toLocaleString('en-IN')}` : "the course fee";
     const offer = personal.activeRecoveryOffers?.find((o) => o.batchId === latestFailure.batchId);
     const offerSection = offer
-      ? `\n\n### 🎁 Exclusive Recovery Offer Active!\n- **Discount:** **${offer.discountPercent}% OFF** has been credited to your account.\n- **Claim Link:** [Open Notifications & Claim](/dashboard?view=notifications)`
+      ? `\n\n### 🎁 Special Recovery Offer Activated!\n- **Discount:** **${offer.discountPercent}% OFF** has been credited to your account.\n- **Claim & Enroll:** [👉 Open Notifications to Redeem](/dashboard?view=notifications)`
       : "";
 
     return `### 🔍 Live Payment Diagnostic Summary
 
-Here is the exact real-time diagnostic report for your recent payment attempt:
+Here is the exact real-time diagnostic report for your recent transaction:
 
 | Parameter | Details |
 | :--- | :--- |
 | **Course / Batch** | **${title}** |
-| **Amount Attempted** | **${amount}** |
-| **Payment Status** | 🔴 **Failed / Declined** |
+| **Attempted Amount** | **${amount}** |
+| **Payment Gateway Status** | 🔴 **Declined / Interrupted** |
 | **Primary Root Cause** | ${latestFailure.failureReason} |
 | **System Diagnosis** | ${latestFailure.explanation} |
 
 ### 🛠️ Recommended Action Steps
-1. **Try an Alternative Method:** If card OTP timed out, try paying via **UPI (Google Pay / PhonePe / Paytm)** or **NetBanking** for instant confirmation.
-2. **Restart Checkout Safely:** You can safely re-attempt checkout directly from the batch page.${offerSection}
+1. **Try Instant UPI (Recommended):** If card OTP timed out, pay via **Google Pay / PhonePe / Paytm UPI** for zero-friction confirmation.
+2. **Safe 1-Click Re-attempt:** You can safely restart checkout with 256-bit Razorpay bank security.${offerSection}
 
-💡 **Pro Tip:** Your card details and payment gateway are 100% secure via Razorpay 256-bit SSL encryption.
+💡 **Need to Pay Later?** Just reply *"I will pay tomorrow"* or *"I will pay on Friday"*, and I will reserve your seat and pause reminders!
 
 Would you like me to guide you through retrying or help you choose the best payment method?`;
   }
@@ -200,3 +288,4 @@ Your recent transaction for **${latestAttempt.title}** is currently in **${lates
 
 Would you like further assistance with this transaction?`;
 }
+

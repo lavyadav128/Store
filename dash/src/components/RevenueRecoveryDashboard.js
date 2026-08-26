@@ -21,12 +21,23 @@ import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
 import GavelIcon from "@mui/icons-material/Gavel";
 import CloseIcon from "@mui/icons-material/Close";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import HandshakeIcon from "@mui/icons-material/Handshake";
+import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
 import axios from "axios";
 import server from "../environment";
 
 const authHeader = () => ({
   headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
 });
+
+const SOURCE_LABELS = {
+  payment_failure:      "Payment Degradation",
+  checkout_dropoff:     "Checkout Drop-off",
+  subscription_failure: "Subscription Failed",
+  overdue_receivable:   "B2B Overdue Invoice",
+  mandate_failure:      "UPI Mandate Sequencer",
+};
 
 // ── Monochrome status system ──
 // Every status/gate state maps to a shade of black/grey plus a
@@ -54,10 +65,14 @@ const RevenueRecoveryDashboard = () => {
   const [policy, setPolicy] = useState(null);
   const [statusFilter, setStatusFilter] = useState("");
   const [sourceFilter, setSourceFilter] = useState("");
+  const [promisedOnly, setPromisedOnly] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [seeding, setSeeding] = useState(false);
 
   const [selectedSignal, setSelectedSignal] = useState(null);
   const [auditActions, setAuditActions] = useState([]);
+  const [voiceModalOpen, setVoiceModalOpen] = useState(false);
+  const [selectedVoiceScript, setSelectedVoiceScript] = useState("");
   const [detailOpen, setDetailOpen] = useState(false);
 
   const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
@@ -76,10 +91,11 @@ const RevenueRecoveryDashboard = () => {
       const params = {};
       if (statusFilter) params.status = statusFilter;
       if (sourceFilter) params.source = sourceFilter;
+      if (promisedOnly) params.promisedOnly = "true";
       const res = await axios.get(`${BASE}/signals`, { ...authHeader(), params });
       setSignals(res.data);
     } catch (err) { console.error("Failed to fetch signals", err); }
-  }, [statusFilter, sourceFilter]);
+  }, [statusFilter, sourceFilter, promisedOnly]);
 
   const fetchApprovalQueue = useCallback(async () => {
     try {
@@ -106,31 +122,16 @@ const RevenueRecoveryDashboard = () => {
 
   const runAgent = async (signalId) => {
     setLoading(true);
-  
     try {
-      const res = await axios.post(
-        `${BASE}/signals/${signalId}/process`,
-        {},
-        authHeader()
-      );
-  
+      const res = await axios.post(`${BASE}/signals/${signalId}/process`, {}, authHeader());
       const gateDecision = res.data.actionLog.gate.decision;
-  
-      showSnack(
-        `Agent decision: ${gateDecision.toUpperCase()}`,
-        gateDecision === "blocked" ? "warning" : "success"
-      );
-  
+      showSnack(`Agent execution complete — Gate: ${gateDecision.toUpperCase()}`, gateDecision === "blocked" ? "warning" : "success");
       refreshAll();
-  
       if (selectedSignal && selectedSignal._id === signalId) {
         openDetail(signalId);
       }
     } catch (err) {
-      showSnack(
-        err.response?.data?.error || "Could not run recovery agent.",
-        "error"
-      );
+      showSnack(err.response?.data?.error || "Could not run recovery agent.", "error");
     } finally {
       setLoading(false);
     }
@@ -139,10 +140,33 @@ const RevenueRecoveryDashboard = () => {
   const approveSignal = async (signalId) => {
     try {
       const res = await axios.post(`${BASE}/signals/${signalId}/approve`, {}, authHeader());
-      showSnack(`Approved — ${res.data.discountPercent}% discount offer was sent to the student notification centre.`);
+      showSnack(`Approved — Recovery intervention issued to customer notification centre.`);
       refreshAll();
     } catch (err) {
       showSnack("Failed to approve", "error");
+    }
+  };
+
+  const fulfillPromise = async (signalId) => {
+    try {
+      await axios.post(`${BASE}/signals/${signalId}/promise-to-pay/fulfill`, {}, authHeader());
+      showSnack("Promise-to-pay marked as fulfilled & recovered! 🎉");
+      refreshAll();
+    } catch (err) {
+      showSnack("Failed to fulfill promise", "error");
+    }
+  };
+
+  const seedDemoScenarios = async () => {
+    setSeeding(true);
+    try {
+      const res = await axios.post(`${BASE}/seed-demo`, {}, authHeader());
+      showSnack(`Seeded ${res.data.count} Razorpay Buildathon demo scenarios across all 5 tracks!`);
+      refreshAll();
+    } catch (err) {
+      showSnack("Failed to seed demo signals", "error");
+    } finally {
+      setSeeding(false);
     }
   };
 
@@ -155,6 +179,12 @@ const RevenueRecoveryDashboard = () => {
     } catch (err) {
       showSnack("Failed to load audit trail", "error");
     }
+  };
+
+  const openVoiceScript = (script, customerName) => {
+    setSelectedVoiceScript(script);
+    setSelectedSignal((prev) => ({ ...prev, customerName }));
+    setVoiceModalOpen(true);
   };
 
   const updatePolicyField = async (field, value) => {
@@ -253,55 +283,82 @@ const RevenueRecoveryDashboard = () => {
       `}</style>
 
       <Fade in timeout={500}>
-        <Box sx={{ p: 3, maxWidth: 1200, mx: "auto" }}>
+        <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 1240, mx: "auto" }}>
 
           {/* ── Page header ── */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mb: 4 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", mb: 3.5, flexWrap: "wrap", gap: 2 }}>
             <Box>
-              <Typography sx={{ fontFamily: font, fontWeight: 800, fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>
-                Autonomous Agent
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+                <Typography sx={{ fontFamily: font, fontWeight: 800, fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase" }}>
+                  Razorpay Buildathon Track
+                </Typography>
+                <Chip size="small" label="AI Revenue Recovery" sx={{ bgcolor: "#0f172a", color: "#fff", fontWeight: 700, fontSize: 10, height: 22 }} />
+              </Box>
+              <Typography sx={{ fontFamily: display, fontWeight: 800, fontSize: { xs: 26, sm: 34 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>
+                AI Revenue Recovery Agent
               </Typography>
-              <Typography sx={{ fontFamily: display, fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>
-                AI Revenue Recovery
-              </Typography>
-              <Typography sx={{ fontFamily: font, fontSize: 14, color: "#aaa", mt: 0.8 }}>
-                Detects failed payments, decides a recovery action, and asks for approval when it's unsure.
+              <Typography sx={{ fontFamily: font, fontSize: 14, color: "#64748b", mt: 0.8 }}>
+                Autonomous bounded recovery workflow: payment failures, checkout drop-offs, subscriptions, B2B invoices & UPI mandate sequencers.
               </Typography>
             </Box>
-            <IconButton onClick={refreshAll} sx={{
-              width: 42, height: 42, borderRadius: "13px", background: "#1a1a2e",
-              "&:hover": { background: "#2d2d4e" },
-            }}>
-              <RefreshIcon sx={{ color: "#fff", fontSize: 20 }} />
-            </IconButton>
+
+            <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+              <Button
+                variant="contained"
+                startIcon={seeding ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon sx={{ fontSize: 17 }} />}
+                onClick={seedDemoScenarios}
+                disabled={seeding}
+                sx={{
+                  bgcolor: "#0f172a",
+                  color: "#fff",
+                  fontFamily: font,
+                  fontWeight: 700,
+                  fontSize: 13,
+                  borderRadius: "13px",
+                  px: 2.2,
+                  py: 1.1,
+                  textTransform: "none",
+                  boxShadow: "0 4px 14px rgba(15, 23, 42, 0.15)",
+                  "&:hover": { bgcolor: "#1e293b" },
+                }}
+              >
+                Seed 5-Track Demo
+              </Button>
+              <IconButton onClick={refreshAll} sx={{
+                width: 42, height: 42, borderRadius: "13px", background: "#1a1a2e",
+                "&:hover": { background: "#2d2d4e" },
+              }}>
+                <RefreshIcon sx={{ color: "#fff", fontSize: 20 }} />
+              </IconButton>
+            </Box>
           </Box>
 
           {/* ── METRICS STRIP ── */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <MetricCard label="Revenue Recovered" value={metrics ? `₹${metrics.revenueRecoveredRupees.toLocaleString()}` : "…"} tag="Total" emphasis font={font} display={display} />
-            <MetricCard label="Open" value={metrics?.counts.open ?? "…"} tag="Signals" font={font} display={display} />
-            <MetricCard label="Recovering" value={metrics?.counts.recovering ?? "…"} tag="In progress" font={font} display={display} />
-            <MetricCard label="Recovered" value={metrics?.counts.recovered ?? "…"} tag="Resolved" font={font} display={display} />
-            <MetricCard label="Escalated" value={metrics?.counts.escalated ?? "…"} tag="Needs eyes" font={font} display={display} />
-            <MetricCard label="Lost" value={metrics?.counts.lost ?? "…"} tag="Closed" font={font} display={display} />
+            <MetricCard label="Revenue Recovered" value={metrics ? `₹${metrics.revenueRecoveredRupees.toLocaleString()}` : "…"} tag="Total Won Back" emphasis font={font} display={display} />
+            <MetricCard label="Active Signals" value={metrics?.counts.open ?? "…"} tag="Open" font={font} display={display} />
+            <MetricCard label="In Recovery" value={metrics?.counts.recovering ?? "…"} tag="Automated Nudges" font={font} display={display} />
+            <MetricCard label="Promises to Pay" value={metrics?.counts.promised ?? "…"} tag="Committed" font={font} display={display} />
+            <MetricCard label="Needs Approval" value={metrics?.counts.escalated ?? "…"} tag="Gated Queue" font={font} display={display} />
+            <MetricCard label="Resolved" value={metrics?.counts.recovered ?? "…"} tag="Settled" font={font} display={display} />
           </Grid>
 
-          {/* ── APPROVAL QUEUE ── */}
+          {/* ── APPROVAL QUEUE (HUMAN-IN-THE-LOOP GOVERNANCE) ── */}
           {approvalQueue.length > 0 && (
-            <Box className="rr-card" sx={{ mb: 3, background: "#fff", border: "1px solid #1a1a2e", borderRadius: "20px", p: { xs: 3, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <Box className="rr-card" sx={{ mb: 3, background: "#fff", border: "1px solid #1a1a2e", borderRadius: "20px", p: { xs: 2.5, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
                 <Box sx={{ width: 36, height: 36, borderRadius: "11px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <GavelIcon sx={{ color: "#fff", fontSize: 18 }} />
                 </Box>
-                <Typography sx={{ fontFamily: display, fontWeight: 700, fontSize: 17, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
-                  Needs Human Approval
+                <Typography sx={{ fontFamily: display, fontWeight: 700, fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
+                  Human-in-the-Loop Approval Queue
                 </Typography>
                 <Box sx={{ px: 1.2, py: 0.3, borderRadius: "8px", background: "#1a1a2e" }}>
-                  <Typography sx={{ fontFamily: font, fontWeight: 700, fontSize: 11, color: "#fff" }}>{approvalQueue.length}</Typography>
+                  <Typography sx={{ fontFamily: font, fontWeight: 700, fontSize: 11, color: "#fff" }}>{approvalQueue.length} Pending</Typography>
                 </Box>
               </Box>
-              <Typography sx={{ fontFamily: font, fontSize: 13, color: "#aaa", mb: 2, ml: "51px" }}>
-                These signals were gated — the amount or rule exceeded what the agent is allowed to auto-approve.
+              <Typography sx={{ fontFamily: font, fontSize: 13, color: "#64748b", mb: 2, ml: "51px" }}>
+                These interventions exceeded policy thresholds (auto-approve ceiling or high discount) and require explicit merchant authorization.
               </Typography>
 
               {approvalQueue.map((s) => (
@@ -310,19 +367,21 @@ const RevenueRecoveryDashboard = () => {
                   border: "1px solid #f0f0f0", borderRadius: "14px", transition: "background 0.15s ease",
                   flexWrap: "wrap",
                 }}>
-                  <Typography sx={{ fontFamily: font, fontSize: 14, fontWeight: 600, color: "#1a1a2e", minWidth: { xs: "100%", sm: 140 } }}>
-                    {s.customerName}
+                  <Typography sx={{ fontFamily: font, fontSize: 14, fontWeight: 600, color: "#1a1a2e", minWidth: { xs: "100%", sm: 160 } }}>
+                    {s.customerName || "Customer"}
                   </Typography>
-                  <Typography sx={{ fontFamily: font, fontSize: 13, color: "#555", minWidth: 100 }}>
-                    ₹{(s.amount / 100).toLocaleString()}
+                  <Typography sx={{ fontFamily: font, fontSize: 13, color: "#0f172a", fontWeight: 700, minWidth: 100 }}>
+                    ₹{(s.amount / 100).toLocaleString('en-IN')}
                   </Typography>
                   <Box sx={{ px: 1.1, py: 0.3, borderRadius: "8px", background: "#f4f4f6" }}>
-                    <Typography sx={{ fontFamily: font, fontSize: 11, fontWeight: 600, color: "#888" }}>{s.source}</Typography>
+                    <Typography sx={{ fontFamily: font, fontSize: 11, fontWeight: 600, color: "#64748b" }}>
+                      {SOURCE_LABELS[s.source] || s.source}
+                    </Typography>
                   </Box>
                   <Box sx={{ ml: { xs: 0, sm: "auto" }, width: { xs: "100%", sm: "auto" }, display: "flex", gap: 1 }}>
-                    <Button size="small" onClick={() => openDetail(s._id)} sx={ghostBtnSx}>View</Button>
+                    <Button size="small" onClick={() => openDetail(s._id)} sx={ghostBtnSx}>Audit Trail</Button>
                     <Button size="small" variant="contained" onClick={() => approveSignal(s._id)} sx={{ ...primaryBtnSx, px: 2.2, py: 0.8 }}>
-                      Approve
+                      Authorize Action
                     </Button>
                   </Box>
                 </Box>
@@ -330,18 +389,18 @@ const RevenueRecoveryDashboard = () => {
             </Box>
           )}
 
-          {/* ── POLICY BOUNDS ── */}
+          {/* ── POLICY BOUNDS (GOVERNANCE GUARDRAILS) ── */}
           {policy && (
-            <Box className="rr-card" sx={{ mb: 3, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <Box className="rr-card" sx={{ mb: 3, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}>
                 <Box sx={{ width: 36, height: 36, borderRadius: "11px", background: "#f4f4f6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                   <GavelIcon sx={{ color: "#1a1a2e", fontSize: 18 }} />
                 </Box>
                 <Box>
                   <Typography sx={{ fontFamily: display, fontWeight: 700, fontSize: 17, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
-                    Policy Bounds
+                    Policy Bounds & Hard Guardrails
                   </Typography>
-                  <Typography sx={{ fontFamily: font, fontSize: 12, color: "#aaa" }}>Live-tunable guardrails for the agent</Typography>
+                  <Typography sx={{ fontFamily: font, fontSize: 12, color: "#64748b" }}>Deterministic ceilings that the AI is hard-coded never to exceed</Typography>
                 </Box>
               </Box>
               <Grid container spacing={2}>
@@ -353,32 +412,54 @@ const RevenueRecoveryDashboard = () => {
             </Box>
           )}
 
-          {/* ── LIVE SIGNAL FEED ── */}
-          <Box className="rr-card" sx={{ background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+          {/* ── LIVE SIGNAL FEED & PROMISE TRACKER ── */}
+          <Box className="rr-card" sx={{ background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
             <Box sx={{ display: "flex", gap: 2, mb: 2.5, alignItems: "center", flexWrap: "wrap" }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mr: "auto" }}>
                 <Box sx={{ width: 36, height: 36, borderRadius: "11px", background: "#f4f4f6", display: "flex", alignItems: "center", justifyContent: "center" }}>
                   <ReceiptLongIcon sx={{ color: "#1a1a2e", fontSize: 18 }} />
                 </Box>
-                <Typography sx={{ fontFamily: display, fontWeight: 700, fontSize: 17, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
-                  Live Signal Feed
+                <Typography sx={{ fontFamily: display, fontWeight: 700, fontSize: 18, color: "#1a1a2e", letterSpacing: "-0.3px" }}>
+                  Omni-Channel Signal Stream
                 </Typography>
               </Box>
-              <FormControl size="small" sx={{ minWidth: 140, ...inputSx }}>
+
+              <Button
+                size="small"
+                variant={promisedOnly ? "contained" : "outlined"}
+                startIcon={<HandshakeIcon sx={{ fontSize: 16 }} />}
+                onClick={() => setPromisedOnly(!promisedOnly)}
+                sx={{
+                  borderRadius: "12px",
+                  fontFamily: font,
+                  fontWeight: 700,
+                  fontSize: 12,
+                  textTransform: "none",
+                  bgcolor: promisedOnly ? "#0f172a" : "transparent",
+                  color: promisedOnly ? "#fff" : "#0f172a",
+                  borderColor: "#0f172a",
+                  "&:hover": { bgcolor: promisedOnly ? "#1e293b" : "#f1f5f9" },
+                }}
+              >
+                Promise-to-Pay Only
+              </Button>
+
+              <FormControl size="small" sx={{ minWidth: 130, ...inputSx }}>
                 <InputLabel>Status</InputLabel>
                 <Select value={statusFilter} label="Status" onChange={(e) => setStatusFilter(e.target.value)} sx={{ borderRadius: "14px", fontFamily: font, fontSize: 13 }}>
-                  <MenuItem value="">All</MenuItem>
+                  <MenuItem value="">All Statuses</MenuItem>
                   {["open", "recovering", "recovered", "lost", "escalated"].map((s) => (
                     <MenuItem key={s} value={s} sx={{ fontFamily: font, fontSize: 13 }}>{s}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
-              <FormControl size="small" sx={{ minWidth: 170, ...inputSx }}>
-                <InputLabel>Source</InputLabel>
-                <Select value={sourceFilter} label="Source" onChange={(e) => setSourceFilter(e.target.value)} sx={{ borderRadius: "14px", fontFamily: font, fontSize: 13 }}>
-                  <MenuItem value="">All</MenuItem>
-                  {["payment_failure", "checkout_dropoff", "subscription_failure", "mandate_failure", "overdue_receivable"].map((s) => (
-                    <MenuItem key={s} value={s} sx={{ fontFamily: font, fontSize: 13 }}>{s}</MenuItem>
+
+              <FormControl size="small" sx={{ minWidth: 190, ...inputSx }}>
+                <InputLabel>Signal Track</InputLabel>
+                <Select value={sourceFilter} label="Signal Track" onChange={(e) => setSourceFilter(e.target.value)} sx={{ borderRadius: "14px", fontFamily: font, fontSize: 13 }}>
+                  <MenuItem value="">All 5 Tracks</MenuItem>
+                  {Object.entries(SOURCE_LABELS).map(([k, v]) => (
+                    <MenuItem key={k} value={k} sx={{ fontFamily: font, fontSize: 13 }}>{v}</MenuItem>
                   ))}
                 </Select>
               </FormControl>
@@ -387,12 +468,12 @@ const RevenueRecoveryDashboard = () => {
             <TableContainer className="rr-feed-table" component={Paper} variant="outlined" sx={{ borderRadius: "16px", border: "1px solid #f0f0f0", boxShadow: "none" }}>
               <Table size="small">
                 <TableHead>
-                  <TableRow sx={{ "& th": { fontFamily: font, fontSize: 11, fontWeight: 700, color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase", borderBottom: "1px solid #f0f0f0", background: "#fafafc" } }}>
-                    <TableCell>Customer</TableCell>
+                  <TableRow sx={{ "& th": { fontFamily: font, fontSize: 11, fontWeight: 700, color: "#94a3b8", letterSpacing: "0.8px", textTransform: "uppercase", borderBottom: "1px solid #f0f0f0", background: "#fafafc" } }}>
+                    <TableCell>Customer / Entity</TableCell>
                     <TableCell>Amount</TableCell>
-                    <TableCell>Source</TableCell>
-                    <TableCell>Reason</TableCell>
-                    <TableCell>Attempts</TableCell>
+                    <TableCell>Track & Context</TableCell>
+                    <TableCell>Diagnosis</TableCell>
+                    <TableCell>Commitment</TableCell>
                     <TableCell>Status</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
@@ -400,31 +481,79 @@ const RevenueRecoveryDashboard = () => {
                 <TableBody>
                   {signals.map((s) => (
                     <TableRow key={s._id} className="rr-row" sx={{ "& td": { fontFamily: font, fontSize: 13, color: "#333", borderBottom: "1px solid #f4f4f6" }, transition: "background 0.15s ease" }}>
-                      <TableCell data-label="Customer" sx={{ fontWeight: 600, color: "#1a1a2e !important" }}>{s.customerName || "—"}</TableCell>
-                      <TableCell data-label="Amount">₹{(s.amount / 100).toLocaleString()}</TableCell>
-                      <TableCell data-label="Source">
-                        <Box sx={{ display: "inline-block", px: 1, py: 0.25, borderRadius: "8px", background: "#f4f4f6", fontSize: 11, fontWeight: 600, color: "#888" }}>
-                          {s.source}
-                        </Box>
+                      <TableCell data-label="Customer" sx={{ fontWeight: 600, color: "#1a1a2e !important" }}>
+                        {s.customerName || "Customer"}
+                        {s.invoiceDetails?.invoiceNumber && (
+                          <Typography sx={{ fontSize: 10, color: "#64748b", fontFamily: font }}>
+                            Inv: {s.invoiceDetails.invoiceNumber}
+                          </Typography>
+                        )}
                       </TableCell>
-                      <TableCell data-label="Reason" sx={{ color: "#888 !important" }}>{s.failureReason}</TableCell>
-                      <TableCell data-label="Attempts">{s.attempts}</TableCell>
+                      <TableCell data-label="Amount" sx={{ fontWeight: 700 }}>
+                        ₹{(s.amount / 100).toLocaleString('en-IN')}
+                      </TableCell>
+                      <TableCell data-label="Track">
+                        <Box sx={{ display: "inline-block", px: 1, py: 0.25, borderRadius: "8px", background: "#f1f5f9", fontSize: 11, fontWeight: 600, color: "#475569" }}>
+                          {SOURCE_LABELS[s.source] || s.source}
+                        </Box>
+                        {s.mandateDetails?.optimalRetryWindow && (
+                          <Typography sx={{ fontSize: 10, color: "#16a34a", fontWeight: 700, mt: 0.3 }}>
+                            ⏱️ {s.mandateDetails.optimalRetryWindow}
+                          </Typography>
+                        )}
+                      </TableCell>
+                      <TableCell data-label="Diagnosis" sx={{ color: "#64748b !important", maxWidth: 220 }}>
+                        {s.failureReason}
+                      </TableCell>
+                      <TableCell data-label="Commitment">
+                        {s.promiseToPay?.promised ? (
+                          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.5 }}>
+                            <Chip
+                              size="small"
+                              label={s.promiseToPay.fulfilled ? "Fulfilled ✅" : `Due: ${new Date(s.promiseToPay.promisedDate).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}`}
+                              sx={{
+                                bgcolor: s.promiseToPay.fulfilled ? "#16a34a" : "#0f172a",
+                                color: "#fff",
+                                fontWeight: 700,
+                                fontSize: 10,
+                                height: 22,
+                              }}
+                            />
+                            {!s.promiseToPay.fulfilled && (
+                              <Tooltip title="Mark Promise as Fulfilled">
+                                <IconButton size="small" onClick={() => fulfillPromise(s._id)}>
+                                  <CheckCircleIcon sx={{ fontSize: 16, color: "#16a34a" }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                          </Box>
+                        ) : (
+                          <Typography sx={{ fontSize: 11, color: "#cbd5e1" }}>None</Typography>
+                        )}
+                      </TableCell>
                       <TableCell data-label="Status"><StatusChip status={s.status} /></TableCell>
                       <TableCell data-label="Actions" className="rr-actions" align="right">
-                        <Tooltip title="Run the agent on this signal">
+                        <Tooltip title="Run AI Diagnostic & Bounded Execution">
                           <Button size="small" startIcon={<BoltIcon sx={{ fontSize: 15 }} />} onClick={() => runAgent(s._id)} disabled={loading} sx={{ ...primaryBtnSx, px: 1.4, py: 0.5, mr: 0.5 }}>
-                            Run
+                            Execute
                           </Button>
                         </Tooltip>
-                        <Button size="small" onClick={() => openDetail(s._id)} sx={{ ...ghostBtnSx, px: 1.4, py: 0.5 }}>Audit Trail</Button>
+                        <Tooltip title="View Hinglish Voice Script">
+                          <IconButton size="small" onClick={() => openVoiceScript(s.voiceScript, s.customerName)} sx={{ mr: 0.5 }}>
+                            <RecordVoiceOverIcon sx={{ fontSize: 17, color: "#0f172a" }} />
+                          </IconButton>
+                        </Tooltip>
+                        <Button size="small" onClick={() => openDetail(s._id)} sx={{ ...ghostBtnSx, px: 1.2, py: 0.5 }}>Audit</Button>
                       </TableCell>
                     </TableRow>
                   ))}
                   {signals.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} align="center" sx={{ py: 5, border: "none" }}>
-                        <CheckCircleOutlineIcon sx={{ fontSize: 40, color: "#e0e0e0", mb: 1 }} />
-                        <Typography sx={{ fontFamily: font, fontSize: 14, color: "#ccc" }}>No signals yet — run the seed script.</Typography>
+                      <TableCell colSpan={7} align="center" sx={{ py: 6, border: "none" }}>
+                        <CheckCircleOutlineIcon sx={{ fontSize: 44, color: "#e2e8f0", mb: 1 }} />
+                        <Typography sx={{ fontFamily: font, fontSize: 14, color: "#94a3b8" }}>
+                          No active signals in this filter view. Click "Seed 5-Track Demo" above to generate realistic test scenarios.
+                        </Typography>
                       </TableCell>
                     </TableRow>
                   )}
@@ -445,7 +574,7 @@ const RevenueRecoveryDashboard = () => {
           <Box sx={{ width: 36, height: 36, borderRadius: "11px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
             <ReceiptLongIcon sx={{ color: "#fff", fontSize: 18 }} />
           </Box>
-          Audit Trail — {selectedSignal?.customerName}
+          Audit Trail & Reasoning Chain — {selectedSignal?.customerName}
           <IconButton onClick={() => setDetailOpen(false)} sx={{ ml: "auto", color: "#ccc" }}>
             <CloseIcon fontSize="small" />
           </IconButton>
@@ -454,23 +583,44 @@ const RevenueRecoveryDashboard = () => {
           {selectedSignal && (
             <Box sx={{ mb: 2.5, display: "flex", gap: 3, flexWrap: "wrap", alignItems: "center" }}>
               <Typography sx={{ fontFamily: font, fontSize: 13, color: "#555" }}>
-                Amount <b style={{ color: "#1a1a2e" }}>₹{(selectedSignal.amount / 100).toLocaleString()}</b>
+                Amount: <b style={{ color: "#1a1a2e" }}>₹{(selectedSignal.amount / 100).toLocaleString('en-IN')}</b>
               </Typography>
               <Typography sx={{ fontFamily: font, fontSize: 13, color: "#555" }}>
-                Source <b style={{ color: "#1a1a2e" }}>{selectedSignal.source}</b>
+                Track: <b style={{ color: "#1a1a2e" }}>{SOURCE_LABELS[selectedSignal.source] || selectedSignal.source}</b>
               </Typography>
               <StatusChip status={selectedSignal.status} />
+              {selectedSignal.promiseToPay?.promised && (
+                <Chip
+                  size="small"
+                  label={`Promise: ${new Date(selectedSignal.promiseToPay.promisedDate).toLocaleDateString('en-IN')}`}
+                  sx={{ bgcolor: "#0f172a", color: "#fff", fontWeight: 700, fontSize: 11 }}
+                />
+              )}
             </Box>
           )}
+
+          {selectedSignal?.voiceScript && (
+            <Paper elevation={0} sx={{ p: 2, mb: 2.5, borderRadius: "14px", bgcolor: "#f8fafc", border: "1px solid #e2e8f0" }}>
+              <Typography sx={{ fontFamily: font, fontWeight: 700, fontSize: 12, color: "#0f172a", mb: 0.5, display: "flex", alignItems: "center", gap: 1 }}>
+                <RecordVoiceOverIcon sx={{ fontSize: 16 }} /> Bilingual IVR Voice Script (Indian Context):
+              </Typography>
+              <Typography sx={{ fontFamily: font, fontSize: 13, color: "#334155", fontStyle: "italic", whiteSpace: "pre-line" }}>
+                {selectedSignal.voiceScript}
+              </Typography>
+            </Paper>
+          )}
+
           <Divider sx={{ mb: 2.5, borderColor: "#f0f0f0" }} />
+
           {auditActions.length === 0 && (
-            <Box sx={{ textAlign: "center", py: 5 }}>
-              <CheckCircleOutlineIcon sx={{ fontSize: 44, color: "#e0e0e0", mb: 1 }} />
-              <Typography sx={{ fontFamily: font, fontSize: 14, color: "#ccc" }}>
-                No agent runs yet for this signal — click "Run" on the feed.
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <CheckCircleOutlineIcon sx={{ fontSize: 40, color: "#cbd5e1", mb: 1 }} />
+              <Typography sx={{ fontFamily: font, fontSize: 14, color: "#94a3b8" }}>
+                No executions recorded yet. Click "Execute" on the feed to run the autonomous reasoning loop.
               </Typography>
             </Box>
           )}
+
           {auditActions.map((a, i) => (
             <Box key={a._id} sx={{
               mb: 2, p: 2.5, background: "#fff",
@@ -479,33 +629,26 @@ const RevenueRecoveryDashboard = () => {
             }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1.5, flexWrap: "wrap" }}>
                 <Typography sx={{ fontFamily: font, fontWeight: 700, fontSize: 13, color: "#1a1a2e" }}>
-                  Run #{i + 1}
+                  Execution Step #{i + 1}
                 </Typography>
                 <Typography sx={{ fontFamily: font, fontSize: 12, color: "#aaa" }}>
                   {new Date(a.createdAt).toLocaleString()}
                 </Typography>
-                {a.simulatedFailure && (
-                  <Box sx={{ px: 1.1, py: 0.25, borderRadius: "8px", background: "#1a1a2e" }}>
-                    <Typography sx={{ fontFamily: font, fontSize: 10, fontWeight: 700, color: "#fff", letterSpacing: "0.5px" }}>
-                      SIMULATED FAILURE
-                    </Typography>
-                  </Box>
-                )}
               </Box>
 
               <Typography sx={{ fontFamily: font, fontSize: 13, color: "#333", mb: 0.5 }}>
-                <b>Reasoning (Claude):</b> {a.reasoning.explanation}
+                <b>AI Diagnosis & Reasoning:</b> {a.reasoning.explanation}
               </Typography>
               <Typography sx={{ fontFamily: font, fontSize: 12, color: "#888", mb: 1.2 }}>
-                Root cause: {a.reasoning.rootCause} · Confidence: {(a.reasoning.confidence * 100).toFixed(0)}%
+                Root cause: <code>{a.reasoning.rootCause}</code> · Confidence: {(a.reasoning.confidence * 100).toFixed(0)}% · Model: {a.reasoning.model || 'groq:llama-3.3-70b'}
               </Typography>
 
               <Typography sx={{ fontFamily: font, fontSize: 13, color: "#333", mb: 1.2 }}>
-                <b>Proposed action:</b> {a.proposedAction.type} {JSON.stringify(a.proposedAction.params)}
+                <b>Proposed Intervention:</b> <code>{a.proposedAction.type}</code> {JSON.stringify(a.proposedAction.params)}
               </Typography>
 
               <Box sx={{ display: "flex", alignItems: "center", gap: 1.2, mb: 0.5 }}>
-                <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>Gate decision:</Typography>
+                <Typography sx={{ fontFamily: font, fontSize: 13, fontWeight: 700, color: "#1a1a2e" }}>Policy Gate Decision:</Typography>
                 <GateChip decision={a.gate.decision} />
                 {a.gate.ruleTriggered && (
                   <Typography sx={{ fontFamily: font, fontSize: 11, color: "#aaa" }}>rule: {a.gate.ruleTriggered}</Typography>
@@ -516,10 +659,10 @@ const RevenueRecoveryDashboard = () => {
               {a.execution?.attempted && (
                 <Box sx={{ mt: 1.2, display: "flex", alignItems: "center", gap: 1 }}>
                   {a.execution.success
-                    ? <CheckCircleIcon sx={{ fontSize: 16, color: "#1a1a2e" }} />
-                    : <WarningAmberIcon sx={{ fontSize: 16, color: "#1a1a2e" }} />}
+                    ? <CheckCircleIcon sx={{ fontSize: 16, color: "#16a34a" }} />
+                    : <WarningAmberIcon sx={{ fontSize: 16, color: "#e11d48" }} />}
                   <Typography sx={{ fontFamily: font, fontSize: 13, color: "#333" }}>
-                    Execution: {a.execution.success ? "success" : `failed — ${a.execution.error}`}
+                    Execution: {a.execution.success ? "Success" : `Failed — ${a.execution.error}`}
                   </Typography>
                 </Box>
               )}
@@ -528,6 +671,25 @@ const RevenueRecoveryDashboard = () => {
         </DialogContent>
         <DialogActions sx={{ p: 2 }}>
           <Button onClick={() => setDetailOpen(false)} sx={ghostBtnSx}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── VOICE SCRIPT PREVIEW MODAL ── */}
+      <Dialog open={voiceModalOpen} onClose={() => setVoiceModalOpen(false)} maxWidth="sm" fullWidth
+        PaperProps={{ sx: { borderRadius: "20px", fontFamily: font, p: 1 } }}>
+        <DialogTitle sx={{ fontFamily: display, fontWeight: 800, fontSize: 18, color: "#0f172a", display: "flex", alignItems: "center", gap: 1 }}>
+          <RecordVoiceOverIcon sx={{ color: "#0f172a" }} />
+          Bilingual IVR Voice Script Preview
+        </DialogTitle>
+        <DialogContent dividers sx={{ py: 2.5 }}>
+          <Paper elevation={0} sx={{ p: 2.5, borderRadius: "14px", bgcolor: "#f8fafc", border: "1px solid #e2e8f0" }}>
+            <Typography sx={{ fontFamily: font, fontSize: 13.5, color: "#1e293b", lineHeight: 1.7, whiteSpace: "pre-line" }}>
+              {selectedVoiceScript || "No script generated yet."}
+            </Typography>
+          </Paper>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setVoiceModalOpen(false)} sx={ghostBtnSx}>Close</Button>
         </DialogActions>
       </Dialog>
 

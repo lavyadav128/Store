@@ -78,11 +78,44 @@ const failedPaymentSchema = new mongoose.Schema({
 
   attempts: { type: Number, default: 0 },
 
+  // Communication preferences & multi-channel metadata
+  language: {
+    type: String,
+    enum: ['en', 'hinglish'],
+    default: 'hinglish',
+  },
+
+  voiceScript: {
+    type: String,
+    default: null,
+  },
+
+  // B2B Receivables / Overdue Invoice fields
+  invoiceDetails: {
+    invoiceNumber: { type: String, default: null },
+    companyName: { type: String, default: null },
+    dueDate: { type: Date, default: null },
+    daysOverdue: { type: Number, default: 0 },
+    paymentTerms: { type: String, default: 'Net 15' },
+    contactDesignation: { type: String, default: 'Finance Manager' },
+  },
+
+  // Mandate Retry Sequencer fields (UPI Autopay / e-NACH)
+  mandateDetails: {
+    mandateId: { type: String, default: null },
+    mandateType: { type: String, enum: ['upi_autopay', 'e_mandate', 'nach', null], default: 'upi_autopay' },
+    optimalRetryWindow: { type: String, default: '08:30 AM - 10:30 AM IST (Banking Opening Window)' },
+    salaryCycleDay: { type: Number, default: 1 },
+    nextScheduledRetry: { type: Date, default: null },
+  },
+
   // For promise-to-pay tracker direction
   promiseToPay: {
     promised: { type: Boolean, default: false },
     promisedDate: { type: Date, default: null },
     fulfilled: { type: Boolean, default: false },
+    note: { type: String, default: '' },
+    recordedFrom: { type: String, enum: ['chatbot', 'whatsapp', 'admin_portal', 'voice', null], default: null },
   },
 
   // Raw payload as received (webhook body / seed generator) — kept for

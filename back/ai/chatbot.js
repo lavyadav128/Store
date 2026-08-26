@@ -14,6 +14,7 @@ import { getCommerceContext } from "../agents/revenue-recovery/services/commerce
 import {
   buildPaymentStatusReply,
   getStudentAssistantContext,
+  handlePromiseToPayInChat,
   recordStudentInterests,
 } from "./studentContext.js";
 
@@ -319,6 +320,17 @@ router.post(
           reply,
           detected: { chapter: "PDF", subject: pdf.name || "Document" },
         });
+      }
+
+      // Check for Promise-to-Pay intent (e.g., "I will pay tomorrow / on Friday")
+      if (userId) {
+        const promiseReply = await handlePromiseToPayInChat(userId, message);
+        if (promiseReply) {
+          return res.json({
+            reply: promiseReply,
+            detected: { chapter: "Payment Commitments", subject: "Promise-to-Pay Tracker" },
+          });
+        }
       }
 
       // Fast-path payment failure lookup if user explicitly asks about payment
