@@ -303,6 +303,30 @@ export async function askPochi(query = '', adminUser, history = []) {
       targetView: "dreams",
     };
   }
+  if (/file\s*manager|files|upload\s*file|documents/i.test(q) || (/go to|open|show/i.test(q) && /file/i.test(q))) {
+    return {
+      voiceText: "Opening File Manager page now.",
+      visualReply: "Navigating to File Manager.",
+      action: "NAVIGATE_VIEW",
+      targetView: "files",
+    };
+  }
+  if (/best\s*notes|notes|study\s*material|pdf\s*notes/i.test(q) || (/go to|open|show/i.test(q) && /notes/i.test(q))) {
+    return {
+      voiceText: "Opening Best Notes page now.",
+      visualReply: "Navigating to Best Notes.",
+      action: "NAVIGATE_VIEW",
+      targetView: "notes",
+    };
+  }
+  if (/admin\s*dashboard|dashboard|main\s*panel/i.test(q) || (/go to|open|show/i.test(q) && /dashboard/i.test(q))) {
+    return {
+      voiceText: "Opening Admin Dashboard overview.",
+      visualReply: "Navigating to Admin Dashboard.",
+      action: "NAVIGATE_VIEW",
+      targetView: "admin",
+    };
+  }
   if (/take me to batches|open batches|show batches|courses/i.test(q) || (/go to|open|show/i.test(q) && /batches/i.test(q))) {
     return {
       voiceText: "Opening Courses and Batches manager.",

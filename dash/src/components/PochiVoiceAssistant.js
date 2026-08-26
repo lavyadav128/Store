@@ -51,8 +51,16 @@ const VIEW_MAP = {
   "client-agent": "client-agent",
   dreams: "dreams",
   admin: "admin",
+  dashboard: "admin",
   batches: "batches",
+  batch: "batches",
   notes: "notes",
+  "best-notes": "notes",
+  bestnotes: "notes",
+  files: "files",
+  file: "files",
+  "file-manager": "files",
+  filemanager: "files",
 };
 
 /**

@@ -355,12 +355,12 @@ const RevenueRecoveryDashboard = () => {
 
           {/* ── METRICS STRIP ── */}
           <Grid container spacing={2} sx={{ mb: 3 }}>
-            <MetricCard label="Revenue Recovered" value={metrics ? `₹${metrics.revenueRecoveredRupees.toLocaleString()}` : "…"} tag="Total Won Back" emphasis font={font} display={display} />
-            <MetricCard label="Active Signals" value={metrics?.counts.open ?? "…"} tag="Open" font={font} display={display} />
-            <MetricCard label="In Recovery" value={metrics?.counts.recovering ?? "…"} tag="Automated Nudges" font={font} display={display} />
-            <MetricCard label="Promises to Pay" value={metrics?.counts.promised ?? "…"} tag="Committed" font={font} display={display} />
-            <MetricCard label="Needs Approval" value={metrics?.counts.escalated ?? "…"} tag="Gated Queue" font={font} display={display} />
-            <MetricCard label="Resolved" value={metrics?.counts.recovered ?? "…"} tag="Settled" font={font} display={display} />
+            <MetricCard label="Revenue Recovered" value={metrics ? `₹${(metrics.totalRecoveredRupees ?? metrics.revenueRecoveredRupees ?? 0).toLocaleString('en-IN')}` : "…"} tag="Total Won Back" emphasis font={font} display={display} />
+            <MetricCard label="Net Margin" value={metrics ? `₹${(metrics.netRecoveredMarginRupees ?? 0).toLocaleString('en-IN')}` : "…"} tag="After Discounts" font={font} display={display} />
+            <MetricCard label="Active Signals" value={metrics?.counts?.open ?? "…"} tag="Open" font={font} display={display} />
+            <MetricCard label="In Recovery" value={metrics?.counts?.recovering ?? "…"} tag="Automated Nudges" font={font} display={display} />
+            <MetricCard label="Needs Approval" value={metrics?.counts?.escalated ?? "…"} tag="Gated Queue" font={font} display={display} />
+            <MetricCard label="Resolved" value={metrics?.counts?.recovered ?? "…"} tag="Settled" font={font} display={display} />
           </Grid>
 
           {/* ── APPROVAL QUEUE (HUMAN-IN-THE-LOOP GOVERNANCE) ── */}
