@@ -250,13 +250,13 @@ Tone: Ultra-smart, polite, sharp, proactive, executive. Support English and Hing
   }
 
   // Deterministic Executive Fallback
+  const revAmt = context.revenueRecovery?.totalRecoveredRupees?.toLocaleString('en-IN') || '0';
+  const pendingCount = context.revenueRecovery?.pendingApprovalsCount || 0;
+  const studentTotal = context.platformOverview?.totalRegisteredStudents || 0;
+
   return {
-    voiceText: `I am here, ${adminUser?.name || 'Admin'}. All admin systems and AI agents are running normally.`,
-    visualReply: `### 🎙️ Pochi Executive Summary
-- **AI Revenue Recovery:** ₹${context.revenueRecovery?.totalRecoveredRupees?.toLocaleString('en-IN') || 0} recovered · ${context.revenueRecovery?.pendingApprovalsCount || 0} pending approvals.
-- **Instagram Growth Agent:** Active niche: *${context.instagramAgent?.niche || 'EdTech'}*.
-- **AI Client Agent:** ${context.clientAgent?.totalProjects || 0} client projects logged.
-- **Platform Overview:** ${context.platformOverview?.totalBatches || 0} batches · ${context.platformOverview?.totalRegisteredStudents || 0} registered students.`,
+    voiceText: `You have recovered ${revAmt} rupees so far, with ${pendingCount} pending approvals. Your portal has ${studentTotal} registered students and all systems are operational.`,
+    visualReply: `You have recovered ₹${revAmt} with ${pendingCount} pending approvals. Total registered students: ${studentTotal}.`,
     action: 'NONE',
     targetView: null,
   };
