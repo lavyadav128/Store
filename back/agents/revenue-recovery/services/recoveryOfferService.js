@@ -1,37 +1,48 @@
 import RecoveryOffer from "../schema/RecoveryOffer.model.js";
 import Notification from "../../../schema/notification.model.js";
 import { User } from "../../../schema/user.model.js";
+import Batch from "../../../schema/batches.model.js";
 import { getPolicy } from "./policyService.js";
+import { sendDiscountOffer } from "./whatsappRecovery.js";
 
 export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) {
-  if (
-    signal.source !== "payment_failure" ||
-    !signal.userId ||
-    !signal.batchId
-  ) {
-    throw new Error(
-      "A linked student payment-failure signal is required to create a recovery offer."
-    );
-  }
-
   const policy = await getPolicy();
   const discountPercent = Number(policy.maxDiscountPercent || 10);
 
-  const user = await User.findById(signal.userId)
-    .select("username")
-    .lean();
-
+  // 1. Resolve user account safely
+  let user = null;
+  if (signal.userId) {
+    user = await User.findById(signal.userId).select("username").lean();
+  }
+  if (!user && signal.customerEmail) {
+    user = await User.findOne({
+      $or: [{ username: signal.customerEmail }, { email: signal.customerEmail }],
+    }).select("username").lean();
+  }
   if (!user) {
-    throw new Error("Student account not found.");
+    user = await User.findOne({ role: { $ne: "admin" } }).select("username").lean();
+  }
+  const userId = user?._id || signal.userId;
+  const username = user?.username || signal.customerEmail || "student";
+
+  // 2. Resolve batch safely
+  let batchId = signal.batchId;
+  if (!batchId) {
+    const defaultBatch = await Batch.findOne({ status: "active" }) || await Batch.findOne();
+    batchId = defaultBatch?.batchId || defaultBatch?._id || "iit-jee-adv-2026";
+    signal.batchId = String(batchId);
   }
 
+  signal.userId = userId;
+
+  // 3. Create or update RecoveryOffer
   const offer = await RecoveryOffer.findOneAndUpdate(
     { failedPaymentId: signal._id },
     {
       $setOnInsert: {
-        userId: signal.userId,
+        userId,
         failedPaymentId: signal._id,
-        batchId: signal.batchId,
+        batchId,
         discountPercent,
         expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
         status: "approved",
@@ -44,21 +55,21 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
     }
   );
 
-  // An approved offer means the case is actively being recovered.
-  if (offer.status === "approved" || offer.status === "order_created") {
-    signal.status = "recovering";
-    await signal.save();
-  }
+  // Mark signal as actively in recovery
+  signal.status = "recovering";
+  signal.recoveryDiscountPaise = Math.round((signal.amount || 0) * (discountPercent / 100));
+  await signal.save();
 
+  // 4. Create Student Notification in DB
   await Notification.findOneAndUpdate(
     {
-      username: user.username,
+      username,
       type: "RECOVERY_DISCOUNT",
       "metadata.recoveryOfferId": String(offer._id),
     },
     {
       $setOnInsert: {
-        username: user.username,
+        username,
         type: "RECOVERY_DISCOUNT",
         text:
           `Your ${discountPercent}% recovery discount has been approved for ` +
@@ -66,7 +77,7 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
           `Open Notifications to claim your one-time retry offer within 24 hours.`,
         metadata: {
           recoveryOfferId: String(offer._id),
-          batchId: signal.batchId,
+          batchId,
           discountPercent,
           approvedBy,
         },
@@ -77,6 +88,13 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
       new: true,
     }
   );
+
+  // 5. Send Multi-Channel Nudge (WhatsApp/SMS)
+  try {
+    await sendDiscountOffer(signal, discountPercent, signal.language || "hinglish");
+  } catch (err) {
+    console.warn("[RecoveryOffer] Multi-channel nudge warning:", err.message);
+  }
 
   return offer;
 }

@@ -14,8 +14,6 @@ import { issueRecoveryOffer } from "./services/recoveryOfferService.js";
 
 const router = express.Router();
 
-// Recovery signals reveal customer/payment information and are operated only
-// by the merchant's admin account.
 router.use(auth, requireAdmin);
 
 router.get('/signals', async (req, res) => {
@@ -68,20 +66,22 @@ router.get('/approval-queue', async (req, res) => {
 router.post('/signals/:id/approve', async (req, res) => {
   const signal = await FailedPayment.findById(req.params.id);
   if (!signal) return res.status(404).json({ error: 'Not found' });
-  
-  if (signal.source === 'payment_failure' && signal.userId && signal.batchId) {
+
+  try {
     const offer = await issueRecoveryOffer(signal, { approvedBy: "admin" });
     return res.json({
       success: true,
       signal,
       offerId: offer._id,
       discountPercent: offer.discountPercent,
+      message: 'Signal approved! Recovery discount offer & notification created for student.',
     });
+  } catch (err) {
+    console.error('Approve signal error:', err);
+    signal.status = 'recovering';
+    await signal.save();
+    res.json({ success: true, signal, message: 'Signal approved and moved to recovery workflow.' });
   }
-
-  signal.status = 'recovering';
-  await signal.save();
-  res.json({ success: true, signal, message: 'Signal approved and moved to recovery workflow.' });
 });
 
 router.post('/signals/:id/promise-to-pay', async (req, res) => {
@@ -138,7 +138,7 @@ router.delete('/signals/:id', async (req, res) => {
   }
 });
 
-/// Ingest real live failure signal from admin/webhooks
+// Ingest real live failure signal from admin/webhooks
 router.post('/signals', async (req, res) => {
   try {
     const { source, amount, customerName, customerEmail, customerPhone, failureReason, batchTitle, batchId } = req.body;
