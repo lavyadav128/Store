@@ -178,13 +178,31 @@ If the remittance has already been initiated, please share the UTR reference for
 async function sendMessage(toPhone, body) {
   const to = toWhatsAppFormat(toPhone);
   if (!to) {
-    return { success: false, error: 'No customer phone number on file' };
+    return { success: false, deliveryStatus: 'no_phone', error: 'No customer phone number on file', previewBody: body };
   }
+
+  const sid = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+
+  if (!sid || !token || sid.includes('your_') || token.includes('your_')) {
+    return {
+      success: false,
+      deliveryStatus: 'credentials_missing',
+      error: 'Twilio WhatsApp API credentials not configured in environment',
+      previewBody: body,
+    };
+  }
+
   try {
     const msg = await client.messages.create({ from: fromNumber, to, body });
-    return { success: true, sid: msg.sid, previewBody: body };
+    return { success: true, sid: msg.sid, deliveryStatus: 'delivered', previewBody: body };
   } catch (error) {
-    // For demo/test mode without live Twilio credentials, log and return preview successfully
-    return { success: true, simulated: true, previewBody: body };
+    console.warn('[WhatsApp] Messaging API error:', error.message);
+    return {
+      success: false,
+      deliveryStatus: 'failed',
+      error: `Twilio delivery failed: ${error.message}`,
+      previewBody: body,
+    };
   }
 }

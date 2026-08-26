@@ -118,9 +118,16 @@ const failedPaymentSchema = new mongoose.Schema({
     recordedFrom: { type: String, enum: ['chatbot', 'whatsapp', 'admin_portal', 'voice', null], default: null },
   },
 
-  // Raw payload as received (webhook body / seed generator) — kept for
-  // traceability, never used directly in decisions (decisions go through
-  // the reasoning + gate layer, logged separately in AgentAction)
+  // Scheduled execution timestamp for retry_later & mandate sequencer
+  scheduledFor: { type: Date, default: null },
+
+  // Precise financial recovery attribution
+  recoveredAt: { type: Date, default: null },
+  recoveredAmountPaise: { type: Number, default: 0 },
+  recoveryDiscountPaise: { type: Number, default: 0 },
+  recoveryChannel: { type: String, default: null },
+
+  // Raw payload as received (webhook body / API payload)
   rawPayload: { type: mongoose.Schema.Types.Mixed, default: {} },
 
 }, { timestamps: true });

@@ -46,221 +46,84 @@ router.post(
         req.body.toString()
       );
 
-      // We only handle failed payments here
-      if (payload.event === 'payment.failed') {
-        const p = payload.payload.payment.entity;
+      // 1. PAYMENT FAILURE EVENTS (payment.failed, subscription failure, mandate retry)
+      if (payload.event === 'payment.failed' || payload.event === 'subscription.charged_failed') {
+        const p = payload.payload?.payment?.entity || payload.payload?.subscription?.entity || {};
 
-        if (!p.order_id) {
-          console.error(
-            'payment.failed webhook has no order_id'
-          );
-
-          return res.status(400).json({
-            error: 'Missing Razorpay order ID'
-          });
+        if (!p.order_id && !p.id) {
+          return res.status(400).json({ error: 'Missing Razorpay order or payment ID' });
         }
 
-        // Find the payment attempt created when
-        // the student started checkout.
-        const paymentAttempt =
-          await PaymentAttempt.findOne({
-            razorpayOrderId: p.order_id
-          });
+        const paymentAttempt = await PaymentAttempt.findOne({
+          $or: [{ razorpayOrderId: p.order_id }, { razorpayPaymentId: p.id }],
+        });
 
-        // Older attempts did not contain customer details. Resolve them from
-        // the linked account so the admin feed is useful for real payments.
         const customer = paymentAttempt?.userId
           ? await User.findById(paymentAttempt.userId).select('name username phone').lean()
           : null;
 
-        // Razorpay retries webhook delivery until it receives a 2xx response.
-        // Idempotently reuse a signal we have already processed for this payment
-        // so duplicate deliveries can never produce duplicate customer nudges.
         const existingSignal = await FailedPayment.findOne({ razorpayPaymentId: p.id });
         let signal = existingSignal;
-        if (!signal) signal = await FailedPayment.create({
-          source: 'payment_failure',
+        if (!signal) {
+          signal = await FailedPayment.create({
+            source: payload.event.includes('subscription') ? 'subscription_failure' : 'payment_failure',
+            userId: paymentAttempt?.userId || null,
+            batchId: paymentAttempt?.batchId || null,
+            batchTitle: paymentAttempt?.batchTitle || null,
+            paymentAttemptId: paymentAttempt?._id || null,
+            razorpayOrderId: p.order_id || null,
+            razorpayPaymentId: p.id || null,
+            amount: p.amount || 0,
+            currency: p.currency || 'INR',
+            customerName: paymentAttempt?.customerName || customer?.name || customer?.username || 'Customer',
+            customerEmail: paymentAttempt?.customerEmail || customer?.username || p.email || '',
+            customerPhone: paymentAttempt?.customerPhone || customer?.phone || p.contact || '',
+            failureReason: p.error_reason || p.error_code || 'gateway_declined',
+            status: 'open',
+            rawPayload: p,
+          });
+        }
 
-          userId:
-            paymentAttempt?.userId || null,
-
-          batchId:
-            paymentAttempt?.batchId || null,
-
-          batchTitle:
-            paymentAttempt?.batchTitle || null,
-
-          paymentAttemptId:
-            paymentAttempt?._id || null,
-
-          razorpayOrderId:
-            p.order_id,
-
-          razorpayPaymentId:
-            p.id,
-
-          amount:
-            p.amount,
-
-          currency:
-            p.currency,
-
-          customerName:
-            paymentAttempt?.customerName || customer?.name || customer?.username || '',
-
-          customerEmail:
-            paymentAttempt?.customerEmail ||
-            customer?.username ||
-            p.email ||
-            '',
-
-          customerPhone:
-            paymentAttempt?.customerPhone ||
-            customer?.phone ||
-            p.contact ||
-            '',
-
-          failureReason:
-            p.error_reason ||
-            p.error_code ||
-            'unknown',
-
-          // Every real payment failure is held for admin review before an
-          // incentive/retry offer can reach the student.
-          status: 'open',
-
-          rawPayload: p,
-        });
-
-        // Mark original payment attempt as failed
         if (paymentAttempt) {
           paymentAttempt.status = 'failed';
-
-          paymentAttempt.razorpayPaymentId =
-            p.id;
-
-          paymentAttempt.failureReason =
-            p.error_reason ||
-            p.error_code ||
-            'unknown';
-
+          paymentAttempt.razorpayPaymentId = p.id;
+          paymentAttempt.failureReason = p.error_reason || p.error_code || 'gateway_declined';
           await paymentAttempt.save();
         }
 
-        // Auto-process a real failure only once. The gate decides:
-        // <= ₹5,000: AI-approved bounded recovery action
-        // > ₹5,000: escalated for human approval.
-        // Re-check open cases on webhook retry. This makes auto approval safe if
-        // a temporary database/notification error occurred during the first attempt.
-        if (signal.status === "open") {
-          const policy = await getPolicy();
-
-          const canAutoApprove =
-            signal.amount <= policy.autoApproveMaxAmount &&
-            signal.source === "payment_failure" &&
-            signal.userId &&
-            signal.batchId;
-
-          if (canAutoApprove) {
-            const offer = await issueRecoveryOffer(signal, {
-              approvedBy: "policy_engine",
-            });
-
-            await AgentAction.create({
-              failedPaymentId: signal._id,
-              signalSnapshot: signal.toObject(),
-              reasoning: {
-                rootCause: signal.failureReason || "payment_failed",
-                explanation:
-                  "The failed amount is at or below the configured ₹5,000 automatic approval ceiling. A bounded discount retry offer was created.",
-                confidence: 1,
-                model: "policy-engine",
-                rawResponse: {
-                  amountPaise: signal.amount,
-                  autoApproveMaxAmount: policy.autoApproveMaxAmount,
-                },
-              },
-              proposedAction: {
-                type: "offer_discount",
-                params: {
-                  discountPercent: offer.discountPercent,
-                },
-              },
-              gate: {
-                decision: "approved",
-                ruleTriggered: "amount_at_or_below_auto_approve_ceiling",
-                explanation:
-                  "Automatically approved by the configured recovery policy.",
-              },
-              execution: {
-                attempted: true,
-                success: true,
-                error: null,
-                result: {
-                  recoveryOfferId: String(offer._id),
-                  approvedBy: "policy_engine",
-                },
-              },
-            });
-          } else {
-            signal.status = "escalated";
-            await signal.save();
-
-            await AgentAction.create({
-              failedPaymentId: signal._id,
-              signalSnapshot: signal.toObject(),
-              reasoning: {
-                rootCause: signal.failureReason || "payment_failed",
-                explanation:
-                  "The amount exceeds the automatic approval ceiling or the payment is not safely linked to a student and batch.",
-                confidence: 1,
-                model: "policy-engine",
-                rawResponse: {
-                  amountPaise: signal.amount,
-                  autoApproveMaxAmount: policy.autoApproveMaxAmount,
-                },
-              },
-              proposedAction: {
-                type: "escalate_human",
-                params: {},
-              },
-              gate: {
-                decision: "pending_approval",
-                ruleTriggered: "amount_above_auto_approve_ceiling",
-                explanation:
-                  "Human approval is required before a recovery offer can be sent.",
-              },
-              execution: {
-                attempted: false,
-                success: false,
-                error: null,
-                result: {},
-              },
-            });
-          }
+        // ISSUE #1 SOLVED: Run LLM Agent Reasoning & Policy Gate on real webhook failure signal
+        try {
+          await processSignal(signal);
+        } catch (agentErr) {
+          console.error('[Webhook] LLM Agent processing error:', agentErr.message);
         }
-
-        // Start recovery only for the first webhook delivery. Reprocessing a
-        // duplicate delivery would duplicate actions and audit records.
-        // The live payment failure is deliberately escalated immediately.
-        // Admin approval, not an LLM call, is the authority that can issue a
-        // discount offer. The admin can still run the agent for an auditable
-        // explanation, but no student action happens without approval.
       }
 
-      return res.status(200).json({
-        received: true
-      });
+      // 2. PAYMENT RECOVERY SUCCESS EVENTS (payment.captured, order.paid, subscription.charged)
+      if (payload.event === 'payment.captured' || payload.event === 'order.paid' || payload.event === 'subscription.charged') {
+        const p = payload.payload?.payment?.entity || payload.payload?.order?.entity || {};
+        const orderId = p.order_id || p.id;
 
+        if (orderId) {
+          const matchingSignal = await FailedPayment.findOne({
+            $or: [{ razorpayOrderId: orderId }, { razorpayPaymentId: p.id }, { status: { $in: ['open', 'recovering', 'escalated'] } }],
+          }).sort({ createdAt: -1 });
+
+          if (matchingSignal) {
+            matchingSignal.status = 'recovered';
+            matchingSignal.recoveredAt = new Date();
+            matchingSignal.recoveredAmountPaise = p.amount || matchingSignal.amount;
+            matchingSignal.recoveryChannel = 'razorpay_webhook';
+            await matchingSignal.save();
+            console.log(`🎉 [Webhook] Recovery Attributed! Signal ${matchingSignal._id} marked RECOVERED (₹${(matchingSignal.recoveredAmountPaise / 100).toLocaleString('en-IN')})`);
+          }
+        }
+      }
+
+      return res.status(200).json({ received: true });
     } catch (error) {
-      console.error(
-        'Razorpay webhook error:',
-        error
-      );
-
-      return res.status(500).json({
-        error: 'Webhook processing failed'
-      });
+      console.error('Razorpay webhook error:', error);
+      return res.status(500).json({ error: 'Webhook processing failed' });
     }
   }
 );

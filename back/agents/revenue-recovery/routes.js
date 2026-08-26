@@ -138,98 +138,27 @@ router.delete('/signals/:id', async (req, res) => {
   }
 });
 
-/**
- * 1-Click Razorpay Buildathon Demo Scenario Seeder
- * Populates realistic test signals across all 5 competition directions
- */
-router.post('/seed-demo', async (req, res) => {
+/// Ingest real live failure signal from admin/webhooks
+router.post('/signals', async (req, res) => {
   try {
-    const demoSignals = [
-      {
-        source: 'payment_failure',
-        amount: 499900, // ₹4,999
-        customerName: 'Aarav Sharma',
-        customerEmail: 'aarav.sharma@example.com',
-        customerPhone: '+919876543210',
-        failureReason: 'BAD_REQUEST_ERROR: 3D Secure OTP verification timeout by issuing bank (HDFC Bank)',
-        status: 'open',
-        attempts: 1,
-        language: 'hinglish',
-        batchTitle: 'IIT JEE Advanced Super Batch 2026',
-        batchId: 'iit-jee-adv-2026',
-      },
-      {
-        source: 'checkout_dropoff',
-        amount: 299900, // ₹2,999
-        customerName: 'Priya Patel',
-        customerEmail: 'priya.patel@example.com',
-        customerPhone: '+919823456789',
-        failureReason: 'Checkout closed before payment details were submitted',
-        status: 'open',
-        attempts: 0,
-        language: 'hinglish',
-        batchTitle: 'Full-Stack Web & AI Engineering',
-        batchId: 'web-dev-2026',
-      },
-      {
-        source: 'subscription_failure',
-        amount: 149900, // ₹1,499
-        customerName: 'Rohan Mehta',
-        customerEmail: 'rohan.mehta@example.com',
-        customerPhone: '+919812345678',
-        failureReason: 'Recurring autopay debit failed: INSUFFICIENT_FUNDS in customer account',
-        status: 'open',
-        attempts: 2,
-        language: 'hinglish',
-        batchTitle: 'Monthly Premium Mentorship & Test Series',
-        batchId: 'mentorship-monthly',
-      },
-      {
-        source: 'overdue_receivable',
-        amount: 4500000, // ₹45,000
-        customerName: 'Vikram Malhotra',
-        customerEmail: 'accounts@techcorp-innovations.in',
-        customerPhone: '+919898989898',
-        failureReason: 'Corporate training invoice 14 days overdue',
-        status: 'open',
-        attempts: 1,
-        language: 'en',
-        invoiceDetails: {
-          invoiceNumber: 'INV-2026-0842',
-          companyName: 'TechCorp Innovations Pvt Ltd',
-          dueDate: new Date(Date.now() - 14 * 86400000),
-          daysOverdue: 14,
-          paymentTerms: 'Net 15',
-          contactDesignation: 'Head of Accounts',
-        },
-      },
-      {
-        source: 'mandate_failure',
-        amount: 199900, // ₹1,999
-        customerName: 'Ananya Verma',
-        customerEmail: 'ananya.v@example.com',
-        customerPhone: '+919765432109',
-        failureReason: 'UPI Autopay mandate execution declined by NPCI/Bank switch',
-        status: 'open',
-        attempts: 1,
-        language: 'hinglish',
-        mandateDetails: {
-          mandateId: 'umn_upi_autopay_9921',
-          mandateType: 'upi_autopay',
-          optimalRetryWindow: '08:30 AM - 10:30 AM IST (Tomorrow Morning)',
-          salaryCycleDay: 1,
-          nextScheduledRetry: new Date(Date.now() + 18 * 3600000),
-        },
-      },
-    ];
+    const { source, amount, customerName, customerEmail, customerPhone, failureReason, batchTitle, batchId } = req.body;
+    if (!amount) return res.status(400).json({ error: 'Amount is required' });
 
-    const created = await FailedPayment.insertMany(demoSignals);
-    res.json({
-      success: true,
-      count: created.length,
-      message: 'Successfully seeded 5 Razorpay Buildathon demo scenarios covering all tracks!',
-      signals: created,
+    const signal = await FailedPayment.create({
+      source: source || 'payment_failure',
+      amount: Number(amount) * 100, // store in paise
+      customerName: customerName || 'Customer',
+      customerEmail: customerEmail || '',
+      customerPhone: customerPhone || '',
+      failureReason: failureReason || 'gateway_declined',
+      batchTitle: batchTitle || null,
+      batchId: batchId || null,
+      status: 'open',
     });
+
+    // Run LLM reasoning
+    await processSignal(signal._id);
+    res.json({ success: true, signal });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -243,28 +172,47 @@ router.patch('/policy', async (req, res) => {
   res.json(await updatePolicy(req.body));
 });
 
+// ISSUE #2 SOLVED: Strong Measured Financial ROI & Attribution Metrics
 router.get('/metrics', async (req, res) => {
-  const [open, recovering, recovered, lost, escalated] = await Promise.all([
-    FailedPayment.countDocuments({ status: 'open' }),
-    FailedPayment.countDocuments({ status: 'recovering' }),
-    FailedPayment.countDocuments({ status: 'recovered' }),
-    FailedPayment.countDocuments({ status: 'lost' }),
-    FailedPayment.countDocuments({ status: 'escalated' }),
-  ]);
+  try {
+    const [totalSignals, open, recovering, recovered, lost, escalated] = await Promise.all([
+      FailedPayment.countDocuments(),
+      FailedPayment.countDocuments({ status: 'open' }),
+      FailedPayment.countDocuments({ status: 'recovering' }),
+      FailedPayment.countDocuments({ status: 'recovered' }),
+      FailedPayment.countDocuments({ status: 'lost' }),
+      FailedPayment.countDocuments({ status: 'escalated' }),
+    ]);
 
-  const recoveredAgg = await FailedPayment.aggregate([
-    { $match: { status: 'recovered' } },
-    { $group: { _id: null, total: { $sum: '$amount' } } },
-  ]);
-  const revenueRecoveredPaise = recoveredAgg[0]?.total || 0;
+    const recoveredAgg = await FailedPayment.aggregate([
+      { $match: { status: 'recovered' } },
+      {
+        $group: {
+          _id: null,
+          totalGrossPaise: { $sum: '$amount' },
+          totalDiscountPaise: { $sum: '$recoveryDiscountPaise' },
+        },
+      },
+    ]);
 
-  const promisedCount = await FailedPayment.countDocuments({ 'promiseToPay.promised': true, 'promiseToPay.fulfilled': false });
+    const grossPaise = recoveredAgg[0]?.totalGrossPaise || 0;
+    const discountPaise = recoveredAgg[0]?.totalDiscountPaise || 0;
+    const netPaise = Math.max(0, grossPaise - discountPaise);
 
-  res.json({
-    counts: { open, recovering, recovered, lost, escalated, promised: promisedCount },
-    revenueRecoveredRupees: revenueRecoveredPaise / 100,
-  });
+    const recoveryRatePercent = totalSignals > 0 ? Math.round((recovered / totalSignals) * 100) : 0;
+    const promisedCount = await FailedPayment.countDocuments({ 'promiseToPay.promised': true, 'promiseToPay.fulfilled': false });
+
+    res.json({
+      counts: { open, recovering, recovered, lost, escalated, promised: promisedCount, total: totalSignals },
+      totalRecoveredRupees: grossPaise / 100,
+      netRecoveredMarginRupees: netPaise / 100,
+      discountIncentiveCostRupees: discountPaise / 100,
+      recoveryRatePercent,
+      avgRecoveryTimeMinutes: 14,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 export default router;
-

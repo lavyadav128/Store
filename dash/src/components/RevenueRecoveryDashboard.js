@@ -326,13 +326,12 @@ const RevenueRecoveryDashboard = () => {
 
             <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
               <Button
-                variant="contained"
-                startIcon={seeding ? <CircularProgress size={16} color="inherit" /> : <AutoAwesomeIcon sx={{ fontSize: 17 }} />}
-                onClick={seedDemoScenarios}
-                disabled={seeding}
+                variant="outlined"
+                startIcon={<DeleteOutlineIcon sx={{ fontSize: 17 }} />}
+                onClick={clearAllSignals}
                 sx={{
-                  bgcolor: "#0f172a",
-                  color: "#fff",
+                  borderColor: "#e2e8f0",
+                  color: "#ef4444",
                   fontFamily: font,
                   fontWeight: 700,
                   fontSize: 13,
@@ -340,11 +339,10 @@ const RevenueRecoveryDashboard = () => {
                   px: 2.2,
                   py: 1.1,
                   textTransform: "none",
-                  boxShadow: "0 4px 14px rgba(15, 23, 42, 0.15)",
-                  "&:hover": { bgcolor: "#1e293b" },
+                  "&:hover": { borderColor: "#fca5a5", bgcolor: "#fef2f2" },
                 }}
               >
-                Seed 5-Track Demo
+                Clear All Signals
               </Button>
               <IconButton onClick={refreshAll} sx={{
                 width: 42, height: 42, borderRadius: "13px", background: "#1a1a2e",

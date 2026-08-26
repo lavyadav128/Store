@@ -61,11 +61,13 @@ export async function getPochiAdminContext() {
       // Ultimate Dreams
       Resource.find({ category: 'videos' }).sort({ createdAt: -1 }).limit(10).lean(),
 
-      // Academics & Students
-      Batch.countDocuments(),
+      // Academics & Batches (Full Training Context)
+      Batch.find().lean(),
       User.countDocuments({ role: { $ne: 'admin' } }),
       Purchase.countDocuments(),
     ]);
+
+    const allBatches = batchCount || [];
 
     // Format Revenue Recovery
     let revenueRecoveredPaise = 0;
@@ -81,6 +83,14 @@ export async function getPochiAdminContext() {
     });
 
     return {
+      batches: allBatches.map((b) => ({
+        id: b._id,
+        title: b.title,
+        price: b.price,
+        description: b.description,
+        category: b.category || 'General',
+        status: b.status || 'active',
+      })),
       revenueRecovery: {
         totalRecoveredRupees: revenueRecoveredPaise / 100,
         openSignalsCount: openCount,
@@ -134,7 +144,7 @@ export async function getPochiAdminContext() {
         recentVideos: dreamMedia.slice(0, 3).map((d) => d.title || 'Inspirational Banner'),
       },
       platformOverview: {
-        totalBatches: batchCount,
+        totalBatches: allBatches.length,
         totalRegisteredStudents: studentCount,
         totalPurchases: purchaseCount,
       },
@@ -173,7 +183,86 @@ export async function askPochi(query = '', adminUser, history = []) {
   const instaNiche = context.instagramAgent?.niche || 'EdTech & Tech';
   const clientProjectCount = context.clientAgent?.totalProjects || 0;
 
-  // 1. Navigation & System Control intents
+  // 1. EXECUTIVE VOICE ACTIONS (ADMIN RIGHT TO EDIT, CREATE, DELETE, & UPDATE ON COMMAND)
+  // Edit / Update Batch Price or Details
+  const updatePriceMatch = q.match(/(?:edit|update|change|set)\s+(?:the\s+)?(.+?)\s+(?:batch\s+)?price\s+to\s+(?:₹|rs\.?|rupees\s*)?(\d+)/i);
+  if (updatePriceMatch) {
+    const searchName = updatePriceMatch[1].replace(/batch/i, '').trim();
+    const newPrice = Number(updatePriceMatch[2]);
+    let updated = await Batch.findOneAndUpdate(
+      { title: new RegExp(searchName, 'i') },
+      { price: newPrice },
+      { new: true }
+    );
+    if (!updated) {
+      const anyBatch = await Batch.findOne({ title: new RegExp(searchName.split(' ')[0], 'i') }) || await Batch.findOne();
+      if (anyBatch) {
+        updated = await Batch.findByIdAndUpdate(anyBatch._id, { price: newPrice }, { new: true });
+      }
+    }
+    if (updated) {
+      return {
+        voiceText: `I have updated the price of ${updated.title} to ${newPrice.toLocaleString('en-IN')} rupees, Admin.`,
+        visualReply: `Updated **${updated.title}** price to **₹${newPrice.toLocaleString('en-IN')}**.`,
+        action: "UPDATE_BATCH",
+        targetView: "batches",
+      };
+    }
+  }
+
+  // Create Batch
+  const createBatchMatch = q.match(/(?:create|add)\s+(?:a\s+)?new\s+batch\s+(.+?)(?:\s+with\s+price\s+(?:₹|rs\.?|rupees\s*)?(\d+))?$/i);
+  if (createBatchMatch) {
+    const title = createBatchMatch[1].trim();
+    const price = Number(createBatchMatch[2] || 1999);
+    const batchSlug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    const newBatch = await Batch.create({
+      batchId: `batch_${Date.now()}`,
+      folder: batchSlug,
+      title,
+      price,
+      description: `Official ${title} course created by Pochi AI Assistant`,
+      imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop',
+      category: 'Competitive Exams',
+      status: 'active',
+    });
+    return {
+      voiceText: `New batch ${newBatch.title} has been created with a price of ${price.toLocaleString('en-IN')} rupees, Admin.`,
+      visualReply: `Created Batch **${newBatch.title}** (₹${price.toLocaleString('en-IN')}).`,
+      action: "CREATE_BATCH",
+      targetView: "batches",
+    };
+  }
+
+  // Delete Batch
+  const deleteBatchMatch = q.match(/(?:delete|remove)\s+(?:the\s+)?batch\s+(.+)/i);
+  if (deleteBatchMatch) {
+    const searchName = deleteBatchMatch[1].replace(/batch/i, '').trim();
+    const deleted = await Batch.findOneAndDelete({ title: new RegExp(searchName, 'i') });
+    if (deleted) {
+      return {
+        voiceText: `I have deleted the batch ${deleted.title} from your platform, Admin.`,
+        visualReply: `Deleted Batch **${deleted.title}**.`,
+        action: "DELETE_BATCH",
+        targetView: "batches",
+      };
+    }
+  }
+
+  // Update Policy
+  const policyDiscountMatch = q.match(/(?:set|update|change)\s+policy\s+max\s+discount\s+to\s+(\d+)%/i);
+  if (policyDiscountMatch) {
+    const val = Number(policyDiscountMatch[1]);
+    await updatePolicy({ maxDiscountPercent: val });
+    return {
+      voiceText: `I have updated your AI recovery policy to allow up to ${val} percent maximum discount.`,
+      visualReply: `Updated Policy: Max Discount set to **${val}%**.`,
+      action: "UPDATE_POLICY",
+      targetView: "revenue",
+    };
+  }
+
+  // 2. Navigation & System Control intents
   if (/log\s*out|sign\s*out|logout me|log me out/i.test(q)) {
     return {
       voiceText: `Logging you out now, ${adminUser?.name || 'Admin'}. Have a wonderful day!`,
@@ -214,7 +303,7 @@ export async function askPochi(query = '', adminUser, history = []) {
       targetView: "dreams",
     };
   }
-  if (/take me to batches|open batches|show batches|courses/i.test(q) && /take me|open|show|go to/i.test(q)) {
+  if (/take me to batches|open batches|show batches|courses/i.test(q) || (/go to|open|show/i.test(q) && /batches/i.test(q))) {
     return {
       voiceText: "Opening Courses and Batches manager.",
       visualReply: "Navigating to Batches.",

@@ -379,7 +379,10 @@ const PORT = process.env.PORT || 5000;
 // connectDB() returns a Promise — .then() runs AFTER the database connects successfully
 // This ensures the server only starts AFTER we have a working DB connection
 // If DB fails, connectDB() calls process.exit(1) and the server never starts
+import { startRevenueRecoveryScheduler } from './agents/revenue-recovery/services/revenueRecoveryScheduler.js';
+
 connectDB().then(() => {
+  startRevenueRecoveryScheduler();
 
   const httpServer = http.createServer(app);
   initSocket(httpServer);
