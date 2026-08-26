@@ -179,14 +179,7 @@ router.post('/:offerId/verify', async (req, res) => {
         password: randomPassword,
         name: name || offer.failedPaymentId?.customerName || 'Student',
         role: 'user',
-        purchases: [{ classId: offer.batchId, price: offer.discountPercent }],
       });
-    } else {
-      const alreadyPurchased = user.purchases?.some((p) => String(p.classId) === String(offer.batchId));
-      if (!alreadyPurchased) {
-        user.purchases.push({ classId: offer.batchId, price: offer.discountPercent });
-        await user.save();
-      }
     }
 
     // Fetch batch details to populate Purchase model

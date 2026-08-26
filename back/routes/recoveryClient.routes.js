@@ -4,13 +4,16 @@ import PaymentAttempt from '../agents/revenue-recovery/schema/PaymentAttempt.mod
 import FailedPayment from '../agents/revenue-recovery/schema/FailedPayment.model.js';
 import { User } from '../schema/user.model.js';
 import { issueRecoveryOffer } from '../agents/revenue-recovery/services/recoveryOfferService.js';
+import { getPolicy } from '../agents/revenue-recovery/services/policyService.js';
 import RecoveryOffer from '../agents/revenue-recovery/schema/RecoveryOffer.model.js';
 
 const router = express.Router();
 
 // Browser-side fallback for local Test Mode & immediate checkout failure handling.
-// Records the payment failure signal, immediately generates a discounted recovery offer,
-// triggers multi-channel notification / WhatsApp, and returns the offer to show an instant popup.
+// If amount <= ₹5,000, immediately generates a discounted recovery offer, triggers WhatsApp,
+// and returns the offer to show an instant popup.
+// If amount > ₹5,000, places the signal in 'escalated' status for mandatory Human / Admin Approval
+// before any discount offer or message is sent.
 router.post('/payment-failed', auth, async (req, res) => {
   try {
     const { razorpayOrderId, razorpayPaymentId, reason } = req.body || {};
@@ -27,6 +30,8 @@ router.post('/payment-failed', auth, async (req, res) => {
     attempt.failureReason = reason || 'payment_failed';
     await attempt.save();
 
+    const signalAmountPaise = Math.round(Number(attempt.amount) * 100);
+
     if (!signal) {
       signal = await FailedPayment.create({
         source: 'payment_failure',
@@ -37,7 +42,7 @@ router.post('/payment-failed', auth, async (req, res) => {
         paymentAttemptId: attempt._id,
         razorpayOrderId,
         razorpayPaymentId: razorpayPaymentId || null,
-        amount: Math.round(Number(attempt.amount) * 100),
+        amount: signalAmountPaise,
         currency: attempt.currency || 'INR',
         customerName: user?.name || user?.username || '',
         customerEmail: user?.username || '',
@@ -47,7 +52,23 @@ router.post('/payment-failed', auth, async (req, res) => {
       });
     }
 
-    // Automatically issue recovery discount offer (in-app notification + WhatsApp nudge)
+    const policy = await getPolicy();
+    const autoApproveCeiling = Number(policy.autoApproveMaxAmount || 500000); // 500000 paise = ₹5,000
+
+    // Check if amount requires Human Admin Approval (> ₹5,000)
+    if (signal.amount > autoApproveCeiling) {
+      signal.status = 'escalated';
+      await signal.save();
+
+      return res.status(200).json({
+        success: true,
+        signal,
+        requiresApproval: true,
+        message: `High-value payment (₹${(signal.amount / 100).toLocaleString('en-IN')}) requires admin approval before discount offer can be dispatched. Routed to approval queue.`,
+      });
+    }
+
+    // Auto-approve payments <= ₹5,000: Issue recovery discount offer (in-app notification + WhatsApp nudge)
     const offer = await issueRecoveryOffer(signal, { approvedBy: 'auto_recovery_agent' });
 
     const origRupees = Math.round(signal.amount / 100);
@@ -57,6 +78,7 @@ router.post('/payment-failed', auth, async (req, res) => {
     res.status(201).json({
       success: true,
       signal,
+      requiresApproval: false,
       offer: {
         id: String(offer._id),
         offerId: String(offer._id),
