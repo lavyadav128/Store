@@ -169,8 +169,15 @@ Respond with ONLY a JSON object:
 
   // 1. Try Groq
   if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_')) {
-    const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'llama3-70b-8192', 'llama3-8b-8192', 'gemma2-9b-it'];
+    const groqModels = [
+      'qwen/qwen3.8-27b',
+      'openai/gpt-oss-120b',
+      'openai/gpt-oss-20b',
+      'groq/compound-mini',
+      'qwen/qwen3.6-27b',
+      'llama-3.3-70b-versatile',
+      'llama-3.1-8b-instant',
+    ];
 
     for (const model of groqModels) {
       try {
