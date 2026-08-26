@@ -33,7 +33,16 @@ const agentActionSchema = new mongoose.Schema({
   proposedAction: {
     type: {
       type: String,
-      enum: ['retry_now', 'retry_later', 'nudge_customer', 'offer_discount', 'escalate_human', 'give_up'],
+      enum: [
+        'retry_now',
+        'retry_later',
+        'nudge_customer',
+        'offer_discount',
+        'schedule_mandate',
+        'chase_invoice',
+        'escalate_human',
+        'give_up',
+      ],
       required: true,
     },
     params: { type: mongoose.Schema.Types.Mixed, default: {} },
