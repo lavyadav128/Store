@@ -130,6 +130,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
       // ── STEP 2: Configure the Razorpay payment popup ──
       // "options" is the config object that tells Razorpay how to display the payment form
+      let paymentDone = false;
       const options = {
         key: order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
         amount: order.amount,      // amount in paise (as returned by backend)
@@ -140,6 +141,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
         // handler runs automatically AFTER the student successfully pays
         handler: async function (response) {
+          paymentDone = true;
           // response contains payment details from Razorpay
           try {
             // Save the purchase record in our database now that payment is confirmed
@@ -159,7 +161,6 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         },
 
         // prefill auto-fills the student's details in the payment form
-        // left empty here — could be filled from the user's profile
         prefill: { name: '', email: '', contact: '' },
 
         // notes are extra metadata attached to the order (visible in Razorpay dashboard)
@@ -167,7 +168,15 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
         // theme.color changes the colour of the Razorpay popup header
         theme: { color: '#1a1a2e' },
-        modal: { confirm_close: true, handleback: true },
+        modal: {
+          confirm_close: true,
+          handleback: true,
+          ondismiss: () => {
+            if (!paymentDone) {
+              reportCheckoutFailure(order.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+            }
+          },
+        },
       };
 
       // ── STEP 3: Create a Razorpay instance and open the payment popup ──

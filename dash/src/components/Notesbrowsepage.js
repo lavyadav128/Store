@@ -82,6 +82,7 @@ const NotesBrowsePage = () => {
         batchTitle: batch.title,
       });
 
+      let paymentDone = false;
       const options = {
         key: orderRes.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
         amount: orderRes.amount,
@@ -90,6 +91,7 @@ const NotesBrowsePage = () => {
         description: `Payment for ${batch.title}`,
         order_id: orderRes.id,
         handler: async function (response) {
+          paymentDone = true;
           try {
             await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
               ...purchasePayload,
@@ -106,7 +108,15 @@ const NotesBrowsePage = () => {
         prefill: { name: '', email: '', contact: '' },
         notes: { batchId: batch.slug },
         theme: { color: '#1a1a2e' },
-        modal: { confirm_close: true, handleback: true },
+        modal: {
+          confirm_close: true,
+          handleback: true,
+          ondismiss: () => {
+            if (!paymentDone) {
+              reportCheckoutFailure(orderRes.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+            }
+          },
+        },
       };
 
       const rzp = new window.Razorpay(options);

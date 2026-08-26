@@ -6,8 +6,12 @@ import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
 import RecoveryOffer from '../agents/revenue-recovery/schema/RecoveryOffer.model.js';
 import FailedPayment from '../agents/revenue-recovery/schema/FailedPayment.model.js';
+import PaymentAttempt from '../agents/revenue-recovery/schema/PaymentAttempt.model.js';
 import Batch from '../schema/batches.model.js';
+import NoteBatch from '../schema/Notebatch.model.js';
 import { User } from '../schema/user.model.js';
+import Purchase from '../schema/purchase.model.js';
+import CommerceAudit from '../schema/CommerceAudit.model.js';
 
 const router = express.Router();
 
@@ -41,7 +45,7 @@ router.get('/:offerId', async (req, res) => {
     }
 
     const origPricePaise = signal?.amount || (batch?.price ? batch.price * 100 : 499900);
-    const discountPercent = offer.discountPercent || 10;
+    const discountPercent = offer.discountPercent || 15;
     const discountedAmountPaise = Math.round(origPricePaise * (1 - discountPercent / 100));
 
     res.json({
@@ -57,10 +61,11 @@ router.get('/:offerId', async (req, res) => {
       batch: {
         id: batch?._id || offer.batchId,
         batchId: batch?.batchId || offer.batchId,
-        title: signal?.batchTitle || batch?.title || 'IIT JEE Advanced Super Batch',
-        description: batch?.description || 'Official Course Enrollment',
+        title: signal?.batchTitle || batch?.title || 'Course Enrollment',
+        description: batch?.description || 'Official Course Enrollment with 10-month complete access.',
         imageUrl: batch?.imageUrl || 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop',
-        category: batch?.category || 'Competitive Exams',
+        category: batch?.category || batch?.folder || 'Competitive Exams',
+        destination: batch?.redirectPath || `/class/${batch?.batchId || offer.batchId}`,
       },
     });
   } catch (err) {
@@ -91,7 +96,7 @@ router.post('/:offerId/create-order', async (req, res) => {
     }
 
     const origPricePaise = signal?.amount || (batch?.price ? batch.price * 100 : 499900);
-    const discountPercent = offer.discountPercent || 10;
+    const discountPercent = offer.discountPercent || 15;
     const discountedAmountPaise = Math.round(origPricePaise * (1 - discountPercent / 100));
 
     const options = {
@@ -112,9 +117,10 @@ router.post('/:offerId/create-order', async (req, res) => {
       amount: order.amount,
       currency: order.currency,
       offerId: String(offer._id),
-      classId: batch?._id || offer.batchId,
+      classId: batch?.batchId || batch?._id || offer.batchId,
       price: discountedAmountPaise / 100,
       title: signal?.batchTitle || batch?.title || 'Course Enrollment',
+      destination: batch?.redirectPath || `/class/${batch?.batchId || offer.batchId}`,
       discountPercent,
     });
   } catch (err) {
@@ -123,7 +129,7 @@ router.post('/:offerId/create-order', async (req, res) => {
   }
 });
 
-// POST verify public recovery payment & auto-login user (No pre-existing login required)
+// POST verify public recovery payment & auto-login user & grant batch access
 router.post('/:offerId/verify', async (req, res) => {
   try {
     const { offerId } = req.params;
@@ -183,6 +189,61 @@ router.post('/:offerId/verify', async (req, res) => {
       }
     }
 
+    // Fetch batch details to populate Purchase model
+    const [batch, noteBatch] = await Promise.all([
+      Batch.findOne({ $or: [{ batchId: offer.batchId }, { _id: mongoose.isValidObjectId(offer.batchId) ? offer.batchId : null }] }).lean(),
+      NoteBatch.findOne({ slug: offer.batchId }).lean(),
+    ]);
+
+    const batchTitle = offer.failedPaymentId?.batchTitle || batch?.title || noteBatch?.title || 'Course Enrollment';
+    const destination = batch?.redirectPath || (batch?.batchId ? `/class/${batch.batchId}` : noteBatch?.slug ? `/notes/${noteBatch.slug}` : `/batches`);
+    const finalPrice = Math.round((offer.failedPaymentId?.amount || (batch?.price ? batch.price * 100 : 499900)) * (1 - (offer.discountPercent || 15) / 100)) / 100;
+
+    // Create / update the Purchase model with 10 months validity
+    const expiryDate = new Date();
+    expiryDate.setMonth(expiryDate.getMonth() + 10);
+
+    await Purchase.findOneAndUpdate(
+      { userId: user._id, classId: offer.batchId },
+      {
+        $set: {
+          userId: user._id,
+          classId: offer.batchId,
+          title: batchTitle,
+          price: finalPrice,
+          description: batch?.description || noteBatch?.description || 'Recovered Discount Enrollment',
+          imageUrl: batch?.imageUrl || '',
+          expiryDate,
+          isPremium: true,
+          razorpayPaymentId: razorpay_payment_id,
+        },
+      },
+      { upsert: true, new: true }
+    );
+
+    // Update payment attempt if exists
+    await PaymentAttempt.findOneAndUpdate(
+      { razorpayOrderId: razorpay_order_id },
+      { $set: { status: 'paid', razorpayPaymentId: razorpay_payment_id } }
+    ).catch(() => {});
+
+    // Audit trail
+    await CommerceAudit.create({
+      userId: user._id,
+      eventType: 'payment_verified',
+      product: {
+        id: `batch:${offer.batchId}`,
+        purchaseId: offer.batchId,
+        type: batch ? 'batch' : 'note-batch',
+        title: batchTitle,
+        price: finalPrice,
+        destination,
+      },
+      reason: 'Recovery discount Razorpay payment signature verified and batch access granted.',
+      gate: { decision: 'approved', rule: 'recovery_payment_verified', explanation: 'Public recovery payment completed.' },
+      metadata: { razorpayOrderId: razorpay_order_id, razorpayPaymentId: razorpay_payment_id, recoveryOfferId: String(offer._id) },
+    }).catch(() => {});
+
     // Issue JWT Token so student is automatically logged in
     const token = jwt.sign(
       { id: user._id, username: user.username, role: user.role },
@@ -197,6 +258,7 @@ router.post('/:offerId/verify', async (req, res) => {
       username: user.username,
       name: user.name,
       batchId: offer.batchId,
+      destination,
     });
   } catch (err) {
     console.error('Public recovery payment verify error:', err);
@@ -205,3 +267,4 @@ router.post('/:offerId/verify', async (req, res) => {
 });
 
 export default router;
+

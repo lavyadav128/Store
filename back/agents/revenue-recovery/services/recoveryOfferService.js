@@ -88,7 +88,11 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
           metadata: {
             recoveryOfferId: String(offer._id),
             batchId,
+            batchTitle: signal.batchTitle || "Course Batch",
             discountPercent,
+            originalPriceRupees: Number(signal.amount / 100) || 0,
+            discountedPriceRupees: Math.round((signal.amount / 100) * (1 - discountPercent / 100)),
+            checkoutUrl: `/pay-discount/${offer._id}`,
             approvedBy,
           },
         },

@@ -49,6 +49,7 @@ import CommerceAuditDashboard from './components/CommerceAuditDashboard';
 import ProjectEnquiry from './components/ProjectEnquiry';
 import ProjectPayment from './components/ProjectPayment';
 import PurchaseProtectedRoute from './components/PurchaseProtectedRoute';
+import DiscountRecoveryModal from './components/DiscountRecoveryModal';
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
@@ -145,6 +146,7 @@ root.render(
             </Route>
           </Routes>
 
+          <DiscountRecoveryModal />
           <ChatBot />
           <SocketManager />
         </>

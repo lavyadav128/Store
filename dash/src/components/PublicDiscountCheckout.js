@@ -89,9 +89,10 @@ const PublicDiscountCheckout = () => {
               localStorage.setItem('user', JSON.stringify({ username: verifyRes.data.username, name: verifyRes.data.name }));
             }
             setSuccess(true);
+            const destination = verifyRes.data.destination || (verifyRes.data.batchId ? `/class/${verifyRes.data.batchId}` : '/batches');
             setTimeout(() => {
-              navigate('/batches');
-            }, 2500);
+              navigate(destination);
+            }, 2000);
           } catch (vErr) {
             setError(vErr.response?.data?.message || 'Payment verification failed.');
           }

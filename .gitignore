@@ -3,3 +3,6 @@ dist/
 build/
 .next/
 .env
+*.stackdump
+*- Copy.env
+

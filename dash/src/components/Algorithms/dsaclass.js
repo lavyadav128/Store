@@ -673,6 +673,7 @@ const CombinedClassPage = () => {
         }
       );
 
+      let paymentDone = false;
       const options = {
         key: orderRes.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
         amount: orderRes.amount,
@@ -682,6 +683,7 @@ const CombinedClassPage = () => {
         order_id: orderRes.id,
 
         handler: async function (response) {
+          paymentDone = true;
           try {
             await makeAuthenticatedRequest(
               `${server}/api/save-purchase`,
@@ -710,7 +712,15 @@ const CombinedClassPage = () => {
         notes: { batchId: batch.id },
 
         theme: { color: "#1a1a2e" },
-        modal: { confirm_close: true, handleback: true },
+        modal: {
+          confirm_close: true,
+          handleback: true,
+          ondismiss: () => {
+            if (!paymentDone) {
+              reportCheckoutFailure(orderRes.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+            }
+          },
+        },
       };
 
       const rzp = new window.Razorpay(options);

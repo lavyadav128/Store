@@ -124,6 +124,8 @@ export async function getStudentAssistantContext(userId) {
       date: signal.updatedAt ? new Date(signal.updatedAt).toLocaleString() : "",
     })),
     activeRecoveryOffers: offers.map((offer) => ({
+      id: String(offer._id),
+      offerId: String(offer._id),
       batchId: offer.batchId,
       discountPercent: offer.discountPercent,
       expiresAt: offer.expiresAt,
@@ -232,11 +234,12 @@ export function buildPaymentStatusReply(message, personal) {
 
 I checked your live transaction record and **did not find any failed or pending payments** on your account. All your transactions are in good standing!
 
-💡 **Helpful Options:**
-- If you recently started a checkout, please allow a few moments for the bank confirmation to sync.
-- If you're looking for our course catalog or batch pricing, let me know which subject or exam you are targeting!
+💡 **Payment & Pricing Quick Guide:**
+- All batches feature secure 256-bit Razorpay processing (UPI, Google Pay, PhonePe, Paytm, Cards, Netbanking).
+- Every batch purchase provides full **10-month continuous access**.
+- Refunds are available within 3 days of purchase if you are unsatisfied.
 
-Would you like help exploring our active batches?`;
+Would you like help exploring our active batches or checking course pricing?`;
   }
 
   if (latestFailure) {
@@ -244,7 +247,7 @@ Would you like help exploring our active batches?`;
     const amount = latestFailure.amountInRupees ? `₹${latestFailure.amountInRupees.toLocaleString('en-IN')}` : "the course fee";
     const offer = personal.activeRecoveryOffers?.find((o) => o.batchId === latestFailure.batchId);
     const offerSection = offer
-      ? `\n\n### 🎁 Special Recovery Offer Activated!\n- **Discount:** **${offer.discountPercent}% OFF** has been credited to your account.\n- **Claim & Enroll:** [👉 Open Notifications to Redeem](/dashboard?view=notifications)`
+      ? `\n\n### 🎁 Exclusive Recovery Discount Activated!\n- **Special Offer:** **${offer.discountPercent || 15}% DISCOUNT** is currently active on your account.\n- **Direct Checkout Link:** [👉 Pay with ${offer.discountPercent || 15}% Discount via Razorpay](/pay-discount/${offer.offerId || offer.id})\n- **In-App Notifications:** [👉 Open Notifications Center to Redeem](/dashboard?view=notifications)`
       : "";
 
     return `### 🔍 Live Payment Diagnostic Summary

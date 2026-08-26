@@ -76,9 +76,31 @@ only support channel — there is no separate email or phone support line.
 Refunds for paid batches are available within 3 days of purchase. After
 this 3-day window, the purchase is final and non-refundable.
 
-## Pricing
+## Platform Pricing & Revenue Model
 
-Pricing varies per batch and is set individually by the admin — some
-batches are free, others are paid one-time purchases (commonly in the
-₹9–₹99 range based on current offerings, but always check the specific
-batch page for the exact current price, since prices can change).
+Pricing varies per batch and is set individually by the administrator — some
+batches are completely free, while others are paid one-time purchases (ranging
+from ₹9 up to ₹4,999 depending on batch level and inclusions). All prices
+are charged in Indian Rupees (INR) with 256-bit bank-grade encryption via
+Razorpay. Each purchase grants full 10-month continuous access without auto-renewals.
+
+## Payment Methods Supported
+
+- **UPI Payments:** Google Pay, PhonePe, Paytm, BHIM, and all UPI apps (fastest and 0% drop rate).
+- **Cards:** Visa, MasterCard, RuPay, Maestro Credit & Debit Cards with 3D Secure OTP verification.
+- **Netbanking:** 50+ major Indian banks (SBI, HDFC, ICICI, Axis, Kotak, etc.).
+- **Wallets:** Popular digital wallets.
+
+## Payment Failure, Drop-off & Instant Recovery System
+
+If a student's payment fails or is interrupted due to:
+1. **Bank OTP Timeout / 3D Secure Decline:** Issuing bank network latency or delay in entering the OTP.
+2. **Insufficient Account Balance:** Account balance below the batch fee.
+3. **Accidental Window Dismissal:** Accidentally closing the browser or payment tab before completion.
+
+### What happens automatically when a payment fails:
+- **Instant Recovery Popup:** An immediate on-screen popup offers an exclusive **15% Recovery Discount** for 1-click Razorpay payment.
+- **In-App Notification:** A persistent notification is added to the student's Notification tab with the discount breakdown and a 1-click Razorpay payment button.
+- **WhatsApp Recovery Link:** An automated WhatsApp message is dispatched to the student's phone with a direct discounted Razorpay link (`/pay-discount/:offerId`).
+- **Direct Batch Access:** As soon as the discounted payment is completed through any channel (popup, notification, or WhatsApp), the batch is instantly unlocked and added to the student's "My Batches" / "My Purchases" dashboard with full 10-month access, and the transaction is marked as recovered in the Admin Revenue Center.
+- **Promise-to-Pay Support:** If a student asks in chat to pay later (e.g., "I will pay tomorrow" or "main kal pay karunga"), the AI Chatbot will automatically reserve their batch seat and snooze payment alerts.
