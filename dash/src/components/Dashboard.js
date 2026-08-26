@@ -383,9 +383,7 @@ const Dashboard = () => {
     fetchPurchases();
   }, []);
 
-  // On each fresh login/dashboard load, surface a newly approved recovery
-  // offer immediately. The full one-time checkout button remains under
-  // Notifications so the learner explicitly chooses to pay.
+  // Surface a newly approved recovery offer popup ONLY ONCE per user session
   useEffect(() => {
     const loadRecoveryPopup = async () => {
       const username = localStorage.getItem('username');
@@ -394,7 +392,14 @@ const Dashboard = () => {
       try {
         const res = await axios.get(`${server}/api/notifications/${username}`, { headers: { Authorization: `Bearer ${token}` } });
         const offer = res.data.find((n) => n.type === 'RECOVERY_DISCOUNT' && !n.isRead);
-        if (offer) { setPopupMessage(`${offer.text} Open Notifications to claim it.`); setShowPopup(true); }
+        if (offer) {
+          const popupKey = `seen_recovery_popup_${offer._id}`;
+          if (!sessionStorage.getItem(popupKey)) {
+            sessionStorage.setItem(popupKey, 'true');
+            setPopupMessage(`${offer.text} Open Notifications to claim it.`);
+            setShowPopup(true);
+          }
+        }
       } catch (_) {}
     };
     loadRecoveryPopup();

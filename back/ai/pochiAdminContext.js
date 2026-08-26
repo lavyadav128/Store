@@ -385,6 +385,15 @@ export async function askPochi(query = '', adminUser, history = []) {
     };
   }
 
+  if (/retry|scheduling|mandate|window|8\s*30|10\s*30|how.*recovery.*work/i.test(q)) {
+    return {
+      voiceText: "Immediate retries and manual admin approvals run as soon as triggered or approved by you. Mandate and scheduled retries get queued for the next 08:30 AM to 10:30 AM IST banking window or salary cycle day, and are processed automatically by our background worker during that exact window.",
+      visualReply: "⚡ **Immediate Retries & Manual Approvals**: Execute instantly on trigger/approval.\n⏱️ **Mandate & Scheduled Retries**: Queued for the **08:30 AM - 10:30 AM IST** banking window.",
+      action: "NONE",
+      targetView: null,
+    };
+  }
+
   if (/student|user|registered/i.test(q) && /how many|total|count/i.test(q)) {
     return {
       voiceText: `There are currently ${studentTotal} registered students enrolled across ${batchTotal} active batches on your platform.`,
@@ -417,13 +426,15 @@ export async function askPochi(query = '', adminUser, history = []) {
   // 3. General Intelligence & Omniscient LLM Query
   const systemPrompt = `You are "Pochi", the world-class executive Apple Siri-style voice AI assistant exclusively built for the Admin of EduPortal (${adminUser?.name || 'Admin'}).
 
-YOUR CAPABILITIES:
-1. Omniscient real-time knowledge of this Admin Dashboard:
+YOUR CAPABILITIES & EXECUTION RULES:
+1. Immediate Retries & Manual Admin Approvals: Run as soon as triggered or approved by the Admin in the dashboard. Auto-approves bounded offers for payments <= ₹5,000.
+2. Mandate & Scheduled Retries: Automatically queued for the next 08:30 AM – 10:30 AM IST banking opening window (or salary cycle day) and processed by the background worker during that exact window.
+3. Omniscient real-time knowledge of this Admin Dashboard:
    - Revenue Recovery: ₹${revPaise.toLocaleString('en-IN')} recovered (${pendingCount} pending approvals)
    - Students & Batches: ${studentTotal} registered students across ${batchTotal} active batches
    - Instagram Growth Agent: active in "${instaNiche}" (${context.instagramAgent?.totalPostsCreated || 0} reels created)
    - AI Client Studio: ${clientProjectCount} client projects
-2. World-class General Intelligence: You can answer ANY question the admin asks (general knowledge, coding, science, business, explanations, greetings, casual talk, jokes, math, advice).
+4. World-class General Intelligence: You can answer ANY question the admin asks (general knowledge, coding, science, business, explanations, greetings, casual talk, jokes, math, advice).
 
 RESPONSE DIRECTIVES:
 - Always answer directly, smartly, and conversationally in 1-2 spoken sentences (like Siri or ChatGPT voice mode).
