@@ -1,15 +1,15 @@
 // PochiVoiceAssistant.js
 // ─────────────────────────────────────────────────────────────
-// "Pochi" — Authentic Apple Siri Voice Assistant for Admin
-// • 100% Zero idle microphone beeps / dinging on mobile & desktop
-// • Instant wake on "Pochi" or 1-Tap Siri Bubble / (Ctrl+Space)
-// • Captures full voice query in real-time with visual subtitle
-// • Speaks exact live answers aloud via Web Speech Synthesis
-// • Auto-pauses Dreams music during voice sessions
+// "Pochi" — Exact Apple Siri Obsidian Glass Voice Assistant
+// • Pixel-perfect match with official Apple iOS Siri Orb
+// • Fluid layered iridescent ribbons (Cyan, Magenta, Mint)
+// • Brilliant white-hot glowing core flare
+// • Specular glass reflections and 3D depth
+// • 1-Tap Activator + Ctrl+Space + Voice-in Voice-out
 // ─────────────────────────────────────────────────────────────
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Box, Typography, Fade, IconButton, Tooltip } from "@mui/material";
+import { Box, Typography, Fade } from "@mui/material";
 import axios from "axios";
 import server from "../environment";
 
@@ -55,6 +55,152 @@ const VIEW_MAP = {
   notes: "notes",
 };
 
+/**
+ * Exact Apple Siri Obsidian Sphere Component
+ * Renders the dark glossy glass ball with fluid multi-color ribbon waves & white-hot core
+ */
+function SiriSphere({ size = 96, isSpeaking = false, isListening = false }) {
+  const speed = isSpeaking ? "1.8s" : isListening ? "2.6s" : "4.5s";
+
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        width: size,
+        height: size,
+        borderRadius: "50%",
+        background: "radial-gradient(circle at 50% 120%, #0a0f24 0%, #030611 65%, #010206 100%)",
+        boxShadow: `
+          0 16px 40px rgba(0, 0, 0, 0.7),
+          0 0 35px rgba(0, 220, 255, 0.35),
+          0 0 20px rgba(255, 0, 128, 0.25),
+          inset 0 1.5px 3px rgba(255, 255, 255, 0.75),
+          inset 0 -6px 16px rgba(0, 0, 0, 0.95),
+          inset 0 0 15px rgba(0, 210, 255, 0.2)
+        `,
+        overflow: "hidden",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        cursor: "pointer",
+        transition: "transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "&:hover": {
+          transform: "scale(1.06)",
+        },
+      }}
+    >
+      {/* ── Internal Ambient Aura ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: "8%",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, rgba(0, 230, 255, 0.25) 0%, rgba(255, 0, 128, 0.2) 50%, transparent 70%)",
+          filter: "blur(6px)",
+        }}
+      />
+
+      {/* ── Ribbon 1: Cyan / Electric Turquoise Wave ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "88%",
+          height: "88%",
+          borderRadius: "44% 56% 60% 40% / 50% 40% 60% 50%",
+          background: "radial-gradient(ellipse at center, rgba(0, 240, 255, 0.85) 0%, rgba(0, 150, 255, 0.6) 45%, transparent 72%)",
+          mixBlendMode: "screen",
+          filter: "blur(4px)",
+          animation: `siriMorphOne ${speed} ease-in-out infinite alternate, siriRotateCW 8s linear infinite`,
+        }}
+      />
+
+      {/* ── Ribbon 2: Magenta / Coral / Violet Wave ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "82%",
+          height: "82%",
+          borderRadius: "60% 40% 48% 52% / 40% 60% 40% 60%",
+          background: "radial-gradient(ellipse at center, rgba(255, 30, 120, 0.85) 0%, rgba(180, 20, 220, 0.65) 45%, transparent 72%)",
+          mixBlendMode: "screen",
+          filter: "blur(4px)",
+          animation: `siriMorphTwo ${speed} ease-in-out infinite alternate 0.5s, siriRotateCCW 7s linear infinite`,
+        }}
+      />
+
+      {/* ── Ribbon 3: Emerald Mint / Cyan Accent Wave ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: "74%",
+          height: "74%",
+          borderRadius: "52% 48% 62% 38% / 48% 52% 48% 52%",
+          background: "radial-gradient(ellipse at center, rgba(0, 255, 190, 0.8) 0%, rgba(0, 180, 255, 0.5) 45%, transparent 70%)",
+          mixBlendMode: "screen",
+          filter: "blur(3px)",
+          animation: `siriMorphThree ${speed} ease-in-out infinite alternate 1s, siriRotateCW 9s linear infinite`,
+        }}
+      />
+
+      {/* ── Center White-Hot Luminous Core Flare ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: isSpeaking ? "44%" : "36%",
+          height: isSpeaking ? "44%" : "36%",
+          borderRadius: "50%",
+          background: "radial-gradient(circle, #ffffff 0%, rgba(255, 255, 255, 0.95) 25%, rgba(180, 240, 255, 0.7) 50%, rgba(255, 40, 140, 0.3) 75%, transparent 100%)",
+          mixBlendMode: "screen",
+          filter: "blur(1.5px)",
+          animation: `siriCoreFlare ${isSpeaking ? "1.2s" : "2s"} ease-in-out infinite alternate`,
+          zIndex: 4,
+        }}
+      />
+
+      {/* ── Intense Center Sparkle ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          width: 14,
+          height: 14,
+          borderRadius: "50%",
+          background: "#ffffff",
+          boxShadow: "0 0 16px 5px #ffffff, 0 0 30px 10px rgba(0, 230, 255, 0.8)",
+          zIndex: 5,
+        }}
+      />
+
+      {/* ── Top Glass Crescent Specular Reflection ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: "4%",
+          left: "16%",
+          width: "68%",
+          height: "32%",
+          borderRadius: "50% 50% 40% 40%",
+          background: "linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.08) 60%, transparent 100%)",
+          filter: "blur(0.8px)",
+          pointerEvents: "none",
+          zIndex: 6,
+        }}
+      />
+
+      {/* ── Outer Glass Sphere Vignette ── */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          borderRadius: "50%",
+          background: "radial-gradient(circle at 50% 50%, transparent 55%, rgba(2, 4, 10, 0.85) 90%, #010206 100%)",
+          pointerEvents: "none",
+          zIndex: 7,
+        }}
+      />
+    </Box>
+  );
+}
+
 export default function PochiVoiceAssistant({ onNavigate, activeView }) {
   const [active, setActive] = useState(false);
   const [state, setState] = useState("idle"); // 'listening' | 'thinking' | 'speaking' | 'idle'
@@ -84,7 +230,7 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
       const cleanText = text.replace(/[*_#`]/g, "").replace(/₹/g, "rupees ").trim();
       const utterance = new SpeechSynthesisUtterance(cleanText);
 
-      // Select natural voice
+      // Select natural Siri voice
       const voices = window.speechSynthesis.getVoices();
       const siriVoice =
         voices.find((v) => v.name.includes("Samantha") || v.name.includes("Karen") || v.name.includes("Victoria") || v.name.includes("Google UK English Female") || v.name.includes("Google US English")) ||
@@ -234,7 +380,6 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
       };
 
       rec.onend = () => {
-        // If still in listening state and user was speaking, submit query
         if (stateRef.current === "listening" && queryBufferRef.current && queryBufferRef.current.length > 1) {
           askPochiBackend(queryBufferRef.current);
         }
@@ -272,9 +417,8 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
     [askPochiBackend, startListeningSession]
   );
 
-  // Setup Keyboard Shortcuts & Desktop Hotword Listener
+  // Setup Keyboard Shortcuts
   useEffect(() => {
-    // Keyboard shortcut trigger (Ctrl + Space)
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.code === "Space") {
         e.preventDefault();
@@ -299,29 +443,41 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
   return (
     <>
       <style>{`
-        @keyframes siriFluidOrb {
-          0% { transform: scale(1) rotate(0deg); filter: blur(0px) brightness(1.1); }
-          25% { transform: scale(1.06, 0.94) rotate(90deg); filter: blur(1px) brightness(1.3); }
-          50% { transform: scale(0.96, 1.08) rotate(180deg); filter: blur(2px) brightness(1.4); }
-          75% { transform: scale(1.08, 0.96) rotate(270deg); filter: blur(1px) brightness(1.3); }
-          100% { transform: scale(1) rotate(360deg); filter: blur(0px) brightness(1.1); }
+        @keyframes siriMorphOne {
+          0% { border-radius: 44% 56% 60% 40% / 50% 40% 60% 50%; transform: scale(1) translateY(0); }
+          50% { border-radius: 58% 42% 45% 55% / 42% 58% 42% 58%; transform: scale(1.08) translateY(-3px); }
+          100% { border-radius: 40% 60% 52% 48% / 60% 40% 55% 45%; transform: scale(0.95) translateY(3px); }
         }
-        @keyframes siriAuraPulse {
+        @keyframes siriMorphTwo {
+          0% { border-radius: 60% 40% 48% 52% / 40% 60% 40% 60%; transform: scale(1) translateX(0); }
+          50% { border-radius: 46% 54% 58% 42% / 54% 46% 58% 42%; transform: scale(1.1) translateX(3px); }
+          100% { border-radius: 54% 46% 40% 60% / 45% 55% 45% 55%; transform: scale(0.94) translateX(-3px); }
+        }
+        @keyframes siriMorphThree {
+          0% { border-radius: 52% 48% 62% 38% / 48% 52% 48% 52%; transform: scale(1); }
+          50% { border-radius: 42% 58% 46% 54% / 56% 44% 56% 44%; transform: scale(1.06); }
+          100% { border-radius: 58% 42% 54% 46% / 44% 56% 44% 56%; transform: scale(0.96); }
+        }
+        @keyframes siriRotateCW {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes siriRotateCCW {
+          0% { transform: rotate(360deg); }
+          100% { transform: rotate(0deg); }
+        }
+        @keyframes siriCoreFlare {
           0% { transform: scale(0.85); opacity: 0.8; }
-          50% { transform: scale(1.45); opacity: 0.25; }
-          100% { transform: scale(1.9); opacity: 0; }
+          50% { transform: scale(1.25); opacity: 1; }
+          100% { transform: scale(0.9); opacity: 0.85; }
         }
-        @keyframes siriWaveActive {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.18); }
-        }
-        @keyframes subtleGlow {
-          0%, 100% { box-shadow: 0 0 15px rgba(121, 40, 202, 0.4); }
-          50% { box-shadow: 0 0 25px rgba(0, 223, 216, 0.7); }
+        @keyframes siriFloatingWave {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
         }
       `}</style>
 
-      {/* ── SUBTLE 1-TAP SIRI ACTIVATOR (For Mobile & Quick Touch) ── */}
+      {/* ── 1-TAP OBSIDIAN SIRI ORB (Bottom-Right Shortcut) ── */}
       {!active && (
         <Fade in={!active} timeout={400}>
           <Box
@@ -331,35 +487,15 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
               bottom: { xs: 20, sm: 28 },
               right: { xs: 20, sm: 28 },
               zIndex: 999990,
-              width: { xs: 46, sm: 50 },
-              height: { xs: 46, sm: 50 },
-              borderRadius: "50%",
-              background:
-                "conic-gradient(from 180deg at 50% 50%, #FF0080 0deg, #7928CA 72deg, #00DFD8 144deg, #FF2E93 216deg, #FFD200 288deg, #FF0080 360deg)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              animation: "siriFluidOrb 6s linear infinite, subtleGlow 3s ease-in-out infinite",
-              transition: "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)",
-              "&:hover": { transform: "scale(1.12)" },
-              "&:active": { transform: "scale(0.92)" },
+              animation: "siriFloatingWave 3s ease-in-out infinite",
             }}
           >
-            <Box
-              sx={{
-                width: 20,
-                height: 20,
-                borderRadius: "50%",
-                background: "radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0.4) 70%, transparent 100%)",
-                filter: "blur(1px)",
-              }}
-            />
+            <SiriSphere size={52} isSpeaking={false} isListening={false} />
           </Box>
         </Fade>
       )}
 
-      {/* ── AUTHENTIC APPLE SIRI FLOATING CIRCULAR ORB OVERLAY ── */}
+      {/* ── ACTIVE FULL-SIZE APPLE SIRI MODAL HUD ── */}
       <Fade in={active} timeout={300}>
         <Box
           sx={{
@@ -383,12 +519,12 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
                   px: 3,
                   py: 1.2,
                   borderRadius: "30px",
-                  background: "rgba(15, 23, 42, 0.88)",
-                  backdropFilter: "blur(24px)",
-                  WebkitBackdropFilter: "blur(24px)",
-                  border: "1px solid rgba(255, 255, 255, 0.16)",
-                  boxShadow: "0 16px 48px rgba(0, 0, 0, 0.4), 0 0 30px rgba(121, 40, 202, 0.3)",
-                  maxWidth: { xs: "90vw", sm: 520 },
+                  background: "rgba(10, 15, 30, 0.85)",
+                  backdropFilter: "blur(28px)",
+                  WebkitBackdropFilter: "blur(28px)",
+                  border: "1px solid rgba(255, 255, 255, 0.18)",
+                  boxShadow: "0 16px 48px rgba(0, 0, 0, 0.5), 0 0 35px rgba(0, 240, 255, 0.25)",
+                  maxWidth: { xs: "90vw", sm: 540 },
                   textAlign: "center",
                 }}
               >
@@ -408,18 +544,9 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
             </Fade>
           )}
 
-          {/* ── SIRI GLOWING CIRCULAR ORB ── */}
+          {/* ── ACTIVE SIRI OBSIDIAN SPHERE ── */}
           <Box
-            sx={{
-              position: "relative",
-              width: 100,
-              height: 100,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              pointerEvents: "auto",
-              cursor: "pointer",
-            }}
+            sx={{ pointerEvents: "auto" }}
             onClick={() => {
               if (state === "speaking") {
                 window.speechSynthesis?.cancel();
@@ -430,62 +557,11 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
               }
             }}
           >
-            {/* Pulsing Light Waves when Speaking or Listening */}
-            {(state === "listening" || state === "speaking") && (
-              <>
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: -10,
-                    borderRadius: "50%",
-                    border: "2px solid rgba(0, 223, 216, 0.7)",
-                    animation: "siriAuraPulse 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite",
-                  }}
-                />
-                <Box
-                  sx={{
-                    position: "absolute",
-                    inset: -10,
-                    borderRadius: "50%",
-                    border: "2px solid rgba(255, 46, 147, 0.7)",
-                    animation: "siriAuraPulse 1.8s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.6s",
-                  }}
-                />
-              </>
-            )}
-
-            {/* Glowing Fluid Multicolored Circular Sphere */}
-            <Box
-              sx={{
-                width: 80,
-                height: 80,
-                borderRadius: "50%",
-                background:
-                  "conic-gradient(from 180deg at 50% 50%, #FF0080 0deg, #7928CA 72deg, #00DFD8 144deg, #FF2E93 216deg, #FFD200 288deg, #FF0080 360deg)",
-                animation:
-                  state === "speaking"
-                    ? "siriFluidOrb 2.5s linear infinite, siriWaveActive 0.8s ease-in-out infinite"
-                    : state === "listening"
-                    ? "siriFluidOrb 3.5s linear infinite"
-                    : "siriFluidOrb 5s linear infinite",
-                boxShadow:
-                  "0 0 50px rgba(121, 40, 202, 0.9), 0 0 25px rgba(0, 223, 216, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.6)",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              {/* Inner Apple Siri Core Light */}
-              <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "50%",
-                  background: "radial-gradient(circle, #ffffff 0%, rgba(255,255,255,0.4) 60%, transparent 100%)",
-                  filter: "blur(2px)",
-                }}
-              />
-            </Box>
+            <SiriSphere
+              size={96}
+              isSpeaking={state === "speaking"}
+              isListening={state === "listening"}
+            />
           </Box>
         </Box>
       </Fade>
