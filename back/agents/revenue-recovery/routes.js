@@ -111,17 +111,31 @@ router.post('/signals/:id/promise-to-pay/fulfill', async (req, res) => {
   res.json({ success: true, signal, message: 'Promise marked as fulfilled & recovered!' });
 });
 
-router.delete('/signals/:id', async (req, res) => {
-  const signal = await FailedPayment.findByIdAndDelete(req.params.id);
-  if (!signal) return res.status(404).json({ error: 'Signal not found' });
-  await AgentAction.deleteMany({ failedPaymentId: req.params.id });
-  res.json({ success: true, message: 'Signal deleted successfully' });
+router.delete('/signals', async (req, res) => {
+  try {
+    await FailedPayment.deleteMany({});
+    await AgentAction.deleteMany({});
+    res.json({ success: true, message: 'All signals and audit trails cleared.' });
+  } catch (err) {
+    console.error('Failed to clear signals:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
-router.delete('/signals', async (req, res) => {
-  await FailedPayment.deleteMany({});
-  await AgentAction.deleteMany({});
-  res.json({ success: true, message: 'All signals and audit trails cleared.' });
+router.delete('/signals/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id || id === 'undefined' || id === 'null') {
+      return res.status(400).json({ error: 'Invalid signal ID' });
+    }
+    const signal = await FailedPayment.findByIdAndDelete(id);
+    if (!signal) return res.status(404).json({ error: 'Signal not found' });
+    await AgentAction.deleteMany({ failedPaymentId: id });
+    res.json({ success: true, message: 'Signal deleted successfully' });
+  } catch (err) {
+    console.error('Failed to delete signal:', err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 /**
