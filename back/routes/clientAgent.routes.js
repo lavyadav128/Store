@@ -62,21 +62,27 @@ function getFrontendBaseUrl(req) {
 
 publicRouter.get("/enquiry/:slug", async (req, res) => {
   const config = await getClientAgentConfig();
-  if (req.params.slug !== config.enquirySlug) return res.sendStatus(404);
+  const validSlug = config.enquirySlug || "project-enquiry";
+  if (req.params.slug !== validSlug && req.params.slug !== "project-enquiry") {
+    return res.sendStatus(404);
+  }
   res.json({
     businessName: config.businessName || "Project Studio",
-    enquirySlug: config.enquirySlug,
-    services: config.services,
+    enquirySlug: validSlug,
+    services: config.services || ["Websites", "Web apps", "AI automation"],
   });
 });
 
 publicRouter.post(
   "/enquiry/:slug",
-  rateLimiter({ requests: 5, window: "1 h", prefix: "client-enquiry" }),
+  rateLimiter({ requests: 10, window: "1 h", prefix: "client-enquiry" }),
   async (req, res) => {
     try {
       const config = await getClientAgentConfig();
-      if (req.params.slug !== config.enquirySlug) return res.sendStatus(404);
+      const validSlug = config.enquirySlug || "project-enquiry";
+      if (req.params.slug !== validSlug && req.params.slug !== "project-enquiry") {
+        return res.sendStatus(404);
+      }
       const {
         businessName,
         contactName = "",

@@ -88,7 +88,7 @@ import './config/redis.js';
 
 import dns from 'node:dns';
 
-dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
+// dns.setServers(['8.8.8.8', '8.8.4.4']); // Google DNS
 // dns.setServers(['1.1.1.1']);        // Cloudflare alternative
 // ─────────────────────────────────────────────────────────────
 // LOAD ENVIRONMENT VARIABLES
