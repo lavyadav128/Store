@@ -161,38 +161,157 @@ function cleanLlmJson(rawText = '') {
   }
 }
 
-export async function askPochi(query, adminUser, history = []) {
+export async function askPochi(query = '', adminUser, history = []) {
   const context = await getPochiAdminContext();
+  const q = query.toLowerCase().trim();
 
-  const systemPrompt = `You are "Pochi", the elite Apple Siri-style executive voice AI assistant exclusively built for the Admin of EduPortal.
-You have omniscient, real-time access to the entire Admin Dashboard, including:
-1. AI Revenue Recovery Agent (gated approvals, recovered amounts, promise-to-pay, policy guardrails)
-2. Instagram Growth Agent (content calendar, reel generation, viral scoring, niche strategy)
-3. AI Client Agent / Studio (freelance enquiries, generated proposals, interactive code prototypes)
-4. Ultimate Dreams (motivational banners, video reels, media assets)
-5. Courses, Batches, Purchases, and Student Metrics
+  // Fast-path direct queries for instant 100% accurate responses
+  const revPaise = (context.revenueRecovery?.totalRecoveredRupees || 0);
+  const pendingCount = context.revenueRecovery?.pendingApprovalsCount || 0;
+  const studentTotal = context.platformOverview?.totalRegisteredStudents || 0;
+  const batchTotal = context.platformOverview?.totalBatches || 0;
+  const instaNiche = context.instagramAgent?.niche || 'EdTech & Tech';
+  const clientProjectCount = context.clientAgent?.totalProjects || 0;
 
-ADMIN IDENTITY:
-- Name: ${adminUser?.name || 'Admin'}
-- Email: ${adminUser?.username || 'admin@eduportal.com'}
+  // 1. Navigation intents
+  if (/take me to revenue|open revenue|show revenue|revenue recovery/i.test(q)) {
+    return {
+      voiceText: "Switching to the AI Revenue Recovery dashboard now.",
+      visualReply: "Navigating to AI Revenue Recovery Dashboard.",
+      action: "NAVIGATE_VIEW",
+      targetView: "revenue",
+    };
+  }
+  if (/take me to instagram|open instagram|show instagram|insta agent/i.test(q)) {
+    return {
+      voiceText: "Opening Instagram Growth Agent now.",
+      visualReply: "Navigating to Instagram Growth Agent.",
+      action: "NAVIGATE_VIEW",
+      targetView: "instagram",
+    };
+  }
+  if (/take me to client|open client|client agent|project enquiries|freelance/i.test(q)) {
+    return {
+      voiceText: "Opening AI Client Agent and freelance project studio.",
+      visualReply: "Navigating to AI Client Agent.",
+      action: "NAVIGATE_VIEW",
+      targetView: "client_agent",
+    };
+  }
+  if (/take me to dreams|open dreams|show dreams|ultimate dreams/i.test(q)) {
+    return {
+      voiceText: "Opening Ultimate Dreams media hub.",
+      visualReply: "Navigating to Ultimate Dreams.",
+      action: "NAVIGATE_VIEW",
+      targetView: "dreams",
+    };
+  }
+  if (/take me to batches|open batches|show batches|courses/i.test(q) && /take me|open|show|go to/i.test(q)) {
+    return {
+      voiceText: "Opening Courses and Batches manager.",
+      visualReply: "Navigating to Batches.",
+      action: "NAVIGATE_VIEW",
+      targetView: "batches",
+    };
+  }
 
-LIVE SYSTEM CONTEXT:
-${JSON.stringify(context, null, 2)}
+  // 2. Specific metrics queries
+  if (/revenue.*recover|how much.*recover|kitna.*recover/i.test(q)) {
+    const formatted = revPaise.toLocaleString('en-IN');
+    return {
+      voiceText: `We have recovered ${formatted} rupees so far from failed payment interventions, and there are ${pendingCount} signals waiting in your approval queue.`,
+      visualReply: `Total Revenue Recovered: **₹${formatted}** · Pending Approvals: **${pendingCount}**`,
+      action: "NONE",
+      targetView: null,
+    };
+  }
 
-VOICE & RESPONSE DIRECTIVES:
-1. You must respond in a JSON format containing:
-   - "voiceText": A super crisp, natural, conversational 1-2 sentence spoken line (like Siri speaking back).
-   - "visualReply": Beautifully formatted, ChatGPT-style markdown with bold highlights, clean bullet cards, and key metrics for the visual HUD.
-   - "action": Optional action command if the admin asks to switch tabs or execute tasks (e.g. "NAVIGATE_VIEW", "SEED_DEMO", "NONE").
-   - "targetView": Optional target view if navigating ("revenue", "instagram", "client_agent", "dreams", "batches", "audit").
+  if (/approval|pending|gated/i.test(q) && /how many|what|are there|check|pending/i.test(q)) {
+    if (pendingCount === 0) {
+      return {
+        voiceText: "Your approval queue is completely clear. No payments are waiting for human authorization.",
+        visualReply: "Approval Queue: **0 Pending** · All actions within auto-approve policy bounds.",
+        action: "NONE",
+        targetView: null,
+      };
+    }
+    const first = context.revenueRecovery?.pendingApprovalsList?.[0];
+    const detail = first ? `For example, ${first.customer} for ${first.amountRupees} rupees due to ${first.reason}.` : '';
+    return {
+      voiceText: `You have ${pendingCount} transactions waiting for authorization. ${detail}`,
+      visualReply: `**${pendingCount} Pending Approvals** in human review queue.`,
+      action: "NONE",
+      targetView: null,
+    };
+  }
 
-EXAMPLES OF ACTIONS:
-- "Take me to Instagram Agent" -> { "action": "NAVIGATE_VIEW", "targetView": "instagram", "voiceText": "Opening Instagram Growth Agent now, Admin." }
-- "Show revenue recovery" -> { "action": "NAVIGATE_VIEW", "targetView": "revenue", "voiceText": "Switching to AI Revenue Recovery dashboard." }
-- "Go to client studio / enquiries" -> { "action": "NAVIGATE_VIEW", "targetView": "client_agent", "voiceText": "Here are your client projects and freelance enquiries." }
-- "Show me dreams" -> { "action": "NAVIGATE_VIEW", "targetView": "dreams", "voiceText": "Opening Ultimate Dreams media hub." }
+  if (/promise.*pay|committed|who will pay/i.test(q)) {
+    const promises = context.revenueRecovery?.upcomingPromisesList || [];
+    if (promises.length === 0) {
+      return {
+        voiceText: "There are currently no active promise-to-pay commitments registered.",
+        visualReply: "No pending payment promises.",
+        action: "NONE",
+        targetView: null,
+      };
+    }
+    const first = promises[0];
+    return {
+      voiceText: `You have ${promises.length} customer payment commitments. ${first.customer} promised to pay ${first.amountRupees} rupees on ${first.promisedDate}.`,
+      visualReply: `**${promises.length} Active Promises** · Next due: ${first.customer} (${first.amountRupees}) on ${first.promisedDate}`,
+      action: "NONE",
+      targetView: null,
+    };
+  }
 
-Tone: Ultra-smart, polite, sharp, proactive, executive. Support English and Hinglish smoothly.`;
+  if (/student|user|registered/i.test(q) && /how many|total|count/i.test(q)) {
+    return {
+      voiceText: `There are currently ${studentTotal} registered students enrolled across ${batchTotal} active batches on your platform.`,
+      visualReply: `Total Registered Students: **${studentTotal}** · Active Batches: **${batchTotal}**`,
+      action: "NONE",
+      targetView: null,
+    };
+  }
+
+  if (/instagram|reel|viral|post/i.test(q) && /what|how|show|status|performance/i.test(q)) {
+    const recent = context.instagramAgent?.recentPosts || [];
+    const count = context.instagramAgent?.totalPostsCreated || 0;
+    return {
+      voiceText: `Your Instagram Growth Agent is targeting the ${instaNiche} niche, with ${count} reels generated and scheduled.`,
+      visualReply: `Instagram Niche: **${instaNiche}** · Total Posts Generated: **${count}**`,
+      action: "NONE",
+      targetView: null,
+    };
+  }
+
+  if (/client|project|enquiry|enquiries|freelance/i.test(q)) {
+    return {
+      voiceText: `You have ${clientProjectCount} freelance and client projects registered in your studio portal.`,
+      visualReply: `Total Client Projects: **${clientProjectCount}** · Slug: \`${context.clientAgent?.enquirySlug}\``,
+      action: "NONE",
+      targetView: null,
+    };
+  }
+
+  // 3. General LLM Query (Llama-3.3-70B on Groq)
+  const systemPrompt = `You are "Pochi", the Apple Siri-style executive voice assistant for the Admin of EduPortal.
+You speak directly to the Admin in crisp, natural, conversational spoken English or Hinglish.
+Always reply with a direct 1 to 2 sentence spoken voice answer.
+
+ADMIN IDENTITY: ${adminUser?.name || 'Admin'}
+LIVE SYSTEM STATS:
+- Revenue Recovered: ₹${revPaise.toLocaleString('en-IN')} (${pendingCount} pending approvals)
+- Students: ${studentTotal} registered across ${batchTotal} batches
+- Instagram Niche: ${instaNiche} (${context.instagramAgent?.totalPostsCreated || 0} posts)
+- Client Projects: ${clientProjectCount} projects
+
+JSON OUTPUT FORMAT:
+{
+  "voiceText": "Direct, natural 1-2 sentence spoken reply to be spoken aloud.",
+  "visualReply": "Short summary text.",
+  "action": "NONE" | "NAVIGATE_VIEW",
+  "targetView": null | "revenue" | "instagram" | "client_agent" | "dreams" | "batches"
+}`;
 
   const messages = [
     { role: 'system', content: systemPrompt },
@@ -203,13 +322,12 @@ Tone: Ultra-smart, polite, sharp, proactive, executive. Support English and Hing
     { role: 'user', content: query },
   ];
 
-  // 1. Try Groq (Llama-3.3-70B)
   if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_')) {
     try {
       const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
       const completion = await groq.chat.completions.create({
         model: 'llama-3.3-70b-versatile',
-        temperature: 0.3,
+        temperature: 0.2,
         messages,
       });
       const parsed = cleanLlmJson(completion.choices?.[0]?.message?.content);
@@ -221,42 +339,10 @@ Tone: Ultra-smart, polite, sharp, proactive, executive. Support English and Hing
     }
   }
 
-  // 2. Try OpenRouter Fallback
-  if (process.env.OPENROUTER_API_KEY && !process.env.OPENROUTER_API_KEY.includes('your_')) {
-    try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json',
-          'X-Title': 'Pochi Admin Voice AI',
-        },
-        body: JSON.stringify({
-          model: 'nvidia/nemotron-nano-9b-v2:free',
-          temperature: 0.3,
-          messages,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        const parsed = cleanLlmJson(data.choices?.[0]?.message?.content);
-        if (parsed && (parsed.voiceText || parsed.visualReply)) {
-          return parsed;
-        }
-      }
-    } catch (err) {
-      console.warn('OpenRouter Pochi exception:', err.message);
-    }
-  }
-
-  // Deterministic Executive Fallback
-  const revAmt = context.revenueRecovery?.totalRecoveredRupees?.toLocaleString('en-IN') || '0';
-  const pendingCount = context.revenueRecovery?.pendingApprovalsCount || 0;
-  const studentTotal = context.platformOverview?.totalRegisteredStudents || 0;
-
+  // Fallback
   return {
-    voiceText: `You have recovered ${revAmt} rupees so far, with ${pendingCount} pending approvals. Your portal has ${studentTotal} registered students and all systems are operational.`,
-    visualReply: `You have recovered ₹${revAmt} with ${pendingCount} pending approvals. Total registered students: ${studentTotal}.`,
+    voiceText: `All admin systems are running properly. You have recovered ${revPaise.toLocaleString('en-IN')} rupees, and your platform has ${studentTotal} active students.`,
+    visualReply: `Recovered: ₹${revPaise.toLocaleString('en-IN')} · Students: ${studentTotal} · Batches: ${batchTotal}`,
     action: 'NONE',
     targetView: null,
   };
