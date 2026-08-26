@@ -75,6 +75,7 @@ import instagramAgentRoutes, { instagramWebhookRouter } from './routes/instagram
 import { startInstagramAgentScheduler } from './services/instagramScheduler.service.js';
 import clientAgentRoutes, { clientAgentPublicRouter } from './routes/clientAgent.routes.js';
 import { startClientAgentScheduler } from './services/clientAgentScheduler.service.js';
+import pochiRoutes from './routes/pochi.routes.js';
 
 import http from 'node:http';
 import { initSocket } from './socket/io.js';
@@ -210,6 +211,7 @@ app.use('/api/batches', batchRoutes);
 app.use('/api/notes', notesRouter);
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
+app.use('/api/admin/pochi', pochiRoutes);
 
 app.use("/api/recommendations",recommendationRouter);
 app.use("/api/catalog", catalogRouter);

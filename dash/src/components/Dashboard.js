@@ -55,6 +55,7 @@ import InstagramGrowthAgent from "./InstagramGrowthAgent";
 import ClientAgent from "./ClientAgent";
 import ProjectEnquiry from "./ProjectEnquiry";
 import ProjectPayment from "./ProjectPayment";
+import PochiVoiceAssistant from "./PochiVoiceAssistant";
 import LogoutIcon from "@mui/icons-material/Logout";
 
 const COURSE_ROUTES = ["/dsac", "/cou", "/pre", "/rev", "/col", "/batches"];
@@ -1125,6 +1126,10 @@ const Dashboard = () => {
             </Box>
           </Box>
         </Box>
+
+        {isAdminRoute && (
+          <PochiVoiceAssistant onNavigate={(v) => setActiveView(v)} activeView={activeView} />
+        )}
 
         <Snackbar open={showPopup} autoHideDuration={4000} onClose={() => setShowPopup(false)} anchorOrigin={{ vertical: "bottom", horizontal: "right" }}>
           <Alert severity="info" onClose={() => setShowPopup(false)} sx={{ fontFamily: "'DM Sans', sans-serif" }}>
