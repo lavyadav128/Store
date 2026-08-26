@@ -423,15 +423,11 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         askPochiBackend(immediateQuery);
       } else {
         setState("listening");
-        setStatusText("Yes, Admin?");
-        speakVoice("Yes, Admin?", () => {
-          setState("listening");
-          setStatusText("Listening for query...");
-          startListeningSession();
-        });
+        setStatusText("Listening for Admin...");
+        startListeningSession();
       }
     },
-    [askPochiBackend, speakVoice, startListeningSession]
+    [askPochiBackend, startListeningSession]
   );
 
   // Setup Keyboard Shortcuts
