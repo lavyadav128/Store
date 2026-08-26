@@ -1,130 +1,175 @@
 # EduPortal AI — Agentic Learning & Revenue Recovery Platform
 
-An AI-powered edtech platform that helps students discover the right course, learn with a personalised assistant, make secure payments, and receive guided recovery support when a payment fails.
+An AI-powered edtech platform that helps students discover the right course, learn with a personalised assistant, make secure payments, and recover lost revenue using an **Autonomous AI Revenue Recovery Agent**.
 
 Built for the **Razorpay Buildathon — AI Revenue Recovery Track**.
 
-## Problem
+---
 
-Students may leave a purchase unfinished because of a payment failure, checkout interruption, or uncertainty about the right course. Merchants lose revenue while students lose learning momentum.
+## 🚀 Overview & Problem Statement
 
-EduPortal AI closes this gap with goal-based course guidance, secure Razorpay checkout, live failed-payment detection, admin-approved recovery offers, student notifications, retry links, and an assistant that understands the currently logged-in student's courses, interests, payments, and recovery status.
+### The Problem
+Merchants lose millions in revenue every day due to payment gateway timeouts, checkout drop-offs, recurring subscription failures, overdue corporate invoices, and failed UPI Autopay mandates. Meanwhile, learners lose momentum and access to critical courses.
 
-## Core Solution
+### The Core Solution
+**EduPortal AI** closes this gap with an end-to-end **Autonomous AI Revenue Recovery System**. It ingests live payment failure signals from Razorpay webhooks, uses LLM reasoning to diagnose root cause failure patterns, enforces deterministic policy guardrails (auto-approval ceilings & discount caps), executes multi-channel recovery workflows (WhatsApp, Hinglish IVR, Razorpay retry links), and measures exact financial ROI and recovery attribution.
 
 ```text
-Student
-  ↓
-AI Course Guidance + Secure Checkout
-  ↓
-Razorpay Test Mode Payment
-  ↓
-Payment Success / Payment Failure
-  ↓
-Revenue Recovery Signal
-  ↓
-Admin Approval + Bounded Discount Offer
-  ↓
-Student Notification + Retry Checkout
-  ↓
-Verified Payment + Course Access
+Razorpay Webhook / Checkout / Mandate Event
+                   │
+                   ▼
+       Failed Payment / Signal Ingestion
+                   │
+                   ▼
+     LLM Agent Reasoning (Groq AI Model)
+                   │
+                   ▼
+    Policy Gate Engine (Ceiling & Discount Guardrails)
+        ┌──────────┴──────────┐
+        │                     │
+   (≤ ₹5,000)            (> ₹5,000)
+  Auto-Approved       Escalated to Admin Queue
+        │                     │
+        └──────────┬──────────┘
+                   ▼
+ Multi-Channel Intervention (WhatsApp / Hinglish Voice / Discount Link)
+                   │
+                   ▼
+ Student Retries Checkout via Razorpay
+                   │
+                   ▼
+  Razorpay Webhook Verification (payment.captured)
+                   │
+                   ▼
+ Signal Marked RECOVERED + Financial ROI Attribution Recorded
 ```
 
-## Key Features
+---
 
-### AI Study & Commerce Assistant
+## 🏆 Key Features
 
-- Answers study questions using course material and notes.
-- Helps students decide between PCM and PCB using interests, strengths, and goals.
-- Understands goals such as IIT JEE, JEE Main, NEET, DSA, and web development.
-- Recommends live batches and note batches from MongoDB.
-- Compares batches using real exam focus, audience, curriculum, and included features.
-- Knows batches owned by the authenticated student.
-- Gives current payment and recovery status for that student only.
-- Keeps chat during the active login session; a new login starts a fresh conversation.
+### 1. Razorpay Buildathon — 5 Competition Directions Covered
 
-### Batch Intelligence
+Our AI Revenue Recovery Agent natively handles all 5 competition directions specified in the Razorpay Buildathon brief:
 
-Every batch can store:
+| Direction | Source Track | Failure Mechanism & AI Action | Operational Intervention |
+|---|---|---|---|
+| **1. Payment Degradation** | `payment_failure` | 3D-Secure OTP timeouts, issuing bank failures, card declines | Generates instant Razorpay retry link, evaluates policy gate, issues bounded discount offer. |
+| **2. Checkout Drop-offs** | `checkout_dropoff` | Intent abandoned at checkout after selecting payment method | Automated multi-channel nudges via WhatsApp & Hinglish IVR voice scripts. |
+| **3. Subscription Failures** | `subscription_failure` | Recurring membership debit failed (expired card, insufficient balance) | Subscription state tracking (`subscription.charged_failed`), automated retry sequence. |
+| **4. B2B Overdue Receivables** | `overdue_receivable` | Corporate B2B invoice past Net 15/30 due date | Automated GST invoice chaser, aging bucket analysis, Razorpay B2B corporate remittance link. |
+| **5. UPI Mandate Sequencer** | `mandate_failure` | NPCI / Bank switch decline on UPI Autopay / e-Mandate | Schedules debit retry during optimal banking hours (8:30 AM - 10:30 AM IST) & salary cycle days. |
 
-- Exam focus
-- Target audience
-- Learning outcomes
-- Included features
-- Price and availability
+---
 
-For example, the platform differentiates IIT JEE preparation (JEE Main + Advanced, PYQs, test series, mentorship, doubt support) from JEE Main-focused preparation (Main PYQs, practice, mocks, and performance analysis). Admin-entered batch data overrides category defaults.
+### 2. LLM Reasoning Engine (Root Cause Diagnosis)
 
-### Secure Razorpay Checkout
+- Powered by **Groq High-Speed LLM Suite** (`qwen/qwen3.8-27b`, `openai/gpt-oss-120b`, `groq/compound-mini`).
+- Diagnoses raw failure payloads (e.g. `BAD_REQUEST_ERROR`, `3DS_TIMEOUT`, `INSUFFICIENT_FUNDS`, `EXPIRED_CARD`, `BANK_SWITCH_DECLINE`).
+- Generates structured JSON reasoning: Root Cause, Customer Sentiment, Confidence Score, Proposed Action, and Hinglish IVR Voice Script.
+
+---
+
+### 3. Policy Gate Engine & Guardrails (Human-in-the-Loop Governance)
+
+- **Auto-Approve Ceiling**: Failed transactions **≤ ₹5,000** are automatically approved for bounded recovery offers.
+- **Human-in-the-Loop Escalation**: Transactions **> ₹5,000** are escalated to the Admin Approval Queue for explicit authorization.
+- **Bounded Guardrails**: Configurable ceilings for Maximum Retry Count, Cooldown Minutes, Maximum Discount Percentage (e.g. 10%-15%), and Auto-Approve Ceiling Amount.
+- **Audit Trail**: Every decision, reasoning log, rule triggered, and execution result is immutably saved in `AgentAction` audit records.
+
+---
+
+### 4. Real-Time Webhook Integration & Recovery Attribution
+
+- **Webhook Ingestion**: Listens to live Razorpay webhooks (`payment.failed`, `order.paid`, `payment.captured`, `subscription.charged`, `subscription.charged_failed`).
+- **Idempotency**: Prevents duplicate customer nudges on webhook retries.
+- **Financial ROI Metrics**: Real-time measurement of:
+  - **Gross Recovered Revenue (₹)**
+  - **Net Recovered Margin (₹)** (Gross recovered minus discount voucher costs)
+  - **Recovery Rate %** (`(Recovered Signals / Total Signals) * 100`)
+  - **Average Time-to-Recover (mins)**
+
+---
+
+### 5. Multi-Channel & Hinglish Voice Recovery
+
+- **WhatsApp Outbound Nudges**: Bilingual Hinglish & English message templates via Twilio / WhatsApp Graph API.
+- **Hinglish IVR Voice Recovery Scripts**: AI-generated voice call scripts tailored for Indian learners and finance managers.
+- **Automated Background Scheduler**: Real-time Node.js worker (`revenueRecoveryScheduler.js`) polling every 30 seconds to execute scheduled retries (`retry_later` & mandate debit windows).
+
+---
+
+### 6. Pochi — Apple iOS Siri-Style Executive Voice AI Assistant
+
+- **Authentic Apple Siri Visual**: Obsidian 3D glass sphere with 3 multi-layered fluid animated ribbons (Turquoise, Magenta, Mint) and a white-hot core starburst.
+- **1-Tap & Hotkey Activation**: Launch instantly from the bottom-right orb or press `Ctrl + Space`.
+- **Spoken Voice Output**: Answers general Q&A, study guidance, platform metrics, and payment inquiries aloud.
+- **Executive Admin Voice Control**: Direct administrative authority to edit batch prices, create new courses, delete batches, change recovery policy ceilings, or trigger voice logouts directly on command (e.g., *"Pochi, edit IIT JEE batch price to 4999"*).
+
+---
+
+### 7. AI Study & Commerce Assistant
+
+- Answers study questions using MongoDB course materials and notes.
+- Guides students between PCM/PCB, competitive exams (IIT JEE, NEET, CS, GATE), and career paths.
+- Compares live batches using real exam focus, PYQs, test series, mentorship, and price details.
+- Provides authenticated students with current purchase and recovery notification status.
+
+---
+
+### 8. Secure Razorpay Checkout
 
 - Backend creates Razorpay orders from database prices.
-- Razorpay payment signatures are verified server-side.
+- Razorpay payment signatures are verified server-side via HMAC SHA-256.
 - Course access is granted only after verification.
-- Free batches use direct enrolment.
-- Payment attempts are saved for support and recovery.
-- Razorpay Test Mode supports a safe end-to-end demo.
+- Free batches use direct enrollment.
 
+---
 
-### AI Revenue Recovery
-
-- Detects verified failed-payment signals from Razorpay Test Mode.
-- Shows customer, batch, amount, source, failure reason, attempts, and status in the admin dashboard.
-- Tracks open, recovering, recovered, escalated, and closed/lost cases.
-- Applies bounded policy controls for retry limits, cooldown, maximum discount percentage, and automatic-approval threshold.
-- Automatically approves a bounded recovery discount when the failed amount is **₹5,000 or below**.
-- Escalates payments **above ₹5,000** to the admin dashboard for explicit human approval.
-- Maintains a complete audit trail showing the policy decision, reason, action, and result.
-- Uses a responsive mobile signal feed while preserving the desktop dashboard layout.
-
-### Recovery Offers and Approval Flow
-
-1. A Razorpay payment fails and creates a recovery signal.
-2. The policy engine checks the amount and recovery rules.
-3. For failures of **₹5,000 or below**, the policy engine automatically approves a time-limited recovery discount and creates a student notification.
-4. For failures **above ₹5,000**, the signal appears in the Revenue Recovery dashboard and waits for human/admin approval.
-5. After automatic or human approval, the student sees a login popup and Notification Centre message.
-6. The student claims a secure discounted retry checkout link.
-7. The backend verifies the successful Razorpay payment signature before granting course access.
-8. The recovery case is marked as recovered and the complete action history remains available in the audit trail.
-
-The platform never automatically charges a student, grants access without verified payment, or promises a refund. Automatic approval is limited to the configured ₹5,000 threshold and bounded discount policy.
-
-## Architecture
+## 🏗️ Architecture
 
 ```text
-React Frontend
-      ↓
-Express REST APIs
-      ↓
-MongoDB Database
-      ↓
-AI Assistant Context Engine
-      ↓
-Razorpay Test Mode
-      ↓
-Revenue Recovery Agent
-      ↓
-Admin Dashboard + Student Notifications
+React 18 Frontend (MUI 5, Siri Orb HUD, Socket.IO Client)
+                          │
+                          ▼
+Express.js REST APIs (JWT Auth, Admin Controller, Webhook Handler)
+                          │
+                          ▼
+MongoDB Database (Batches, Users, FailedPayments, AgentActions, RecoveryOffers)
+                          │
+                          ▼
+AI Reasoning Layer (Groq LLM Suite, Pochi Context Engine)
+                          │
+                          ▼
+Policy Gate & Execution Engine (Ceilings, Discount Vouchers, Twilio WhatsApp API)
+                          │
+                          ▼
+Background Scheduler Worker (revenueRecoveryScheduler.js)
 ```
 
-## Tech Stack
+---
 
-**Frontend:** React, Material UI, React Router, Axios, Socket.IO Client  
-**Backend:** Node.js, Express.js, MongoDB, Mongoose, JWT, Razorpay SDK, Socket.IO, Upstash Redis, AI/LLM integration
+## 🛠️ Tech Stack
 
-## Security and Reliability
+- **Frontend:** React 18, Material UI (MUI 5), React Router v6, Axios, Socket.IO Client
+- **Backend:** Node.js, Express.js, MongoDB, Mongoose, JWT, Razorpay SDK, Socket.IO, Groq SDK, Twilio SDK
+- **AI & Reasoning:** Groq API (`qwen/qwen3.8-27b`, `openai/gpt-oss-120b`, `groq/compound-mini`), Web Speech Synthesis API
 
-- JWT-based authentication and protected admin routes
-- Server-side price validation and Razorpay signature verification
-- User-specific purchase, payment, and chatbot context
-- Admin approval before recovery discounts
-- Duplicate failed-payment protection
-- Recovery audit trail
-- No sensitive token logging
+---
 
-## Local Setup
+## 🔐 Security & Reliability
 
-### 1. Install backend dependencies
+- Server-side Razorpay signature verification (`crypto.createHmac`).
+- Server-side price validation preventing client-side tampering.
+- Role-based authorization (`requireAdmin` middleware).
+- Idempotent webhook processing.
+- Full immutable audit trails for every AI action.
+
+---
+
+## 💻 Local Setup & Installation
+
+### 1. Install Backend Dependencies
 
 ```bash
 cd back
@@ -140,21 +185,21 @@ JWT_SECRET=your_secure_jwt_secret
 
 RAZORPAY_KEY_ID=your_razorpay_test_key_id
 RAZORPAY_SECRET=your_razorpay_test_key_secret
+RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
 
-OPENAI_API_KEY=your_ai_key
-UPSTASH_REDIS_REST_URL=your_redis_url
-UPSTASH_REDIS_REST_TOKEN=your_redis_token
+GROQ_API_KEY=your_groq_api_key
+TWILIO_ACCOUNT_SID=your_twilio_sid
+TWILIO_AUTH_TOKEN=your_twilio_token
+TWILIO_WHATSAPP_NUMBER=whatsapp:+14155238886
 ```
 
-Never commit real `.env` credentials to GitHub. Use `.env.example` in a public repository.
-
-### 3. Start backend
+### 3. Start Backend
 
 ```bash
 npm run dev
 ```
 
-### 4. Install and start frontend
+### 4. Install & Start Frontend
 
 ```bash
 cd ../dash
@@ -162,90 +207,24 @@ npm install
 npm start
 ```
 
-Backend: `http://localhost:5000`  
-Frontend: `http://localhost:3000`
+- Backend runs at: `http://localhost:5000`
+- Frontend runs at: `http://localhost:3000`
 
-## Instagram Growth Agent (Admin Only)
+---
 
-The admin dashboard includes an Instagram Growth Agent built for an Instagram **Professional** account through Meta's official Graph API. Configure `META_ACCESS_TOKEN`, `META_APP_SECRET`, `META_WEBHOOK_VERIFY_TOKEN`, and `INSTAGRAM_ACCOUNT_ID` in `back/.env` using `back/.env.example` as the template.
+## 📸 Recommended Demo Flow for Buildathon Judges
 
-1. Open **Instagram Agent** in the admin dashboard, set the niche, target audience, brand voice, and post/reel mode, then save.
-2. Press **Start** to enable daily AI content drafting and allowed automation. Press **Stop** to halt scheduled drafting, publishing, and automatic replies.
-3. The agent can generate an image through Hugging Face, upload it to Cloudinary, and queue it for Meta publishing automatically. For reels, configure a compatible AI-video provider URL/key in `back/.env`; its completed public video is uploaded to Cloudinary and published in the same flow. The dashboard retrieves live follower, reach, engagement, and media metrics when Meta permissions allow it.
-4. Normal comments and DMs can receive a safe acknowledgement only when the agent is running and the respective toggle is enabled. Promotion/collaboration messages create a pending request for an admin decision; they are never accepted automatically.
+1. **Failure Ingestion**: Initiate a checkout in Razorpay Test Mode or simulate a payment failure webhook.
+2. **AI Signal Detection**: Observe the failure appear immediately in the **Omni-Channel Signal Stream** with root cause diagnosis.
+3. **Policy Gate Evaluation**:
+   - For signals **≤ ₹5,000**, see automatic approval and instant discount voucher creation.
+   - For signals **> ₹5,000**, see escalation to the **Human-in-the-Loop Approval Queue**.
+4. **Student Recovery Notification**: Log in as a student to receive the recovery notification pop-up and discounted checkout link.
+5. **Verified Recovery**: Complete the checkout using the discount link. The backend verifies the Razorpay signature, grants course access, and attributes the recovered revenue in the financial metrics.
+6. **Pochi Executive Control**: Tap the Siri orb and say *"Pochi, edit IIT JEE batch price to 4999"* to see Pochi update MongoDB directly and confirm verbally.
 
-The agent does not buy followers, follow accounts, send spam, guarantee growth, approve follower requests (not exposed by Meta's public API), or commit to brand deals. Real growth depends on quality, consistency, audience response, and Meta platform permissions.
+---
 
-## AI Client Agent (Admin Only)
+## 👥 Author
 
-The Client Agent provides a permissioned freelancer workflow: share a public project-enquiry link, collect requirements, score leads against your configured services/budget, and require an admin approval before a proposal is accepted or work begins. It prepares a structured Codex task for an approved project, requires a second admin delivery review, and only then creates a secure Razorpay project-payment link. Payment is marked paid only after server-side Razorpay signature verification.
-
-The agent can periodically read `CLIENT_LEAD_SOURCE_URL` only when it is a source for which you have authorised API access. It does not scrape marketplaces, spam prospects, automatically agree to work, or use any unauthorised Codex automation.
-
-## Recommended Buildathon Demo
-
-1.Student logs in and tells the AI assistant a learning goal.
-
-T2.he assistant compares IIT JEE and JEE Main batches using live batch data, including exam focus, PYQs, test series, mentorship, and notes.
-
-3.Student starts secure Razorpay Test Mode checkout.
-
-3.A payment failure creates a live Revenue Recovery signal with the student, batch, amount, and failure reason.
-
-4.The policy engine checks the failed amount:
-    - If the amount is ₹5,000 or below, it automatically approves a bounded recovery discount, creates a student notification, and records the decision in the audit trail.
-    - If the amount is above ₹5,000, it is escalated to the Revenue Recovery dashboard for explicit human/admin approval.
-
-5.Admin can review high-value recovery signals, inspect the reasoning and audit trail, approve the recovery offer, and monitor recovery status.
-
-6.Student receives a login popup and Notification Centre message with the approved discount retry link.
-
-7.Student asks the chatbot about payment status and receives live information about the failed payment, approval status, available discount, and next safe action.
-
-8.Student claims the discount, retries Razorpay checkout, receives verified course access after server-side signature validation, and the recovery case is marked as recovered.
-
-## Buildathon Fit
-
-### Primary Track: AI Revenue Recovery
-
-The project detects failed payments, creates a bounded recovery workflow, requires human approval for discount offers, provides student communication, and records each decision in an audit trail.
-
-### Additional Strength: AI Growth & Agentic Commerce
-
-The assistant recommends suitable live courses, compares batches using real data, understands student goals, and guides students toward safe checkout actions.
-
-## Future Improvements
-
-- WhatsApp and email recovery reminders
-- Public-deployment Razorpay webhooks
-- Recovery conversion analytics
-- Hinglish support
-- Subscription and mandate-retry recovery
-- Role-based administrative permissions
-
-## Author
-
-Built for the Razorpay Buildathon as an AI-powered learning and revenue-recovery platform.
-
-
-## Screenshots
-
-### AI Course Guidance
-
-![AI Course Guidance](./screenshots/chatbot.png)
-
-### IIT JEE vs JEE Main Comparison
-
-![Batch Comparison](./screenshots/batch-comparison.png)
-
-### Razorpay Test Checkout
-
-![Razorpay Test Checkout](./screenshots/razorpay-checkout.png)
-
-### AI Revenue Recovery Dashboard
-
-![Revenue Recovery Dashboard](./screenshots/revenue-dashboard.png)
-
-### Student Recovery Notification
-
-![Recovery Notification](./screenshots/recovery-notification.png)
+Built for the **Razorpay Buildathon — AI Revenue Recovery Track**.
