@@ -66,42 +66,46 @@ const isVideo = (url = "") =>
 
   const tryPlayMusic = useCallback(() => {
     const audio = audioRef.current;
-    if (!audio || musicOn) return;
+    if (!audio) return;
     audio.play()
       .then(() => setMusicOn(true))
       .catch(() => {
         const resume = () => {
-          audio.play()
-            .then(() => setMusicOn(true))
-            .catch(() => {});
+          if (audioRef.current) {
+            audioRef.current.play().then(() => setMusicOn(true)).catch(() => {});
+          }
           document.removeEventListener("touchstart", resume);
-          document.removeEventListener("click",      resume);
+          document.removeEventListener("click", resume);
         };
         document.addEventListener("touchstart", resume, { once: true });
-        document.addEventListener("click",      resume, { once: true });
+        document.addEventListener("click", resume, { once: true });
       });
-  }, [musicOn]);
+  }, []);
 
   useEffect(() => {
     fetchMedia();
 
-    const audio = new Audio(SONG_PATH);
-    audio.loop   = true;
-    audio.volume = 0.6;
-    audioRef.current = audio;
+    if (!audioRef.current) {
+      const audio = new Audio(SONG_PATH);
+      audio.loop = true;
+      audio.volume = 0.6;
+      audioRef.current = audio;
+    }
 
-    const t = setTimeout(tryPlayMusic, 400);
+    tryPlayMusic();
 
     const onPochiActive = (e) => {
-      if (e.detail?.active && audioRef.current) {
+      if (!audioRef.current) return;
+      if (e.detail?.active) {
         audioRef.current.pause();
         setMusicOn(false);
+      } else {
+        audioRef.current.play().then(() => setMusicOn(true)).catch(() => {});
       }
     };
     window.addEventListener("pochi-active", onPochiActive);
 
     return () => {
-      clearTimeout(t);
       window.removeEventListener("pochi-active", onPochiActive);
       if (audioRef.current) {
         audioRef.current.pause();
