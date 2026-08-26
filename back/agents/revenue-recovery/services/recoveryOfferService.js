@@ -60,7 +60,10 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
   signal.recoveryDiscountPaise = Math.round((signal.amount || 0) * (discountPercent / 100));
   await signal.save();
 
-  // 4. Create Student Notification in DB
+  // 4. Create Student Notification in DB with explicit discount details
+  const origRs = (signal.amount / 100).toLocaleString('en-IN');
+  const discRs = Math.round((signal.amount / 100) * (1 - discountPercent / 100)).toLocaleString('en-IN');
+
   await Notification.findOneAndUpdate(
     {
       username,
@@ -72,9 +75,10 @@ export async function issueRecoveryOffer(signal, { approvedBy = "admin" } = {}) 
         username,
         type: "RECOVERY_DISCOUNT",
         text:
-          `Your ${discountPercent}% recovery discount has been approved for ` +
-          `${signal.batchTitle || "your batch"}. ` +
-          `Open Notifications to claim your one-time retry offer within 24 hours.`,
+          `🎁 Special Recovery Offer: ${discountPercent}% DISCOUNT approved for ` +
+          `${signal.batchTitle || "your course"}! ` +
+          `Original: ₹${origRs} → Recovery Price: ₹${discRs}. ` +
+          `Click Claim Discount below to enroll now!`,
         metadata: {
           recoveryOfferId: String(offer._id),
           batchId,

@@ -383,7 +383,7 @@ const Dashboard = () => {
     fetchPurchases();
   }, []);
 
-  // Surface a newly approved recovery offer popup ONLY ONCE per user session
+  // Surface a newly approved recovery offer popup ONLY ONE TIME EVER per user offer
   useEffect(() => {
     const loadRecoveryPopup = async () => {
       const username = localStorage.getItem('username');
@@ -391,12 +391,13 @@ const Dashboard = () => {
       if (!username || !token || isAdminRoute) return;
       try {
         const res = await axios.get(`${server}/api/notifications/${username}`, { headers: { Authorization: `Bearer ${token}` } });
-        const offer = res.data.find((n) => n.type === 'RECOVERY_DISCOUNT' && !n.isRead);
+        const offer = res.data.find((n) => n.type === 'RECOVERY_DISCOUNT');
         if (offer) {
-          const popupKey = `seen_recovery_popup_${offer._id}`;
-          if (!sessionStorage.getItem(popupKey)) {
-            sessionStorage.setItem(popupKey, 'true');
-            setPopupMessage(`${offer.text} Open Notifications to claim it.`);
+          const offerId = offer.id || offer._id || offer.metadata?.recoveryOfferId;
+          const popupKey = `seen_discount_popup_${username}_${offerId}`;
+          if (!localStorage.getItem(popupKey)) {
+            localStorage.setItem(popupKey, 'true');
+            setPopupMessage(`${offer.text || offer.message || 'Special Recovery Discount Approved!'}`);
             setShowPopup(true);
           }
         }
