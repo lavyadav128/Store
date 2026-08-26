@@ -293,21 +293,23 @@ export async function askPochi(query = '', adminUser, history = []) {
     };
   }
 
-  // 3. General LLM Query (Llama-3.3-70B on Groq)
-  const systemPrompt = `You are "Pochi", the Apple Siri-style executive voice assistant for the Admin of EduPortal.
-You speak directly to the Admin in crisp, natural, conversational spoken English or Hinglish.
-Always reply with a direct 1 to 2 sentence spoken voice answer.
+  // 3. General Intelligence & Omniscient LLM Query
+  const systemPrompt = `You are "Pochi", the world-class executive Apple Siri-style voice AI assistant exclusively built for the Admin of EduPortal (${adminUser?.name || 'Admin'}).
 
-ADMIN IDENTITY: ${adminUser?.name || 'Admin'}
-LIVE SYSTEM STATS:
-- Revenue Recovered: ₹${revPaise.toLocaleString('en-IN')} (${pendingCount} pending approvals)
-- Students: ${studentTotal} registered across ${batchTotal} batches
-- Instagram Niche: ${instaNiche} (${context.instagramAgent?.totalPostsCreated || 0} posts)
-- Client Projects: ${clientProjectCount} projects
+YOUR CAPABILITIES:
+1. Omniscient real-time knowledge of this Admin Dashboard:
+   - Revenue Recovery: ₹${revPaise.toLocaleString('en-IN')} recovered (${pendingCount} pending approvals)
+   - Students & Batches: ${studentTotal} registered students across ${batchTotal} active batches
+   - Instagram Growth Agent: active in "${instaNiche}" (${context.instagramAgent?.totalPostsCreated || 0} reels created)
+   - AI Client Studio: ${clientProjectCount} client projects
+2. World-class General Intelligence: You can answer ANY question the admin asks (general knowledge, coding, science, business, explanations, greetings, casual talk, jokes, math, advice).
 
-JSON OUTPUT FORMAT:
+RESPONSE DIRECTIVES:
+- Always answer directly, smartly, and conversationally in 1-2 spoken sentences (like Siri or ChatGPT voice mode).
+- Respond in either pure spoken English or smooth Hinglish depending on how the admin speaks.
+- Return a JSON object:
 {
-  "voiceText": "Direct, natural 1-2 sentence spoken reply to be spoken aloud.",
+  "voiceText": "Crisp 1-2 sentence spoken answer to read aloud to the admin.",
   "visualReply": "Short summary text.",
   "action": "NONE" | "NAVIGATE_VIEW",
   "targetView": null | "revenue" | "instagram" | "client_agent" | "dreams" | "batches"
@@ -322,6 +324,7 @@ JSON OUTPUT FORMAT:
     { role: 'user', content: query },
   ];
 
+  // 1. Try Groq with multiple models & robust JSON/text parser
   if (process.env.GROQ_API_KEY && !process.env.GROQ_API_KEY.includes('your_')) {
     const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
     const groqModels = ['llama-3.1-8b-instant', 'llama-3.3-70b-versatile', 'llama3-70b-8192', 'llama3-8b-8192', 'gemma2-9b-it'];
@@ -330,12 +333,27 @@ JSON OUTPUT FORMAT:
       try {
         const completion = await groq.chat.completions.create({
           model,
-          temperature: 0.2,
+          temperature: 0.3,
           messages,
         });
-        const parsed = cleanLlmJson(completion.choices?.[0]?.message?.content);
+        const rawContent = completion.choices?.[0]?.message?.content || '';
+        const parsed = cleanLlmJson(rawContent);
         if (parsed && (parsed.voiceText || parsed.visualReply)) {
           return parsed;
+        }
+        // If the model replied in natural text instead of JSON:
+        const cleanText = rawContent
+          .replace(/<think>[\s\S]*?<\/think>/gi, '')
+          .replace(/```json/gi, '')
+          .replace(/```/g, '')
+          .trim();
+        if (cleanText && cleanText.length > 2) {
+          return {
+            voiceText: cleanText,
+            visualReply: cleanText,
+            action: 'NONE',
+            targetView: null,
+          };
         }
       } catch (err) {
         // try next model
@@ -343,10 +361,59 @@ JSON OUTPUT FORMAT:
     }
   }
 
-  // Fallback
+  // 2. Try OpenRouter Fallback
+  if (process.env.OPENROUTER_API_KEY && !process.env.OPENROUTER_API_KEY.includes('your_')) {
+    try {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Content-Type': 'application/json',
+          'X-Title': 'Pochi Voice Assistant',
+        },
+        body: JSON.stringify({
+          model: 'nvidia/nemotron-nano-9b-v2:free',
+          temperature: 0.3,
+          messages,
+        }),
+      });
+      const data = await response.json();
+      const rawContent = data.choices?.[0]?.message?.content || '';
+      const parsed = cleanLlmJson(rawContent);
+      if (parsed && (parsed.voiceText || parsed.visualReply)) {
+        return parsed;
+      }
+      const cleanText = rawContent
+        .replace(/<think>[\s\S]*?<\/think>/gi, '')
+        .replace(/```json/gi, '')
+        .replace(/```/g, '')
+        .trim();
+      if (cleanText && cleanText.length > 2) {
+        return {
+          voiceText: cleanText,
+          visualReply: cleanText,
+          action: 'NONE',
+          targetView: null,
+        };
+      }
+    } catch (err) {
+      console.warn('OpenRouter Pochi fallback failed:', err.message);
+    }
+  }
+
+  // Conversational Default fallback for greetings and queries
+  if (/hi|hello|hey|namaste|kaise ho/i.test(q)) {
+    return {
+      voiceText: `Hello ${adminUser?.name || 'Admin'}! I am Pochi. What would you like me to do or check for you today?`,
+      visualReply: `Hello Admin! Ask me anything about your platform, revenue recovery, or general knowledge.`,
+      action: 'NONE',
+      targetView: null,
+    };
+  }
+
   return {
-    voiceText: `All admin systems are running properly. You have recovered ${revPaise.toLocaleString('en-IN')} rupees, and your platform has ${studentTotal} active students.`,
-    visualReply: `Recovered: ₹${revPaise.toLocaleString('en-IN')} · Students: ${studentTotal} · Batches: ${batchTotal}`,
+    voiceText: `I heard your question, ${adminUser?.name || 'Admin'}. All your systems are running normally with ${revPaise.toLocaleString('en-IN')} rupees recovered.`,
+    visualReply: `Platform Status: All systems operational. Recovered: ₹${revPaise.toLocaleString('en-IN')}`,
     action: 'NONE',
     targetView: null,
   };
