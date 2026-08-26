@@ -368,12 +368,6 @@ export default function ChatbotWidget() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Completely remove student chatbot on admin routes (Pochi is used instead)
-  const isAdminRoute = location.pathname.startsWith("/admin-dashboard");
-  if (isAdminRoute) {
-    return null;
-  }
-
   const [open, setOpen]                       = useState(false);
   const [messages, setMessages]               = useState([]);
   const [input, setInput]                     = useState("");
@@ -719,6 +713,11 @@ export default function ChatbotWidget() {
   };
 
   const canSend = input.trim().length > 0 && !loading && !pdfUploading;
+
+  // Completely hide student chatbot on admin panel (Pochi is active for Admin instead)
+  if (location.pathname.startsWith("/admin-dashboard")) {
+    return null;
+  }
 
   return (
     <>
