@@ -14,13 +14,7 @@ import axios from "axios";
 import server from "../../shared/environment";
 import Pochi3DViewerModal from "./Pochi3DViewerModal.js";
 
-// Silent helper to prevent audio context interruption on mobile
-function playSiriChime() {
-  // Silent - avoids interrupting mobile background music
-}
-
-const WAKE_PATTERN = /\b(hey pochi|ok pochi|okay pochi|hi pochi|hello pochi|pochi|poki)\b/i;
-
+// 1-Tap Activator + Ctrl+Space Voice AI
 const VIEW_MAP = {
   revenue: "revenue-recovery",
   "revenue-recovery": "revenue-recovery",
@@ -372,7 +366,7 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         transcriptChunk = transcriptChunk.trim();
         if (!transcriptChunk) return;
 
-        const cleanQuery = transcriptChunk.replace(WAKE_PATTERN, "").trim();
+        const cleanQuery = transcriptChunk.replace(/\b(hey pochi|ok pochi|hi pochi|pochi)\b/i, "").trim();
         const currentQuery = cleanQuery || transcriptChunk;
 
         if (currentQuery) {
@@ -407,13 +401,12 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
     }
   }, [askPochiBackend]);
 
-  // Trigger Pochi Wake
+  // Trigger Pochi Wake (1-Tap on Orb or Ctrl+Space)
   const wakePochi = useCallback(
     (immediateQuery = "") => {
       if (dismissTimerRef.current) clearTimeout(dismissTimerRef.current);
       if (silenceTimerRef.current) clearTimeout(silenceTimerRef.current);
 
-      playSiriChime();
       setActive(true);
       queryBufferRef.current = immediateQuery || "";
 
