@@ -74,20 +74,20 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
 }
 
 export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
-  let scene = background || rawPrompt || title || "breathtaking emerald waterfall into crystal turquoise lagoon with morning god rays";
+  let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning god rays";
   scene = scene.replace(/^Award-winning[\s,]+/i, "")
                .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/i, "")
                .replace(/Scene\s*\d+[\s\S]*$/i, "")
                .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
                .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster|animated video)\s+of\s+/i, "")
-               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster|video)?/gi, "")
+               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster|video|portrait)?/gi, "")
                .replace(/\s+beautifully/gi, "")
                .replace(/["'{}\[\]]/g, " ")
                .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, "")
                .trim();
 
-  const sceneWords = scene.split(/\s+/).slice(0, 12).join(" ") || "majestic nature landscape";
-  return `generate 8K ultra-detailed photorealistic cinematic animated nature video animation of ${sceneWords} in 9:16 vertical format with background atmospheric nature soundscape`;
+  const sceneWords = scene.split(/\s+/).slice(0, 10).join(" ") || "majestic nature landscape";
+  return `create image of ${sceneWords} in 9:16 vertical portrait format`;
 }
 
 export function cleanPromptForGemini(rawPrompt, isVideo = true) {
@@ -152,7 +152,6 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   let sessionDir = possibleGeminiDirs.find(d => fs.existsSync(d) && fs.readdirSync(d).length > 0);
   if (!sessionDir) {
     sessionDir = path.join(process.cwd(), "back", "data", "gemini-session");
-    if (!fs.existsSync(sessionDir)) fs.mkdirSync(sessionDir, { recursive: true });
   }
 
   try {
@@ -164,9 +163,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         "--no-sandbox",
         "--disable-setuid-sandbox",
         "--disable-dev-shm-usage",
-        "--disable-quic",
-        "--disable-session-crashed-bubble",
-        "--no-first-run",
+        "--disable-blink-features=AutomationControlled",
         "--window-size=1366,850",
       ],
     });
@@ -178,20 +175,28 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
-    // Check if definitely logged out
-    const isSignedOut = await page.evaluate(() => {
-      if (location.href.includes("accounts.google.com")) return true;
+    // Check if captcha or signed out
+    const pageStatus = await page.evaluate(() => {
+      const bodyText = (document.body?.innerText || "").toLowerCase();
+      if (bodyText.includes("unusual traffic") || bodyText.includes("i'm not a robot") || bodyText.includes("recaptcha")) {
+        return "captcha";
+      }
+      if (location.href.includes("accounts.google.com")) return "sign_in";
       const signInBtn = Array.from(document.querySelectorAll("a, button, [role='button']")).find(el => {
         const text = (el.innerText || el.getAttribute("aria-label") || "").trim().toLowerCase();
         const href = el.getAttribute("href") || "";
         return text === "sign in" || href.includes("accounts.google.com") || href.includes("ServiceLogin");
       });
       const hasInput = !!document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
-      return !!signInBtn && !hasInput;
+      if (signInBtn && !hasInput) return "sign_in";
+      return "ok";
     });
 
-    if (isSignedOut) {
-      throw new Error("Google Gemini is not signed in. Click 'Open Gemini Login Window' in dashboard, sign in to your Google account once, then retry.");
+    if (pageStatus === "captcha") {
+      throw new Error("Google reCAPTCHA challenge detected. Click 'Gemini Login' in the dashboard, check 'I'm not a robot' in the opened window, then retry.");
+    }
+    if (pageStatus === "sign_in") {
+      throw new Error("Google Gemini is not signed in. Click 'Gemini Login' in the dashboard, sign in to your Google account once, then retry.");
     }
 
     // Step 3: Target Gemini Chat Prompt Input
