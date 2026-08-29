@@ -42,42 +42,24 @@ async function uploadBufferToCloudinary(buffer, resourceType = "image", folder =
   }
 }
 
-export function formatQuotePosterPrompt({ quote = "", speaker = "", background = "", rawPrompt = "" }) {
-  let bg = background || rawPrompt || "inspiring golden sunrise";
-  bg = bg.replace(/^Award-winning[\s,]+/i, "")
-         .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/i, "")
-         .replace(/Scene\s*\d+[\s\S]*$/i, "")
-         .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
-         .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster)\s+of\s+/i, "")
-         .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster)?/gi, "")
-         .replace(/\s+beautifully/gi, "")
-         .replace(/["'{}\[\]]/g, " ")
-         .trim();
+export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
+  let scene = background || rawPrompt || title || "breathtaking emerald waterfall into crystal lagoon with golden sunbeams";
+  scene = scene.replace(/^Award-winning[\s,]+/i, "")
+               .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/i, "")
+               .replace(/Scene\s*\d+[\s\S]*$/i, "")
+               .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
+               .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster)\s+of\s+/i, "")
+               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster)?/gi, "")
+               .replace(/\s+beautifully/gi, "")
+               .replace(/["'{}\[\]]/g, " ")
+               .trim();
 
-  // If quote exists, extract concise, punchy quote mantra (max 6-7 words) without public figure names
-  if (quote) {
-    let quoteClean = quote
-      .replace(/^["'\s]+|["'\s]+$/g, "")
-      .replace(/^(Steve Jobs|David Goggins|Marcus Aurelius|Jim Rohn|Lao Tzu|Rumi|Naval Ravikant|Bruce Lee|Seneca|James Clear)[\s:-]+/i, "")
-      .trim();
-    const quoteWords = quoteClean.split(/\s+/).slice(0, 7).join(" ").trim();
-    const bgWords = bg.split(/\s+/).slice(0, 6).join(" ") || "aesthetic golden sunrise";
-    return `create image of ${bgWords} in 9:16 vertical format with bold centered quote text typography "${quoteWords}" in the middle with safe margin borders`;
-  }
-
-  const match = String(rawPrompt || "").match(/["“]([^"”]+)["”]/);
-  if (match) {
-    const extractedQuote = match[1].split(/\s+/).slice(0, 7).join(" ").trim();
-    const bgWords = bg.replace(/["“][^"”]+["”]/g, "").split(/\s+/).filter(Boolean).slice(0, 6).join(" ") || "aesthetic sunrise";
-    return `create image of ${bgWords} in 9:16 vertical format with bold centered quote text typography "${extractedQuote}" in the middle with safe margin borders`;
-  }
-
-  const cleanBg = bg.split(/\s+/).slice(0, 6).join(" ") || "inspirational sunrise";
-  return `create image of ${cleanBg} in 9:16 vertical format`;
+  const sceneWords = scene.split(/\s+/).slice(0, 10).join(" ") || "majestic nature landscape";
+  return `create ultra-detailed 8K cinematic animated nature video of ${sceneWords} in 9:16 vertical format`;
 }
 
-export function cleanPromptForGemini(rawPrompt, isVideo = false) {
-  return formatQuotePosterPrompt({ rawPrompt });
+export function cleanPromptForGemini(rawPrompt, isVideo = true) {
+  return formatNatureVideoPrompt({ rawPrompt });
 }
 
 /**
@@ -85,26 +67,26 @@ export function cleanPromptForGemini(rawPrompt, isVideo = false) {
  * enters the creative brief, waits for generation, extracts the image/video,
  * and attaches it directly to the draft without any fallback.
  */
-export async function automateGeminiGeneration(prompt, contentId = "live_session", isVideo = false) {
+export async function automateGeminiGeneration(prompt, contentId = "live_session", isVideo = true) {
   let browser = null;
   const sessionId = String(contentId);
 
-  let quote = "";
-  let speaker = "";
+  let title = "";
+  let realm = "";
   let background = "";
 
   if (contentId && contentId !== "live_session" && mongoose.Types.ObjectId.isValid(contentId)) {
     try {
       const doc = await InstagramContent.findById(contentId);
       if (doc) {
-        quote = doc.quote || "";
-        speaker = doc.speaker || "";
+        title = doc.topic || doc.quote || "";
+        realm = doc.themeCategory || "";
         background = doc.creativeBrief || doc.topic || "";
       }
     } catch {}
   }
 
-  const fullPrompt = formatQuotePosterPrompt({ quote, speaker, background, rawPrompt: prompt });
+  const fullPrompt = formatNatureVideoPrompt({ title, realm, background, rawPrompt: prompt });
 
   const sessionData = {
     contentId: sessionId,

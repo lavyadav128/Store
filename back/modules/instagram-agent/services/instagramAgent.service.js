@@ -5,6 +5,7 @@ import InstagramContent from '../schema/InstagramContent.model.js';
 import InstagramActivity from '../schema/InstagramActivity.model.js';
 import { cloudinary } from '../../../config/cloudinary.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import { NATURE_THEMES, getUniqueNatureTheme, getDailyNatureTheme } from './natureThemes.js';
 import { MOTIVATIONAL_THEMES, getUniqueMotivationalTheme, getQuoteFingerprint, getDailyMotivationalTheme } from './motivationalThemes.js';
 import { analyzeAudiencePreferences } from './growthOptimizer.js';
 import { automateGeminiGeneration } from './geminiBrowserAutomator.service.js';
@@ -410,12 +411,12 @@ export async function generateMediaForContent(content) {
   }
 }
 
-export async function generateContentDraft({ topic = '', type = 'post', category = '' }) {
+export async function generateContentDraft({ topic = '', type = 'reel', category = '' }) {
   const config = await getInstagramConfig();
-  const safeType = type === 'reel' ? 'reel' : 'post';
+  const safeType = 'reel'; // Default to animated video reel
   const geminiKey = config.geminiApiKey || process.env.GEMINI_API_KEY;
 
-  // 1. Fetch previously used quote fingerprints to guarantee 100% uniqueness (never repeats)
+  // 1. Fetch previously used fingerprints to guarantee 100% uniqueness (never repeats)
   const pastContents = await InstagramContent.find(
     {},
     { quoteFingerprint: 1, quote: 1, topic: 1 }
@@ -427,31 +428,26 @@ export async function generateContentDraft({ topic = '', type = 'post', category
       .filter(Boolean)
   );
 
-  const recentlyUsedQuotes = pastContents
-    .map((p) => p.quote || p.topic)
+  const recentlyUsedTopics = pastContents
+    .map((p) => p.topic)
     .filter(Boolean)
     .slice(0, 30);
 
-  // 2. Determine target pillar from audience intelligence or user selection
-  const audienceInsights = await analyzeAudiencePreferences();
-  const targetCategory = category || audienceInsights.topCategory || "Career & Success";
+  // 2. Select Nature Realm category
+  const targetCategory = category || "All Realms";
 
-  // 3. Select base unique theme from master library
-  const selectedTheme = getUniqueMotivationalTheme(usedFingerprints, targetCategory);
+  // 3. Select base unique theme from nature library
+  const selectedTheme = getUniqueNatureTheme(usedFingerprints, targetCategory);
 
   let selectedTopic = topic || selectedTheme.title;
-  let speaker = selectedTheme.speaker || "Visionary Thinker";
-  let quote = selectedTheme.quote;
   let caption = selectedTheme.caption;
-  let creativePrompt = selectedTheme.imagePrompt;
+  let creativePrompt = selectedTheme.prompt;
   let hashtags = selectedTheme.hashtags;
-  let themeCategory = selectedTheme.category || targetCategory;
-  let reelScript =
-    safeType === 'reel'
-      ? `Scene 1 (0-3s Hook): "Stop trading your future for temporary comfort..."\nScene 2 (4-15s Breakthrough Insight): "${quote}" — ${speaker}\nScene 3 (16-30s Call to Action): "Win in silence. Double tap and save this video for daily motivation."`
-      : '';
+  let themeCategory = selectedTheme.realm || targetCategory;
+  let reelScript = selectedTheme.reelScript;
+  let soundscape = selectedTheme.soundscape;
 
-  // 4. Use Gemini Pro AI to dynamically generate brand new, unique quotes & context-aware visuals
+  // 4. Use Gemini Pro AI to dynamically generate brand new, unique Nature Cinematography Reels
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
@@ -460,78 +456,80 @@ export async function generateContentDraft({ topic = '', type = 'post', category
         generationConfig: { responseMimeType: 'application/json' },
       });
 
-      const geminiPrompt = `You are the lead content director for a viral Instagram growth page dedicated to Life, Career, Strength, Health & Success Wisdom.
-Category: "${targetCategory}" (one of: Career & Success, Strength & Resilience, Health & Vitality, Life & How to Live, Discipline & Habits)
-Topic Request: "${topic || targetCategory}"
-Format: "${safeType}" (9:16 vertical visual for Instagram)
-Brand Voice: "${config.brandVoice || 'Inspiring, stoic, powerful in Hindi & English'}"
+      const geminiPrompt = `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
+Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
+Topic Request: "${topic || selectedTopic}"
+Format: "reel" (9:16 vertical animated cinematic video)
+Brand Voice: "Awe-inspiring, serene, calming, and deeply grounded in Earth's natural beauty"
 
-CRITICAL REQUIREMENT: The quote MUST be completely unique and NEVER duplicate any of these recently used quotes:
-${JSON.stringify(recentlyUsedQuotes, null, 2)}
+CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
+${JSON.stringify(recentlyUsedTopics, null, 2)}
 
-Provide an authentic, highly inspiring quote by a renowned visionary/speaker (e.g. Steve Jobs, Marcus Aurelius, Jim Rohn, Rumi, Naval Ravikant, Swami Vivekananda, APJ Abdul Kalam, Seneca, Bruce Lee, James Clear, Arnold Schwarzenegger, Alan Watts, Lao Tzu).
+Provide a brand new breathtaking nature scene with vivid camera motion, volumetric lighting, and matching atmospheric audio soundscape.
 
 Return strict JSON with this exact schema:
 {
-  "speaker": "Name of the speaker/visionary",
-  "quote": "The exact powerful memorable quote in English",
-  "topic": "Catchy, viral post headline (5-8 words)",
-  "themeCategory": "${targetCategory}",
-  "caption": "Viral Instagram caption containing: (1) Quote hook with author attribution, (2) Hindi translation/meaning, (3) 3 actionable high-impact life/career bullet points, (4) Question CTA encouraging saves & comments",
-  "hashtags": ["12-15 high-engagement viral hashtags"],
-  "imagePrompt": "create image of <concrete aesthetic scene matching the quote context e.g. modern skyscraper skyline at sunrise for career / solitary mountain peak climber for strength / serene nature garden for health/life> in 9:16 vertical format",
-  "reelScript": "3-scene reel script (Hook 0-3s, Breakthrough Core Quote 4-15s, Power CTA 16-30s)"
+  "topic": "Catchy, viral reel title (5-8 words)",
+  "themeCategory": "${themeCategory}",
+  "visualScene": "Detailed description of the 8K nature visual scene",
+  "cameraMotion": "Cinematic camera movement (e.g. drone dive, upward tilt, tracking shot)",
+  "soundscape": "Matching background audio & sound design (e.g. ethereal ambient forest flute, soothing cascading waterfall resonance, gentle binaural wind chimes)",
+  "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
+  "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
+  "imagePrompt": "create ultra-detailed 8K cinematic animated nature video of <vivid scene details> in 9:16 vertical format",
+  "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`;
 
       const aiRes = await model.generateContent(geminiPrompt);
       const parsed = JSON.parse(aiRes.response.text());
 
-      if (parsed?.quote) quote = parsed.quote;
-      if (parsed?.speaker) speaker = parsed.speaker;
       if (parsed?.topic) selectedTopic = parsed.topic;
       if (parsed?.caption) caption = parsed.caption;
       if (Array.isArray(parsed?.hashtags) && parsed.hashtags.length > 0) hashtags = parsed.hashtags;
       if (parsed?.imagePrompt) creativePrompt = parsed.imagePrompt;
       if (parsed?.reelScript) reelScript = parsed.reelScript;
       if (parsed?.themeCategory) themeCategory = parsed.themeCategory;
+      if (parsed?.soundscape) soundscape = parsed.soundscape;
     } catch (geminiError) {
       console.warn('Gemini dynamic draft generation notice:', geminiError.message);
     }
   }
 
-  const quoteFp = getQuoteFingerprint(quote || selectedTopic);
+  const topicFp = getQuoteFingerprint(selectedTopic);
 
   const content = await InstagramContent.create({
-    type: safeType,
+    type: 'reel',
     topic: selectedTopic,
-    speaker: speaker,
-    quote: quote,
-    quoteFingerprint: quoteFp,
+    quote: selectedTopic,
+    speaker: themeCategory,
+    quoteFingerprint: topicFp,
     themeCategory: themeCategory,
     caption: caption,
     hashtags: hashtags,
     creativeBrief: creativePrompt,
     reelScript: reelScript,
+    audioTrack: {
+      id: `nature_${Date.now()}`,
+      title: soundscape || 'Serene Nature Soundscape',
+      artist: 'Ambient Earth',
+      genre: 'Nature Relaxation',
+      durationSeconds: 15,
+      isRoyaltyFree: true,
+      audioUrl: '',
+    },
+    trendingAudioSuggestion: `🎵 Soundscape: "${soundscape || 'Serene Nature Soundscape'}"`,
     createdBy: 'agent',
     mediaGenerationStatus: 'not_requested',
   });
 
-  const dreamsTrack = ROYALTY_FREE_AUDIO_LIBRARY[0];
-  content.audioTrack = dreamsTrack;
-  content.trendingAudioSuggestion = `🎵 Audio: "Ultimate Dreams Anthem" (Official Theme)`;
-  if (!content.caption.includes('🎵')) {
-    content.caption = `${content.caption}\n\n${content.trendingAudioSuggestion}`;
-  }
-  await content.save();
-
   await logInstagramActivity(
     'content_drafted',
-    `AI drafted daily quote by ${speaker} [${themeCategory}] with Ultimate Dreams Anthem: "${quote?.slice(0, 60)}..."`,
+    `AI drafted daily 8K Nature Reel [${themeCategory}]: "${selectedTopic}" with soundscape: ${soundscape}`,
     {
       contentId: String(content._id),
       category: themeCategory,
-      speaker: speaker,
-      audio: dreamsTrack.title,
+      topic: selectedTopic,
+      soundscape: soundscape,
     }
   );
 
@@ -555,11 +553,7 @@ export async function publishContent(content) {
   await content.save();
 
   try {
-    let baseCaption = content.caption || "";
-    if (!baseCaption.includes("Ultimate Dreams Anthem") && !baseCaption.includes("🎵")) {
-      baseCaption = `${baseCaption}\n\n🎵 Audio: "Ultimate Dreams Anthem" (Official Theme)`.trim();
-    }
-    const caption = `${baseCaption}\n\n${content.hashtags.join(' ')}`.trim();
+    const caption = `${content.caption || ''}\n\n${(content.hashtags || []).join(' ')}`.trim();
     const creationPayload =
       content.type === 'reel'
         ? { media_type: 'REELS', video_url: content.assetUrl, caption, share_to_feed: 'true' }

@@ -40,7 +40,7 @@ export async function createDailyDrafts() {
 
   await logInstagramActivity(
     "daily_drafts_created",
-    `Created ${missing} unique daily motivational quote draft(s), scheduled for ${config.dailyPostTime || "07:00"} IST.`
+    `Created ${missing} unique daily 8K Nature Reel draft(s), scheduled for ${config.dailyPostTime || "07:00"} IST.`
   );
 }
 

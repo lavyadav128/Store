@@ -146,13 +146,40 @@ router.get("/overview", async (_req, res) => {
   }
 });
 
+import { NATURE_THEMES } from "../services/natureThemes.js";
 import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
 import { analyzeAudiencePreferences } from "../services/growthOptimizer.js";
 import { upload, cloudinary } from "../../../config/cloudinary.js";
 
+// Real-Time Live Followers Endpoint (fast polling)
+router.get("/live-followers", async (_req, res) => {
+  try {
+    const account = await getAccountSnapshot();
+    return res.json({
+      followers: account.followers,
+      mediaCount: account.mediaCount,
+      username: account.username,
+      reach: account.reach,
+      engagement: account.engagement,
+      updatedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    return res.status(200).json({
+      followers: null,
+      error: err.message,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+});
+
+// List all 6 Nature Realms Themes & Prompt Templates
+router.get("/nature-themes", (_req, res) => {
+  res.json(NATURE_THEMES);
+});
+
 // List all Master Motivational Mindset Themes
 router.get("/themes", (_req, res) => {
-  res.json(MOTIVATIONAL_THEMES);
+  res.json(NATURE_THEMES);
 });
 
 // Upload Direct Google Flow Video Reel or 8K Image File

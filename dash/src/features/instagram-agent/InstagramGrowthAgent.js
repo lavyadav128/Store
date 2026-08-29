@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import {
   Alert,
   Box,
@@ -33,8 +33,14 @@ import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import CloseIcon from "@mui/icons-material/Close";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import LandscapeIcon from "@mui/icons-material/Landscape";
+import ForestIcon from "@mui/icons-material/Forest";
+import WaterIcon from "@mui/icons-material/Water";
+import NightsStayIcon from "@mui/icons-material/NightsStay";
+import SpaIcon from "@mui/icons-material/Spa";
+import AcUnitIcon from "@mui/icons-material/AcUnit";
 import server from "../../shared/environment";
 
 const authHeaders = () => ({
@@ -64,28 +70,29 @@ const field = {
   "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif" },
 };
 
-const THEME_PILLARS = [
-  { id: "career", title: "Career & Success", speaker: "Steve Jobs / APJ Kalam", emoji: "🚀", sample: "Love What You Do & Build What Matters" },
-  { id: "strength", title: "Strength & Resilience", speaker: "David Goggins / Marcus Aurelius", emoji: "🛡️", sample: "Callous Your Mind & Never Quit" },
-  { id: "health", title: "Health & Vitality", speaker: "Jim Rohn / Hippocrates", emoji: "🌿", sample: "Take Care of Your Body; It's Your Temple" },
-  { id: "life", title: "Life & How to Live", speaker: "Rumi / Lao Tzu / Seneca", emoji: "🌌", sample: "The Universe is Inside You; Flow Like Water" },
-  { id: "discipline", title: "Discipline & Habits", speaker: "James Clear / Bruce Lee", emoji: "⚡", sample: "The Power of 1% Daily Consistency" },
+const NATURE_REALMS = [
+  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", emoji: "🌌", icon: <NightsStayIcon />, sample: "Bioluminescent Aurora over Arctic Fjord & Milky Way Core", color: "#6366f1", bg: "#eef2ff" },
+  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", emoji: "🌊", icon: <WaterIcon />, sample: "Emerald Jungle Waterfall Lagoon & Glowing Blue Surf", color: "#06b6d4", bg: "#ecfeff" },
+  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", emoji: "🌿", icon: <ForestIcon />, sample: "Misty Giant Redwoods with God Rays & Kyoto Bamboo Fireflies", color: "#10b981", bg: "#ecfdf5" },
+  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", emoji: "🌸", icon: <SpaIcon />, sample: "Pink Sakura Mountain Stream & Purple Lavender Sunset", color: "#ec4899", bg: "#fdf2f8" },
+  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", emoji: "🏔️", icon: <LandscapeIcon />, sample: "Golden Hour Alpenglow Matterhorn & Crystal Reflection Lake", color: "#f59e0b", bg: "#fffbeb" },
+  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", emoji: "❄️", icon: <AcUnitIcon />, sample: "Sapphire Glacial Ice Cave & Sparkling Diamond Sunbeams", color: "#0284c7", bg: "#f0f9ff" },
 ];
 
 export default function InstagramGrowthAgent() {
   const [data, setData] = useState(null);
   const [config, setConfig] = useState(null);
   const [topic, setTopic] = useState("");
-  const [draftType, setDraftType] = useState("post");
-  const [selectedCategory, setSelectedCategory] = useState("Career & Success");
+  const [selectedRealm, setSelectedRealm] = useState("Celestial & Aurora");
   const [saving, setSaving] = useState(false);
   const [generatingMediaId, setGeneratingMediaId] = useState(null);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
 
-  // Music Catalog State
-  const [availableTracks, setAvailableTracks] = useState([]);
-  const [musicModalOpen, setMusicModalOpen] = useState(false);
-  const [selectedContentForAudio, setSelectedContentForAudio] = useState(null);
+  // Live Followers Real-Time Polling State
+  const [liveFollowers, setLiveFollowers] = useState(null);
+  const [prevFollowers, setPrevFollowers] = useState(null);
+  const [hasFollowerIncremented, setHasFollowerIncremented] = useState(false);
+  const [lastFollowerCheck, setLastFollowerCheck] = useState(null);
 
   // Long-Lived Token Modal State
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
@@ -109,22 +116,42 @@ export default function InstagramGrowthAgent() {
       setData(payload);
       setConfig(payload.config);
 
-      // Load free audio catalog
-      const audioRes = await fetch(`${server}/api/instagram-agent/audio/tracks`, {
-        headers: authHeaders(),
-      });
-      if (audioRes.ok) {
-        const tracks = await audioRes.json();
-        setAvailableTracks(tracks);
+      if (payload.account?.followers !== null && payload.account?.followers !== undefined) {
+        setLiveFollowers(payload.account.followers);
       }
     } catch (error) {
       notify(error.message, "error");
     }
   }, []);
 
+  // Poll live followers count every 12 seconds in real-time
+  const fetchLiveFollowers = useCallback(async () => {
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/live-followers`, {
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        const payload = await res.json();
+        if (payload.followers !== null && payload.followers !== undefined) {
+          setLiveFollowers((current) => {
+            if (current !== null && payload.followers > current) {
+              setHasFollowerIncremented(true);
+              setTimeout(() => setHasFollowerIncremented(false), 8000);
+            }
+            setPrevFollowers(current);
+            return payload.followers;
+          });
+          setLastFollowerCheck(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (_) {}
+  }, []);
+
   useEffect(() => {
     load();
-  }, [load]);
+    const interval = setInterval(fetchLiveFollowers, 12000);
+    return () => clearInterval(interval);
+  }, [load, fetchLiveFollowers]);
 
   const request = async (path, method = "POST", body) => {
     const response = await fetch(`${server}/api/instagram-agent${path}`, {
@@ -138,12 +165,11 @@ export default function InstagramGrowthAgent() {
   };
 
   const saveConfig = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      const updated = await request("/config", "PUT", config);
+      const updated = await request("/config", "POST", config);
       setConfig(updated);
-      notify("Instagram daily strategy saved.");
-      await load();
+      notify("Instagram growth configuration saved.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -151,16 +177,13 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const setRunning = async (running) => {
+  const toggleAgent = async () => {
+    setSaving(true);
     try {
-      setSaving(true);
-      await request(running ? "/start" : "/stop");
-      notify(
-        running
-          ? `Agent started! It will generate unique quotes and post daily at ${config?.dailyPostTime || "07:00"} IST.`
-          : "Agent stopped."
-      );
-      await load();
+      const action = config.running ? "/stop" : "/start";
+      const updated = await request(action);
+      setConfig(updated);
+      notify(config.running ? "Instagram agent paused." : "Instagram agent started.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -168,18 +191,18 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const generate = async (customTopic = null, customCategory = null) => {
+  const generate = async (customTopic = null, customRealm = null) => {
+    setSaving(true);
     try {
-      setSaving(true);
-      const chosenTopic = typeof customTopic === "string" ? customTopic : topic;
-      const chosenCategory = customCategory || selectedCategory;
-      await request("/content/generate", "POST", {
-        topic: chosenTopic,
-        type: draftType,
-        category: chosenCategory,
+      const topicToUse = customTopic || topic;
+      const realmToUse = customRealm || selectedRealm;
+      const created = await request("/content/generate", "POST", {
+        topic: topicToUse,
+        category: realmToUse,
+        type: "reel",
       });
+      notify(`AI generated 8K Nature Reel [${realmToUse}]: "${created.topic}"`);
       setTopic("");
-      notify("Unique daily quote drafted with contextual 9:16 visual & action lessons!");
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -188,114 +211,78 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const generateMedia = async (content) => {
+  const handleGenerateMedia = async (contentId) => {
+    setGeneratingMediaId(contentId);
+    setRunningFlowLiveId(contentId);
+    setFlowInspectorOpen(true);
+    notify("Starting Google Gemini to generate 8K Nature Video Reel...", "info");
+
     try {
-      setGeneratingMediaId(content._id);
-      await request(`/content/${content._id}/generate-media`);
-      notify("Google Gemini 9:16 contextual visual generated & uploaded to Cloudinary.");
+      const updated = await request(`/content/${contentId}/generate-media`, "POST");
+      notify(`Generated 8K Nature Video for: ${updated.topic}!`);
       await load();
     } catch (error) {
       notify(error.message, "error");
     } finally {
       setGeneratingMediaId(null);
-    }
-  };
-
-  const watchGoogleGeminiLive = async (item) => {
-    if (!item?._id) return;
-    let pollInterval = null;
-    try {
-      setRunningFlowLiveId(item._id);
-      setFlowInspectorOpen(true);
-      setFlowInspectorSession({
-        status: "running",
-        prompt: item.creativeBrief || item.topic,
-        steps: [
-          { step: "1. Launch Browser", detail: "Starting Chromium with persistent Google Gemini profile...", timestamp: new Date().toLocaleTimeString() }
-        ]
-      });
-
-      pollInterval = setInterval(async () => {
-        try {
-          const sessionData = await request(`/gemini-session/${item._id}`, "GET");
-          if (sessionData?.steps) {
-            setFlowInspectorSession(sessionData);
-          }
-        } catch {}
-      }, 2000);
-
-      const data = await request(`/content/${item._id}/run-gemini-live`, "POST");
-      if (data?.session) {
-        setFlowInspectorSession(data.session);
-      }
-      notify("⚡ Google Gemini creation completed and attached!");
-      await load();
-    } catch (err) {
-      notify(err.message, "error");
-    } finally {
-      if (pollInterval) clearInterval(pollInterval);
       setRunningFlowLiveId(null);
     }
   };
 
-  const updateContent = async (content, updates) => {
+  // Poll live inspection steps while Gemini is generating
+  useEffect(() => {
+    if (!runningFlowLiveId && !flowInspectorOpen) return;
+    const sessionId = runningFlowLiveId || "live_session";
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`${server}/api/instagram-agent/google-flow/session/${sessionId}`, {
+          headers: authHeaders(),
+        });
+        if (res.ok) {
+          const session = await res.json();
+          setFlowInspectorSession(session);
+        }
+      } catch (_) {}
+    }, 1500);
+
+    return () => clearInterval(pollInterval);
+  }, [runningFlowLiveId, flowInspectorOpen]);
+
+  const publishNow = async (contentId) => {
+    setSaving(true);
     try {
-      await request(`/content/${content._id}`, "PATCH", updates);
+      const published = await request(`/content/${contentId}/publish`, "POST");
+      notify(`Published Nature Reel to Instagram: ${published.topic}`);
       await load();
     } catch (error) {
       notify(error.message, "error");
+    } finally {
+      setSaving(false);
     }
   };
 
   const deleteContent = async (contentId) => {
-    if (!window.confirm("Are you sure you want to delete this post permanently?")) return;
+    if (!window.confirm("Delete this draft permanently?")) return;
     try {
-      setSaving(true);
       await request(`/content/${contentId}`, "DELETE");
-      notify("Post deleted successfully.");
+      notify("Content deleted.");
       await load();
     } catch (error) {
       notify(error.message, "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const attachAudioTrack = async (contentId, trackId) => {
-    try {
-      await request(`/content/${contentId}/attach-audio`, "POST", { trackId });
-      notify("Royalty-free audio track attached!");
-      setMusicModalOpen(false);
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
-    }
-  };
-
-  const publish = async (content) => {
-    try {
-      setSaving(true);
-      await request(`/content/${content._id}/publish`);
-      notify("Content published to Instagram!");
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleExchangeLongLivedToken = async () => {
-    setTokenModalOpen(true);
     setExchangingToken(true);
-    setLongLivedResult(null);
+    setTokenModalOpen(true);
     try {
-      const res = await request("/token/exchange-long-lived", "POST");
+      const res = await request("/exchange-token", "POST");
       setLongLivedResult(res);
-      notify("Successfully generated 60-day Long-Lived Token!");
-    } catch (err) {
-      notify(`Token exchange: ${err.message}`, "error");
-      setLongLivedResult({ error: err.message });
+      notify("Successfully generated 60-Day Long-Lived Token!");
+      await load();
+    } catch (error) {
+      notify(error.message, "error");
+      setLongLivedResult({ error: error.message });
     } finally {
       setExchangingToken(false);
     }
@@ -303,26 +290,30 @@ export default function InstagramGrowthAgent() {
 
   const handleOpenGeminiLogin = async () => {
     try {
-      await request("/open-gemini-login-window", "POST");
-      notify("Google Gemini Login Window launched! Please sign in on your screen.");
+      notify("Opening Chrome Gemini window on your screen...", "info");
+      const res = await request("/google-flow/open-login", "POST");
+      notify(res.message || "Chrome opened! Sign in to Google, then close the browser.");
     } catch (err) {
-      notify(`Login launch error: ${err.message}`, "error");
+      notify(err.message, "error");
     }
   };
 
-  if (!data || !config)
+  if (!data || !config) {
     return (
-      <Box sx={{ p: 4, display: "flex", gap: 2, alignItems: "center" }}>
-        <CircularProgress size={24} />
-        <Typography sx={{ fontFamily: "'DM Sans', sans-serif" }}>Loading Instagram Growth Agent…</Typography>
+      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
+        <CircularProgress />
       </Box>
     );
+  }
 
   const { account, accountError, content, activities, apiConfigured } = data;
   const set = (key, value) => setConfig((previous) => ({ ...previous, [key]: value }));
 
+  const currentFollowersDisplay = liveFollowers !== null ? liveFollowers : (account?.followers_count ?? null);
+
   return (
     <Box sx={{ maxWidth: 1200, mx: "auto", pb: 4 }}>
+      {/* Top Header */}
       <Box
         sx={{
           display: "flex",
@@ -339,17 +330,17 @@ export default function InstagramGrowthAgent() {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 11,
               fontWeight: 800,
-              color: "#999",
+              color: "#059669",
               letterSpacing: "1.5px",
             }}
           >
-            OFFICIAL META GRAPH API · AUTONOMOUS AGENT
+            4K NATURE & EARTH REELS · AUTONOMOUS AI AGENT
           </Typography>
           <Typography sx={{ ...title, fontSize: { xs: 26, sm: 32 }, mt: 0.4 }}>
-            Daily Motivational Quotes & Growth Agent
+            Daily Nature Reels & Growth Agent
           </Typography>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", mt: 0.6 }}>
-            Autonomous daily quotes (Life, Career, Strength, Health & Discipline), Gemini 9:16 context visuals, and automatic Instagram publishing.
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#666", mt: 0.6 }}>
+            Autonomous daily 8K Nature video reels (Aurora, Waterfalls, Ancient Forests, Alpine Peaks), Gemini animations with matching soundscapes, and live follower tracking.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -368,7 +359,7 @@ export default function InstagramGrowthAgent() {
               "&:hover": { bgcolor: "#ede9fe", borderColor: "#5b21b6" },
             }}
           >
-            🔑 Open Gemini Login Window
+            🔑 Open Gemini Login
           </Button>
           <Button
             variant="outlined"
@@ -396,201 +387,189 @@ export default function InstagramGrowthAgent() {
         </Box>
       </Box>
 
-      {/* Account Status Card */}
-      <Paper sx={{ ...card, mb: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-            <InstagramIcon sx={{ fontSize: 36, color: "#E1306C" }} />
-            <Box>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
-                {account?.username ? `@${account.username}` : "Instagram Professional Account"}
+      {/* ── REAL-TIME LIVE FOLLOWER TRACKER & ACCOUNT BANNER ── */}
+      <Paper
+        sx={{
+          ...card,
+          mb: 3,
+          background: "linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)",
+          color: "#fff",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr" },
+            gap: 3,
+            alignItems: "center",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          {/* Follower Counter Display */}
+          <Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  bgcolor: "#34d399",
+                  boxShadow: "0 0 12px #34d399",
+                  animation: "pulse 1.5s infinite",
+                  "@keyframes pulse": {
+                    "0%": { transform: "scale(0.95)", opacity: 0.8 },
+                    "50%": { transform: "scale(1.3)", opacity: 1 },
+                    "100%": { transform: "scale(0.95)", opacity: 0.8 },
+                  },
+                }}
+              />
+              <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.5px", color: "#a7f3d0", textTransform: "uppercase" }}>
+                Live Follower Counter (Auto-Updating)
               </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#777" }}>
-                {account?.followers_count !== undefined
-                  ? `${account.followers_count.toLocaleString()} Followers · ${account.media_count || 0} Posts`
-                  : apiConfigured
-                  ? "Connected & Authorized"
-                  : "Environment Token Configured"}
+              {hasFollowerIncremented && (
+                <Chip
+                  label="🔥 +New Follower!"
+                  size="small"
+                  sx={{ bgcolor: "#fbbf24", color: "#78350f", fontWeight: 800, fontSize: 11, animation: "bounce 1s infinite" }}
+                />
+              )}
+            </Box>
+
+            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, my: 0.5 }}>
+              <Typography
+                sx={{
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 900,
+                  fontSize: { xs: 38, sm: 54 },
+                  letterSpacing: "-1px",
+                  lineHeight: 1,
+                }}
+              >
+                {currentFollowersDisplay !== null ? Number(currentFollowersDisplay).toLocaleString() : "..."}
+              </Typography>
+              <Typography sx={{ fontSize: 18, color: "#d1fae5", fontWeight: 600 }}>Followers</Typography>
+            </Box>
+
+            <Typography sx={{ fontSize: 13, color: "#a7f3d0", mt: 0.5 }}>
+              {account?.username ? `@${account.username}` : "Instagram Professional Account"} · {account?.media_count || 0} Published Posts {lastFollowerCheck && `· Polled at ${lastFollowerCheck}`}
+            </Typography>
+          </Box>
+
+          {/* Quick Metrics Grid */}
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: 1.5,
+              background: "rgba(0, 0, 0, 0.2)",
+              backdropFilter: "blur(10px)",
+              p: 2,
+              borderRadius: "16px",
+              border: "1px solid rgba(255, 255, 255, 0.15)",
+            }}
+          >
+            <Box sx={{ textAlign: "center" }}>
+              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>24H REACH</Typography>
+              <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mt: 0.2 }}>
+                {account?.reach !== null && account?.reach !== undefined ? account.reach.toLocaleString() : "Active"}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>ENGAGEMENT</Typography>
+              <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mt: 0.2 }}>
+                {account?.engagement !== null && account?.engagement !== undefined ? `${account.engagement}%` : "High"}
+              </Typography>
+            </Box>
+            <Box sx={{ textAlign: "center" }}>
+              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>STATUS</Typography>
+              <Typography sx={{ fontSize: 16, fontWeight: 800, color: config.running ? "#34d399" : "#fca5a5", mt: 0.4 }}>
+                {config.running ? "🟢 Running" : "⏸️ Paused"}
               </Typography>
             </Box>
           </Box>
-          <Chip
-            icon={apiConfigured ? <CheckCircleIcon /> : <ErrorOutlineIcon />}
-            label={apiConfigured ? "Meta Connected" : "Token Required"}
-            color={apiConfigured ? "success" : "warning"}
-            size="small"
-            sx={{ fontWeight: 700 }}
-          />
         </Box>
+
         {accountError && (
-          <Alert severity="warning" sx={{ mt: 2, borderRadius: "12px" }}>
+          <Alert severity="warning" sx={{ mt: 2, borderRadius: "12px", bgcolor: "rgba(255,255,255,0.9)", color: "#111" }}>
             {accountError}
           </Alert>
         )}
       </Paper>
 
-      {/* Automation Strategy & Scheduler Settings */}
+      {/* ── 6 VIRAL 4K NATURE REELS STUDIOS ── */}
       <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...title, fontSize: 18, mb: 0.5 }}>⚙️ Daily Publishing Schedule & Strategy</Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
+          <Typography sx={{ ...title, fontSize: 19 }}>
+            🌿 6 Viral 4K Nature Reels Studios (1-Click AI Generation)
+          </Typography>
+          <Chip label="100% Unique · Never Repeated" size="small" sx={{ bgcolor: "#ecfdf5", color: "#059669", fontWeight: 800 }} />
+        </Box>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", fontSize: 13, mb: 2.5 }}>
-          The agent automatically drafts a 100% unique quote every morning, creates matching 9:16 visuals with Gemini, and publishes to Instagram at your chosen time.
+          Select any Nature Realm below to instantly generate a breathtaking 8K animated video reel with matching atmospheric audio soundscape:
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
-          <TextField
-            label="Niche Focus"
-            value={config.niche || "Daily Motivation, Career, Strength & Life Wisdom"}
-            onChange={(e) => set("niche", e.target.value)}
-            sx={field}
-            fullWidth
-          />
-          <TextField
-            label="Daily Fixed Post Time (IST) ⏰"
-            value={config.dailyPostTime || "07:00"}
-            onChange={(e) => set("dailyPostTime", e.target.value)}
-            placeholder="e.g. 07:00 (7:00 AM IST) or 18:00 (6:00 PM IST)"
-            helperText="Autonomous agent generates & publishes 1 unique quote post daily at this fixed time"
-            sx={field}
-            fullWidth
-          />
-          <FormControl sx={field} fullWidth>
-            <InputLabel>Content Mode</InputLabel>
-            <Select
-              label="Content Mode"
-              value={config.contentMode || "both"}
-              onChange={(e) => set("contentMode", e.target.value)}
-            >
-              <MenuItem value="post">Posts (9:16 Vertical Visual + Quote)</MenuItem>
-              <MenuItem value="reel">Reels (Scripted Video + Quote)</MenuItem>
-              <MenuItem value="both">Posts & Reels Alternating</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            label="Daily Posts Count"
-            type="number"
-            value={config.postsPerDay || 1}
-            onChange={(e) => set("postsPerDay", Number(e.target.value))}
-            inputProps={{ min: 1, max: 3 }}
-            helperText="Recommended: 1 post per day for maximum organic reach"
-            sx={field}
-            fullWidth
-          />
-        </Box>
-
-        {/* ── AUDIENCE GROWTH LEARNER INTELLIGENCE ── */}
-        <Box sx={{ mt: 3, p: 2.5, borderRadius: "14px", background: "#fbfbfd", border: "1px solid #eef" }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, flexWrap: "wrap", gap: 1 }}>
-            <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15, color: "#1a1a2e", display: "flex", alignItems: "center", gap: 1 }}>
-              🎯 AI Audience Growth Learner: <span style={{ color: "#7928ca", fontWeight: 800 }}>{config.topAudienceCategory || "Career & Success"}</span>
-            </Typography>
-            <Chip label="Self-Optimizing on Likes, Saves & Reach" size="small" sx={{ bgcolor: "#efe7ff", color: "#6200ee", fontWeight: 700, fontSize: 11 }} />
-          </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "#666", lineHeight: 1.5 }}>
-            The AI automatically analyzes which quote themes your followers engage with most (likes, comments, views & saves) and prioritizes generating more of your audience's favorite categories.
-          </Typography>
-        </Box>
-
-        <Box sx={{ display: "flex", gap: 1.2, mt: 2.5, flexWrap: "wrap" }}>
-          <Button
-            variant="outlined"
-            onClick={saveConfig}
-            disabled={saving}
-            sx={{
-              borderRadius: "12px",
-              textTransform: "none",
-              color: "#1a1a2e",
-              borderColor: "#1a1a2e",
-              fontWeight: 700,
-            }}
-          >
-            Save Schedule
-          </Button>
-          <Button
-            variant="contained"
-            startIcon={config.running ? <StopIcon /> : <PlayArrowIcon />}
-            disabled={saving}
-            onClick={() => setRunning(!config.running)}
-            sx={{
-              borderRadius: "12px",
-              textTransform: "none",
-              bgcolor: config.running ? "#8a2d2d" : "#1a1a2e",
-              fontWeight: 700,
-            }}
-          >
-            {config.running ? "Stop Agent" : "Start Autonomous Agent"}
-          </Button>
-        </Box>
-      </Paper>
-
-      {/* ── 5 PILLARS MOTIVATIONAL QUOTES STUDIO ── */}
-      <Paper sx={{ ...card, mb: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1, flexWrap: "wrap", gap: 1 }}>
-          <Box>
-            <Typography sx={{ ...title, fontSize: 18, mb: 0.5 }}>🔥 1-Click Quote & Visual Generator (5 Life Pillars)</Typography>
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", fontSize: 13 }}>
-              Select any pillar to instantly draft a 100% unique quote with author attribution, Hindi meaning, 3 action lessons, and context-matching 9:16 visual prompt.
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* 5 Pillar Quick Buttons */}
-        <Box sx={{ display: "flex", gap: 1, overflowX: "auto", py: 1.5, mb: 2, "&::-webkit-scrollbar": { height: 6 }, "&::-webkit-scrollbar-thumb": { background: "#ddd", borderRadius: 3 } }}>
-          {THEME_PILLARS.map((pillar) => (
-            <Chip
-              key={pillar.id}
-              icon={<span>{pillar.emoji}</span>}
-              label={`${pillar.title} (${pillar.speaker})`}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
+          {NATURE_REALMS.map((r) => (
+            <Paper
+              key={r.id}
               onClick={() => {
-                setSelectedCategory(pillar.title);
-                generate(null, pillar.title);
+                setSelectedRealm(r.realm);
+                generate(null, r.realm);
               }}
               sx={{
-                p: 1.8,
-                borderRadius: "12px",
-                fontFamily: "'DM Sans', sans-serif",
-                fontWeight: 600,
-                fontSize: 12,
+                p: 2.5,
+                borderRadius: "16px",
+                border: selectedRealm === r.realm ? `2px solid ${r.color}` : "1px solid #eef",
+                bgcolor: selectedRealm === r.realm ? r.bg : "#fff",
                 cursor: "pointer",
-                background: selectedCategory === pillar.title ? "#ede9fe" : "#f7f7f9",
-                border: `1px solid ${selectedCategory === pillar.title ? "#7c3aed" : "#e8e8ed"}`,
-                color: selectedCategory === pillar.title ? "#6d28d9" : "#1a1a2e",
-                "&:hover": { background: "#ececf5" },
+                transition: "all 0.2s ease",
+                "&:hover": {
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
+                  borderColor: r.color,
+                },
               }}
-            />
+            >
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+                <Typography sx={{ fontSize: 24 }}>{r.emoji}</Typography>
+                <Chip label="Generate Reel" size="small" sx={{ bgcolor: r.color, color: "#fff", fontWeight: 700, fontSize: 10 }} />
+              </Box>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 15, color: "#1a1a2e" }}>
+                {r.title}
+              </Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#666", mt: 0.5 }}>
+                {r.sample}
+              </Typography>
+            </Paper>
           ))}
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+        <Divider sx={{ my: 3 }} />
+
+        {/* Custom Nature Reel Prompt Builder */}
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
           <TextField
-            label="Custom Topic / Keyword (Optional)"
+            label="Custom Nature Scene / Wonder (Optional)"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Overcoming Fear of Failure, Morning Habits, Silent Execution"
-            sx={{ ...field, flex: 1, minWidth: 240 }}
+            placeholder="e.g. Glowing Turquoise Glacial Lagoon in Iceland, Autumn Birch River Fog"
+            sx={{ ...field, flex: 1, minWidth: 260 }}
           />
-          <FormControl sx={{ ...field, minWidth: 180 }}>
-            <InputLabel>Category Pillar</InputLabel>
+          <FormControl sx={{ ...field, minWidth: 200 }}>
+            <InputLabel>Nature Realm</InputLabel>
             <Select
-              label="Category Pillar"
-              value={selectedCategory}
-              onChange={(e) => setSelectedCategory(e.target.value)}
+              label="Nature Realm"
+              value={selectedRealm}
+              onChange={(e) => setSelectedRealm(e.target.value)}
             >
-              <MenuItem value="Career & Success">🚀 Career & Success</MenuItem>
-              <MenuItem value="Strength & Resilience">🛡️ Strength & Resilience</MenuItem>
-              <MenuItem value="Health & Vitality">🌿 Health & Vitality</MenuItem>
-              <MenuItem value="Life & How to Live">🌌 Life & How to Live</MenuItem>
-              <MenuItem value="Discipline & Habits">⚡ Discipline & Habits</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl sx={{ ...field, minWidth: 110 }}>
-            <InputLabel>Format</InputLabel>
-            <Select
-              label="Format"
-              value={draftType}
-              onChange={(e) => setDraftType(e.target.value)}
-            >
-              <MenuItem value="post">Post</MenuItem>
-              <MenuItem value="reel">Reel</MenuItem>
+              {NATURE_REALMS.map((r) => (
+                <MenuItem key={r.id} value={r.realm}>
+                  {r.emoji} {r.title}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <Button
@@ -601,28 +580,87 @@ export default function InstagramGrowthAgent() {
             sx={{
               borderRadius: "12px",
               textTransform: "none",
-              background: "linear-gradient(135deg, #1a1a2e 0%, #4338ca 100%)",
+              background: "linear-gradient(135deg, #065f46 0%, #047857 100%)",
               color: "#fff",
               fontWeight: 800,
               px: 3,
-              py: 1.2,
-              boxShadow: "0 4px 14px rgba(67, 56, 202, 0.35)",
+              py: 1.3,
+              boxShadow: "0 4px 14px rgba(4, 120, 87, 0.35)",
               "&:hover": {
-                background: "linear-gradient(135deg, #111122 0%, #3730a3 100%)",
+                background: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
               },
             }}
           >
-            ⚡ Generate Unique Quote
+            ⚡ Generate 8K Nature Reel
           </Button>
         </Box>
       </Paper>
 
-      {/* Content Queue */}
+      {/* ── AUTOMATION STRATEGY & SCHEDULER SETTINGS ── */}
       <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...title, fontSize: 18, mb: 2 }}>Content Queue & Daily Drafts</Typography>
+        <Typography sx={{ ...title, fontSize: 18, mb: 0.5 }}>⚙️ Daily Publishing Schedule & Strategy</Typography>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", fontSize: 13, mb: 2.5 }}>
+          The autonomous agent automatically drafts a 100% unique Nature Reel every day with matching atmospheric soundscape, generates 9:16 animations with Gemini, and publishes to Instagram at your chosen time.
+        </Typography>
+
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+          <TextField
+            label="Niche Focus"
+            value={config.niche || "4K Nature, Earth Cinematography, Relaxation & Visual Serenity"}
+            onChange={(e) => set("niche", e.target.value)}
+            sx={field}
+            fullWidth
+          />
+          <TextField
+            label="Daily Fixed Post Time (IST) ⏰"
+            value={config.dailyPostTime || "07:00"}
+            onChange={(e) => set("dailyPostTime", e.target.value)}
+            placeholder="e.g. 07:00 (7:00 AM IST) or 18:00 (6:00 PM IST)"
+            helperText="Autonomous agent generates & publishes 1 unique nature reel daily at this fixed time"
+            sx={field}
+            fullWidth
+          />
+        </Box>
+
+        <Box sx={{ display: "flex", gap: 1.2, mt: 2.5, flexWrap: "wrap" }}>
+          <Button
+            variant="outlined"
+            onClick={saveConfig}
+            disabled={saving}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              borderColor: "#1a1a2e",
+              color: "#1a1a2e",
+              fontWeight: 700,
+            }}
+          >
+            Save Strategy
+          </Button>
+          <Button
+            variant="contained"
+            onClick={toggleAgent}
+            disabled={saving}
+            startIcon={config.running ? <StopIcon /> : <PlayArrowIcon />}
+            sx={{
+              borderRadius: "12px",
+              textTransform: "none",
+              bgcolor: config.running ? "#d32f2f" : "#059669",
+              fontWeight: 800,
+              "&:hover": { bgcolor: config.running ? "#b71c1c" : "#047857" },
+            }}
+          >
+            {config.running ? "Pause Autonomous Scheduler" : "Start Autonomous Scheduler"}
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* ── CONTENT QUEUE & DAILY NATURE REELS ── */}
+      <Paper sx={{ ...card, mb: 3 }}>
+        <Typography sx={{ ...title, fontSize: 18, mb: 2 }}>Content Queue & Daily Nature Reels</Typography>
         {content.length === 0 ? (
           <Typography sx={{ color: "#888" }}>
-            No drafts yet. Click any pillar above to generate your first unique motivational quote!
+            No drafts yet. Click any Nature Realm above to generate your first 8K nature reel!
           </Typography>
         ) : (
           content.map((item) => (
@@ -633,18 +671,18 @@ export default function InstagramGrowthAgent() {
                 pt: 2.5,
                 mt: 2.5,
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "170px 1fr" },
+                gridTemplateColumns: { xs: "1fr", sm: "190px 1fr" },
                 gap: 2.5,
               }}
             >
-              {/* 9:16 Vertical Visual Thumbnail */}
+              {/* 9:16 Vertical Video / Visual Preview */}
               <Box
                 sx={{
                   width: "100%",
-                  height: 240,
-                  borderRadius: "14px",
+                  height: 270,
+                  borderRadius: "16px",
                   overflow: "hidden",
-                  bgcolor: "#f5f5f7",
+                  bgcolor: "#000",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -653,11 +691,13 @@ export default function InstagramGrowthAgent() {
                 }}
               >
                 {item.assetUrl ? (
-                  item.type === "reel" && item.assetSource === "ai_video" ? (
+                  item.assetUrl.toLowerCase().endsWith(".mp4") || item.type === "reel" ? (
                     <video
                       src={item.assetUrl}
                       style={{ width: "100%", height: "100%", objectFit: "cover" }}
                       controls
+                      loop
+                      playsInline
                     />
                   ) : (
                     <img
@@ -668,32 +708,32 @@ export default function InstagramGrowthAgent() {
                   )
                 ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
                   <Box sx={{ textAlign: "center", p: 1 }}>
-                    <CircularProgress size={24} />
-                    <Typography sx={{ fontSize: 10, color: "#777", mt: 1 }}>Generating in Gemini...</Typography>
+                    <CircularProgress size={26} sx={{ color: "#34d399" }} />
+                    <Typography sx={{ fontSize: 11, color: "#fff", mt: 1 }}>Generating in Gemini...</Typography>
                   </Box>
                 ) : (
                   <Box sx={{ textAlign: "center", p: 1 }}>
-                    <ImageNotSupportedIcon sx={{ color: "#bbb", fontSize: 32 }} />
-                    <Typography sx={{ fontSize: 10, color: "#999", mt: 0.5 }}>No Media</Typography>
+                    <ImageNotSupportedIcon sx={{ color: "#666", fontSize: 36 }} />
+                    <Typography sx={{ fontSize: 11, color: "#aaa", mt: 0.5 }}>No Media Generated</Typography>
                   </Box>
                 )}
                 <Chip
-                  label="Google Gemini (9:16)"
+                  label="Gemini 8K Video (9:16)"
                   size="small"
                   sx={{
                     position: "absolute",
-                    top: 6,
-                    left: 6,
-                    bgcolor: "rgba(0,0,0,0.75)",
-                    color: "#fff",
+                    top: 8,
+                    left: 8,
+                    bgcolor: "rgba(0,0,0,0.8)",
+                    color: "#34d399",
                     fontSize: 9,
-                    fontWeight: 700,
-                    height: 20,
+                    fontWeight: 800,
+                    height: 22,
                   }}
                 />
               </Box>
 
-              {/* Post Details & Controls */}
+              {/* Reel Details & Publishing Actions */}
               <Box>
                 <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
@@ -702,22 +742,15 @@ export default function InstagramGrowthAgent() {
                       size="small"
                       sx={{
                         fontWeight: 700,
-                        bgcolor: item.status === "published" ? "#2e7d32" : item.status === "ready" ? "#15803d" : "#1a1a2e",
+                        bgcolor: item.status === "published" ? "#059669" : item.status === "ready" ? "#0284c7" : "#1a1a2e",
                         color: "#fff",
                       }}
                     />
                     <Chip
-                      label={item.themeCategory || "Career & Success"}
+                      label={item.themeCategory || "Celestial & Aurora"}
                       size="small"
-                      sx={{ bgcolor: "#ede9fe", color: "#6d28d9", fontWeight: 700, fontSize: 11 }}
+                      sx={{ bgcolor: "#ecfdf5", color: "#065f46", fontWeight: 800, fontSize: 11 }}
                     />
-                    {item.speaker && (
-                      <Chip
-                        label={`— ${item.speaker}`}
-                        size="small"
-                        sx={{ bgcolor: "#e0f2fe", color: "#0369a1", fontWeight: 700, fontSize: 11 }}
-                      />
-                    )}
                   </Box>
                   <IconButton
                     size="small"
@@ -729,16 +762,27 @@ export default function InstagramGrowthAgent() {
                   </IconButton>
                 </Box>
 
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 15, mt: 1 }}>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, mt: 1 }}>
                   {item.topic}
                 </Typography>
+
+                {/* Soundscape & Script Badge */}
+                {item.trendingAudioSuggestion && (
+                  <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
+                    <Chip
+                      label={item.trendingAudioSuggestion}
+                      size="small"
+                      sx={{ bgcolor: "#f0fdf4", color: "#15803d", fontWeight: 700, fontSize: 11 }}
+                    />
+                  </Box>
+                )}
 
                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#333" }}>
                   {item.caption}
                 </Typography>
 
                 {item.hashtags?.length > 0 && (
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#0077b5", fontSize: 12, mt: 0.8 }}>
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#0284c7", fontSize: 12, mt: 0.8 }}>
                     {item.hashtags.join(" ")}
                   </Typography>
                 )}
@@ -749,75 +793,44 @@ export default function InstagramGrowthAgent() {
                     mt: 1.5,
                     p: 1.5,
                     borderRadius: "12px",
-                    bgcolor: "#f0f4ff",
-                    border: "1px solid #d0e0fc",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 1,
+                    bgcolor: item.assetUrl ? "#f0fdf4" : item.mediaGenerationError ? "#fef2f2" : "#f5f5f7",
+                    border: `1px solid ${item.assetUrl ? "#bbf7d0" : item.mediaGenerationError ? "#fecaca" : "#e5e5ea"}`,
                   }}
                 >
-                  <Box>
-                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#1a1a2e" }}>
-                      ✨ Google Gemini 9:16 Visual Creator (Zero Fallback)
-                    </Typography>
-                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#555" }}>
-                      {item.assetUrl
-                        ? "✅ Visual rendered in Gemini & uploaded to Cloudinary"
-                        : "Ready to launch Gemini browser automation to create matching 9:16 background visual"}
-                    </Typography>
+                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <AutoAwesomeIcon sx={{ color: item.assetUrl ? "#16a34a" : "#0284c7", fontSize: 18 }} />
+                      <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700 }}>
+                        {item.assetUrl
+                          ? "✨ 8K Nature Reel Generated by Gemini & Hosted on Cloudinary"
+                          : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
+                          ? "⏳ Gemini is rendering the animated video..."
+                          : item.mediaGenerationError
+                          ? `⚠️ Status: ${item.mediaGenerationError}`
+                          : "Gemini 8K Video Generator Ready"}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1 }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        onClick={() => handleGenerateMedia(item._id)}
+                        disabled={generatingMediaId === item._id || saving}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700 }}
+                      >
+                        {item.assetUrl ? "Regenerate Video" : "Generate 8K Video with Gemini"}
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => publishNow(item._id)}
+                        disabled={!item.assetUrl || saving}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#059669" }}
+                      >
+                        Publish to Instagram Now
+                      </Button>
+                    </Box>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      variant="contained"
-                      size="small"
-                      disabled={runningFlowLiveId === item._id || generatingMediaId === item._id}
-                      onClick={() => watchGoogleGeminiLive(item)}
-                      sx={{
-                        borderRadius: "8px",
-                        textTransform: "none",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        bgcolor: "#1a1a2e",
-                        color: "#fff",
-                        "&:hover": { bgcolor: "#2a2a3e" },
-                      }}
-                    >
-                      {runningFlowLiveId === item._id ? "Creating..." : "⚡ Create with Gemini"}
-                    </Button>
-                  </Box>
-                </Box>
-
-                {/* Bottom Actions */}
-                <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
-                  <Button
-                    variant="contained"
-                    size="small"
-                    disabled={saving || !item.assetUrl}
-                    onClick={() => publish(item)}
-                    sx={{
-                      borderRadius: "10px",
-                      textTransform: "none",
-                      bgcolor: "#1a1a2e",
-                      fontWeight: 700,
-                      fontSize: 12,
-                    }}
-                  >
-                    Publish to Instagram Now
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    startIcon={<MusicNoteIcon />}
-                    onClick={() => {
-                      setSelectedContentForAudio(item._id);
-                      setMusicModalOpen(true);
-                    }}
-                    sx={{ borderRadius: "10px", textTransform: "none", fontSize: 12 }}
-                  >
-                    {item.audioTrack?.title ? `🎵 ${item.audioTrack.title}` : "Attach Audio"}
-                  </Button>
                 </Box>
               </Box>
             </Box>
@@ -825,162 +838,124 @@ export default function InstagramGrowthAgent() {
         )}
       </Paper>
 
-      {/* ── LIVE GOOGLE GEMINI INSPECTOR MODAL ── */}
+      {/* ── RECENT AGENT ACTIVITIES ── */}
+      <Paper sx={card}>
+        <Typography sx={{ ...title, fontSize: 18, mb: 2 }}>⚡ Live Agent Activity Audit Log</Typography>
+        {activities.length === 0 ? (
+          <Typography sx={{ color: "#888" }}>No recent activities logged.</Typography>
+        ) : (
+          activities.slice(0, 8).map((act) => (
+            <Box key={act._id} sx={{ py: 1, borderBottom: "1px solid #f5f5f5" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600 }}>
+                {act.description}
+              </Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#999" }}>
+                {new Date(act.createdAt).toLocaleString()} · {act.action}
+              </Typography>
+            </Box>
+          ))
+        )}
+      </Paper>
+
+      {/* ── GOOGLE GEMINI REAL-TIME INSPECTOR DIALOG ── */}
       <Dialog
         open={flowInspectorOpen}
         onClose={() => setFlowInspectorOpen(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: "20px" } }}
+        PaperProps={{ sx: { borderRadius: "18px" } }}
       >
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <AutoAwesomeIcon sx={{ color: "#7c3aed" }} />
-            <Typography sx={{ ...title, fontSize: 18 }}>Google Gemini Autonomous Creation</Typography>
+            <AutoAwesomeIcon sx={{ color: "#059669" }} />
+            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 17 }}>
+              Google Gemini Autonomous Video Inspector
+            </Typography>
           </Box>
-          <IconButton size="small" onClick={() => setFlowInspectorOpen(false)}>
+          <IconButton onClick={() => setFlowInspectorOpen(false)} size="small">
             <CloseIcon />
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#666", mb: 2 }}>
-            Prompt: <b>{flowInspectorSession?.prompt || "Creating 9:16 contextual background..."}</b>
-          </Typography>
-
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            {flowInspectorSession?.steps?.map((st, idx) => (
-              <Box
-                key={idx}
-                sx={{
-                  p: 1.5,
-                  borderRadius: "10px",
-                  bgcolor: "#f8f9fa",
-                  border: "1px solid #e9ecef",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13 }}>
-                    {st.step}
-                  </Typography>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#666" }}>
-                    {st.detail}
-                  </Typography>
-                </Box>
-                <Typography sx={{ fontSize: 11, color: "#999" }}>{st.timestamp || ""}</Typography>
+          {flowInspectorSession ? (
+            <Box>
+              <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#555", mb: 1 }}>
+                Prompt: "{flowInspectorSession.prompt}"
+              </Typography>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 2 }}>
+                {flowInspectorSession.steps?.map((st, idx) => (
+                  <Box key={idx} sx={{ p: 1.5, bgcolor: "#f9fafb", borderRadius: "10px", border: "1px solid #eee" }}>
+                    <Typography sx={{ fontWeight: 800, fontSize: 13, color: "#111" }}>{st.step}</Typography>
+                    <Typography sx={{ fontSize: 12, color: "#666" }}>{st.detail}</Typography>
+                  </Box>
+                ))}
               </Box>
-            ))}
-          </Box>
+            </Box>
+          ) : (
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <CircularProgress size={32} sx={{ color: "#059669" }} />
+              <Typography sx={{ mt: 2, fontSize: 13, color: "#666" }}>Initializing Gemini connection...</Typography>
+            </Box>
+          )}
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setFlowInspectorOpen(false)} sx={{ borderRadius: "10px", textTransform: "none" }}>
+        <DialogActions>
+          <Button onClick={() => setFlowInspectorOpen(false)} sx={{ textTransform: "none" }}>
             Close
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* ── MUSIC CATALOG MODAL ── */}
-      <Dialog
-        open={musicModalOpen}
-        onClose={() => setMusicModalOpen(false)}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: "20px" } }}
-      >
-        <DialogTitle sx={{ ...title, fontSize: 18 }}>Select Royalty-Free Audio Track</DialogTitle>
-        <DialogContent dividers>
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-            {availableTracks.map((track) => (
-              <Box
-                key={track.id}
-                sx={{
-                  p: 1.5,
-                  borderRadius: "12px",
-                  border: "1px solid #e0e0e0",
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  "&:hover": { bgcolor: "#f9f9f9" },
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14 }}>
-                    🎵 {track.title}
-                  </Typography>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#777" }}>
-                    {track.genre} · {track.duration}s · {track.artist}
-                  </Typography>
-                </Box>
-                <Button
-                  variant="outlined"
-                  size="small"
-                  onClick={() => attachAudioTrack(selectedContentForAudio, track.id)}
-                  sx={{ borderRadius: "8px", textTransform: "none", fontSize: 12 }}
-                >
-                  Select
-                </Button>
-              </Box>
-            ))}
-          </Box>
-        </DialogContent>
-      </Dialog>
-
-      {/* ── LONG-LIVED TOKEN MODAL ── */}
+      {/* ── 60-DAY LONG LIVED TOKEN MODAL ── */}
       <Dialog
         open={tokenModalOpen}
         onClose={() => setTokenModalOpen(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ sx: { borderRadius: "20px" } }}
+        PaperProps={{ sx: { borderRadius: "18px" } }}
       >
-        <DialogTitle sx={{ ...title, fontSize: 18 }}>Meta 60-Day Long-Lived Access Token</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800 }}>60-Day Meta Long-Lived Token</DialogTitle>
         <DialogContent dividers>
           {exchangingToken ? (
-            <Box sx={{ display: "flex", gap: 2, alignItems: "center", py: 2 }}>
-              <CircularProgress size={24} />
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif" }}>Exchanging token with Meta Graph API…</Typography>
+            <Box sx={{ textAlign: "center", py: 4 }}>
+              <CircularProgress />
+              <Typography sx={{ mt: 2, fontSize: 13 }}>Exchanging token with Meta Graph API...</Typography>
             </Box>
+          ) : longLivedResult?.error ? (
+            <Alert severity="error">{longLivedResult.error}</Alert>
           ) : longLivedResult?.longLivedToken ? (
             <Box>
-              <Alert severity="success" sx={{ mb: 2, borderRadius: "12px" }}>
-                60-Day Long-Lived Token generated successfully! (Expires in ~{longLivedResult.expiresInDays} days)
+              <Alert severity="success" sx={{ mb: 2 }}>
+                Token generated! Valid for ~{longLivedResult.expiresInDays} days.
               </Alert>
               <TextField
+                label="Long-Lived Access Token"
+                value={longLivedResult.longLivedToken}
                 fullWidth
                 multiline
-                rows={3}
-                value={longLivedResult.longLivedToken}
-                InputProps={{ readOnly: true }}
+                rows={4}
                 sx={field}
+                InputProps={{ readOnly: true }}
               />
-              <Button
-                variant="outlined"
-                startIcon={<ContentCopyIcon />}
-                onClick={() => {
-                  navigator.clipboard.writeText(longLivedResult.longLivedToken);
-                  notify("Token copied to clipboard!");
-                }}
-                sx={{ mt: 1.5, borderRadius: "10px", textTransform: "none" }}
-              >
-                Copy Token
-              </Button>
             </Box>
-          ) : (
-            <Alert severity="error" sx={{ borderRadius: "12px" }}>
-              {longLivedResult?.error || "Could not generate long-lived token. Ensure META_ACCESS_TOKEN is valid."}
-            </Alert>
-          )}
+          ) : null}
         </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setTokenModalOpen(false)} sx={{ textTransform: "none" }}>
+            Done
+          </Button>
+        </DialogActions>
       </Dialog>
 
+      {/* Snackbar Notification */}
       <Snackbar
         open={snack.open}
-        autoHideDuration={4000}
+        autoHideDuration={5000}
         onClose={() => setSnack((prev) => ({ ...prev, open: false }))}
-        message={snack.text}
-      />
+      >
+        <Alert severity={snack.severity} sx={{ borderRadius: "12px" }}>
+          {snack.text}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 }
