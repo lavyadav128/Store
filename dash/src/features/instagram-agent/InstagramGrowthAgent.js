@@ -699,14 +699,22 @@ export default function InstagramGrowthAgent() {
                 }}
               >
                 {item.assetUrl ? (
-                  <video
-                    src={item.assetUrl}
-                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    controls
-                    loop
-                    playsInline
-                    preload="metadata"
-                  />
+                  item.assetUrl.toLowerCase().endsWith(".mp4") || item.assetUrl.toLowerCase().includes("/video/upload/") ? (
+                    <video
+                      src={item.assetUrl}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      controls
+                      loop
+                      playsInline
+                      preload="metadata"
+                    />
+                  ) : (
+                    <img
+                      src={item.assetUrl}
+                      alt={item.topic}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    />
+                  )
                 ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
                   <Box sx={{ textAlign: "center", p: 2 }}>
                     <CircularProgress size={28} sx={{ color: "#ffffff" }} />

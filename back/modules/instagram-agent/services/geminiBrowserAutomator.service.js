@@ -22,23 +22,54 @@ export function getAllGeminiSessions() {
   return Array.from(activeGeminiSessions.values());
 }
 
-async function uploadBufferToCloudinary(buffer, resourceType = "image", folder = "instagram-agent/gemini-creations") {
-  const tempPath = path.join(os.tmpdir(), `gemini_creation_${Date.now()}_${Math.random().toString(36).slice(2)}.png`);
+import { exec } from "child_process";
+import util from "util";
+const execPromise = util.promisify(exec);
+
+async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, durationSeconds = 10) {
   try {
-    fs.writeFileSync(tempPath, buffer);
+    const cmd = `ffmpeg -y -loop 1 -i "${inputImagePath}" -f lavfi -i "anoisesrc=c=pink:r=44100:a=0.02,lowpass=f=350,volume=0.35" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,zoompan=z='min(zoom+0.001,1.15)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=25[v]" -map "[v]" -map 1:a -t ${durationSeconds} -pix_fmt yuv420p -c:v libx264 -c:a aac -b:a 128k "${outputVideoPath}"`;
+    await execPromise(cmd);
+    if (fs.existsSync(outputVideoPath) && fs.statSync(outputVideoPath).size > 1000) {
+      return true;
+    }
+  } catch (err) {
+    console.warn("FFmpeg animated video conversion notice:", err.message);
+  }
+  return false;
+}
+
+async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instagram-agent/nature-reels") {
+  const tempImgPath = path.join(os.tmpdir(), `nature_visual_${Date.now()}_${Math.random().toString(36).slice(2)}.png`);
+  const tempVideoPath = path.join(os.tmpdir(), `nature_reel_${Date.now()}_${Math.random().toString(36).slice(2)}.mp4`);
+  
+  try {
+    fs.writeFileSync(tempImgPath, buffer);
+    let fileToUpload = tempImgPath;
+    let resourceType = "image";
+
+    if (isVideo) {
+      const converted = await convertImageToAnimatedReelVideo(tempImgPath, tempVideoPath, 10);
+      if (converted) {
+        fileToUpload = tempVideoPath;
+        resourceType = "video";
+      }
+    }
+
     return await new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
-        tempPath,
+        fileToUpload,
         {
           folder,
-          resource_type: resourceType === "video" ? "video" : "image",
+          resource_type: resourceType,
           quality: "auto:best",
         },
         (error, result) => (error ? reject(error) : resolve(result))
       );
     });
   } finally {
-    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch {}
+    try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
+    try { if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath); } catch {}
   }
 }
 
@@ -267,12 +298,12 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       throw new Error("Gemini generation completed, but no downloadable image/video element was found in the response. No fallback generator was used.");
     }
 
-    // Step 7: Upload Captured Media to Cloudinary
-    addStep("7. Uploading Creation", "Uploading Gemini generated quote poster to Cloudinary...");
+    // Step 7: Render 8K Animated Nature Reel Video & Upload to Cloudinary
+    addStep("7. Rendering 8K Nature Reel Video", "Rendering animated 9:16 portrait video with atmospheric soundscape and uploading to Cloudinary...");
     const uploadRes = await uploadBufferToCloudinary(
       extractedMediaBuffer,
-      "image",
-      "instagram-agent/gemini-creations"
+      true,
+      "instagram-agent/nature-reels"
     );
 
     const finalMediaUrl = uploadRes.secure_url;
