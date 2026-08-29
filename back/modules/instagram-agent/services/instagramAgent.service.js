@@ -555,7 +555,11 @@ export async function publishContent(content) {
   await content.save();
 
   try {
-    const caption = `${content.caption}\n\n${content.hashtags.join(' ')}`.trim();
+    let baseCaption = content.caption || "";
+    if (!baseCaption.includes("Ultimate Dreams Anthem") && !baseCaption.includes("🎵")) {
+      baseCaption = `${baseCaption}\n\n🎵 Audio: "Ultimate Dreams Anthem" (Official Theme)`.trim();
+    }
+    const caption = `${baseCaption}\n\n${content.hashtags.join(' ')}`.trim();
     const creationPayload =
       content.type === 'reel'
         ? { media_type: 'REELS', video_url: content.assetUrl, caption, share_to_feed: 'true' }

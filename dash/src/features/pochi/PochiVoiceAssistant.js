@@ -14,30 +14,9 @@ import axios from "axios";
 import server from "../../shared/environment";
 import Pochi3DViewerModal from "./Pochi3DViewerModal.js";
 
-// Native Web Audio Synth Chime for Siri-like trigger sound
+// Silent helper to prevent audio context interruption on mobile
 function playSiriChime() {
-  try {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    const ctx = new AudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(587.33, ctx.currentTime); // D5
-    osc.frequency.exponentialRampToValueAtTime(880.0, ctx.currentTime + 0.08); // A5
-    osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.18); // D6
-
-    gain.gain.setValueAtTime(0.01, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.06);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.28);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start();
-    osc.stop(ctx.currentTime + 0.28);
-  } catch (e) {}
+  // Silent - avoids interrupting mobile background music
 }
 
 const WAKE_PATTERN = /\b(hey pochi|ok pochi|okay pochi|hi pochi|hello pochi|pochi|poki)\b/i;
@@ -468,68 +447,6 @@ export default function PochiVoiceAssistant({ onNavigate, activeView }) {
         } catch (e) {}
       }
       window.speechSynthesis?.cancel();
-    };
-  }, [wakePochi]);
-
-  // Ambient Voice Wake-Word Listener ("Pochi", "Hey Pochi", "Poki")
-  useEffect(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SpeechRecognition) return;
-
-    let ambientRec = null;
-    let isRunning = true;
-
-    const startAmbient = () => {
-      if (!isRunning || activeRef.current || speechSpeakingRef.current) return;
-      try {
-        ambientRec = new SpeechRecognition();
-        ambientRec.continuous = true;
-        ambientRec.interimResults = true;
-        ambientRec.lang = navigator.language || "en-US";
-
-        ambientRec.onresult = (e) => {
-          if (activeRef.current || speechSpeakingRef.current) return;
-          let text = "";
-          for (let i = e.resultIndex; i < e.results.length; i++) {
-            text += e.results[i][0].transcript;
-          }
-          text = text.trim();
-          if (WAKE_PATTERN.test(text)) {
-            const queryAfterWake = text.replace(WAKE_PATTERN, "").trim();
-            console.log("Pochi wake word called by admin. Query:", queryAfterWake);
-            try { ambientRec.stop(); } catch (err) {}
-            wakePochi(queryAfterWake);
-          }
-        };
-
-        ambientRec.onerror = (e) => {
-          if (e.error === "not-allowed") {
-            isRunning = false;
-            return;
-          }
-        };
-
-        ambientRec.onend = () => {
-          if (isRunning && !activeRef.current && !speechSpeakingRef.current) {
-            setTimeout(startAmbient, 600);
-          }
-        };
-
-        ambientRec.start();
-      } catch (err) {
-        if (isRunning && !activeRef.current) {
-          setTimeout(startAmbient, 2500);
-        }
-      }
-    };
-
-    startAmbient();
-
-    return () => {
-      isRunning = false;
-      if (ambientRec) {
-        try { ambientRec.stop(); } catch (e) {}
-      }
     };
   }, [wakePochi]);
 
