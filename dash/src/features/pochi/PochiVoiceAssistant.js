@@ -40,7 +40,7 @@ function playSiriChime() {
   } catch (e) {}
 }
 
-const WAKE_PATTERN = /\b(pochi|hey pochi|ok pochi|hi pochi|poki|pochee|pochie|pouchy|puji|poshi|poche|porchi|perchy)\b/i;
+const WAKE_PATTERN = /\b(hey pochi|ok pochi|okay pochi|hi pochi|hello pochi|pochi|poki)\b/i;
 
 const VIEW_MAP = {
   revenue: "revenue-recovery",

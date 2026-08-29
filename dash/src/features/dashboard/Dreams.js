@@ -85,10 +85,15 @@ const isVideo = (url = "") =>
   useEffect(() => {
     fetchMedia();
 
-    if (!audioRef.current) {
-      const audio = new Audio(SONG_PATH);
+    let audio = audioRef.current;
+    if (!audio) {
+      audio = new Audio(SONG_PATH);
       audio.loop = true;
       audio.volume = 0.6;
+      audio.onended = () => {
+        audio.currentTime = 0;
+        audio.play().catch(() => {});
+      };
       audioRef.current = audio;
     }
 
@@ -197,18 +202,11 @@ const isVideo = (url = "") =>
 
 
   const handleVideoPlay = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.pause();
-    setMusicOn(false);
+    // Do not pause background song - let it play continuously
   }, []);
   
   const handleVideoStop = useCallback(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    audio.play()
-      .then(() => setMusicOn(true))
-      .catch(() => {});
+    // Keep background music playing continuously
   }, []);
 
   // ── FIX: increased tolerance so normal scroll doesn't trigger drag ──
