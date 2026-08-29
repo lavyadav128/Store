@@ -17,9 +17,7 @@ import {
   Paper,
   Select,
   Snackbar,
-  Switch,
   TextField,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
@@ -27,19 +25,20 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
-import ImageNotSupportedIcon from "@mui/icons-material/ImageNotSupported";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CloseIcon from "@mui/icons-material/Close";
-import TrendingUpIcon from "@mui/icons-material/TrendingUp";
-import LandscapeIcon from "@mui/icons-material/Landscape";
-import ForestIcon from "@mui/icons-material/Forest";
-import WaterIcon from "@mui/icons-material/Water";
+import PlayCircleFilledWhiteIcon from "@mui/icons-material/PlayCircleFilledWhite";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import MovieCreationIcon from "@mui/icons-material/MovieCreation";
 import NightsStayIcon from "@mui/icons-material/NightsStay";
+import WaterIcon from "@mui/icons-material/Water";
+import ForestIcon from "@mui/icons-material/Forest";
 import SpaIcon from "@mui/icons-material/Spa";
+import LandscapeIcon from "@mui/icons-material/Landscape";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import server from "../../shared/environment";
 
@@ -48,35 +47,41 @@ const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
+// Sleek Monochrome Card & Field Styling matching Store Website
 const card = {
-  borderRadius: "20px",
-  border: "1px solid #f0f0f0",
-  boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-  p: { xs: 2, sm: 3 },
-  background: "#fff",
+  borderRadius: "16px",
+  border: "1px solid #e4e4e7",
+  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+  p: { xs: 2.5, sm: 3.5 },
+  background: "#ffffff",
 };
 
-const title = {
-  fontFamily: "'Playfair Display', serif",
+const titleStyle = {
+  fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   fontWeight: 800,
-  color: "#1a1a2e",
+  color: "#09090b",
+  letterSpacing: "-0.5px",
 };
 
 const field = {
   "& .MuiOutlinedInput-root": {
-    borderRadius: "13px",
+    borderRadius: "10px",
     fontFamily: "'DM Sans', sans-serif",
+    bgcolor: "#fafafa",
+    "& fieldset": { borderColor: "#e4e4e7" },
+    "&:hover fieldset": { borderColor: "#a1a1aa" },
+    "&.Mui-focused fieldset": { borderColor: "#09090b" },
   },
-  "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif" },
+  "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif", color: "#71717a" },
 };
 
 const NATURE_REALMS = [
-  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", emoji: "🌌", icon: <NightsStayIcon />, sample: "Bioluminescent Aurora over Arctic Fjord & Milky Way Core", color: "#6366f1", bg: "#eef2ff" },
-  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", emoji: "🌊", icon: <WaterIcon />, sample: "Emerald Jungle Waterfall Lagoon & Glowing Blue Surf", color: "#06b6d4", bg: "#ecfeff" },
-  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", emoji: "🌿", icon: <ForestIcon />, sample: "Misty Giant Redwoods with God Rays & Kyoto Bamboo Fireflies", color: "#10b981", bg: "#ecfdf5" },
-  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", emoji: "🌸", icon: <SpaIcon />, sample: "Pink Sakura Mountain Stream & Purple Lavender Sunset", color: "#ec4899", bg: "#fdf2f8" },
-  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", emoji: "🏔️", icon: <LandscapeIcon />, sample: "Golden Hour Alpenglow Matterhorn & Crystal Reflection Lake", color: "#f59e0b", bg: "#fffbeb" },
-  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", emoji: "❄️", icon: <AcUnitIcon />, sample: "Sapphire Glacial Ice Cave & Sparkling Diamond Sunbeams", color: "#0284c7", bg: "#f0f9ff" },
+  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord & Milky Way Galaxy Core" },
+  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", icon: <WaterIcon fontSize="small" />, sample: "Emerald Jungle Waterfall Lagoon & Neon Bioluminescent Waves" },
+  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", icon: <ForestIcon fontSize="small" />, sample: "Misty Giant Redwoods with God Rays & Kyoto Bamboo Fireflies" },
+  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", icon: <SpaIcon fontSize="small" />, sample: "Pink Sakura Mountain Streams & Sunset Purple Lavender Valleys" },
+  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", icon: <LandscapeIcon fontSize="small" />, sample: "Golden Alpenglow Mountain Summits & Crystal Alpine Lakes" },
+  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", icon: <AcUnitIcon fontSize="small" />, sample: "Sapphire Glacial Ice Caves & Diamond Sunbeam Refractions" },
 ];
 
 export default function InstagramGrowthAgent() {
@@ -88,18 +93,17 @@ export default function InstagramGrowthAgent() {
   const [generatingMediaId, setGeneratingMediaId] = useState(null);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
 
-  // Live Followers Real-Time Polling State
+  // Real-Time Live Followers Tracking State
   const [liveFollowers, setLiveFollowers] = useState(null);
-  const [prevFollowers, setPrevFollowers] = useState(null);
   const [hasFollowerIncremented, setHasFollowerIncremented] = useState(false);
   const [lastFollowerCheck, setLastFollowerCheck] = useState(null);
 
-  // Long-Lived Token Modal State
+  // 60-Day Long-Lived Token Modal State
   const [tokenModalOpen, setTokenModalOpen] = useState(false);
   const [exchangingToken, setExchangingToken] = useState(false);
   const [longLivedResult, setLongLivedResult] = useState(null);
 
-  // Live Google Gemini Autonomous Inspector State
+  // Autonomous Gemini Live Inspector Modal State
   const [flowInspectorOpen, setFlowInspectorOpen] = useState(false);
   const [flowInspectorSession, setFlowInspectorSession] = useState(null);
   const [runningFlowLiveId, setRunningFlowLiveId] = useState(null);
@@ -124,7 +128,7 @@ export default function InstagramGrowthAgent() {
     }
   }, []);
 
-  // Poll live followers count every 12 seconds in real-time
+  // Poll live follower count every 12 seconds
   const fetchLiveFollowers = useCallback(async () => {
     try {
       const res = await fetch(`${server}/api/instagram-agent/live-followers`, {
@@ -138,7 +142,6 @@ export default function InstagramGrowthAgent() {
               setHasFollowerIncremented(true);
               setTimeout(() => setHasFollowerIncremented(false), 8000);
             }
-            setPrevFollowers(current);
             return payload.followers;
           });
           setLastFollowerCheck(new Date().toLocaleTimeString());
@@ -169,7 +172,7 @@ export default function InstagramGrowthAgent() {
     try {
       const updated = await request("/config", "POST", config);
       setConfig(updated);
-      notify("Instagram growth configuration saved.");
+      notify("Instagram configuration saved.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -201,7 +204,7 @@ export default function InstagramGrowthAgent() {
         category: realmToUse,
         type: "reel",
       });
-      notify(`AI generated 8K Nature Reel [${realmToUse}]: "${created.topic}"`);
+      notify(`AI generated 8K Nature Reel: "${created.topic}"`);
       setTopic("");
       await load();
     } catch (error) {
@@ -252,7 +255,7 @@ export default function InstagramGrowthAgent() {
     setSaving(true);
     try {
       const published = await request(`/content/${contentId}/publish`, "POST");
-      notify(`Published Nature Reel to Instagram: ${published.topic}`);
+      notify(`Published Reel to Instagram: ${published.topic}`);
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -278,7 +281,7 @@ export default function InstagramGrowthAgent() {
     try {
       const res = await request("/exchange-token", "POST");
       setLongLivedResult(res);
-      notify("Successfully generated 60-Day Long-Lived Token!");
+      notify("Generated 60-Day Long-Lived Token!");
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -301,19 +304,18 @@ export default function InstagramGrowthAgent() {
   if (!data || !config) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
+        <CircularProgress sx={{ color: "#09090b" }} />
       </Box>
     );
   }
 
   const { account, accountError, content, activities, apiConfigured } = data;
   const set = (key, value) => setConfig((previous) => ({ ...previous, [key]: value }));
-
   const currentFollowersDisplay = liveFollowers !== null ? liveFollowers : (account?.followers_count ?? null);
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: "auto", pb: 4 }}>
-      {/* Top Header */}
+    <Box sx={{ maxWidth: 1100, mx: "auto", pb: 5, color: "#09090b" }}>
+      {/* ── TOP HEADER (MONOCHROME MINIMALIST) ── */}
       <Box
         sx={{
           display: "flex",
@@ -330,72 +332,83 @@ export default function InstagramGrowthAgent() {
               fontFamily: "'DM Sans', sans-serif",
               fontSize: 11,
               fontWeight: 800,
-              color: "#059669",
+              color: "#71717a",
               letterSpacing: "1.5px",
+              textTransform: "uppercase",
             }}
           >
-            4K NATURE & EARTH REELS · AUTONOMOUS AI AGENT
+            Autonomous Growth Agent · 4K Nature Video Reels
           </Typography>
-          <Typography sx={{ ...title, fontSize: { xs: 26, sm: 32 }, mt: 0.4 }}>
-            Daily Nature Reels & Growth Agent
+          <Typography sx={{ ...titleStyle, fontSize: { xs: 24, sm: 30 }, mt: 0.3 }}>
+            Instagram Video Reels & Growth Engine
           </Typography>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#666", mt: 0.6 }}>
-            Autonomous daily 8K Nature video reels (Aurora, Waterfalls, Ancient Forests, Alpine Peaks), Gemini animations with matching soundscapes, and live follower tracking.
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mt: 0.5 }}>
+            Automated daily 8K animated nature video reels generated by Gemini with pure atmospheric soundscapes.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<VpnKeyIcon />}
+            startIcon={<VpnKeyIcon fontSize="small" />}
             onClick={handleOpenGeminiLogin}
             sx={{
-              borderRadius: "10px",
+              borderRadius: "8px",
               textTransform: "none",
-              color: "#6d28d9",
-              borderColor: "#6d28d9",
+              color: "#09090b",
+              borderColor: "#d4d4d8",
               fontWeight: 700,
-              bgcolor: "#f5f3ff",
-              "&:hover": { bgcolor: "#ede9fe", borderColor: "#5b21b6" },
+              bgcolor: "#ffffff",
+              "&:hover": { bgcolor: "#f4f4f5", borderColor: "#09090b" },
             }}
           >
-            🔑 Open Gemini Login
+            Gemini Login
           </Button>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<RefreshIcon />}
+            startIcon={<RefreshIcon fontSize="small" />}
             onClick={load}
-            sx={{ borderRadius: "10px", textTransform: "none", color: "#1a1a2e" }}
+            sx={{
+              borderRadius: "8px",
+              textTransform: "none",
+              color: "#09090b",
+              borderColor: "#d4d4d8",
+              fontWeight: 700,
+              bgcolor: "#ffffff",
+              "&:hover": { bgcolor: "#f4f4f5", borderColor: "#09090b" },
+            }}
           >
             Refresh
           </Button>
           <Button
             variant="contained"
             size="small"
-            startIcon={<VpnKeyIcon />}
+            startIcon={<VpnKeyIcon fontSize="small" />}
             onClick={handleExchangeLongLivedToken}
             sx={{
-              borderRadius: "10px",
+              borderRadius: "8px",
               textTransform: "none",
-              bgcolor: "#1a1a2e",
+              bgcolor: "#09090b",
+              color: "#ffffff",
               fontWeight: 700,
+              "&:hover": { bgcolor: "#27272a" },
             }}
           >
-            Get 60-Day Token
+            60-Day Token
           </Button>
         </Box>
       </Box>
 
-      {/* ── REAL-TIME LIVE FOLLOWER TRACKER & ACCOUNT BANNER ── */}
+      {/* ── REAL-TIME LIVE FOLLOWER COUNTER (BLACK & WHITE OBSIDIAN) ── */}
       <Paper
         sx={{
-          ...card,
+          borderRadius: "16px",
+          border: "1px solid #18181b",
+          p: { xs: 2.5, sm: 3.5 },
           mb: 3,
-          background: "linear-gradient(135deg, #064e3b 0%, #065f46 50%, #047857 100%)",
-          color: "#fff",
-          position: "relative",
-          overflow: "hidden",
+          background: "#09090b",
+          color: "#ffffff",
         }}
       >
         <Box
@@ -404,36 +417,34 @@ export default function InstagramGrowthAgent() {
             gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr" },
             gap: 3,
             alignItems: "center",
-            position: "relative",
-            zIndex: 1,
           }}
         >
-          {/* Follower Counter Display */}
+          {/* Follower Count Display */}
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
               <Box
                 sx={{
-                  width: 10,
-                  height: 10,
+                  width: 8,
+                  height: 8,
                   borderRadius: "50%",
-                  bgcolor: "#34d399",
-                  boxShadow: "0 0 12px #34d399",
-                  animation: "pulse 1.5s infinite",
+                  bgcolor: "#ffffff",
+                  boxShadow: "0 0 10px rgba(255,255,255,0.8)",
+                  animation: "pulse 1.8s infinite",
                   "@keyframes pulse": {
-                    "0%": { transform: "scale(0.95)", opacity: 0.8 },
-                    "50%": { transform: "scale(1.3)", opacity: 1 },
-                    "100%": { transform: "scale(0.95)", opacity: 0.8 },
+                    "0%": { opacity: 0.4 },
+                    "50%": { opacity: 1 },
+                    "100%": { opacity: 0.4 },
                   },
                 }}
               />
-              <Typography sx={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.5px", color: "#a7f3d0", textTransform: "uppercase" }}>
-                Live Follower Counter (Auto-Updating)
+              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.2px", color: "#a1a1aa", textTransform: "uppercase" }}>
+                Live Instagram Followers
               </Typography>
               {hasFollowerIncremented && (
                 <Chip
-                  label="🔥 +New Follower!"
+                  label="+New Follower"
                   size="small"
-                  sx={{ bgcolor: "#fbbf24", color: "#78350f", fontWeight: 800, fontSize: 11, animation: "bounce 1s infinite" }}
+                  sx={{ bgcolor: "#ffffff", color: "#09090b", fontWeight: 800, fontSize: 10, height: 20 }}
                 />
               )}
             </Box>
@@ -443,75 +454,75 @@ export default function InstagramGrowthAgent() {
                 sx={{
                   fontFamily: "'DM Sans', sans-serif",
                   fontWeight: 900,
-                  fontSize: { xs: 38, sm: 54 },
-                  letterSpacing: "-1px",
+                  fontSize: { xs: 38, sm: 50 },
+                  letterSpacing: "-1.5px",
                   lineHeight: 1,
+                  color: "#ffffff",
                 }}
               >
                 {currentFollowersDisplay !== null ? Number(currentFollowersDisplay).toLocaleString() : "..."}
               </Typography>
-              <Typography sx={{ fontSize: 18, color: "#d1fae5", fontWeight: 600 }}>Followers</Typography>
+              <Typography sx={{ fontSize: 16, color: "#71717a", fontWeight: 600 }}>Followers</Typography>
             </Box>
 
-            <Typography sx={{ fontSize: 13, color: "#a7f3d0", mt: 0.5 }}>
-              {account?.username ? `@${account.username}` : "Instagram Professional Account"} · {account?.media_count || 0} Published Posts {lastFollowerCheck && `· Polled at ${lastFollowerCheck}`}
+            <Typography sx={{ fontSize: 12, color: "#71717a", mt: 0.5 }}>
+              {account?.username ? `@${account.username}` : "Instagram Connected"} · {account?.media_count || 0} Posts {lastFollowerCheck && `· Updated ${lastFollowerCheck}`}
             </Typography>
           </Box>
 
-          {/* Quick Metrics Grid */}
+          {/* Minimalist Metrics Grid */}
           <Box
             sx={{
               display: "grid",
               gridTemplateColumns: "repeat(3, 1fr)",
               gap: 1.5,
-              background: "rgba(0, 0, 0, 0.2)",
-              backdropFilter: "blur(10px)",
+              background: "#18181b",
               p: 2,
-              borderRadius: "16px",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
+              borderRadius: "12px",
+              border: "1px solid #27272a",
             }}
           >
             <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>24H REACH</Typography>
-              <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mt: 0.2 }}>
+              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>24H REACH</Typography>
+              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#ffffff", mt: 0.3 }}>
                 {account?.reach !== null && account?.reach !== undefined ? account.reach.toLocaleString() : "Active"}
               </Typography>
             </Box>
             <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>ENGAGEMENT</Typography>
-              <Typography sx={{ fontSize: 20, fontWeight: 800, color: "#fff", mt: 0.2 }}>
+              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>ENGAGEMENT</Typography>
+              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#ffffff", mt: 0.3 }}>
                 {account?.engagement !== null && account?.engagement !== undefined ? `${account.engagement}%` : "High"}
               </Typography>
             </Box>
             <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 11, color: "#a7f3d0", fontWeight: 700 }}>STATUS</Typography>
-              <Typography sx={{ fontSize: 16, fontWeight: 800, color: config.running ? "#34d399" : "#fca5a5", mt: 0.4 }}>
-                {config.running ? "🟢 Running" : "⏸️ Paused"}
+              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>AGENT</Typography>
+              <Typography sx={{ fontSize: 14, fontWeight: 800, color: config.running ? "#ffffff" : "#a1a1aa", mt: 0.5 }}>
+                {config.running ? "Running" : "Paused"}
               </Typography>
             </Box>
           </Box>
         </Box>
 
         {accountError && (
-          <Alert severity="warning" sx={{ mt: 2, borderRadius: "12px", bgcolor: "rgba(255,255,255,0.9)", color: "#111" }}>
+          <Alert severity="warning" sx={{ mt: 2, borderRadius: "8px", bgcolor: "#18181b", color: "#f4f4f5", border: "1px solid #27272a" }}>
             {accountError}
           </Alert>
         )}
       </Paper>
 
-      {/* ── 6 VIRAL 4K NATURE REELS STUDIOS ── */}
+      {/* ── 6 NATURE REEL STUDIOS (MONOCHROME MINIMALIST) ── */}
       <Paper sx={{ ...card, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
-          <Typography sx={{ ...title, fontSize: 19 }}>
-            🌿 6 Viral 4K Nature Reels Studios (1-Click AI Generation)
+          <Typography sx={{ ...titleStyle, fontSize: 18 }}>
+            Nature Video Studios (1-Click AI Generation)
           </Typography>
-          <Chip label="100% Unique · Never Repeated" size="small" sx={{ bgcolor: "#ecfdf5", color: "#059669", fontWeight: 800 }} />
+          <Chip label="Pure Video · No Quotes" size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, border: "1px solid #e4e4e7" }} />
         </Box>
-        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", fontSize: 13, mb: 2.5 }}>
-          Select any Nature Realm below to instantly generate a breathtaking 8K animated video reel with matching atmospheric audio soundscape:
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2.5 }}>
+          Click any Nature Realm to generate a 100% unique 8K animated nature video with matching background soundscape:
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 1.5 }}>
           {NATURE_REALMS.map((r) => (
             <Paper
               key={r.id}
@@ -520,42 +531,41 @@ export default function InstagramGrowthAgent() {
                 generate(null, r.realm);
               }}
               sx={{
-                p: 2.5,
-                borderRadius: "16px",
-                border: selectedRealm === r.realm ? `2px solid ${r.color}` : "1px solid #eef",
-                bgcolor: selectedRealm === r.realm ? r.bg : "#fff",
+                p: 2,
+                borderRadius: "12px",
+                border: selectedRealm === r.realm ? "1.5px solid #09090b" : "1px solid #e4e4e7",
+                bgcolor: selectedRealm === r.realm ? "#f4f4f5" : "#ffffff",
                 cursor: "pointer",
-                transition: "all 0.2s ease",
+                transition: "all 0.15s ease",
                 "&:hover": {
-                  transform: "translateY(-3px)",
-                  boxShadow: "0 8px 20px rgba(0,0,0,0.06)",
-                  borderColor: r.color,
+                  bgcolor: "#f4f4f5",
+                  borderColor: "#09090b",
                 },
               }}
             >
-              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-                <Typography sx={{ fontSize: 24 }}>{r.emoji}</Typography>
-                <Chip label="Generate Reel" size="small" sx={{ bgcolor: r.color, color: "#fff", fontWeight: 700, fontSize: 10 }} />
+              <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
+                <Box sx={{ color: "#09090b" }}>{r.icon}</Box>
+                <Chip label="Create Reel" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }} />
               </Box>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 15, color: "#1a1a2e" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, color: "#09090b" }}>
                 {r.title}
               </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#666", mt: 0.5 }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#71717a", mt: 0.4, lineHeight: 1.4 }}>
                 {r.sample}
               </Typography>
             </Paper>
           ))}
         </Box>
 
-        <Divider sx={{ my: 3 }} />
+        <Divider sx={{ my: 2.5, borderColor: "#f4f4f5" }} />
 
-        {/* Custom Nature Reel Prompt Builder */}
+        {/* Custom Prompt Generator */}
         <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
           <TextField
-            label="Custom Nature Scene / Wonder (Optional)"
+            label="Custom Nature Scene / Wonder"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Glowing Turquoise Glacial Lagoon in Iceland, Autumn Birch River Fog"
+            placeholder="e.g. Glowing Turquoise Glacial Lagoon, Autumn Birch Fog Stream"
             sx={{ ...field, flex: 1, minWidth: 260 }}
           />
           <FormControl sx={{ ...field, minWidth: 200 }}>
@@ -567,56 +577,53 @@ export default function InstagramGrowthAgent() {
             >
               {NATURE_REALMS.map((r) => (
                 <MenuItem key={r.id} value={r.realm}>
-                  {r.emoji} {r.title}
+                  {r.title}
                 </MenuItem>
               ))}
             </Select>
           </FormControl>
           <Button
             variant="contained"
-            startIcon={<AutoAwesomeIcon sx={{ color: "#ffd700" }} />}
+            startIcon={<AutoAwesomeIcon fontSize="small" />}
             onClick={() => generate()}
             disabled={saving}
             sx={{
-              borderRadius: "12px",
+              borderRadius: "10px",
               textTransform: "none",
-              background: "linear-gradient(135deg, #065f46 0%, #047857 100%)",
-              color: "#fff",
-              fontWeight: 800,
+              bgcolor: "#09090b",
+              color: "#ffffff",
+              fontWeight: 700,
               px: 3,
               py: 1.3,
-              boxShadow: "0 4px 14px rgba(4, 120, 87, 0.35)",
-              "&:hover": {
-                background: "linear-gradient(135deg, #064e3b 0%, #065f46 100%)",
-              },
+              "&:hover": { bgcolor: "#27272a" },
             }}
           >
-            ⚡ Generate 8K Nature Reel
+            Generate Nature Video
           </Button>
         </Box>
       </Paper>
 
-      {/* ── AUTOMATION STRATEGY & SCHEDULER SETTINGS ── */}
+      {/* ── DAILY SCHEDULER SETTINGS (MONOCHROME) ── */}
       <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...title, fontSize: 18, mb: 0.5 }}>⚙️ Daily Publishing Schedule & Strategy</Typography>
-        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#777", fontSize: 13, mb: 2.5 }}>
-          The autonomous agent automatically drafts a 100% unique Nature Reel every day with matching atmospheric soundscape, generates 9:16 animations with Gemini, and publishes to Instagram at your chosen time.
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily Publishing Schedule</Typography>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2 }}>
+          Autonomous daily 8K nature video reels scheduled to publish automatically to your Instagram feed.
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
           <TextField
             label="Niche Focus"
-            value={config.niche || "4K Nature, Earth Cinematography, Relaxation & Visual Serenity"}
+            value={config.niche || "4K Nature & Earth Cinematography, Relaxation & Visual Serenity"}
             onChange={(e) => set("niche", e.target.value)}
             sx={field}
             fullWidth
           />
           <TextField
-            label="Daily Fixed Post Time (IST) ⏰"
+            label="Daily Post Time (IST) ⏰"
             value={config.dailyPostTime || "07:00"}
             onChange={(e) => set("dailyPostTime", e.target.value)}
-            placeholder="e.g. 07:00 (7:00 AM IST) or 18:00 (6:00 PM IST)"
-            helperText="Autonomous agent generates & publishes 1 unique nature reel daily at this fixed time"
+            placeholder="e.g. 07:00 or 18:00"
+            helperText="Agent automatically generates and posts 1 unique nature reel daily at this fixed time"
             sx={field}
             fullWidth
           />
@@ -628,208 +635,209 @@ export default function InstagramGrowthAgent() {
             onClick={saveConfig}
             disabled={saving}
             sx={{
-              borderRadius: "12px",
+              borderRadius: "8px",
               textTransform: "none",
-              borderColor: "#1a1a2e",
-              color: "#1a1a2e",
+              borderColor: "#d4d4d8",
+              color: "#09090b",
               fontWeight: 700,
             }}
           >
-            Save Strategy
+            Save Settings
           </Button>
           <Button
             variant="contained"
             onClick={toggleAgent}
             disabled={saving}
-            startIcon={config.running ? <StopIcon /> : <PlayArrowIcon />}
+            startIcon={config.running ? <StopIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
             sx={{
-              borderRadius: "12px",
+              borderRadius: "8px",
               textTransform: "none",
-              bgcolor: config.running ? "#d32f2f" : "#059669",
-              fontWeight: 800,
-              "&:hover": { bgcolor: config.running ? "#b71c1c" : "#047857" },
+              bgcolor: config.running ? "#ef4444" : "#09090b",
+              color: "#ffffff",
+              fontWeight: 700,
+              "&:hover": { bgcolor: config.running ? "#dc2626" : "#27272a" },
             }}
           >
-            {config.running ? "Pause Autonomous Scheduler" : "Start Autonomous Scheduler"}
+            {config.running ? "Pause Scheduler" : "Start Scheduler"}
           </Button>
         </Box>
       </Paper>
 
-      {/* ── CONTENT QUEUE & DAILY NATURE REELS ── */}
+      {/* ── CONTENT QUEUE WITH DIRECT IN-CARD VIDEO PLAYER ── */}
       <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...title, fontSize: 18, mb: 2 }}>Content Queue & Daily Nature Reels</Typography>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & Video Reels</Typography>
         {content.length === 0 ? (
-          <Typography sx={{ color: "#888" }}>
-            No drafts yet. Click any Nature Realm above to generate your first 8K nature reel!
+          <Typography sx={{ color: "#71717a", fontSize: 13 }}>
+            No drafts yet. Click any Nature Realm above to generate your first 8K nature video reel!
           </Typography>
         ) : (
           content.map((item) => (
             <Box
               key={item._id}
               sx={{
-                borderTop: "1px solid #f0f0f0",
-                pt: 2.5,
-                mt: 2.5,
+                borderTop: "1px solid #f4f4f5",
+                pt: 3,
+                mt: 3,
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "190px 1fr" },
+                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
                 gap: 2.5,
               }}
             >
-              {/* 9:16 Vertical Video / Visual Preview */}
+              {/* Direct Interactive HTML5 9:16 Video Player */}
               <Box
                 sx={{
                   width: "100%",
-                  height: 270,
-                  borderRadius: "16px",
+                  height: 310,
+                  borderRadius: "12px",
                   overflow: "hidden",
-                  bgcolor: "#000",
+                  bgcolor: "#000000",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  border: "1px solid #eee",
+                  border: "1px solid #27272a",
                   position: "relative",
                 }}
               >
                 {item.assetUrl ? (
-                  item.assetUrl.toLowerCase().endsWith(".mp4") || item.type === "reel" ? (
-                    <video
-                      src={item.assetUrl}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                      controls
-                      loop
-                      playsInline
-                    />
-                  ) : (
-                    <img
-                      src={item.assetUrl}
-                      alt={item.topic}
-                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    />
-                  )
+                  <video
+                    src={item.assetUrl}
+                    style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                    controls
+                    loop
+                    playsInline
+                    preload="metadata"
+                  />
                 ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
-                  <Box sx={{ textAlign: "center", p: 1 }}>
-                    <CircularProgress size={26} sx={{ color: "#34d399" }} />
-                    <Typography sx={{ fontSize: 11, color: "#fff", mt: 1 }}>Generating in Gemini...</Typography>
+                  <Box sx={{ textAlign: "center", p: 2 }}>
+                    <CircularProgress size={28} sx={{ color: "#ffffff" }} />
+                    <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 8K Video in Gemini...</Typography>
                   </Box>
                 ) : (
-                  <Box sx={{ textAlign: "center", p: 1 }}>
-                    <ImageNotSupportedIcon sx={{ color: "#666", fontSize: 36 }} />
-                    <Typography sx={{ fontSize: 11, color: "#aaa", mt: 0.5 }}>No Media Generated</Typography>
+                  <Box sx={{ textAlign: "center", p: 2 }}>
+                    <MovieCreationIcon sx={{ color: "#52525b", fontSize: 36 }} />
+                    <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Video Generated</Typography>
                   </Box>
                 )}
                 <Chip
-                  label="Gemini 8K Video (9:16)"
+                  label="8K Reel (9:16)"
                   size="small"
                   sx={{
                     position: "absolute",
                     top: 8,
                     left: 8,
-                    bgcolor: "rgba(0,0,0,0.8)",
-                    color: "#34d399",
+                    bgcolor: "rgba(0,0,0,0.85)",
+                    color: "#ffffff",
                     fontSize: 9,
-                    fontWeight: 800,
-                    height: 22,
+                    fontWeight: 700,
+                    height: 20,
+                    border: "1px solid rgba(255,255,255,0.2)",
                   }}
                 />
               </Box>
 
               {/* Reel Details & Publishing Actions */}
-              <Box>
-                <Box sx={{ display: "flex", justifyContent: "space-between", gap: 1, flexWrap: "wrap" }}>
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                    <Chip
-                      label={`${item.type} · ${item.status}`}
+              <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                <Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                      <Chip
+                        label={item.status === "published" ? "Published" : item.status === "ready" ? "Video Ready" : "Draft"}
+                        size="small"
+                        sx={{
+                          fontWeight: 700,
+                          bgcolor: item.status === "published" ? "#09090b" : item.status === "ready" ? "#27272a" : "#f4f4f5",
+                          color: item.status === "draft" ? "#09090b" : "#ffffff",
+                          fontSize: 11,
+                        }}
+                      />
+                      <Chip
+                        label={item.themeCategory || "Nature Reel"}
+                        size="small"
+                        sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }}
+                      />
+                    </Box>
+                    <IconButton
                       size="small"
-                      sx={{
-                        fontWeight: 700,
-                        bgcolor: item.status === "published" ? "#059669" : item.status === "ready" ? "#0284c7" : "#1a1a2e",
-                        color: "#fff",
-                      }}
-                    />
-                    <Chip
-                      label={item.themeCategory || "Celestial & Aurora"}
-                      size="small"
-                      sx={{ bgcolor: "#ecfdf5", color: "#065f46", fontWeight: 800, fontSize: 11 }}
-                    />
+                      onClick={() => deleteContent(item._id)}
+                      sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}
+                      title="Delete draft"
+                    >
+                      <DeleteOutlineIcon fontSize="small" />
+                    </IconButton>
                   </Box>
-                  <IconButton
-                    size="small"
-                    onClick={() => deleteContent(item._id)}
-                    sx={{ color: "#d32f2f" }}
-                    title="Delete post permanently"
-                  >
-                    <DeleteOutlineIcon fontSize="small" />
-                  </IconButton>
+
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, mt: 1.2 }}>
+                    {item.topic}
+                  </Typography>
+
+                  {/* Atmospheric Soundscape Badge */}
+                  {item.trendingAudioSuggestion && (
+                    <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
+                      <Chip
+                        label={item.trendingAudioSuggestion}
+                        size="small"
+                        sx={{ bgcolor: "#fafafa", color: "#52525b", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
+                      />
+                    </Box>
+                  )}
+
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#3f3f46", lineHeight: 1.5 }}>
+                    {item.caption}
+                  </Typography>
+
+                  {item.hashtags?.length > 0 && (
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 12, mt: 0.8 }}>
+                      {item.hashtags.join(" ")}
+                    </Typography>
+                  )}
                 </Box>
 
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, mt: 1 }}>
-                  {item.topic}
-                </Typography>
-
-                {/* Soundscape & Script Badge */}
-                {item.trendingAudioSuggestion && (
-                  <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
-                    <Chip
-                      label={item.trendingAudioSuggestion}
-                      size="small"
-                      sx={{ bgcolor: "#f0fdf4", color: "#15803d", fontWeight: 700, fontSize: 11 }}
-                    />
-                  </Box>
-                )}
-
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#333" }}>
-                  {item.caption}
-                </Typography>
-
-                {item.hashtags?.length > 0 && (
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#0284c7", fontSize: 12, mt: 0.8 }}>
-                    {item.hashtags.join(" ")}
-                  </Typography>
-                )}
-
-                {/* ── AUTONOMOUS Google Gemini Engine Status ── */}
+                {/* ── Action Panel ── */}
                 <Box
                   sx={{
-                    mt: 1.5,
+                    mt: 2,
                     p: 1.5,
-                    borderRadius: "12px",
-                    bgcolor: item.assetUrl ? "#f0fdf4" : item.mediaGenerationError ? "#fef2f2" : "#f5f5f7",
-                    border: `1px solid ${item.assetUrl ? "#bbf7d0" : item.mediaGenerationError ? "#fecaca" : "#e5e5ea"}`,
+                    borderRadius: "10px",
+                    bgcolor: "#fafafa",
+                    border: "1px solid #e4e4e7",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    flexWrap: "wrap",
+                    gap: 1.5,
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                      <AutoAwesomeIcon sx={{ color: item.assetUrl ? "#16a34a" : "#0284c7", fontSize: 18 }} />
-                      <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700 }}>
-                        {item.assetUrl
-                          ? "✨ 8K Nature Reel Generated by Gemini & Hosted on Cloudinary"
-                          : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
-                          ? "⏳ Gemini is rendering the animated video..."
-                          : item.mediaGenerationError
-                          ? `⚠️ Status: ${item.mediaGenerationError}`
-                          : "Gemini 8K Video Generator Ready"}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: "flex", gap: 1 }}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={() => handleGenerateMedia(item._id)}
-                        disabled={generatingMediaId === item._id || saving}
-                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700 }}
-                      >
-                        {item.assetUrl ? "Regenerate Video" : "Generate 8K Video with Gemini"}
-                      </Button>
-                      <Button
-                        size="small"
-                        variant="contained"
-                        onClick={() => publishNow(item._id)}
-                        disabled={!item.assetUrl || saving}
-                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#059669" }}
-                      >
-                        Publish to Instagram Now
-                      </Button>
-                    </Box>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                    <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
+                      {item.assetUrl
+                        ? "8K Video Ready for Instagram"
+                        : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
+                        ? "Gemini is rendering video..."
+                        : item.mediaGenerationError
+                        ? `Status: ${item.mediaGenerationError}`
+                        : "Ready to render with Gemini"}
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => handleGenerateMedia(item._id)}
+                      disabled={generatingMediaId === item._id || saving}
+                      sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
+                    >
+                      {item.assetUrl ? "Regenerate Video" : "Generate 8K Video"}
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={() => publishNow(item._id)}
+                      disabled={!item.assetUrl || saving}
+                      sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#09090b", color: "#ffffff", "&:hover": { bgcolor: "#27272a" } }}
+                    >
+                      Publish Reel
+                    </Button>
                   </Box>
                 </Box>
               </Box>
@@ -838,18 +846,18 @@ export default function InstagramGrowthAgent() {
         )}
       </Paper>
 
-      {/* ── RECENT AGENT ACTIVITIES ── */}
+      {/* ── RECENT AUDIT LOG (MONOCHROME) ── */}
       <Paper sx={card}>
-        <Typography sx={{ ...title, fontSize: 18, mb: 2 }}>⚡ Live Agent Activity Audit Log</Typography>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Agent Audit Log</Typography>
         {activities.length === 0 ? (
-          <Typography sx={{ color: "#888" }}>No recent activities logged.</Typography>
+          <Typography sx={{ color: "#71717a", fontSize: 13 }}>No recent activity logged.</Typography>
         ) : (
-          activities.slice(0, 8).map((act) => (
-            <Box key={act._id} sx={{ py: 1, borderBottom: "1px solid #f5f5f5" }}>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600 }}>
+          activities.slice(0, 6).map((act) => (
+            <Box key={act._id} sx={{ py: 1, borderBottom: "1px solid #f4f4f5" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: "#09090b" }}>
                 {act.description}
               </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#999" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#a1a1aa" }}>
                 {new Date(act.createdAt).toLocaleString()} · {act.action}
               </Typography>
             </Box>
@@ -857,78 +865,78 @@ export default function InstagramGrowthAgent() {
         )}
       </Paper>
 
-      {/* ── GOOGLE GEMINI REAL-TIME INSPECTOR DIALOG ── */}
+      {/* ── GOOGLE GEMINI INSPECTOR MODAL (MONOCHROME) ── */}
       <Dialog
         open={flowInspectorOpen}
         onClose={() => setFlowInspectorOpen(false)}
         maxWidth="md"
         fullWidth
-        PaperProps={{ sx: { borderRadius: "18px" } }}
+        PaperProps={{ sx: { borderRadius: "14px", border: "1px solid #e4e4e7" } }}
       >
         <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <AutoAwesomeIcon sx={{ color: "#059669" }} />
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 17 }}>
-              Google Gemini Autonomous Video Inspector
+            <AutoAwesomeIcon sx={{ color: "#09090b" }} />
+            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
+              Gemini Autonomous Video Generator
             </Typography>
           </Box>
           <IconButton onClick={() => setFlowInspectorOpen(false)} size="small">
-            <CloseIcon />
+            <CloseIcon fontSize="small" />
           </IconButton>
         </DialogTitle>
         <DialogContent dividers>
           {flowInspectorSession ? (
             <Box>
-              <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#555", mb: 1 }}>
+              <Typography sx={{ fontWeight: 600, fontSize: 12, color: "#71717a", mb: 1.5 }}>
                 Prompt: "{flowInspectorSession.prompt}"
               </Typography>
-              <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5, mt: 2 }}>
+              <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
                 {flowInspectorSession.steps?.map((st, idx) => (
-                  <Box key={idx} sx={{ p: 1.5, bgcolor: "#f9fafb", borderRadius: "10px", border: "1px solid #eee" }}>
-                    <Typography sx={{ fontWeight: 800, fontSize: 13, color: "#111" }}>{st.step}</Typography>
-                    <Typography sx={{ fontSize: 12, color: "#666" }}>{st.detail}</Typography>
+                  <Box key={idx} sx={{ p: 1.5, bgcolor: "#fafafa", borderRadius: "8px", border: "1px solid #e4e4e7" }}>
+                    <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#09090b" }}>{st.step}</Typography>
+                    <Typography sx={{ fontSize: 12, color: "#52525b" }}>{st.detail}</Typography>
                   </Box>
                 ))}
               </Box>
             </Box>
           ) : (
             <Box sx={{ textAlign: "center", py: 4 }}>
-              <CircularProgress size={32} sx={{ color: "#059669" }} />
-              <Typography sx={{ mt: 2, fontSize: 13, color: "#666" }}>Initializing Gemini connection...</Typography>
+              <CircularProgress size={28} sx={{ color: "#09090b" }} />
+              <Typography sx={{ mt: 1.5, fontSize: 12, color: "#71717a" }}>Initializing Gemini connection...</Typography>
             </Box>
           )}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setFlowInspectorOpen(false)} sx={{ textTransform: "none" }}>
+          <Button onClick={() => setFlowInspectorOpen(false)} sx={{ textTransform: "none", color: "#09090b" }}>
             Close
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* ── 60-DAY LONG LIVED TOKEN MODAL ── */}
+      {/* ── 60-DAY META TOKEN MODAL (MONOCHROME) ── */}
       <Dialog
         open={tokenModalOpen}
         onClose={() => setTokenModalOpen(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{ sx: { borderRadius: "18px" } }}
+        PaperProps={{ sx: { borderRadius: "14px", border: "1px solid #e4e4e7" } }}
       >
-        <DialogTitle sx={{ fontWeight: 800 }}>60-Day Meta Long-Lived Token</DialogTitle>
+        <DialogTitle sx={{ fontWeight: 800, fontSize: 16 }}>Meta Long-Lived Access Token</DialogTitle>
         <DialogContent dividers>
           {exchangingToken ? (
             <Box sx={{ textAlign: "center", py: 4 }}>
-              <CircularProgress />
-              <Typography sx={{ mt: 2, fontSize: 13 }}>Exchanging token with Meta Graph API...</Typography>
+              <CircularProgress sx={{ color: "#09090b" }} />
+              <Typography sx={{ mt: 2, fontSize: 13, color: "#71717a" }}>Exchanging token with Meta Graph API...</Typography>
             </Box>
           ) : longLivedResult?.error ? (
-            <Alert severity="error">{longLivedResult.error}</Alert>
+            <Alert severity="error" sx={{ borderRadius: "8px" }}>{longLivedResult.error}</Alert>
           ) : longLivedResult?.longLivedToken ? (
             <Box>
-              <Alert severity="success" sx={{ mb: 2 }}>
+              <Alert severity="success" sx={{ mb: 2, borderRadius: "8px" }}>
                 Token generated! Valid for ~{longLivedResult.expiresInDays} days.
               </Alert>
               <TextField
-                label="Long-Lived Access Token"
+                label="Long-Lived Token"
                 value={longLivedResult.longLivedToken}
                 fullWidth
                 multiline
@@ -940,7 +948,7 @@ export default function InstagramGrowthAgent() {
           ) : null}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setTokenModalOpen(false)} sx={{ textTransform: "none" }}>
+          <Button onClick={() => setTokenModalOpen(false)} sx={{ textTransform: "none", color: "#09090b" }}>
             Done
           </Button>
         </DialogActions>
@@ -949,10 +957,10 @@ export default function InstagramGrowthAgent() {
       {/* Snackbar Notification */}
       <Snackbar
         open={snack.open}
-        autoHideDuration={5000}
+        autoHideDuration={4000}
         onClose={() => setSnack((prev) => ({ ...prev, open: false }))}
       >
-        <Alert severity={snack.severity} sx={{ borderRadius: "12px" }}>
+        <Alert severity={snack.severity} sx={{ borderRadius: "8px", bgcolor: "#09090b", color: "#ffffff" }}>
           {snack.text}
         </Alert>
       </Snackbar>

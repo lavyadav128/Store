@@ -43,19 +43,20 @@ async function uploadBufferToCloudinary(buffer, resourceType = "image", folder =
 }
 
 export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
-  let scene = background || rawPrompt || title || "breathtaking emerald waterfall into crystal lagoon with golden sunbeams";
+  let scene = background || rawPrompt || title || "breathtaking emerald waterfall into crystal turquoise lagoon with morning god rays";
   scene = scene.replace(/^Award-winning[\s,]+/i, "")
                .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/i, "")
                .replace(/Scene\s*\d+[\s\S]*$/i, "")
                .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
-               .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster)\s+of\s+/i, "")
-               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster)?/gi, "")
+               .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster|animated video)\s+of\s+/i, "")
+               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster|video)?/gi, "")
                .replace(/\s+beautifully/gi, "")
                .replace(/["'{}\[\]]/g, " ")
+               .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, "")
                .trim();
 
-  const sceneWords = scene.split(/\s+/).slice(0, 10).join(" ") || "majestic nature landscape";
-  return `create ultra-detailed 8K cinematic animated nature video of ${sceneWords} in 9:16 vertical format`;
+  const sceneWords = scene.split(/\s+/).slice(0, 12).join(" ") || "majestic nature landscape";
+  return `generate 8K ultra-detailed photorealistic cinematic animated nature video animation of ${sceneWords} in 9:16 vertical format with background atmospheric nature soundscape`;
 }
 
 export function cleanPromptForGemini(rawPrompt, isVideo = true) {
