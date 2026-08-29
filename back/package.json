@@ -6,6 +6,9 @@
   "scripts": {
     "dev": "nodemon --import ./instrument.mjs index.js",
     "start": "node --import ./instrument.mjs index.js",
+    "flow:login": "node login-google-flow.mjs",
+    "flow:train": "node record-google-flow-workflow.mjs",
+    "chrome:debug": "node launch-browser-debug.mjs",
     "prod": "pm2 start index.js --node-args=\"--import ./instrument.mjs\"",
     "proxy": "http://localhost:3000",
     "test": "echo \"No test specified\" && exit 0"
@@ -59,6 +62,9 @@
     "path": "^0.12.7",
     "pdf-parse": "^1.1.1",
     "pdf-parser": "^1.0.5",
+    "puppeteer": "^24.43.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.1",
     "streamifier": "^0.1.1",

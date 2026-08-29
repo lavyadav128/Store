@@ -5,4 +5,11 @@ build/
 .env
 *.stackdump
 *- Copy.env
+back/data/
+data/
+*.log
+*.png
+*.jpg
+.DS_Store
+
 

@@ -29,60 +29,60 @@ import Razorpay from 'razorpay';
 // ─────────────────────────────────────────────────────────────
 
 // handles /api/login and /api/register (user authentication)
-import userRoutes from './routes/users.routes.js';
+import userRoutes from './modules/auth/routes/users.routes.js';
 
 // handles course purchase related endpoints
-import purchaseRoutes from './routes/purchase.js';
+import purchaseRoutes from './modules/commerce/routes/purchase.js';
 
 // handles the AI chatbot API endpoints
-import chatbotRoutes from './ai/chatbot.js';
+import chatbotRoutes from './modules/pochi/chatbot.js';
 
 // handles admin-only operations (e.g. manage users, content)
-import adminRoutes from "./routes/admin.routes.js";
+import adminRoutes from "./modules/batches/routes/admin.routes.js";
 
 // handles student doubt/question submission and responses
-import doubtRoutes from "./routes/doubt.routes.js";
+import doubtRoutes from "./modules/doubts/routes/doubt.routes.js";
 
 // handles creating and fetching notifications
-import notificationsRoutes from "./routes/notifications.routes.js";
+import notificationsRoutes from "./modules/notifications/routes/notifications.routes.js";
 
 // handles fetching the list of all registered users (admin feature)
-import userListRoutes from './routes/userList.routes.js';
+import userListRoutes from './modules/auth/routes/userList.routes.js';
 
 // handles uploading and fetching study resources (PDFs, notes, etc.)
-import resourceRoutes from './routes/resource.routes.js';
+import resourceRoutes from './modules/notes/routes/resource.routes.js';
 
-import batchRoutes from './routes/batches.routes.js';
+import batchRoutes from './modules/batches/routes/batches.routes.js';
 
-import notesRouter from './routes/Notes.routes.js';
+import notesRouter from './modules/notes/routes/Notes.routes.js';
 
 import * as Sentry from '@sentry/node';
 
-import auth from './controller/authh.js';
-import PaymentAttempt from './agents/revenue-recovery/schema/PaymentAttempt.model.js';
+import auth from './modules/auth/authh.js';
+import PaymentAttempt from './modules/revenue-recovery/schema/PaymentAttempt.model.js';
 
-import revenueRecoveryRoutes from './agents/revenue-recovery/routes.js';
-import revenueRecoveryWebhook from './agents/revenue-recovery/webhook.js';
-import recommendationRouter from "./routes/recommendation.js";
-import catalogRouter from "./routes/catalog.routes.js";
-import commerceRouter, { CommerceAudit } from "./routes/commerce.routes.js";
-import Batch from './schema/batches.model.js';
-import NoteBatch from './schema/Notebatch.model.js';
-import { User } from './schema/user.model.js';
-import recoveryOfferRoutes from './routes/recoveryOffer.routes.js';
-import recoveryClientRoutes from './routes/recoveryClient.routes.js';
-import instagramAgentRoutes, { instagramWebhookRouter } from './routes/instagramAgent.routes.js';
-import { startInstagramAgentScheduler } from './services/instagramScheduler.service.js';
-import clientAgentRoutes, { clientAgentPublicRouter } from './routes/clientAgent.routes.js';
-import { startClientAgentScheduler } from './services/clientAgentScheduler.service.js';
-import pochiRoutes from './routes/pochi.routes.js';
+import revenueRecoveryRoutes from './modules/revenue-recovery/routes.js';
+import revenueRecoveryWebhook from './modules/revenue-recovery/webhook.js';
+import recommendationRouter from "./modules/batches/routes/recommendation.js";
+import catalogRouter from "./modules/batches/routes/catalog.routes.js";
+import commerceRouter, { CommerceAudit } from "./modules/commerce/routes/commerce.routes.js";
+import Batch from './modules/batches/schema/batches.model.js';
+import NoteBatch from './modules/notes/schema/Notebatch.model.js';
+import { User } from './modules/auth/schema/user.model.js';
+import recoveryOfferRoutes from './modules/revenue-recovery/routes/recoveryOffer.routes.js';
+import recoveryClientRoutes from './modules/revenue-recovery/routes/recoveryClient.routes.js';
+import instagramAgentRoutes, { instagramWebhookRouter } from './modules/instagram-agent/routes/instagramAgent.routes.js';
+import { startInstagramAgentScheduler } from './modules/instagram-agent/services/instagramScheduler.service.js';
+import clientAgentRoutes, { clientAgentPublicRouter } from './modules/client-agent/routes/clientAgent.routes.js';
+import { startClientAgentScheduler } from './modules/client-agent/services/clientAgentScheduler.service.js';
+import pochiRoutes from './modules/pochi/routes/pochi.routes.js';
 
 import http from 'node:http';
-import { initSocket } from './socket/io.js';
+import { initSocket } from './shared/socket/io.js';
 import helmet from 'helmet';
 import mongoSanitize from 'express-mongo-sanitize';
 
-import { rateLimiter } from './middleware/rateLimit.js';
+import { rateLimiter } from './shared/middleware/rateLimit.js';
 // Import redis.js so the Redis connection is created as soon as the server boots
 // (just importing it runs the `new Redis(...)` code inside that file)
 import './config/redis.js';
@@ -125,6 +125,10 @@ app.set('trust proxy', 1);
 const allowedOrigins = new Set([
   'http://localhost:3000',
   'http://localhost:3001',
+  'http://localhost:3002',
+  'http://127.0.0.1:3000',
+  'http://127.0.0.1:3001',
+  'http://127.0.0.1:3002',
   'https://note-vevp.onrender.com',
   ...String(process.env.CORS_ALLOWED_ORIGINS || process.env.FRONTEND_ORIGIN || "").split(",").map((origin) => origin.trim()).filter(Boolean),
 ]);
@@ -138,8 +142,8 @@ const corsOptions = {
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
   // "credentials: true" allows cookies and Authorization headers to be sent
   credentials: true,
-  // Only these two headers are allowed in requests from the frontend
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  // Only these headers are allowed in requests from the frontend
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 };
 app.use(cors(corsOptions));
 
@@ -195,7 +199,7 @@ app.use("/api/admin/list", userListRoutes);
 app.use('/api', userRoutes);
 
 // Purchase routes — e.g. POST /api/purchase, GET /api/purchases
-import recoveryOfferPublicRoutes from './routes/recoveryOfferPublic.routes.js';
+import recoveryOfferPublicRoutes from './modules/revenue-recovery/routes/recoveryOfferPublic.routes.js';
 
 app.use('/api', purchaseRoutes);
 app.use('/api/recovery-offers/public', recoveryOfferPublicRoutes);
@@ -382,7 +386,7 @@ const PORT = process.env.PORT || 5000;
 // connectDB() returns a Promise — .then() runs AFTER the database connects successfully
 // This ensures the server only starts AFTER we have a working DB connection
 // If DB fails, connectDB() calls process.exit(1) and the server never starts
-import { startRevenueRecoveryScheduler } from './agents/revenue-recovery/services/revenueRecoveryScheduler.js';
+import { startRevenueRecoveryScheduler } from './modules/revenue-recovery/services/revenueRecoveryScheduler.js';
 
 connectDB().then(() => {
   startRevenueRecoveryScheduler();

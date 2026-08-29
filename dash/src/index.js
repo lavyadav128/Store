@@ -4,52 +4,52 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import * as Sentry from "@sentry/react";
-import SocketManager from './components/SocketManager';
+import SocketManager from './features/dashboard/SocketManager';
 
-import Home from "./components/Home";
-import Dsa from './components/Algorithms/Dsa';
-import DtopicPage from './components/Algorithms/dtopic';
-import DpractisePage from './components/Algorithms/dpractise';
+import Home from "./features/dashboard/Home";
+import Dsa from './features/learning-tracks/algorithms/Dsa';
+import DtopicPage from './features/learning-tracks/algorithms/dtopic';
+import DpractisePage from './features/learning-tracks/algorithms/dpractise';
 
-import Revision from './components/Revision/concept';
-import College from './components/College/Top';
+import Revision from './features/learning-tracks/revision/concept';
+import College from './features/learning-tracks/college/Top';
 
-import NotesSubjectsPage from './components/Notessubjectspage';
-import NotesChaptersPage from './components/Noteschapterspage';
-import NotesChapterDetail from './components/Noteschapterdetail';
+import NotesSubjectsPage from './features/notes/Notessubjectspage';
+import NotesChaptersPage from './features/notes/Noteschapterspage';
+import NotesChapterDetail from './features/notes/Noteschapterdetail';
 
-import Web from './components/Developments/Web';
-import WtopicPage from './components/Developments/wtopic';
-import WpractisePage from './components/Developments/wpractise';
+import Web from './features/learning-tracks/web-development/Web';
+import WtopicPage from './features/learning-tracks/web-development/wtopic';
+import WpractisePage from './features/learning-tracks/web-development/wpractise';
 
-import Data from './components/Analyses/data';
-import AtopicPage from './components/Analyses/atopic';
-import ApractisePage from './components/Analyses/apractise';
+import Data from './features/learning-tracks/data-analysis/data';
+import AtopicPage from './features/learning-tracks/data-analysis/atopic';
+import ApractisePage from './features/learning-tracks/data-analysis/apractise';
 
-import Prac from './components/Aptitude/Prac';
-import PtopicPage from './components/Aptitude/ptopic';
-import PpractisePage from './components/Aptitude/ppractise';
+import Prac from './features/learning-tracks/aptitude/Prac';
+import PtopicPage from './features/learning-tracks/aptitude/ptopic';
+import PpractisePage from './features/learning-tracks/aptitude/ppractise';
 
-import Authentication from './components/authentication';
-import MentorshipPage from './components/Batches/mentorship';
+import Authentication from './features/auth/authentication';
+import MentorshipPage from './features/batches/mentorship';
 
-import Classpage from './components/Batches/Classpage';
-import Subjectpage from './components/Batches/Subjectpage';
-import ChapterDetail from './components/Batches/Chapterd';
-import Explore from './components/Batches/Explore';
-import ChatBot from './components/chatbot';
+import Classpage from './features/batches/Classpage';
+import Subjectpage from './features/batches/Subjectpage';
+import ChapterDetail from './features/batches/Chapterd';
+import Explore from './features/batches/Explore';
+import ChatBot from './features/pochi/chatbot';
 
-import TestSeries from './components/Batches/TestSeries';
-import PYQSeries from './components/Batches/PYQSeries';
-import TestAttemptPage from "./components/Batches/testattempt";
+import TestSeries from './features/batches/TestSeries';
+import PYQSeries from './features/batches/PYQSeries';
+import TestAttemptPage from "./features/batches/testattempt";
 
-import PrivateRoute from './components/PrivateRoute';
-import AdminRoute   from './components/AdminRoute';
-import CommerceAuditDashboard from './components/CommerceAuditDashboard';
-import ProjectEnquiry from './components/ProjectEnquiry';
-import ProjectPayment from './components/ProjectPayment';
-import PurchaseProtectedRoute from './components/PurchaseProtectedRoute';
-import DiscountRecoveryModal from './components/DiscountRecoveryModal';
+import PrivateRoute from './shared/guards/PrivateRoute';
+import AdminRoute   from './shared/guards/AdminRoute';
+import CommerceAuditDashboard from './features/commerce/CommerceAuditDashboard';
+import ProjectEnquiry from './features/client-agent/ProjectEnquiry';
+import ProjectPayment from './features/client-agent/ProjectPayment';
+import PurchaseProtectedRoute from './shared/guards/PurchaseProtectedRoute';
+import DiscountRecoveryModal from './features/revenue-recovery/DiscountRecoveryModal';
 
 Sentry.init({
   dsn: process.env.REACT_APP_SENTRY_DSN,
