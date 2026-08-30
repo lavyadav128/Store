@@ -113,12 +113,17 @@ export async function generateMotivationalReplyWithGemini(userMessage, niche = '
   if (!apiKey) return `Keep pushing forward! 🚀 Consistency and discipline will turn your vision into reality. ✨`;
   try {
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    const prompt = `You are an inspiring, high-energy, and empowering community manager for a top-tier Instagram motivational and mindset page.
+    for (const mName of ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash']) {
+      try {
+        const model = genAI.getGenerativeModel({ model: mName });
+        const prompt = `You are an inspiring, high-energy, and empowering community manager for a top-tier Instagram motivational and mindset page.
 A follower commented/messaged: "${userMessage}".
 Write an encouraging, powerful, and concise reply (1-2 sentences) in Hindi or English (matching their language). Always end with an empowering quote or emoji like "Keep crushing your goals! 🚀🔥" or "मेहनत जारी रखो, जीत तुम्हारी होगी! ⚡". Do not include quotation marks.`;
-    const res = await model.generateContent(prompt);
-    return res.response.text().trim();
+        const res = await model.generateContent(prompt);
+        return res.response.text().trim();
+      } catch (_) {}
+    }
+    return `Keep pushing forward! 🚀 Consistency and discipline will turn your vision into reality. ✨`;
   } catch (_) {
     return `Keep pushing forward! 🚀 Consistency and discipline will turn your vision into reality. ✨`;
   }
@@ -451,11 +456,6 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-2.0-flash',
-        generationConfig: { responseMimeType: 'application/json' },
-      });
-
       const geminiPrompt = `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
@@ -480,8 +480,18 @@ Return strict JSON with this exact schema:
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`;
 
-      const aiRes = await model.generateContent(geminiPrompt);
-      const parsed = JSON.parse(aiRes.response.text());
+      let parsed = null;
+      for (const mName of ['gemini-1.5-flash', 'gemini-1.5-pro', 'gemini-2.5-flash']) {
+        try {
+          const model = genAI.getGenerativeModel({
+            model: mName,
+            generationConfig: { responseMimeType: 'application/json' },
+          });
+          const aiRes = await model.generateContent(geminiPrompt);
+          parsed = JSON.parse(aiRes.response.text());
+          if (parsed) break;
+        } catch (_) {}
+      }
 
       if (parsed?.topic) selectedTopic = parsed.topic;
       if (parsed?.caption) caption = parsed.caption;

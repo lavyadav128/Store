@@ -125,6 +125,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     } catch {}
   }
 
+  const fullPrompt = formatNatureVideoPrompt({ title, realm, background, rawPrompt: prompt });
   let page = null;
 
   const sessionData = {
