@@ -514,27 +514,36 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
     if (!focused) throw new Error("Google Gemini prompt input box was not found on the page.");
 
-    // Step 4: Inject Creative Generation Prompt with Angular / Material event dispatching
+    // Step 4: Inject Creative Generation Prompt (Trusted Types CSP safe)
     await addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
     
-    // Inject value and dispatch input & change events for Angular change detection
-    await page.evaluate((text) => {
+    // Focus, clear any existing text, and insert prompt via TrustedHTML-safe execCommand
+    const inserted = await page.evaluate((text) => {
       const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
       if (el) {
         el.focus();
-        if (el.isContentEditable) {
-          el.innerHTML = `<p>${text}</p>`;
-        } else {
-          el.value = text;
+        try {
+          document.execCommand("selectAll", false, null);
+          document.execCommand("delete", false, null);
+        } catch (_) {}
+        const ok = document.execCommand("insertText", false, text);
+        if (!ok) {
+          if (el.isContentEditable) {
+            el.textContent = text;
+          } else {
+            el.value = text;
+          }
         }
         el.dispatchEvent(new Event("input", { bubbles: true }));
         el.dispatchEvent(new Event("change", { bubbles: true }));
+        return true;
       }
+      return false;
     }, fullPrompt);
 
-    // Also simulate a typing keypress to ensure all reactive listeners trigger
-    await page.keyboard.type(" ", { delay: 10 });
-    await page.keyboard.press("Backspace");
+    if (!inserted) {
+      await page.keyboard.type(fullPrompt, { delay: 10 });
+    }
     await new Promise((r) => setTimeout(r, 600));
 
     // Step 5: Submit Prompt to Gemini Engine
