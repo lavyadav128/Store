@@ -54,24 +54,40 @@ async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, 
 }
 
 async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instagram-agent/nature-reels") {
-  const ext = isVideo ? "mp4" : "png";
-  const tempPath = path.join(os.tmpdir(), `gemini_media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
+  const tempImgPath = path.join(os.tmpdir(), `gemini_img_${Date.now()}_${Math.random().toString(36).slice(2)}.png`);
+  const tempVideoPath = path.join(os.tmpdir(), `gemini_vid_${Date.now()}_${Math.random().toString(36).slice(2)}.mp4`);
   
   try {
-    fs.writeFileSync(tempPath, buffer);
+    fs.writeFileSync(tempImgPath, buffer);
+    let fileToUpload = tempImgPath;
+    let resourceType = "image";
+
+    // If video mode or image requested with ambient nature audio
+    if (isVideo) {
+      resourceType = "video";
+      const isAlreadyMp4 = buffer.slice(4, 8).toString("utf8") === "ftyp" || buffer.slice(0, 4).toString("utf8") === "\x00\x00\x00\x18";
+      if (!isAlreadyMp4) {
+        const converted = await convertImageToAnimatedReelVideo(tempImgPath, tempVideoPath, 12);
+        if (converted) {
+          fileToUpload = tempVideoPath;
+        }
+      }
+    }
+
     return await new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
-        tempPath,
+        fileToUpload,
         {
           folder,
-          resource_type: isVideo ? "video" : "image",
+          resource_type: resourceType,
           quality: "auto:best",
         },
         (error, result) => (error ? reject(error) : resolve(result))
       );
     });
   } finally {
-    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch {}
+    try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
+    try { if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath); } catch {}
   }
 }
 
@@ -238,7 +254,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   
   let resolvedExecutablePath = undefined;
   if (isLinux) {
-    const verifiedSystemPaths = [
+    const candidatePaths = [
       process.env.PUPPETEER_EXECUTABLE_PATH,
       "/usr/bin/google-chrome-stable",
       "/usr/bin/google-chrome",
@@ -247,7 +263,28 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       "/snap/bin/chromium",
     ].filter(Boolean);
 
-    resolvedExecutablePath = verifiedSystemPaths.find((p) => fs.existsSync(p));
+    // Also search Render and user cache directories for installed Chrome
+    const cacheDirs = [
+      "/opt/render/.cache/puppeteer/chrome",
+      path.join(os.homedir(), ".cache", "puppeteer", "chrome"),
+      "/root/.cache/puppeteer/chrome",
+    ];
+
+    for (const base of cacheDirs) {
+      if (fs.existsSync(base)) {
+        try {
+          const subdirs = fs.readdirSync(base);
+          for (const sub of subdirs) {
+            const chromeBin = path.join(base, sub, "chrome-linux64", "chrome");
+            if (fs.existsSync(chromeBin)) candidatePaths.push(chromeBin);
+            const altBin = path.join(base, sub, "chrome");
+            if (fs.existsSync(altBin)) candidatePaths.push(altBin);
+          }
+        } catch (_) {}
+      }
+    }
+
+    resolvedExecutablePath = candidatePaths.find((p) => fs.existsSync(p));
 
     // If no system Chrome binary is found on cloud host, use self-contained @sparticuz/chromium
     if (!resolvedExecutablePath) {
@@ -285,13 +322,25 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         "--window-size=1366,850",
       ];
 
+  const vendorLibDirs = [
+    path.join(process.cwd(), "back", "vendor", "libs", "usr", "lib", "x86_64-linux-gnu"),
+    path.join(process.cwd(), "vendor", "libs", "usr", "lib", "x86_64-linux-gnu"),
+    path.join(process.cwd(), "back", "vendor", "libs", "usr", "lib"),
+    path.join(process.cwd(), "vendor", "libs", "usr", "lib"),
+    "/usr/lib/x86_64-linux-gnu",
+    "/usr/lib",
+    "/usr/local/lib",
+    "/lib/x86_64-linux-gnu",
+    "/lib",
+  ].filter(Boolean);
+
   const launchOptions = {
     headless: "new",
     userDataDir: sessionDir,
     args: launchArgs,
     env: {
       ...process.env,
-      LD_LIBRARY_PATH: `${process.env.LD_LIBRARY_PATH || ""}:/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib`,
+      LD_LIBRARY_PATH: `${vendorLibDirs.join(":")}:${process.env.LD_LIBRARY_PATH || ""}`,
     },
   };
   if (resolvedExecutablePath) {
