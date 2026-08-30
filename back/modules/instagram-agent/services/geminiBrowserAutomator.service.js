@@ -182,19 +182,53 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   const downloadPath = path.join(os.tmpdir(), `gemini_downloads_${Date.now()}`);
   if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath, { recursive: true });
 
+  // Configure Puppeteer with robust Linux & Windows support
+  const isLinux = process.platform === "linux";
+  const customExecutablePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
+    (isLinux ? [
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/google-chrome",
+      "/usr/bin/chromium-browser",
+      "/usr/bin/chromium",
+      "/snap/bin/chromium"
+    ].find(p => fs.existsSync(p)) : undefined);
+
+  const launchArgs = [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--disable-software-rasterizer",
+    "--disable-blink-features=AutomationControlled",
+    "--window-size=1366,850",
+  ];
+
+  if (isLinux) {
+    launchArgs.push("--no-zygote", "--single-process");
+  }
+
+  const launchOptions = {
+    headless: "new",
+    userDataDir: sessionDir,
+    args: launchArgs,
+  };
+  if (customExecutablePath) {
+    launchOptions.executablePath = customExecutablePath;
+  }
+
   try {
     await addStep("1. Launch Browser", "Starting Chromium with persistent Google Gemini profile...");
-    browser = await puppeteer.launch({
-      headless: "new",
-      userDataDir: sessionDir,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-blink-features=AutomationControlled",
-        "--window-size=1366,850",
-      ],
-    });
+    try {
+      browser = await puppeteer.launch(launchOptions);
+    } catch (launchErr) {
+      if (launchErr.message.includes("shared libraries") || launchErr.message.includes("libnspr4") || launchErr.message.includes("127")) {
+        throw new Error(
+          `Linux Chromium missing system dependencies (${launchErr.message}).\n` +
+          `Please run on your server:\nsudo apt-get update && sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2`
+        );
+      }
+      throw launchErr;
+    }
 
     page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 850 });
@@ -277,18 +311,46 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       await page.keyboard.press("Enter");
     }
 
-    // Step 6: Wait for Gemini to generate and render the creation
-    await addStep("6. Generating in Gemini", "Prompt submitted. Waiting for generation to complete...");
+    // Step 6: Wait for Gemini to generate and render the creation (5 Minutes Timeout)
+    await addStep("6. Generating in Gemini", "Prompt submitted. Gemini is rendering 16:9 video (waiting up to 5 minutes)...");
     console.log("[Gemini Agent] Generation submitted. Waiting 6 seconds for media to stabilize...");
     await new Promise((r) => setTimeout(r, 6000));
 
     await addStep("7. Searching for Media", "Scanning video elements, download buttons, and media streams...");
     let extractedMediaBuffer = null;
     let isVideoResult = true;
-    const maxAttempts = 20;
+    const maxAttempts = 100; // 100 attempts * 3s = 300 seconds (5 full minutes)
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-      console.log(`[Gemini Agent] Searching for media... Attempt ${attempt}/${maxAttempts}`);
+      const elapsed = attempt * 3;
+      if (attempt % 5 === 0 || attempt === 1) {
+        console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s / 300s)`);
+        await addStep("Rendering Video in Gemini", `Gemini is generating 16:9 video (${elapsed}s / 300s elapsed)...`);
+      }
+
+      // Check for Gemini Subscription / Paywall / Limit Text Notice
+      const textNotice = await page.evaluate(() => {
+        const messageContainers = Array.from(document.querySelectorAll("message-content, .model-response-text, [data-test-id='model-response'], .response-container, .markdown, p"));
+        for (const el of messageContainers.reverse()) {
+          const text = (el.innerText || "").trim().toLowerCase();
+          if (text.length > 15) {
+            const hasSubscription = text.includes("gemini advanced") || text.includes("subscription") || text.includes("upgrade to") || text.includes("upgrade your plan") || text.includes("pricing");
+            const isVideoRef = text.includes("video") || text.includes("generate video") || text.includes("create video");
+            const cannotGen = text.includes("i cannot generate video") || text.includes("i can't generate video") || text.includes("cannot create video");
+
+            if ((hasSubscription && isVideoRef) || cannotGen) {
+              return { isPaywall: true, rawText: el.innerText.trim() };
+            }
+          }
+        }
+        return { isPaywall: false };
+      });
+
+      if (textNotice?.isPaywall) {
+        const paywallMsg = `Google Gemini Subscription Notice: ${textNotice.rawText}. Gemini video generation requires a Gemini Advanced / Subscription plan. Please upgrade your Google account subscription.`;
+        await addStep("Subscription Required", paywallMsg);
+        throw new Error(paywallMsg);
+      }
 
       // 1. Check CDP Downloaded Files in temporary folder
       try {
@@ -302,7 +364,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
               extractedMediaBuffer = buf;
               isVideoResult = true;
               console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Downloaded MP4 captured (${(buf.length / 1024 / 1024).toFixed(2)} MB).`);
-              addStep("Media Found", `Captured downloaded video file (Attempt ${attempt})`);
+              await addStep("Media Found", `Captured downloaded video file (${(buf.length / 1024 / 1024).toFixed(2)} MB)`);
               break;
             }
           }
@@ -403,7 +465,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
             extractedMediaBuffer = Buffer.from(base64Data, "base64");
             isVideoResult = true;
             console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Direct video stream extracted.`);
-            addStep("Media Found", `Extracted video stream from browser (Attempt ${attempt})`);
+            await addStep("Media Found", `Extracted video stream from browser (Attempt ${attempt})`);
             break;
           }
         } catch (_) {}
@@ -414,7 +476,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         extractedMediaBuffer = Buffer.from(domMedia.base64, "base64");
         isVideoResult = false;
         console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Generated visual captured.`);
-        addStep("Media Found", `Captured generated visual (Attempt ${attempt})`);
+        await addStep("Media Found", `Captured generated visual (Attempt ${attempt})`);
         break;
       }
 
@@ -432,7 +494,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
                 extractedMediaBuffer = buf;
                 isVideoResult = true;
                 console.log(`[Gemini Agent] Attempt ${attempt}: Downloaded MP4 captured after click!`);
-                addStep("Media Found", `Downloaded MP4 captured successfully`);
+                await addStep("Media Found", `Downloaded MP4 captured successfully`);
                 break;
               }
             }
@@ -440,7 +502,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         } catch (_) {}
       }
 
-      await new Promise((r) => setTimeout(r, 2500));
+      await new Promise((r) => setTimeout(r, 3000));
     }
 
     // Direct Element Screenshot fallback if needed
