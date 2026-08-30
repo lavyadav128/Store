@@ -512,43 +512,31 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
     if (!focused) throw new Error("Google Gemini prompt input box was not found on the page.");
 
-    // Step 4: Inject Creative Generation Prompt (Trusted Types CSP safe)
+    // Step 4: Focus input and type prompt with native keystrokes so Angular form state syncs
     await addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
     
-    // Focus, clear any existing text, and insert prompt via TrustedHTML-safe execCommand
-    const inserted = await page.evaluate((text) => {
-      const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
-      if (el) {
-        el.focus();
-        try {
-          document.execCommand("selectAll", false, null);
-          document.execCommand("delete", false, null);
-        } catch (_) {}
-        const ok = document.execCommand("insertText", false, text);
-        if (!ok) {
-          if (el.isContentEditable) {
-            el.textContent = text;
-          } else {
-            el.value = text;
-          }
-        }
-        el.dispatchEvent(new Event("input", { bubbles: true }));
-        el.dispatchEvent(new Event("change", { bubbles: true }));
-        return true;
-      }
-      return false;
-    }, fullPrompt);
+    // Focus the prompt textbox using Puppeteer
+    const inputSelector = "div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']";
+    await page.waitForSelector(inputSelector, { timeout: 10000 });
+    await page.click(inputSelector);
+    await new Promise((r) => setTimeout(r, 200));
 
-    if (!inserted) {
-      await page.keyboard.type(fullPrompt, { delay: 10 });
-    }
-    await new Promise((r) => setTimeout(r, 600));
+    // Clear any existing text using native Ctrl+A / Backspace
+    await page.keyboard.down(process.platform === "darwin" ? "Meta" : "Control");
+    await page.keyboard.press("KeyA");
+    await page.keyboard.up(process.platform === "darwin" ? "Meta" : "Control");
+    await page.keyboard.press("Backspace");
+    await new Promise((r) => setTimeout(r, 200));
+
+    // Type with native keystrokes so Angular/React model updates cleanly
+    await page.keyboard.type(fullPrompt, { delay: 15 });
+    await new Promise((r) => setTimeout(r, 500));
 
     // Step 5: Submit Prompt to Gemini Engine with Confirmed Submission Loop
     await addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
 
     let isSubmitted = false;
-    for (let submitAttempt = 1; submitAttempt <= 8; submitAttempt++) {
+    for (let submitAttempt = 1; submitAttempt <= 6; submitAttempt++) {
       // Check if already submitted (input cleared, stop button appeared, or responses streaming)
       isSubmitted = await page.evaluate(() => {
         const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
@@ -563,56 +551,40 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         break;
       }
 
-      console.log(`[Gemini Agent] Prompt not yet sent (attempt ${submitAttempt}/8). Focusing and sending click/Enter...`);
+      console.log(`[Gemini Agent] Submitting prompt (attempt ${submitAttempt}/6)...`);
 
-      // 1. Focus the textbox and trigger Enter keydown
-      await page.evaluate(() => {
-        const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
-        if (el) {
-          el.focus();
-          el.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true }));
-          el.dispatchEvent(new KeyboardEvent("keypress", { key: "Enter", code: "Enter", keyCode: 13, which: 13, bubbles: true, cancelable: true }));
-        }
-      });
-      await page.keyboard.press("Enter");
-      await new Promise((r) => setTimeout(r, 400));
-
-      // 2. Find exact coordinates of the blue Send button (↑) and click with native mouse
-      const btnCoords = await page.evaluate(() => {
-        const buttons = Array.from(document.querySelectorAll("button, [role='button'], div.send-button, mat-icon-button, [aria-label*='Send' i], [aria-label*='Submit' i]"));
-        for (const b of buttons.reverse()) {
-          const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-          const hasSend = aria.includes("send") || aria.includes("submit");
-          const hasSvg = !!b.querySelector("svg, mat-icon, [fonticon*='send' i], [fonticon*='arrow' i]");
-          const rect = b.getBoundingClientRect();
-          const isVisible = rect.width >= 15 && rect.height >= 15 && rect.top > 0 && rect.top < window.innerHeight;
-          if ((hasSend || hasSvg) && isVisible && !b.disabled && b.getAttribute("aria-disabled") !== "true") {
-            return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-          }
-        }
-
-        // Fallback: Click the right side of the prompt input bar where the ↑ button resides
-        const inputEl = document.querySelector("div[role='textbox'], rich-textarea, .input-area");
-        if (inputEl) {
-          const rect = inputEl.getBoundingClientRect();
-          return { x: rect.right - 25, y: rect.top + rect.height / 2 };
-        }
-        return null;
-      });
-
-      if (btnCoords) {
-        try {
-          await page.mouse.click(btnCoords.x, btnCoords.y);
-        } catch (_) {}
-      }
-
-      // 3. Fallback: try elementHandle click
+      // 1. Focus input and press native Enter
       try {
-        const sendHandle = await page.$("button[aria-label*='Send' i], button.send-button, [data-test-id='send-button'], button:has(mat-icon)");
-        if (sendHandle) await sendHandle.click();
+        await page.focus(inputSelector);
+        await page.keyboard.press("Enter");
+      } catch (_) {}
+      await new Promise((r) => setTimeout(r, 600));
+
+      // 2. Click Send Button via Puppeteer page.click or coordinates
+      try {
+        const sendBtnHandle = await page.$("button.send-button, button[aria-label*='Send' i], button[aria-label*='Submit' i], div.send-button, mat-icon-button:has(mat-icon)");
+        if (sendBtnHandle) {
+          await sendBtnHandle.click();
+        } else {
+          // Find button bounding box and click with native mouse
+          const btnCoords = await page.evaluate(() => {
+            const buttons = Array.from(document.querySelectorAll("button, [role='button'], div.send-button, mat-icon-button, [aria-label*='Send' i]"));
+            for (const b of buttons.reverse()) {
+              const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+              const hasSend = aria.includes("send") || aria.includes("submit");
+              const hasSvg = !!b.querySelector("svg, mat-icon");
+              const rect = b.getBoundingClientRect();
+              if ((hasSend || hasSvg) && rect.width >= 15 && rect.height >= 15 && rect.top > 0 && rect.top < window.innerHeight) {
+                return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+              }
+            }
+            return null;
+          });
+          if (btnCoords) await page.mouse.click(btnCoords.x, btnCoords.y);
+        }
       } catch (_) {}
 
-      await new Promise((r) => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     // Step 6: Wait for Gemini to generate and render the creation (Full 5 minutes timeout)
