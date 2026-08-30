@@ -39,6 +39,8 @@ import LandscapeIcon from "@mui/icons-material/Landscape";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
+import VolumeOffIcon from "@mui/icons-material/VolumeOff";
+import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import server from "../../shared/environment";
@@ -101,9 +103,13 @@ export default function InstagramGrowthAgent() {
   const [generatingMediaId, setGeneratingMediaId] = useState(null);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
 
-  // Audio Preview Player State
+  // Audio Preview Player State for In-Queue & Lightbox
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const audioRef = useRef(null);
+
+  // Cinema Lightbox Modal State
+  const [cinemaModalOpen, setCinemaModalOpen] = useState(false);
+  const [cinemaItem, setCinemaItem] = useState(null);
 
   // Real-Time Live Followers Tracking State
   const [liveFollowers, setLiveFollowers] = useState(null);
@@ -274,8 +280,7 @@ export default function InstagramGrowthAgent() {
   // Toggle Audio Playback for Admin Preview
   const handleToggleAudio = (contentId, audioUrl) => {
     if (!audioUrl) {
-      notify("No audio stream available for this track.", "warning");
-      return;
+      audioUrl = "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
     }
 
     if (playingAudioId === contentId) {
@@ -291,6 +296,21 @@ export default function InstagramGrowthAgent() {
       audioRef.current = audio;
       setPlayingAudioId(contentId);
     }
+  };
+
+  // Open Cinema Lightbox to view Image/Video + Audio simultaneously
+  const openCinemaModal = (item) => {
+    setCinemaItem(item);
+    setCinemaModalOpen(true);
+    const trackUrl = item.audioTrack?.audioUrl || "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
+    handleToggleAudio(item._id, trackUrl);
+  };
+
+  const closeCinemaModal = () => {
+    if (audioRef.current) audioRef.current.pause();
+    setPlayingAudioId(null);
+    setCinemaModalOpen(false);
+    setCinemaItem(null);
   };
 
   // Poll live inspection steps while Live Flow modal is open
@@ -657,7 +677,7 @@ export default function InstagramGrowthAgent() {
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
                 <Box sx={{ color: "#09090b" }}>{r.icon}</Box>
                 <Chip
-                  label={mediaMode === "image" ? "Create 16:9 Image" : "Create 16:9 Video"}
+                  label={mediaMode === "image" ? "Create 16:9 Image + Song" : "Create 16:9 Video + Song"}
                   size="small"
                   sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }}
                 />
@@ -814,8 +834,9 @@ export default function InstagramGrowthAgent() {
                   gap: 2.5,
                 }}
               >
-                {/* 16:9 Media Preview Container */}
+                {/* 16:9 Media Preview Container (Clickable for Instant Audio / Video Playback) */}
                 <Box
+                  onClick={() => item.assetUrl ? openCinemaModal(item) : null}
                   sx={{
                     width: "100%",
                     aspectRatio: "16 / 9",
@@ -825,8 +846,14 @@ export default function InstagramGrowthAgent() {
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    border: "1px solid #27272a",
+                    border: isPlayingThis ? "2px solid #22c55e" : "1px solid #27272a",
                     position: "relative",
+                    cursor: item.assetUrl ? "pointer" : "default",
+                    transition: "all 0.2s ease",
+                    "&:hover": item.assetUrl ? {
+                      transform: "scale(1.01)",
+                      boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                    } : {},
                   }}
                 >
                   {item.assetUrl ? (
@@ -840,11 +867,44 @@ export default function InstagramGrowthAgent() {
                         preload="metadata"
                       />
                     ) : (
-                      <img
-                        src={item.assetUrl}
-                        alt={item.topic}
-                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                      />
+                      <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
+                        <img
+                          src={item.assetUrl}
+                          alt={item.topic}
+                          style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        />
+                        {/* Play Music Overlay for Image */}
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            inset: 0,
+                            bgcolor: isPlayingThis ? "rgba(0,0,0,0.3)" : "rgba(0,0,0,0.15)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            opacity: isPlayingThis ? 1 : 0.85,
+                            transition: "opacity 0.2s ease",
+                            "&:hover": { opacity: 1 },
+                          }}
+                        >
+                          <Box
+                            sx={{
+                              width: 44,
+                              height: 44,
+                              borderRadius: "50%",
+                              bgcolor: isPlayingThis ? "#22c55e" : "rgba(0,0,0,0.7)",
+                              color: "#ffffff",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              backdropFilter: "blur(4px)",
+                              boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+                            }}
+                          >
+                            {isPlayingThis ? <PauseIcon /> : <PlayArrowIcon />}
+                          </Box>
+                        </Box>
+                      </Box>
                     )
                   ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
                     <Box sx={{ textAlign: "center", p: 2 }}>
@@ -861,9 +921,11 @@ export default function InstagramGrowthAgent() {
                       <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Media Generated</Typography>
                     </Box>
                   )}
+                  
+                  {/* Aspect & Audio Badges */}
                   <Chip
                     icon={isVideoItem ? <MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} /> : <ImageIcon style={{ color: "#ffffff", fontSize: 12 }} />}
-                    label={isVideoItem ? "16:9 Video + Music" : "16:9 4K Image"}
+                    label={isVideoItem ? "16:9 Video + Music" : "16:9 Image + Music"}
                     size="small"
                     sx={{
                       position: "absolute",
@@ -877,6 +939,25 @@ export default function InstagramGrowthAgent() {
                       border: "1px solid rgba(255,255,255,0.2)",
                     }}
                   />
+
+                  {item.assetUrl && (
+                    <Chip
+                      icon={<FullscreenIcon style={{ color: "#ffffff", fontSize: 12 }} />}
+                      label="View Full"
+                      size="small"
+                      sx={{
+                        position: "absolute",
+                        top: 8,
+                        right: 8,
+                        bgcolor: "rgba(0,0,0,0.85)",
+                        color: "#ffffff",
+                        fontSize: 9,
+                        fontWeight: 700,
+                        height: 20,
+                        border: "1px solid rgba(255,255,255,0.2)",
+                      }}
+                    />
+                  )}
                 </Box>
 
                 {/* Details & Action Controls */}
@@ -937,7 +1018,10 @@ export default function InstagramGrowthAgent() {
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                         <IconButton
                           size="small"
-                          onClick={() => handleToggleAudio(item._id, audioTrackUrl)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleToggleAudio(item._id, audioTrackUrl);
+                          }}
                           sx={{
                             bgcolor: isPlayingThis ? "#09090b" : "#ffffff",
                             color: isPlayingThis ? "#ffffff" : "#09090b",
@@ -949,7 +1033,7 @@ export default function InstagramGrowthAgent() {
                         </IconButton>
                         <Box>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#09090b" }}>
-                            {isPlayingThis ? "🔊 Playing Background Music..." : "🎵 Background Soundscape"}
+                            {isPlayingThis ? "🔊 Playing Nature Soundscape..." : "🎵 Background Soundscape"}
                           </Typography>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#71717a" }}>
                             {item.trendingAudioSuggestion || item.audioTrack?.title || "Ethereal Ambient Nature Soundscape"}
@@ -959,7 +1043,10 @@ export default function InstagramGrowthAgent() {
                       <Button
                         size="small"
                         startIcon={isPlayingThis ? <PauseIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
-                        onClick={() => handleToggleAudio(item._id, audioTrackUrl)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleToggleAudio(item._id, audioTrackUrl);
+                        }}
                         sx={{
                           borderRadius: "8px",
                           textTransform: "none",
@@ -971,7 +1058,7 @@ export default function InstagramGrowthAgent() {
                           "&:hover": { bgcolor: isPlayingThis ? "#27272a" : "#f4f4f5" },
                         }}
                       >
-                        {isPlayingThis ? "Pause Audio" : "Preview Music"}
+                        {isPlayingThis ? "Pause Song" : "Listen Song"}
                       </Button>
                     </Box>
 
@@ -1005,7 +1092,7 @@ export default function InstagramGrowthAgent() {
                       <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
                       <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
                         {item.assetUrl
-                          ? `16:9 ${isVideoItem ? "Video Ready with Music" : "4K Image Ready"}`
+                          ? `16:9 ${isVideoItem ? "Video Ready with Song" : "4K Image Ready with Song"}`
                           : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
                           ? "Gemini is rendering creation..."
                           : item.mediaGenerationError
@@ -1063,6 +1150,118 @@ export default function InstagramGrowthAgent() {
           })
         )}
       </Paper>
+
+      {/* ── CINEMA FULL PREVIEW MODAL (IMAGE/VIDEO + AUDIO SIMULTANEOUSLY) ── */}
+      <Dialog
+        open={cinemaModalOpen}
+        onClose={closeCinemaModal}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "16px", bgcolor: "#09090b", color: "#ffffff" } }}
+      >
+        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a" }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <AutoAwesomeIcon sx={{ color: "#22c55e", fontSize: 20 }} />
+            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
+              16:9 Cinema Preview · {cinemaItem?.type === "reel" ? "Animated Reel + Audio" : "Photorealistic Image + Audio"}
+            </Typography>
+          </Box>
+          <IconButton onClick={closeCinemaModal} size="small" sx={{ color: "#a1a1aa" }}>
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ p: 2.5 }}>
+          {cinemaItem && (
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+              {/* 16:9 Full Viewport Display */}
+              <Box
+                sx={{
+                  width: "100%",
+                  aspectRatio: "16 / 9",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  bgcolor: "#000000",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: "1px solid #27272a",
+                }}
+              >
+                {cinemaItem.type === "reel" || cinemaItem.assetUrl?.toLowerCase().endsWith(".mp4") ? (
+                  <video
+                    src={cinemaItem.assetUrl}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                    controls
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={cinemaItem.assetUrl}
+                    alt={cinemaItem.topic}
+                    style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  />
+                )}
+              </Box>
+
+              {/* Soundscape & Audio Control Bar */}
+              <Box sx={{ p: 2, bgcolor: "#18181b", borderRadius: "10px", border: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5 }}>
+                <Box>
+                  <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#ffffff" }}>
+                    🎵 {cinemaItem.trendingAudioSuggestion || cinemaItem.audioTrack?.title || "Ambient Nature Soundscape"}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "#a1a1aa", mt: 0.3 }}>
+                    Realm: {cinemaItem.themeCategory} · High-Fidelity Audio Synchronized
+                  </Typography>
+                </Box>
+                <Button
+                  variant="contained"
+                  startIcon={playingAudioId === cinemaItem._id ? <PauseIcon /> : <VolumeUpIcon />}
+                  onClick={() => handleToggleAudio(cinemaItem._id, cinemaItem.audioTrack?.audioUrl)}
+                  sx={{
+                    borderRadius: "8px",
+                    bgcolor: playingAudioId === cinemaItem._id ? "#22c55e" : "#27272a",
+                    color: "#ffffff",
+                    fontWeight: 700,
+                    textTransform: "none",
+                    "&:hover": { bgcolor: playingAudioId === cinemaItem._id ? "#16a34a" : "#3f3f46" },
+                  }}
+                >
+                  {playingAudioId === cinemaItem._id ? "Pause Sound" : "Play Sound"}
+                </Button>
+              </Box>
+
+              {/* Caption */}
+              <Box sx={{ p: 2, bgcolor: "#18181b", borderRadius: "10px", border: "1px solid #27272a" }}>
+                <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#ffffff", mb: 0.5 }}>
+                  {cinemaItem.topic}
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: "#d4d4d8", whiteSpace: "pre-wrap", lineHeight: 1.5 }}>
+                  {cinemaItem.caption}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 2, borderTop: "1px solid #27272a" }}>
+          <Button onClick={closeCinemaModal} sx={{ color: "#a1a1aa", textTransform: "none" }}>
+            Close
+          </Button>
+          {cinemaItem && (
+            <Button
+              variant="contained"
+              onClick={() => {
+                publishNow(cinemaItem._id);
+                closeCinemaModal();
+              }}
+              sx={{ bgcolor: "#ffffff", color: "#09090b", fontWeight: 700, textTransform: "none", "&:hover": { bgcolor: "#e4e4e7" } }}
+            >
+              Publish to Instagram Now
+            </Button>
+          )}
+        </DialogActions>
+      </Dialog>
 
       {/* ── RECENT AUDIT LOG (WHITE BOX) ── */}
       <Paper sx={whiteCard}>

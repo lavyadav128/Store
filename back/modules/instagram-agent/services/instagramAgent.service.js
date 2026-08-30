@@ -522,7 +522,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Matching soothing ambient music & acoustic soundscape (e.g. ethereal crystal bowl resonance, calming morning birdsong & gentle stream, zen bamboo flute)",
   "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, photography hashtags"],
-  "imagePrompt": "create one photorealistic 8K image of <vivid scene details> in 16:9 format with natural volumetric lighting and fine details"
+  "imagePrompt": "create one photorealistic 8K image of <vivid scene details> in 16:9 format with soothing ambient background music and volumetric lighting"
 }`;
 
       let parsed = null;

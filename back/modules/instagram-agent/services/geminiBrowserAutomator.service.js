@@ -97,7 +97,7 @@ export function formatNaturePrompt({ title = "", realm = "", background = "", ra
   if (isVideo) {
     return `create one animated video on ${sceneDescription} in 16:9 format with soothing ambient background music`;
   } else {
-    return `create one photorealistic 8K image of ${sceneDescription} in 16:9 format with natural volumetric lighting and fine details`;
+    return `create one photorealistic 8K image of ${sceneDescription} in 16:9 format with soothing ambient background music and volumetric lighting`;
   }
 }
 
