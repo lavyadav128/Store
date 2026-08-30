@@ -297,42 +297,42 @@ async function uploadRemoteAsset(url, resourceType) {
 
 const ROYALTY_FREE_AUDIO_LIBRARY = [
   {
-    id: 'ultimate-dreams-theme',
-    title: 'Ultimate Dreams Anthem',
-    artist: 'Store Master Soundtrack',
-    genre: 'Cinematic Motivation',
+    id: 'nature-celestial-aurora',
+    title: 'Ethereal Celestial Space Pad & Aurora Harmonics',
+    artist: 'Earth Ambient (Royalty-Free)',
+    genre: 'Celestial Ambient',
     duration: 142,
     audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3',
   },
   {
-    id: 'lofi-study-1',
-    title: 'Chill Midnight Study Beats',
-    artist: 'Lofi Dreamer (CC0)',
-    genre: 'Lo-Fi Beats',
+    id: 'nature-zen-waterfall',
+    title: 'Emerald Lagoon Waterfall & Bamboo Zen Flute',
+    artist: 'Zen Sanctuary (Royalty-Free)',
+    genre: 'Water & Flute',
     duration: 32,
     audioUrl: 'https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=lofi-study-112191.mp3',
   },
   {
-    id: 'tech-ambient-2',
-    title: 'Cyber Deep Focus Pulse',
-    artist: 'Future Wave (Royalty Free)',
-    genre: 'Tech Ambient',
+    id: 'nature-ancient-redwood',
+    title: 'Mystic Redwood Forest Cello & Morning Mist',
+    artist: 'Deep Forest (Royalty-Free)',
+    genre: 'Forest Cello',
     duration: 28,
     audioUrl: 'https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=electronic-future-beats-117997.mp3',
   },
   {
-    id: 'cinematic-inspire-3',
-    title: 'Inspiring Cinematic Ascent',
-    artist: 'Orchestra Modern (CC-BY)',
-    genre: 'Cinematic Motivational',
+    id: 'nature-sakura-harp',
+    title: 'Blooming Sakura Blossom Koto Harp Melody',
+    artist: 'Kyoto Ambient (Royalty-Free)',
+    genre: 'Koto Harp',
     duration: 30,
     audioUrl: 'https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c8a73467.mp3?filename=inspiring-cinematic-ambient-116199.mp3',
   },
   {
-    id: 'modern-upbeat-4',
-    title: 'Upbeat Creative Groove',
-    artist: 'Studio Soundtrack (Royalty Free)',
-    genre: 'Modern Indie Upbeat',
+    id: 'nature-alpine-strings',
+    title: 'Golden Alpine Mountain Sunrise Strings',
+    artist: 'Horizon Symphony (Royalty-Free)',
+    genre: 'Mountain Strings',
     duration: 25,
     audioUrl: 'https://cdn.pixabay.com/download/audio/2021/09/06/audio_8bb5e4688a.mp3?filename=tropical-summer-music-112842.mp3',
   },
@@ -342,12 +342,32 @@ export function getAvailableMusicTracks() {
   return ROYALTY_FREE_AUDIO_LIBRARY;
 }
 
-export function getTrendingAudioRecommendation(topic, niche = 'Education & Tech') {
+export function getSoundscapeTrackForRealm(realm = '', soundscapeDesc = '') {
+  const r = (realm || '').toLowerCase();
+  let baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[0];
+  if (r.includes('water') || r.includes('lagoon') || r.includes('ocean') || r.includes('sea')) {
+    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[1];
+  } else if (r.includes('forest') || r.includes('wood') || r.includes('zen') || r.includes('jungle')) {
+    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[2];
+  } else if (r.includes('bloom') || r.includes('wild') || r.includes('sakura') || r.includes('flower')) {
+    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[3];
+  } else if (r.includes('peak') || r.includes('mount') || r.includes('alpin')) {
+    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[4];
+  }
+
+  return {
+    ...baseTrack,
+    title: soundscapeDesc || baseTrack.title,
+  };
+}
+
+export function getTrendingAudioRecommendation(topic, niche = 'Nature & Relaxation') {
   const recommendations = [
-    `🎵 Trending Audio: "Midnight City Beats" by SynthLab (Viral in ${niche})`,
-    `🎵 Trending Audio: "Deep Focus Lo-Fi Flow" by Coffeehop (High engagement on Reels)`,
-    `🎵 Trending Audio: "Inspire Tomorrow" by Cinematic Audio Hub`,
-    `🎵 Trending Audio: "Electronic Future Pulse" (12.4k Reels using this audio)`,
+    `🎵 Soundscape: "Ethereal Celestial Space Pads" by Earth Ambient (Viral in ${niche})`,
+    `🎵 Soundscape: "Zen Bamboo Flute & Water Resonance" by Zen Sanctuary`,
+    `🎵 Soundscape: "Mystic Forest Cello & Morning Mist" by Deep Forest`,
+    `🎵 Soundscape: "Blooming Sakura Koto Harp Melody" by Kyoto Ambient`,
+    `🎵 Soundscape: "Golden Alpine Mountain Sunrise Strings" by Horizon Symphony`,
   ];
   return recommendations[Math.floor(Math.random() * recommendations.length)];
 }
@@ -355,7 +375,7 @@ export function getTrendingAudioRecommendation(topic, niche = 'Education & Tech'
 export async function attachMusicToContent(content, trackId) {
   const track = ROYALTY_FREE_AUDIO_LIBRARY.find((t) => t.id === trackId) || ROYALTY_FREE_AUDIO_LIBRARY[0];
   content.audioTrack = track;
-  content.trendingAudioSuggestion = getTrendingAudioRecommendation(content.topic);
+  content.trendingAudioSuggestion = `🎵 Soundscape: "${track.title}"`;
 
   // Append audio recommendation in caption if not already present
   if (!content.caption.includes('🎵')) {
@@ -453,7 +473,7 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
     : formatNatureImagePrompt({ title: selectedTopic, realm: themeCategory, background: selectedTheme.description });
   let hashtags = selectedTheme.hashtags;
   let reelScript = isVideo ? selectedTheme.reelScript : '';
-  let soundscape = isVideo ? selectedTheme.soundscape : '';
+  let soundscape = selectedTheme.soundscape || 'Ethereal Ambient Nature Soundscape';
 
   // 4. Use Gemini Pro AI to dynamically generate brand new, unique Nature content
   if (geminiKey) {
@@ -486,19 +506,20 @@ Return strict JSON with this exact schema:
         : `You are the creative director for a viral 8K Nature & Landscape Photography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
-Format: "post" (16:9 photorealistic 8K nature image)
+Format: "post" (16:9 photorealistic 8K nature image with ambient nature music)
 Brand Voice: "Breathtaking, serene, crystal-clear, and deeply grounded in Earth's natural beauty"
 
 CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
 ${JSON.stringify(recentlyUsedTopics, null, 2)}
 
-Provide a brand new breathtaking nature photograph description with natural lighting, golden hour hues, and fine textures.
+Provide a brand new breathtaking nature photograph description with natural lighting, golden hour hues, and a matching relaxing acoustic soundscape.
 
 Return strict JSON with this exact schema:
 {
   "topic": "Catchy, viral photo title (5-8 words)",
   "themeCategory": "${themeCategory}",
   "visualScene": "Detailed description of the 8K nature photo scene",
+  "soundscape": "Matching soothing ambient music & acoustic soundscape (e.g. ethereal crystal bowl resonance, calming morning birdsong & gentle stream, zen bamboo flute)",
   "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, photography hashtags"],
   "imagePrompt": "create one photorealistic 8K image of <vivid scene details> in 16:9 format with natural volumetric lighting and fine details"
@@ -530,6 +551,7 @@ Return strict JSON with this exact schema:
   }
 
   const topicFp = getQuoteFingerprint(selectedTopic);
+  const resolvedTrack = getSoundscapeTrackForRealm(themeCategory, soundscape);
 
   const content = await InstagramContent.create({
     type: effectiveType,
@@ -542,16 +564,8 @@ Return strict JSON with this exact schema:
     hashtags: hashtags,
     creativeBrief: creativePrompt,
     reelScript: reelScript,
-    audioTrack: isVideo ? {
-      id: `nature_${Date.now()}`,
-      title: soundscape || 'Serene Nature Soundscape',
-      artist: 'Ambient Earth',
-      genre: 'Nature Relaxation',
-      durationSeconds: 15,
-      isRoyaltyFree: true,
-      audioUrl: '',
-    } : undefined,
-    trendingAudioSuggestion: isVideo ? `🎵 Soundscape: "${soundscape || 'Serene Nature Soundscape'}"` : '',
+    audioTrack: resolvedTrack,
+    trendingAudioSuggestion: `🎵 Soundscape: "${soundscape || resolvedTrack.title}"`,
     createdBy: 'agent',
     mediaGenerationStatus: 'not_requested',
   });

@@ -1,9 +1,8 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   Alert,
   Box,
   Button,
-  ButtonGroup,
   Chip,
   CircularProgress,
   Dialog,
@@ -22,6 +21,7 @@ import {
   Typography,
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import PauseIcon from "@mui/icons-material/Pause";
 import StopIcon from "@mui/icons-material/Stop";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -38,6 +38,7 @@ import SpaIcon from "@mui/icons-material/Spa";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import server from "../../shared/environment";
@@ -77,7 +78,7 @@ const field = {
 };
 
 const NATURE_REALMS = [
-  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord with Ethereal Choir Pads" },
+  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord with Ethereal Space Pad Harmonics" },
   { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", icon: <WaterIcon fontSize="small" />, sample: "Emerald Jungle Waterfall Lagoon with Zen Bamboo Flute & Water Resonance" },
   { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", icon: <ForestIcon fontSize="small" />, sample: "Misty Giant Redwoods with God Rays & Calming Acoustic Cello Resonance" },
   { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", icon: <SpaIcon fontSize="small" />, sample: "Pink Sakura Mountain Streams with Soothing Koto Harp Melody" },
@@ -90,10 +91,19 @@ export default function InstagramGrowthAgent() {
   const [config, setConfig] = useState(null);
   const [topic, setTopic] = useState("");
   const [selectedRealm, setSelectedRealm] = useState("Celestial & Aurora");
-  const [mediaMode, setMediaMode] = useState("video"); // "image" | "video"
+  
+  // Persistent Mode Selection across sessions
+  const [mediaMode, setMediaMode] = useState(() => {
+    return localStorage.getItem("admin_media_mode") || "video";
+  });
+
   const [saving, setSaving] = useState(false);
   const [generatingMediaId, setGeneratingMediaId] = useState(null);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
+
+  // Audio Preview Player State
+  const [playingAudioId, setPlayingAudioId] = useState(null);
+  const audioRef = useRef(null);
 
   // Real-Time Live Followers Tracking State
   const [liveFollowers, setLiveFollowers] = useState(null);
@@ -112,6 +122,21 @@ export default function InstagramGrowthAgent() {
 
   const notify = (text, severity = "success") => setSnack({ open: true, text, severity });
 
+  // Switch and Persist Media Mode immediately
+  const handleSwitchMode = async (newMode) => {
+    setMediaMode(newMode);
+    localStorage.setItem("admin_media_mode", newMode);
+    try {
+      if (config) {
+        await request("/config", "POST", {
+          ...config,
+          contentMode: newMode === "image" ? "post" : "reel",
+        });
+      }
+      notify(`Mode set to 16:9 ${newMode === "image" ? "Image Post" : "Video Reel"} (Saved).`);
+    } catch (_) {}
+  };
+
   const load = useCallback(async () => {
     try {
       const response = await fetch(`${server}/api/instagram-agent/overview`, {
@@ -122,7 +147,8 @@ export default function InstagramGrowthAgent() {
       setData(payload);
       setConfig(payload.config);
 
-      if (payload.config?.contentMode === "post") {
+      const savedMode = localStorage.getItem("admin_media_mode");
+      if (!savedMode && payload.config?.contentMode === "post") {
         setMediaMode("image");
       }
 
@@ -182,7 +208,7 @@ export default function InstagramGrowthAgent() {
       };
       const updated = await request("/config", "POST", updatedConfig);
       setConfig(updated);
-      notify("Instagram configuration and media mode saved.");
+      notify("Instagram configuration and default media mode saved.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -242,6 +268,28 @@ export default function InstagramGrowthAgent() {
     } finally {
       setGeneratingMediaId(null);
       setRunningFlowLiveId(null);
+    }
+  };
+
+  // Toggle Audio Playback for Admin Preview
+  const handleToggleAudio = (contentId, audioUrl) => {
+    if (!audioUrl) {
+      notify("No audio stream available for this track.", "warning");
+      return;
+    }
+
+    if (playingAudioId === contentId) {
+      if (audioRef.current) audioRef.current.pause();
+      setPlayingAudioId(null);
+    } else {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+      const audio = new Audio(audioUrl);
+      audio.onended = () => setPlayingAudioId(null);
+      audio.play().catch(() => notify("Could not play audio stream.", "error"));
+      audioRef.current = audio;
+      setPlayingAudioId(contentId);
     }
   };
 
@@ -532,7 +580,7 @@ export default function InstagramGrowthAgent() {
         </Alert>
       )}
 
-      {/* ── 6 NATURE STUDIOS WITH ADMIN IMAGE VS VIDEO SELECTOR (INDIVIDUAL WHITE CARDS) ── */}
+      {/* ── 6 NATURE STUDIOS WITH PERSISTENT ADMIN IMAGE VS VIDEO SELECTOR ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
           <Box>
@@ -540,16 +588,16 @@ export default function InstagramGrowthAgent() {
               16:9 Nature AI Studio
             </Typography>
             <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13 }}>
-              Select whether you want to generate a 16:9 4K Image or an animated 16:9 Video with background music:
+              Select mode (persists until changed). Generates 16:9 visual with matching ambient background music:
             </Typography>
           </Box>
 
-          {/* Admin Image vs Video Mode Switcher */}
+          {/* Persistent Admin Image vs Video Mode Switcher */}
           <Box sx={{ display: "flex", alignItems: "center", gap: 1, bgcolor: "#f4f4f5", p: 0.5, borderRadius: "10px", border: "1px solid #e4e4e7" }}>
             <Button
               size="small"
               startIcon={<ImageIcon fontSize="small" />}
-              onClick={() => setMediaMode("image")}
+              onClick={() => handleSwitchMode("image")}
               sx={{
                 borderRadius: "8px",
                 textTransform: "none",
@@ -562,12 +610,12 @@ export default function InstagramGrowthAgent() {
                 "&:hover": { bgcolor: mediaMode === "image" ? "#27272a" : "#e4e4e7" },
               }}
             >
-              🖼️ 16:9 Image Mode
+              🖼️ 16:9 Image Mode {mediaMode === "image" && "✓"}
             </Button>
             <Button
               size="small"
               startIcon={<MovieCreationIcon fontSize="small" />}
-              onClick={() => setMediaMode("video")}
+              onClick={() => handleSwitchMode("video")}
               sx={{
                 borderRadius: "8px",
                 textTransform: "none",
@@ -580,7 +628,7 @@ export default function InstagramGrowthAgent() {
                 "&:hover": { bgcolor: mediaMode === "video" ? "#27272a" : "#e4e4e7" },
               }}
             >
-              🎬 16:9 Video Mode
+              🎬 16:9 Video Mode {mediaMode === "video" && "✓"}
             </Button>
           </Box>
         </Box>
@@ -690,10 +738,10 @@ export default function InstagramGrowthAgent() {
             <Select
               label="Default Post Format"
               value={mediaMode}
-              onChange={(e) => setMediaMode(e.target.value)}
+              onChange={(e) => handleSwitchMode(e.target.value)}
             >
               <MenuItem value="video">🎬 16:9 Video Reel (with Music)</MenuItem>
-              <MenuItem value="image">🖼️ 16:9 4K Nature Image</MenuItem>
+              <MenuItem value="image">🖼️ 16:9 4K Nature Image (with Music)</MenuItem>
             </Select>
           </FormControl>
           <TextField
@@ -741,7 +789,7 @@ export default function InstagramGrowthAgent() {
         </Box>
       </Paper>
 
-      {/* ── CONTENT QUEUE WITH BOTH IMAGE & VIDEO ACTIONS ── */}
+      {/* ── CONTENT QUEUE WITH AUDIO PREVIEW & MEDIA ACTIONS ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & Media Items</Typography>
         {content.length === 0 ? (
@@ -751,6 +799,9 @@ export default function InstagramGrowthAgent() {
         ) : (
           content.map((item) => {
             const isVideoItem = item.type === "reel" || item.assetUrl?.toLowerCase().endsWith(".mp4") || item.assetUrl?.toLowerCase().includes("/video/upload/");
+            const audioTrackUrl = item.audioTrack?.audioUrl || "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
+            const isPlayingThis = playingAudioId === item._id;
+
             return (
               <Box
                 key={item._id}
@@ -868,17 +919,61 @@ export default function InstagramGrowthAgent() {
                       {item.topic}
                     </Typography>
 
-                    {/* Atmospheric Soundscape Badge */}
-                    {item.trendingAudioSuggestion && isVideoItem && (
-                      <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
-                        <Chip
-                          icon={<MusicNoteIcon fontSize="small" />}
-                          label={`Music: ${item.trendingAudioSuggestion}`}
+                    {/* ── AUDIO PREVIEW BAR FOR ADMIN (FOR BOTH IMAGES & VIDEOS) ── */}
+                    <Box
+                      sx={{
+                        mt: 1.2,
+                        p: 1.2,
+                        borderRadius: "10px",
+                        bgcolor: isPlayingThis ? "#f4f4f5" : "#fafafa",
+                        border: isPlayingThis ? "1.5px solid #09090b" : "1px solid #e4e4e7",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                        gap: 1,
+                      }}
+                    >
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                        <IconButton
                           size="small"
-                          sx={{ bgcolor: "#fafafa", color: "#3f3f46", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
-                        />
+                          onClick={() => handleToggleAudio(item._id, audioTrackUrl)}
+                          sx={{
+                            bgcolor: isPlayingThis ? "#09090b" : "#ffffff",
+                            color: isPlayingThis ? "#ffffff" : "#09090b",
+                            border: "1px solid #d4d4d8",
+                            "&:hover": { bgcolor: isPlayingThis ? "#27272a" : "#f4f4f5" },
+                          }}
+                        >
+                          {isPlayingThis ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
+                        </IconButton>
+                        <Box>
+                          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#09090b" }}>
+                            {isPlayingThis ? "🔊 Playing Background Music..." : "🎵 Background Soundscape"}
+                          </Typography>
+                          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#71717a" }}>
+                            {item.trendingAudioSuggestion || item.audioTrack?.title || "Ethereal Ambient Nature Soundscape"}
+                          </Typography>
+                        </Box>
                       </Box>
-                    )}
+                      <Button
+                        size="small"
+                        startIcon={isPlayingThis ? <PauseIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
+                        onClick={() => handleToggleAudio(item._id, audioTrackUrl)}
+                        sx={{
+                          borderRadius: "8px",
+                          textTransform: "none",
+                          fontSize: 11,
+                          fontWeight: 700,
+                          color: isPlayingThis ? "#ffffff" : "#09090b",
+                          bgcolor: isPlayingThis ? "#09090b" : "#ffffff",
+                          border: "1px solid #d4d4d8",
+                          "&:hover": { bgcolor: isPlayingThis ? "#27272a" : "#f4f4f5" },
+                        }}
+                      >
+                        {isPlayingThis ? "Pause Audio" : "Preview Music"}
+                      </Button>
+                    </Box>
 
                     <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#3f3f46", lineHeight: 1.5 }}>
                       {item.caption}
