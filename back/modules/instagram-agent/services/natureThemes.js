@@ -41,7 +41,7 @@ export const NATURE_THEMES = [
     cameraMotion: "Slow cinematic upward glide revealing glowing golden peaks above white sea of valley clouds",
     lighting: "First golden-hour alpenglow, warm pink clouds, volumetric morning rays piercing alpine fog",
     soundscape: "Soft morning birdsong, gentle mountain breeze, uplifting acoustic ambient pads",
-    prompt: "create one animated video on breathtaking mountain sunrise over golden morning valley mist in 16:9 format with soothing ambient background music",
+    prompt: "create video on mountain sunrise over golden morning valley mist",
     reelScript: `Scene 1 (0-3s): First rays of dawn touch jagged snow-covered mountain peaks in pink and gold.
 Scene 2 (4-7s): Thick morning mist rolls gently through the emerald green valley below.
 Scene 3 (8-10s): Sun rises above the horizon, casting radiant god-rays across the alpine landscape.
@@ -64,7 +64,7 @@ There is a quiet magic in the first light of day. Before the world wakes, the mo
     cameraMotion: "Smooth forward tracking shot through sunbeams and glistening ferns",
     lighting: "Warm morning god rays, sparkling dew highlights, soft diffuse mist",
     soundscape: "Gentle stream babbling, early morning robin chirps, soothing acoustic guitar harmonics",
-    prompt: "create one animated video on golden sunrise rays streaming through dewy pine forest in 16:9 format with soothing ambient background music",
+    prompt: "create video on golden sunrise rays streaming through dewy pine forest",
     reelScript: `Scene 1 (0-3s): Glistening dew drops hanging on vibrant green pine needles.
 Scene 2 (4-7s): Radiant sunbeams pierce through tall trees, illuminating golden morning mist.
 Scene 3 (8-10s): Camera glides along a mossy trail into the peaceful heart of the forest.
@@ -88,7 +88,7 @@ Every morning is a gentle reminder that life begins anew. Walk through the still
     cameraMotion: "Low angle gliding across the wet sand reflection towards the sinking golden sun",
     lighting: "Deep crimson, amber, and purple sky gradients, glistening golden water mirror",
     soundscape: "Rhythmic calming ocean waves, warm sunset ambient drone, gentle sea breeze",
-    prompt: "create one animated video on vibrant tropical ocean sunset with golden reflections on water in 16:9 format with soothing ambient background music",
+    prompt: "create video on tropical ocean sunset with golden reflections on water",
     reelScript: `Scene 1 (0-3s): Sun slowly dips into the ocean horizon, blazing in amber and crimson.
 Scene 2 (4-7s): Gentle sea foam washes over smooth wet sand reflecting the glowing sky.
 Scene 3 (8-10s): Silhouetted palm fronds sway softly against a majestic purple and gold twilight.
@@ -111,7 +111,7 @@ As the sun sets, the ocean turns into a canvas of gold and crimson. A gentle rem
     cameraMotion: "Slow panoramic tilt from shadowed mossy forest floor up to radiant amber canopy",
     lighting: "Warm amber backlighting, glowing volumetric dust particles, rich golden contrasts",
     soundscape: "Evening bird calls, gentle leaves rustling, calming cello harmonics",
-    prompt: "create one animated video on magical forest sunset with glowing orange sunbeams in 16:9 format with soothing ambient background music",
+    prompt: "create video on forest sunset with glowing orange sunbeams",
     reelScript: `Scene 1 (0-3s): Warm orange sunbeams filter between towering ancient tree trunks.
 Scene 2 (4-7s): Floating golden dust particles dance gently in the evening light beams.
 Scene 3 (8-10s): Long evening shadows stretch across the lush green moss carpet.
@@ -135,7 +135,7 @@ When the evening sun filters through ancient trees, the whole forest glows like 
     cameraMotion: "Slow cinematic zoom towards the deer with gentle atmospheric depth of field",
     lighting: "Backlit golden morning sunlight, luminous morning fog, soft natural highlights on antler velvet",
     soundscape: "Soft rustling grass, distant woodpecker tap, serene acoustic cello and ambient breeze",
-    prompt: "create one animated video on majestic deer standing quietly in misty pine forest at sunrise in 16:9 format with soothing ambient background music",
+    prompt: "create video on deer standing quietly in misty pine forest at sunrise",
     reelScript: `Scene 1 (0-3s): Soft morning fog rolls between ancient pine trees as golden light streams through.
 Scene 2 (4-7s): A majestic stag stands poised in the sunbeams, velvet antlers glowing in the dawn.
 Scene 3 (8-10s): The deer turns gracefully, vanishing peacefully into the golden misty woods.
@@ -158,7 +158,7 @@ In the sacred quiet of dawn, a majestic stag emerges through the morning mist. A
     cameraMotion: "Low angle tracking shot moving with the silent, powerful stride of the tiger",
     lighting: "Dappled sunlight through jungle canopy, glistening wet fur highlights, soft steam mist",
     soundscape: "Distant jungle bird calls, dripping raindrops on large leaves, deep ambient drone",
-    prompt: "create one animated video on powerful bengal tiger walking through lush green jungle in 16:9 format with soothing ambient background music",
+    prompt: "create video on powerful bengal tiger walking through lush green jungle",
     reelScript: `Scene 1 (0-3s): Heavy rain clears, revealing lush emerald jungle canopy dripping with water.
 Scene 2 (4-7s): A magnificent Bengal tiger steps silently onto a mossy root, amber eyes focused.
 Scene 3 (8-10s): Sunlight catches the tiger's vibrant orange coat as it glides into the deep green foliage.
@@ -182,7 +182,7 @@ Silent, sovereign, and magnificent. Watching a tiger move through its untouched 
     cameraMotion: "Upward sweeping crane shot from emerald moss carpet up the towering giant trunks",
     lighting: "Luminous green ambient glow, volumetric god rays, velvety soft shadows",
     soundscape: "Gentle forest wind, trickling brook, soothing Zen bamboo flute",
-    prompt: "create one animated video on ancient misty redwood forest with golden sunbeams and moss in 16:9 format with soothing ambient background music",
+    prompt: "create video on ancient misty redwood forest with golden sunbeams and moss",
     reelScript: `Scene 1 (0-3s): Emerald green moss carpets ancient boulder stones beside a clear trickle of water.
 Scene 2 (4-7s): Majestic giant redwoods rise like pillars of time into swirling morning mist.
 Scene 3 (8-10s): Brilliant sunbeams stream between high canopy branches, bathing the forest in golden light.
@@ -204,7 +204,7 @@ These giant trees have stood for centuries, witnessing the passage of generation
     cameraMotion: "Gliding low along the crystal clear water surface through hanging jungle vines",
     lighting: "Bright tropical sunbeams piercing damp canopy, sparkling iridescent water reflections",
     soundscape: "Clear stream bubbling, exotic birds, warm rain dripping from jungle palms",
-    prompt: "create one animated video on lush tropical rainforest stream after rain with sunlight in 16:9 format with soothing ambient background music",
+    prompt: "create video on lush tropical rainforest stream after rain with sunlight",
     reelScript: `Scene 1 (0-3s): Raindrops drip rhythmically from giant monstera leaves into clear river water.
 Scene 2 (4-7s): Golden sun breaks through the lush green canopy, creating dancing reflections on the stream.
 Scene 3 (8-10s): Smooth river pebbles glisten under crystal turquoise mountain spring water.
@@ -228,7 +228,7 @@ Water flowing effortlessly around every obstacle, giving life to millions of thr
     cameraMotion: "Sweeping aerial cinematic flight along the rugged cliff edge as sea foam breaks",
     lighting: "Warm golden-hour sunlight illuminating turquoise crests and misty ocean spray",
     soundscape: "Deep crashing ocean waves, soothing ocean spray mist, calm ambient synth pads",
-    prompt: "create one animated video on turquoise ocean waves crashing against dramatic rocky cliffs in 16:9 format with soothing ambient background music",
+    prompt: "create video on turquoise ocean waves crashing against dramatic rocky cliffs",
     reelScript: `Scene 1 (0-3s): Turquoise ocean swells rise majestically against rugged ancient sea cliffs.
 Scene 2 (4-7s): The wave shatters in golden spray, illuminated brilliantly by the setting sun.
 Scene 3 (8-10s): Sea mist drifts peacefully toward coastal mountains along the infinite horizon.
@@ -250,7 +250,7 @@ Where the vast ocean meets the ancient cliffs, every wave tells a story of endle
     cameraMotion: "Slow cinematic zoom out capturing the vast contrast between dark clouds and glowing sunbeam",
     lighting: "Dramatic dark moody clouds, solitary brilliant sunbeam cutting through ocean mist",
     soundscape: "Mighty rolling thunder in distance, deep ocean surge, poignant violin melody",
-    prompt: "create one animated video on dramatic stormy ocean cliffs with single ray of sunlight breaking through in 16:9 format with soothing ambient background music",
+    prompt: "create video on dramatic stormy ocean cliffs with single ray of sunlight breaking through",
     reelScript: `Scene 1 (0-3s): Deep indigo storm clouds gather over rolling ocean swells.
 Scene 2 (4-7s): A single majestic beam of golden light pierces the clouds, illuminating a patch of turquoise water.
 Scene 3 (8-10s): White sea foam cascades down ancient dark basalt cliffs in breathtaking scale.
@@ -274,7 +274,7 @@ Even in the deepest storm, light always finds a way through the clouds. Whatever
     cameraMotion: "Slow intimate tracking shot skimming close to rain-kissed leaves and water ripples",
     lighting: "Soft diffuse overcast daylight, glistening wet foliage textures, atmospheric rain mist",
     soundscape: "Soothing continuous gentle rainfall on leaves, babbling brook, calming binaural rain sounds",
-    prompt: "create one animated video on peaceful forest during gentle rainfall with water droplets on green leaves in 16:9 format with soothing ambient background music",
+    prompt: "create video on forest during gentle rainfall with water droplets on green leaves",
     reelScript: `Scene 1 (0-3s): Gentle raindrops create circular ripples on the surface of a forest pool.
 Scene 2 (4-7s): Water droplets glide down vibrant green fern leaves in super-clear macro detail.
 Scene 3 (8-10s): Soft rain mist floats through the emerald trees as the stream flows peacefully.
@@ -299,7 +299,7 @@ Listen to the gentle rhythm of rain falling on leaves. Nature is cleansing the e
     cameraMotion: "Slow cinematic upward tilt from the glass-still star reflection up to the galactic core",
     lighting: "Bioluminescent cosmic glow, purple and gold stardust clouds, silver starlight on water",
     soundscape: "Deep cosmic binaural frequencies, subtle night crickets, soothing celestial harp melody",
-    prompt: "create one animated video on glowing milky way galaxy over calm mountain lake reflection in 16:9 format with soothing ambient background music",
+    prompt: "create video on glowing milky way galaxy over calm mountain lake reflection",
     reelScript: `Scene 1 (0-3s): Mirror-like mountain lake reflecting millions of glittering stars in 4K clarity.
 Scene 2 (4-7s): The vibrant core of the Milky Way galaxy rises in purple and gold dust clouds.
 Scene 3 (8-10s): A shooting star streaks across the dark pine forest horizon.
@@ -324,7 +324,7 @@ Standing under billions of distant suns puts everything into perspective. We are
     cameraMotion: "Extreme macro slow motion pan across iridescent blue wing scales and glistening dew globes",
     lighting: "Warm morning backlight creating golden bokeh circles and glowing dew sparkles",
     soundscape: "Delicate wind chimes, gentle birdsong, soothing soft acoustic harp",
-    prompt: "create one animated video on delicate blue butterfly resting on wildflower covered in morning dew in 16:9 format with soothing ambient background music",
+    prompt: "create video on delicate blue butterfly resting on wildflower covered in morning dew",
     reelScript: `Scene 1 (0-3s): Ultra-close macro shot of tiny iridescent scales on an electric blue butterfly wing.
 Scene 2 (4-7s): Golden morning sunlight refracts like diamonds through water droplets on petal edges.
 Scene 3 (8-10s): The butterfly gently opens its wings as soft morning breeze stirs the wildflower meadow.
@@ -346,7 +346,7 @@ Look closely, and you will find an entire universe inside a single dewdrop on a 
     cameraMotion: "Smooth focus pull from river mist background directly onto the brilliant turquoise plumage",
     lighting: "Golden morning rim lighting, sparkling water reflections, rich jewel-toned feather luster",
     soundscape: "Clear river current, sharp bird chirp, peaceful acoustic guitar and flute",
-    prompt: "create one animated video on vibrant turquoise kingfisher bird perched above misty morning river in 16:9 format with soothing ambient background music",
+    prompt: "create video on turquoise kingfisher bird perched above misty morning river",
     reelScript: `Scene 1 (0-3s): Turquoise and orange plumage glistening with tiny droplets of river water.
 Scene 2 (4-7s): The kingfisher watches the clear water attentively as morning mist drifts beneath.
 Scene 3 (8-10s): Camera pans back revealing the serene green river valley at dawn.
@@ -370,7 +370,7 @@ Perched in total stillness above the rushing waters, waiting for the perfect mom
     cameraMotion: "Dramatic sweeping drone glide rising over pine ridges toward the glowing alpine horn",
     lighting: "Intense fiery orange alpenglow on summit glaciers, deep blue shadow valley contrasts",
     soundscape: "Alpine mountain breeze, gentle choir harmonies, soothing cello resonance",
-    prompt: "create one animated video on golden alpenglow snow peaks reflecting in still alpine lake in 16:9 format with soothing ambient background music",
+    prompt: "create video on golden alpenglow snow peaks reflecting in still alpine lake",
     reelScript: `Scene 1 (0-3s): Fiery orange sunlight sets the highest glacier peaks ablaze in alpenglow.
 Scene 2 (4-7s): Glass-like glacial lake mirrors the majestic jagged summits with zero ripples.
 Scene 3 (8-10s): Golden larch pines stand guard along the rocky shoreline as twilight descends.
@@ -395,7 +395,7 @@ Mountains teach us resilience. No matter how fierce the storm or how cold the ni
     cameraMotion: "Smooth forward tracking shot walking along the golden leaf-strewn forest path",
     lighting: "Warm amber and gold glow filtering through red maple canopy, gentle morning mist",
     soundscape: "Leaves crunching softly, gentle autumn breeze, warm acoustic piano melody",
-    prompt: "create one animated video on golden autumn forest path with falling leaves and morning mist in 16:9 format with soothing ambient background music",
+    prompt: "create video on golden autumn forest path with falling leaves and morning mist",
     reelScript: `Scene 1 (0-3s): Golden and crimson maple leaves flutter gently through the crisp morning air.
 Scene 2 (4-7s): A peaceful path blanketed in red and gold leaves winds into the misty woods.
 Scene 3 (8-10s): Warm sunlight illuminates the vibrant autumn canopy in glowing amber tones.
@@ -417,7 +417,7 @@ Autumn teaches us how beautiful it can be to let things go. As the leaves surren
     cameraMotion: "Slow majestic gliding shot drifting through snow-laden evergreen boughs",
     lighting: "Cool pristine blue dawn illumination, soft warm glow on distant horizon",
     soundscape: "Pure silent snowfall, distant winter breeze, peaceful crystal bowl harmonics",
-    prompt: "create one animated video on silent snow covered pine forest at dawn with falling snow in 16:9 format with soothing ambient background music",
+    prompt: "create video on silent snow covered pine forest at dawn with falling snow",
     reelScript: `Scene 1 (0-3s): Pristine powdery snow blankets every branch of towering pine trees.
 Scene 2 (4-7s): Gentle crystalline snowflakes drift slowly through soft blue dawn light.
 Scene 3 (8-10s): The first pale golden sunbeam breaks through the winter horizon.
@@ -441,7 +441,7 @@ When snow blankets the forest, the world enters a deep, healing rest. There is p
     cameraMotion: "Cinematic wide-angle tracking shot capturing the slow, dignified march of the herd",
     lighting: "Rich golden backlight, glowing dust cloud behind the herd, deep savanna sunset hues",
     soundscape: "African savanna wind, distant bird calls, inspiring deep cinematic strings",
-    prompt: "create one animated video on elephant family walking across golden african savanna at sunset in 16:9 format with soothing ambient background music",
+    prompt: "create video on elephant family walking across golden african savanna at sunset",
     reelScript: `Scene 1 (0-3s): Golden dust clouds glow warmly as giant elephant feet tread the savanna soil.
 Scene 2 (4-7s): A mother elephant guides her young calf gently across the vast grassy plains.
 Scene 3 (8-10s): Enormous acacia trees stand silhouetted against a breathtaking crimson African sky.
@@ -466,7 +466,7 @@ Family, wisdom, and deep emotional bonds. Elephants walk the earth with unmatche
     cameraMotion: "Smooth underwater 3D glide following a sea turtle through glowing coral arches",
     lighting: "Sunbeams dancing through crystal clear water, iridescent neon coral reflections",
     soundscape: "Underwater ambient bubbles, soothing ocean resonance, calming harp and synthesizer",
-    prompt: "create one animated video on glowing tropical coral reef with sea turtles in crystal ocean water in 16:9 format with soothing ambient background music",
+    prompt: "create video on glowing tropical coral reef with sea turtles in crystal ocean water",
     reelScript: `Scene 1 (0-3s): Shimmering sunbeams dance through turquoise water onto vibrant living corals.
 Scene 2 (4-7s): An ancient green sea turtle glides serenely through glowing coral canyon arches.
 Scene 3 (8-10s): Thousands of shimmering fish swirl in synchronized harmony around the reef.

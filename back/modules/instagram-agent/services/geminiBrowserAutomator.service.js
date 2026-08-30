@@ -152,24 +152,29 @@ export function getDetailedSoundscapeDescription(realm = "", title = "", soundsc
 }
 
 export function formatNaturePrompt({ title = "", realm = "", background = "", soundscape = "", rawPrompt = "", isVideo = true }) {
-  let scene = background || rawPrompt || title || "a majestic deer standing quietly in a misty pine forest at sunrise, golden sunlight passing through the trees, soft fog surrounding the forest floor, tiny water droplets on grass, peaceful atmosphere, ultra-realistic wildlife photography, cinematic composition, natural colors, atmospheric depth, 8K, no text, no watermark";
+  let topic = title || realm || rawPrompt || background || "nature";
   
-  // Clean wrapper tokens while preserving all rich descriptive details (lighting, fog, textures, composition)
-  scene = scene
-    .replace(/^create\s+(one\s+)?(animated\s+video|photorealistic\s+8k\s+image)\s+(on|of)\s+/gi, "")
-    .replace(/\s+(in\s+16:9\s+format\s+)?with\s+volumetric[\s\S]*$/gi, "")
-    .replace(/\s+along\s+with\s+matching\s+background\s+music[\s\S]*$/gi, "")
-    .replace(/\s+with\s+matching\s+background\s+music[\s\S]*$/gi, "")
-    .replace(/\s+in\s+16:9\s+format\s+with[\s\S]*$/gi, "")
-    .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/gi, "")
-    .replace(/["'{}\[\]]/g, " ")
+  // Clean wrapper tokens to get concise topic
+  topic = topic
+    .replace(/^create\s+(one\s+)?(animated\s+video|video|photorealistic\s+8k\s+image|image)\s+(on|of)\s+/gi, "")
+    .replace(/\s+(in\s+16:9\s+format|with|along\s+with|Audio\s*&|Scene\s*\d|Detailed)[\s\S]*$/gi, "")
+    .replace(/["'{}\[\]\n\r]/g, " ")
+    .replace(/[🌅🌄🦌🌲🌊🌧️🌌🦋🏔️🍂🐘🌍✨🌿🌊🏔️]/g, "")
     .replace(/\s+/g, " ")
     .trim();
 
+  // Keep topic concise (3-5 words max)
+  const words = topic.split(" ").filter(Boolean);
+  if (words.length > 5) {
+    topic = words.slice(0, 5).join(" ");
+  }
+
+  if (!topic) topic = "nature";
+
   if (isVideo) {
-    return `create one animated video on ${scene} with matching background music`;
+    return `create video on ${topic.toLowerCase()}`;
   } else {
-    return `create one photorealistic 8K image of ${scene} along with matching background music based on image`;
+    return `create image on ${topic.toLowerCase()}`;
   }
 }
 
