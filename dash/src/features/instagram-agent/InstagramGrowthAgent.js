@@ -31,18 +31,12 @@ import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import MovieCreationIcon from "@mui/icons-material/MovieCreation";
 import ImageIcon from "@mui/icons-material/Image";
-import NightsStayIcon from "@mui/icons-material/NightsStay";
-import WaterIcon from "@mui/icons-material/Water";
-import ForestIcon from "@mui/icons-material/Forest";
-import SpaIcon from "@mui/icons-material/Spa";
-import LandscapeIcon from "@mui/icons-material/Landscape";
-import AcUnitIcon from "@mui/icons-material/AcUnit";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import VolumeUpIcon from "@mui/icons-material/VolumeUp";
-import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
+import LoopIcon from "@mui/icons-material/Loop";
 import server from "../../shared/environment";
 
 const authHeaders = () => ({
@@ -79,20 +73,27 @@ const field = {
   "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif", color: "#71717a" },
 };
 
+// 12 Comprehensive Daily Series
 const NATURE_REALMS = [
-  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord with Ethereal Space Pad Harmonics" },
-  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", icon: <WaterIcon fontSize="small" />, sample: "Emerald Jungle Waterfall Lagoon with Zen Bamboo Flute & Water Resonance" },
-  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", icon: <ForestIcon fontSize="small" />, sample: "Misty Giant Redwoods with God Rays & Calming Acoustic Cello Resonance" },
-  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", icon: <SpaIcon fontSize="small" />, sample: "Pink Sakura Mountain Streams with Soothing Koto Harp Melody" },
-  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", icon: <LandscapeIcon fontSize="small" />, sample: "Golden Alpenglow Mountain Summits with Uplifting Ambient Strings" },
-  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", icon: <AcUnitIcon fontSize="small" />, sample: "Sapphire Glacial Ice Caverns with Crystalline Bowl Harmonics" },
+  { id: "morning", title: "🌅 Nature's Morning", realm: "🌅 Nature's Morning", sample: "Mountain sunrise alpenglow & golden valley mist with morning birdsong" },
+  { id: "sunset", title: "🌄 Sunset of the Day", realm: "🌄 Sunset of the Day", sample: "Tropical ocean sunset & warm golden reflections with rhythmic waves" },
+  { id: "wildlife", title: "🦌 Wildlife Moments", realm: "🦌 Wildlife Moments", sample: "Majestic deer & Bengal tiger in misty forest with calming cello" },
+  { id: "forest", title: "🌲 Hidden Forests", realm: "🌲 Hidden Forests", sample: "Ancient giant redwoods & mossy waterfalls with Zen bamboo flute" },
+  { id: "ocean", title: "🌊 Ocean Diaries", realm: "🌊 Ocean Diaries", sample: "Dramatic rocky coastline & turquoise ocean waves with sea breeze" },
+  { id: "rain", title: "🌧️ Rainy Nature", realm: "🌧️ Rainy Nature", sample: "Peaceful forest rainfall & water droplets on ferns with rain sounds" },
+  { id: "night", title: "🌌 Nature at Night", realm: "🌌 Nature at Night", sample: "Milky Way galaxy core over mirror mountain lake with space harp" },
+  { id: "tiny", title: "🦋 Tiny Wonders", realm: "🦋 Tiny Wonders", sample: "Blue butterfly & emerald kingfisher macro photography with acoustic harp" },
+  { id: "mountains", title: "🏔️ Mountain Stories", realm: "🏔️ Mountain Stories", sample: "Snow-capped alpine peaks & alpenglow summit with alpine strings" },
+  { id: "seasons", title: "🍂 Earth Through the Seasons", realm: "🍂 Earth Through the Seasons", sample: "Golden autumn maple path & silent winter snowfall with singing bowls" },
+  { id: "world_wildlife", title: "🐘 Wildlife Around the World", realm: "🐘 Wildlife Around the World", sample: "African savanna elephant family at sunset with cinematic strings" },
+  { id: "one_planet", title: "🌍 One Planet, Many Worlds", realm: "🌍 One Planet, Many Worlds", sample: "Bioluminescent coral reef abyss & sea turtles with ocean harp" },
 ];
 
 export default function InstagramGrowthAgent() {
   const [data, setData] = useState(null);
   const [config, setConfig] = useState(null);
   const [topic, setTopic] = useState("");
-  const [selectedRealm, setSelectedRealm] = useState("Celestial & Aurora");
+  const [selectedRealm, setSelectedRealm] = useState("🌅 Nature's Morning");
   
   // Persistent Mode Selection across sessions
   const [mediaMode, setMediaMode] = useState(() => {
@@ -214,7 +215,7 @@ export default function InstagramGrowthAgent() {
       };
       const updated = await request("/config", "POST", updatedConfig);
       setConfig(updated);
-      notify("Instagram configuration and default media mode saved.");
+      notify("Instagram configuration and 12-series daily loop settings saved.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -247,7 +248,7 @@ export default function InstagramGrowthAgent() {
         category: realmToUse,
         type: targetType,
       });
-      notify(`AI generated 16:9 Nature ${targetType === "post" ? "Image" : "Video"}: "${created.topic}"`);
+      notify(`AI generated 16:9 [${realmToUse}] ${targetType === "post" ? "Image" : "Video"}: "${created.topic}"`);
       setTopic("");
       await load();
     } catch (error) {
@@ -423,13 +424,13 @@ export default function InstagramGrowthAgent() {
               textTransform: "uppercase",
             }}
           >
-            Autonomous Growth Engine · 16:9 Nature Studio
+            Autonomous Growth Engine · 12-Series Nature & Earth Studio
           </Typography>
           <Typography sx={{ ...titleStyle, fontSize: { xs: 24, sm: 30 }, mt: 0.3 }}>
             Instagram Nature Studio & Growth Agent
           </Typography>
           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mt: 0.5 }}>
-            Automated 16:9 widescreen nature images and animated videos generated by Gemini with ambient background music.
+            Automated daily 12-series rotation generating unique 16:9 images and videos with matching nature background music.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -581,12 +582,12 @@ export default function InstagramGrowthAgent() {
         <Paper sx={{ ...whiteCard, p: 2.5 }}>
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-              Scheduler
+              12-Series Loop
             </Typography>
-            <AutoAwesomeIcon sx={{ color: "#71717a", fontSize: 18 }} />
+            <LoopIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 800, color: config.running ? "#16a34a" : "#71717a", lineHeight: 1.2 }}>
-            {config.running ? "Running Daily" : "Paused"}
+            {config.running ? "Looping Daily" : "Paused"}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
             Daily {mediaMode === "image" ? "Image" : "Video"} at {config.dailyPostTime || "07:00"} IST
@@ -600,15 +601,15 @@ export default function InstagramGrowthAgent() {
         </Alert>
       )}
 
-      {/* ── 6 NATURE STUDIOS WITH PERSISTENT ADMIN IMAGE VS VIDEO SELECTOR ── */}
+      {/* ── 12 NATURE SERIES STUDIO GRID WITH PERSISTENT ADMIN IMAGE VS VIDEO SELECTOR ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
           <Box>
             <Typography sx={{ ...titleStyle, fontSize: 18 }}>
-              16:9 Nature AI Studio
+              12 Nature & Earth Series Studio
             </Typography>
             <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13 }}>
-              Select mode (persists until changed). Generates 16:9 visual with matching ambient background music:
+              Select series or let autonomous daily scheduler rotate through all 12 series with tailored background music:
             </Typography>
           </Box>
 
@@ -653,7 +654,8 @@ export default function InstagramGrowthAgent() {
           </Box>
         </Box>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 1.5 }}>
+        {/* 12 Series Grid */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(4, 1fr)" }, gap: 1.5 }}>
           {NATURE_REALMS.map((r) => (
             <Paper
               key={r.id}
@@ -671,23 +673,25 @@ export default function InstagramGrowthAgent() {
                 "&:hover": {
                   bgcolor: "#f4f4f5",
                   borderColor: "#09090b",
+                  transform: "translateY(-1px)",
                 },
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
-                <Box sx={{ color: "#09090b" }}>{r.icon}</Box>
-                <Chip
-                  label={mediaMode === "image" ? "Create 16:9 Image + Song" : "Create 16:9 Video + Song"}
-                  size="small"
-                  sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }}
-                />
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 13.5, color: "#09090b" }}>
+                  {r.title}
+                </Typography>
               </Box>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, color: "#09090b" }}>
-                {r.title}
-              </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#71717a", mt: 0.4, lineHeight: 1.4 }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, color: "#71717a", lineHeight: 1.4 }}>
                 {r.sample}
               </Typography>
+              <Box sx={{ mt: 1.2, display: "flex", justifyContent: "flex-end" }}>
+                <Chip
+                  label={mediaMode === "image" ? "Generate Image" : "Generate Video"}
+                  size="small"
+                  sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 9.5, height: 19 }}
+                />
+              </Box>
             </Paper>
           ))}
         </Box>
@@ -697,16 +701,16 @@ export default function InstagramGrowthAgent() {
         {/* Custom Prompt Generator */}
         <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
           <TextField
-            label="Custom Nature Scene / Marvel"
+            label="Custom Nature Scene / Story"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Glowing Turquoise Glacial Lagoon, Autumn Birch Fog Stream"
+            placeholder="e.g. Bengal Tiger walking through rain-washed jungle at sunrise"
             sx={{ ...field, flex: 1, minWidth: 260 }}
           />
-          <FormControl sx={{ ...field, minWidth: 180 }}>
-            <InputLabel>Nature Realm</InputLabel>
+          <FormControl sx={{ ...field, minWidth: 220 }}>
+            <InputLabel>Nature Series</InputLabel>
             <Select
-              label="Nature Realm"
+              label="Nature Series"
               value={selectedRealm}
               onChange={(e) => setSelectedRealm(e.target.value)}
             >
@@ -740,9 +744,9 @@ export default function InstagramGrowthAgent() {
 
       {/* ── DAILY SCHEDULER SETTINGS (WHITE BOX) ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily Content Scheduler</Typography>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>12-Series Daily Rotational Scheduler</Typography>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2 }}>
-          Autonomous daily 16:9 nature creations scheduled to publish automatically to your Instagram page.
+          Autonomous daily cycle: 🌅 Morning ➔ 🌄 Sunset ➔ 🦌 Wildlife ➔ 🌲 Forests ➔ 🌊 Ocean ➔ 🌧️ Rain ➔ 🌌 Night ➔ 🦋 Tiny Wonders ➔ 🏔️ Mountains ➔ 🍂 Seasons ➔ 🐘 World Wildlife ➔ 🌍 One Planet (Forever Unique).
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr 1fr" }, gap: 2 }}>
@@ -804,7 +808,7 @@ export default function InstagramGrowthAgent() {
               "&:hover": { bgcolor: config.running ? "#dc2626" : "#27272a" },
             }}
           >
-            {config.running ? "Pause Scheduler" : "Start Scheduler"}
+            {config.running ? "Pause Scheduler" : "Start 12-Series Loop"}
           </Button>
         </Box>
       </Paper>
@@ -814,7 +818,7 @@ export default function InstagramGrowthAgent() {
         <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & Media Items</Typography>
         {content.length === 0 ? (
           <Typography sx={{ color: "#71717a", fontSize: 13 }}>
-            No drafts yet. Click any Nature Realm above to generate your first 16:9 nature creation!
+            No drafts yet. Click any Nature Series above to generate your first 16:9 nature creation!
           </Typography>
         ) : (
           content.map((item) => {
@@ -925,7 +929,7 @@ export default function InstagramGrowthAgent() {
                   {/* Aspect & Audio Badges */}
                   <Chip
                     icon={isVideoItem ? <MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} /> : <ImageIcon style={{ color: "#ffffff", fontSize: 12 }} />}
-                    label={isVideoItem ? "16:9 Video + Music" : "16:9 Image + Music"}
+                    label={isVideoItem ? "16:9 Video + Song" : "16:9 Image + Song"}
                     size="small"
                     sx={{
                       position: "absolute",
@@ -976,7 +980,7 @@ export default function InstagramGrowthAgent() {
                           }}
                         />
                         <Chip
-                          label={item.themeCategory || "Nature"}
+                          label={item.themeCategory || "Nature Series"}
                           size="small"
                           sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }}
                         />
@@ -1212,7 +1216,7 @@ export default function InstagramGrowthAgent() {
                     🎵 {cinemaItem.trendingAudioSuggestion || cinemaItem.audioTrack?.title || "Ambient Nature Soundscape"}
                   </Typography>
                   <Typography sx={{ fontSize: 12, color: "#a1a1aa", mt: 0.3 }}>
-                    Realm: {cinemaItem.themeCategory} · High-Fidelity Audio Synchronized
+                    Series: {cinemaItem.themeCategory} · High-Fidelity Audio Synchronized
                   </Typography>
                 </Box>
                 <Button
