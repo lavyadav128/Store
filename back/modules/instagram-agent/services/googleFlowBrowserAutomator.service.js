@@ -261,30 +261,26 @@ export async function automateGoogleFlowReelGeneration(prompt, contentId = "live
       flowExecutablePath = systemPaths.find((p) => fs.existsSync(p));
     }
 
-    const launchArgs = isLinux
-      ? [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-gpu",
-          "--disable-quic",
-          "--disable-session-crashed-bubble",
-          "--single-process",
-          "--no-zygote",
-          "--no-first-run",
-          "--window-size=1366,850",
-          `--download-default-directory=${downloadDir}`,
-        ]
-      : [
-          "--no-sandbox",
-          "--disable-setuid-sandbox",
-          "--disable-dev-shm-usage",
-          "--disable-quic",
-          "--disable-session-crashed-bubble",
-          "--no-first-run",
-          "--window-size=1366,850",
-          `--download-default-directory=${downloadDir}`,
-        ];
+    // Remove stale Chromium lockfiles if left by previous container run/crash
+    const lockFiles = ["SingletonLock", "SingletonCookie", "SingletonSocket"];
+    for (const lock of lockFiles) {
+      const lockPath = path.join(sessionDir, lock);
+      try {
+        if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+      } catch (_) {}
+    }
+
+    const launchArgs = [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--disable-quic",
+      "--disable-session-crashed-bubble",
+      "--no-first-run",
+      "--window-size=1366,850",
+      `--download-default-directory=${downloadDir}`,
+    ];
 
     const launchOptions = {
       headless: "new",
@@ -297,7 +293,8 @@ export async function automateGoogleFlowReelGeneration(prompt, contentId = "live
 
     browser = await puppeteer.launch(launchOptions);
 
-    const page = await browser.newPage();
+    const pages = await browser.pages();
+    const page = pages.length > 0 ? pages[0] : await browser.newPage();
     activePage = page;
     await page.setViewport({ width: 1366, height: 850 });
 

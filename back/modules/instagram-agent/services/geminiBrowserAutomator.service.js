@@ -340,27 +340,24 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
   }
 
-  const launchArgs = isLinux
-    ? [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-software-rasterizer",
-        "--disable-blink-features=AutomationControlled",
-        "--single-process",
-        "--no-zygote",
-        "--window-size=1366,850",
-      ]
-    : [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-gpu",
-        "--disable-software-rasterizer",
-        "--disable-blink-features=AutomationControlled",
-        "--window-size=1366,850",
-      ];
+  // Remove stale Chromium lockfiles if left by previous container run/crash
+  const lockFiles = ["SingletonLock", "SingletonCookie", "SingletonSocket"];
+  for (const lock of lockFiles) {
+    const lockPath = path.join(sessionDir, lock);
+    try {
+      if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+    } catch (_) {}
+  }
+
+  const launchArgs = [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+    "--disable-dev-shm-usage",
+    "--disable-gpu",
+    "--disable-software-rasterizer",
+    "--disable-blink-features=AutomationControlled",
+    "--window-size=1366,850",
+  ];
 
   const vendorLibDirs = [
     path.join(process.cwd(), "back", "vendor", "libs", "usr", "lib", "x86_64-linux-gnu"),
@@ -407,7 +404,8 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       throw launchErr;
     }
 
-    page = await browser.newPage();
+    const pages = await browser.pages();
+    page = pages.length > 0 ? pages[0] : await browser.newPage();
     await page.setViewport({ width: 1366, height: 850 });
 
     let capturedAudioBuffer = null;
