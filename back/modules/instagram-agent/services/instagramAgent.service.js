@@ -8,7 +8,7 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NATURE_THEMES, getUniqueNatureTheme, getDailyNatureTheme } from './natureThemes.js';
 import { MOTIVATIONAL_THEMES, getUniqueMotivationalTheme, getQuoteFingerprint, getDailyMotivationalTheme } from './motivationalThemes.js';
 import { analyzeAudiencePreferences } from './growthOptimizer.js';
-import { automateGeminiGeneration } from './geminiBrowserAutomator.service.js';
+import { automateGeminiGeneration, formatNatureImagePrompt, formatNatureVideoPrompt } from './geminiBrowserAutomator.service.js';
 
 // Meta Graph API base URL helper with standard v21.0 default
 function getGraphBase() {
@@ -418,7 +418,8 @@ export async function generateMediaForContent(content) {
 
 export async function generateContentDraft({ topic = '', type = 'reel', category = '' }) {
   const config = await getInstagramConfig();
-  const safeType = 'reel'; // Default to animated video reel
+  const isVideo = type === 'reel' || type === 'video' || (type === undefined && config.contentMode !== 'post');
+  const effectiveType = isVideo ? 'reel' : 'post';
   const geminiKey = config.geminiApiKey || process.env.GEMINI_API_KEY;
 
   // 1. Fetch previously used fingerprints to guarantee 100% uniqueness (never repeats)
@@ -446,17 +447,20 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
 
   let selectedTopic = topic || selectedTheme.title;
   let caption = selectedTheme.caption;
-  let creativePrompt = selectedTheme.prompt;
-  let hashtags = selectedTheme.hashtags;
   let themeCategory = selectedTheme.realm || targetCategory;
-  let reelScript = selectedTheme.reelScript;
-  let soundscape = selectedTheme.soundscape;
+  let creativePrompt = isVideo
+    ? formatNatureVideoPrompt({ title: selectedTopic, realm: themeCategory, background: selectedTheme.description })
+    : formatNatureImagePrompt({ title: selectedTopic, realm: themeCategory, background: selectedTheme.description });
+  let hashtags = selectedTheme.hashtags;
+  let reelScript = isVideo ? selectedTheme.reelScript : '';
+  let soundscape = isVideo ? selectedTheme.soundscape : '';
 
-  // 4. Use Gemini Pro AI to dynamically generate brand new, unique Nature Cinematography Reels
+  // 4. Use Gemini Pro AI to dynamically generate brand new, unique Nature content
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
-      const geminiPrompt = `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
+      const geminiPrompt = isVideo
+        ? `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
 Format: "reel" (16:9 cinematic animated video with matching background music)
@@ -476,8 +480,28 @@ Return strict JSON with this exact schema:
   "soundscape": "Matching background audio & sound design (e.g. ethereal ambient forest flute, soothing cascading waterfall resonance, gentle binaural wind chimes)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create animated video on <vivid scene details> in 16:9 format with soothing background music",
+  "imagePrompt": "create one animated video on <vivid scene details> in 16:9 format with soothing ambient background music",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
+}`
+        : `You are the creative director for a viral 8K Nature & Landscape Photography Instagram page.
+Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
+Topic Request: "${topic || selectedTopic}"
+Format: "post" (16:9 photorealistic 8K nature image)
+Brand Voice: "Breathtaking, serene, crystal-clear, and deeply grounded in Earth's natural beauty"
+
+CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
+${JSON.stringify(recentlyUsedTopics, null, 2)}
+
+Provide a brand new breathtaking nature photograph description with natural lighting, golden hour hues, and fine textures.
+
+Return strict JSON with this exact schema:
+{
+  "topic": "Catchy, viral photo title (5-8 words)",
+  "themeCategory": "${themeCategory}",
+  "visualScene": "Detailed description of the 8K nature photo scene",
+  "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
+  "hashtags": ["12-15 viral nature, travel, photography hashtags"],
+  "imagePrompt": "create one photorealistic 8K image of <vivid scene details> in 16:9 format with natural volumetric lighting and fine details"
 }`;
 
       let parsed = null;
@@ -508,7 +532,7 @@ Return strict JSON with this exact schema:
   const topicFp = getQuoteFingerprint(selectedTopic);
 
   const content = await InstagramContent.create({
-    type: 'reel',
+    type: effectiveType,
     topic: selectedTopic,
     quote: selectedTopic,
     speaker: themeCategory,
@@ -518,7 +542,7 @@ Return strict JSON with this exact schema:
     hashtags: hashtags,
     creativeBrief: creativePrompt,
     reelScript: reelScript,
-    audioTrack: {
+    audioTrack: isVideo ? {
       id: `nature_${Date.now()}`,
       title: soundscape || 'Serene Nature Soundscape',
       artist: 'Ambient Earth',
@@ -526,20 +550,20 @@ Return strict JSON with this exact schema:
       durationSeconds: 15,
       isRoyaltyFree: true,
       audioUrl: '',
-    },
-    trendingAudioSuggestion: `🎵 Soundscape: "${soundscape || 'Serene Nature Soundscape'}"`,
+    } : undefined,
+    trendingAudioSuggestion: isVideo ? `🎵 Soundscape: "${soundscape || 'Serene Nature Soundscape'}"` : '',
     createdBy: 'agent',
     mediaGenerationStatus: 'not_requested',
   });
 
   await logInstagramActivity(
     'content_drafted',
-    `AI drafted daily 8K Nature Reel [${themeCategory}]: "${selectedTopic}" with soundscape: ${soundscape}`,
+    `AI drafted daily 16:9 Nature ${isVideo ? 'Video Reel' : 'Image Post'} [${themeCategory}]: "${selectedTopic}"`,
     {
       contentId: String(content._id),
       category: themeCategory,
       topic: selectedTopic,
-      soundscape: soundscape,
+      type: effectiveType,
     }
   );
 

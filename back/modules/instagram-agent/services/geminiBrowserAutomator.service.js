@@ -329,118 +329,125 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       await page.keyboard.press("Enter");
     }
 
-    // Step 6: Wait for Gemini to generate and render the creation (5 Minutes Timeout)
-    await addStep("6. Generating in Gemini", "Prompt submitted. Gemini is rendering 16:9 video (waiting up to 5 minutes)...");
-    console.log("[Gemini Agent] Generation submitted. Waiting 6 seconds for media to stabilize...");
-    await new Promise((r) => setTimeout(r, 6000));
+    // Step 6: Wait for Gemini to generate and render the creation
+    const modeDesc = isVideo ? "16:9 animated video with background music (waiting up to 5 minutes)" : "16:9 8K photorealistic image";
+    await addStep("6. Generating in Gemini", `Prompt submitted. Gemini is rendering ${modeDesc}...`);
+    console.log(`[Gemini Agent] Generation submitted for ${isVideo ? "Video" : "Image"}. Waiting 5 seconds for media to stabilize...`);
+    await new Promise((r) => setTimeout(r, 5000));
 
-    await addStep("7. Searching for Media", "Scanning video elements, download buttons, and media streams...");
+    await addStep("7. Searching for Media", `Scanning for rendered 16:9 ${isVideo ? "video and download streams" : "8K image"}...`);
     let extractedMediaBuffer = null;
-    let isVideoResult = true;
-    const maxAttempts = 100; // 100 attempts * 3s = 300 seconds (5 full minutes)
+    let isVideoResult = isVideo;
+    const maxAttempts = isVideo ? 100 : 30; // 100 attempts (5 min) for video, 30 attempts (~1.5 min) for image
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const elapsed = attempt * 3;
       if (attempt % 5 === 0 || attempt === 1) {
-        console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s / 300s)`);
-        await addStep("Rendering Video in Gemini", `Gemini is generating 16:9 video (${elapsed}s / 300s elapsed)...`);
+        console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s elapsed)`);
+        await addStep("Rendering in Gemini", `Gemini is generating 16:9 ${isVideo ? "video" : "image"} (${elapsed}s elapsed)...`);
       }
 
-      // Check for Gemini Subscription / Paywall / Limit Text Notice
-      const textNotice = await page.evaluate(() => {
-        const messageContainers = Array.from(document.querySelectorAll("message-content, .model-response-text, [data-test-id='model-response'], .response-container, .markdown, p"));
-        for (const el of messageContainers.reverse()) {
-          const text = (el.innerText || "").trim().toLowerCase();
-          if (text.length > 15) {
-            const hasSubscription = text.includes("gemini advanced") || text.includes("subscription") || text.includes("upgrade to") || text.includes("upgrade your plan") || text.includes("pricing");
-            const isVideoRef = text.includes("video") || text.includes("generate video") || text.includes("create video");
-            const cannotGen = text.includes("i cannot generate video") || text.includes("i can't generate video") || text.includes("cannot create video");
+      // Check for Gemini Subscription / Paywall / Limit Text Notice (primarily for video generation)
+      if (isVideo) {
+        const textNotice = await page.evaluate(() => {
+          const messageContainers = Array.from(document.querySelectorAll("message-content, .model-response-text, [data-test-id='model-response'], .response-container, .markdown, p"));
+          for (const el of messageContainers.reverse()) {
+            const text = (el.innerText || "").trim().toLowerCase();
+            if (text.length > 15) {
+              const hasSubscription = text.includes("gemini advanced") || text.includes("subscription") || text.includes("upgrade to") || text.includes("upgrade your plan") || text.includes("pricing");
+              const isVideoRef = text.includes("video") || text.includes("generate video") || text.includes("create video");
+              const cannotGen = text.includes("i cannot generate video") || text.includes("i can't generate video") || text.includes("cannot create video");
 
-            if ((hasSubscription && isVideoRef) || cannotGen) {
-              return { isPaywall: true, rawText: el.innerText.trim() };
+              if ((hasSubscription && isVideoRef) || cannotGen) {
+                return { isPaywall: true, rawText: el.innerText.trim() };
+              }
             }
           }
-        }
-        return { isPaywall: false };
-      });
+          return { isPaywall: false };
+        });
 
-      if (textNotice?.isPaywall) {
-        const paywallMsg = `Google Gemini Subscription Notice: ${textNotice.rawText}. Gemini video generation requires a Gemini Advanced / Subscription plan. Please upgrade your Google account subscription.`;
-        await addStep("Subscription Required", paywallMsg);
-        throw new Error(paywallMsg);
+        if (textNotice?.isPaywall) {
+          const paywallMsg = `Google Gemini Subscription Notice: ${textNotice.rawText}. Gemini video generation requires a Gemini Advanced / Subscription plan. Please upgrade your Google account subscription.`;
+          await addStep("Subscription Required", paywallMsg);
+          throw new Error(paywallMsg);
+        }
       }
 
-      // 1. Check CDP Downloaded Files in temporary folder
-      try {
-        if (fs.existsSync(downloadPath)) {
-          const files = fs.readdirSync(downloadPath);
-          const finishedMp4 = files.find((f) => f.toLowerCase().endsWith(".mp4") && !f.endsWith(".crdownload"));
-          if (finishedMp4) {
-            const mp4FullPath = path.join(downloadPath, finishedMp4);
-            const buf = fs.readFileSync(mp4FullPath);
-            if (buf.length > 5000) {
-              extractedMediaBuffer = buf;
-              isVideoResult = true;
-              console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Downloaded MP4 captured (${(buf.length / 1024 / 1024).toFixed(2)} MB).`);
-              await addStep("Media Found", `Captured downloaded video file (${(buf.length / 1024 / 1024).toFixed(2)} MB)`);
+      // 1. If Video Mode: Check CDP Downloaded Files in temporary folder
+      if (isVideo) {
+        try {
+          if (fs.existsSync(downloadPath)) {
+            const files = fs.readdirSync(downloadPath);
+            const finishedMp4 = files.find((f) => f.toLowerCase().endsWith(".mp4") && !f.endsWith(".crdownload"));
+            if (finishedMp4) {
+              const mp4FullPath = path.join(downloadPath, finishedMp4);
+              const buf = fs.readFileSync(mp4FullPath);
+              if (buf.length > 5000) {
+                extractedMediaBuffer = buf;
+                isVideoResult = true;
+                console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Downloaded MP4 captured (${(buf.length / 1024 / 1024).toFixed(2)} MB).`);
+                await addStep("Media Found", `Captured downloaded video file (${(buf.length / 1024 / 1024).toFixed(2)} MB)`);
+                break;
+              }
+            }
+          }
+        } catch (_) {}
+      }
+
+      // 2. Wide DOM Inspection: Video Players, Download Buttons, and Generated Images
+      const domMedia = await page.evaluate((isVid) => {
+        if (isVid) {
+          // Find video element
+          const vids = Array.from(document.querySelectorAll("video"));
+          let targetVideo = null;
+          for (const v of vids.reverse()) {
+            const s = v.src || v.currentSrc || v.querySelector("source")?.src || "";
+            if (s && !s.startsWith("data:image")) {
+              targetVideo = { src: s, element: v };
               break;
             }
           }
-        }
-      } catch (_) {}
 
-      // 2. Wide DOM Inspection: Custom Elements, Shadow Roots, Video Players, Download Buttons
-      const domMedia = await page.evaluate(() => {
-        // Find video element
-        const vids = Array.from(document.querySelectorAll("video"));
-        let targetVideo = null;
-        for (const v of vids.reverse()) {
-          const s = v.src || v.currentSrc || v.querySelector("source")?.src || "";
-          if (s && !s.startsWith("data:image")) {
-            targetVideo = { src: s, element: v };
-            break;
+          // Hover video container if present to trigger action overlay
+          if (targetVideo?.element) {
+            try {
+              const parentContainer = targetVideo.element.closest("div, section, article") || targetVideo.element;
+              parentContainer.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
+              parentContainer.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
+            } catch (_) {}
+          }
+
+          // Find Download Button on page or video player
+          const buttons = Array.from(document.querySelectorAll("button, a, [role='button'], [tabindex='0']"));
+          const downloadBtn = buttons.find((b) => {
+            const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+            const hasDownloadText = aria.includes("download video") || aria.includes("download") || aria.includes("save video");
+            const hasDownloadSvg = !!b.querySelector("svg path[d*='M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z'], svg[aria-label*='download' i]");
+            return hasDownloadText || hasDownloadSvg;
+          });
+
+          if (downloadBtn) {
+            try {
+              downloadBtn.click();
+            } catch (_) {}
+          }
+
+          // Check if video src is fetchable
+          if (targetVideo?.src) {
+            return { type: "video", src: targetVideo.src, clickedDownload: !!downloadBtn };
+          }
+
+          // Check any direct video links in hrefs
+          const links = Array.from(document.querySelectorAll("a[href]"));
+          for (const a of links.reverse()) {
+            const h = a.href || "";
+            if (h.includes(".mp4") || h.includes("googlevideo") || (a.hasAttribute("download") && !h.startsWith("data:image"))) {
+              return { type: "video_link", src: h, clickedDownload: !!downloadBtn };
+            }
           }
         }
 
-        // Hover video container if present to trigger action overlay
-        if (targetVideo?.element) {
-          try {
-            const parentContainer = targetVideo.element.closest("div, section, article") || targetVideo.element;
-            parentContainer.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
-            parentContainer.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
-          } catch (_) {}
-        }
-
-        // Find Download Button on page or video player
-        const buttons = Array.from(document.querySelectorAll("button, a, [role='button'], [tabindex='0']"));
-        const downloadBtn = buttons.find((b) => {
-          const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-          const hasDownloadText = aria.includes("download video") || aria.includes("download") || aria.includes("save video");
-          const hasDownloadSvg = !!b.querySelector("svg path[d*='M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z'], svg[aria-label*='download' i]");
-          return hasDownloadText || hasDownloadSvg;
-        });
-
-        if (downloadBtn) {
-          try {
-            downloadBtn.click();
-          } catch (_) {}
-        }
-
-        // Check if video src is fetchable
-        if (targetVideo?.src) {
-          return { type: "video", src: targetVideo.src, clickedDownload: !!downloadBtn };
-        }
-
-        // Check any direct video links in hrefs
-        const links = Array.from(document.querySelectorAll("a[href]"));
-        for (const a of links.reverse()) {
-          const h = a.href || "";
-          if (h.includes(".mp4") || h.includes("googlevideo") || (a.hasAttribute("download") && !h.startsWith("data:image"))) {
-            return { type: "video_link", src: h, clickedDownload: !!downloadBtn };
-          }
-        }
-
-        // Check generated image element (fallback)
+        // Check generated image element (for Image Mode, or image fallback)
         const imgs = Array.from(document.querySelectorAll("img"));
         for (const img of imgs.reverse()) {
           const src = img.src || "";
@@ -457,14 +464,14 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
               ctx.drawImage(img, 0, 0);
               const dataUrl = canvas.toDataURL("image/png");
               if (dataUrl.length > 5000) {
-                return { type: "image", base64: dataUrl.split(",")[1], clickedDownload: !!downloadBtn };
+                return { type: "image", base64: dataUrl.split(",")[1] };
               }
             } catch (e) {}
           }
         }
 
-        return { clickedDownload: !!downloadBtn };
-      });
+        return { clickedDownload: false };
+      }, isVideo);
 
       // 3. If video stream URL found, fetch in browser
       if (domMedia?.src && (domMedia.type === "video" || domMedia.type === "video_link")) {
@@ -489,17 +496,17 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         } catch (_) {}
       }
 
-      // 4. If image fallback captured
+      // 4. If image captured (Image Mode or Image visual)
       if (domMedia?.base64 && domMedia.type === "image") {
         extractedMediaBuffer = Buffer.from(domMedia.base64, "base64");
         isVideoResult = false;
-        console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Generated visual captured.`);
-        await addStep("Media Found", `Captured generated visual (Attempt ${attempt})`);
+        console.log(`[Gemini Agent] Attempt ${attempt}: Media found! 16:9 Image captured.`);
+        await addStep("Media Found", `Captured 16:9 8K Image (Attempt ${attempt})`);
         break;
       }
 
       // If download was triggered, give it 3 seconds to complete write to disk
-      if (domMedia?.clickedDownload) {
+      if (domMedia?.clickedDownload && isVideo) {
         await new Promise((r) => setTimeout(r, 3000));
         try {
           if (fs.existsSync(downloadPath)) {
@@ -526,13 +533,16 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     // Direct Element Screenshot fallback if needed
     if (!extractedMediaBuffer) {
       try {
-        const vidHandles = await page.$$("video");
-        if (vidHandles.length > 0) {
-          const lastVid = vidHandles[vidHandles.length - 1];
-          extractedMediaBuffer = await lastVid.screenshot({ type: "png" });
-          isVideoResult = false;
-          console.log("[Gemini Agent] Captured video frame via Element Screenshot!");
-        } else {
+        if (isVideo) {
+          const vidHandles = await page.$$("video");
+          if (vidHandles.length > 0) {
+            const lastVid = vidHandles[vidHandles.length - 1];
+            extractedMediaBuffer = await lastVid.screenshot({ type: "png" });
+            isVideoResult = false;
+            console.log("[Gemini Agent] Captured video frame via Element Screenshot!");
+          }
+        }
+        if (!extractedMediaBuffer) {
           const imgHandles = await page.$$("img");
           for (let i = imgHandles.length - 1; i >= 0; i--) {
             const handle = imgHandles[i];
@@ -549,21 +559,22 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     if (!extractedMediaBuffer) {
-      throw new Error("Gemini generation completed, but no downloadable image/video element was found in the response. No fallback generator was used.");
+      throw new Error(`Gemini generation completed, but no downloadable ${isVideo ? "video" : "image"} element was found in the response.`);
     }
 
-    // Step 8: Render 8K Animated Nature Reel Video & Upload to Cloudinary
-    await addStep("8. Uploading Video Reel", "Uploading 9:16 vertical video reel with atmospheric soundscape to Cloudinary...");
+    // Step 8: Upload to Cloudinary & Attach
+    const mediaTypeLabel = isVideoResult ? "16:9 video reel" : "16:9 8K photo";
+    await addStep("8. Uploading Media", `Uploading ${mediaTypeLabel} to Cloudinary...`);
     const uploadRes = await uploadBufferToCloudinary(
       extractedMediaBuffer,
-      true,
-      "instagram-agent/nature-reels"
+      isVideoResult,
+      isVideoResult ? "instagram-agent/nature-reels" : "instagram-agent/nature-images"
     );
 
     const finalMediaUrl = uploadRes.secure_url;
 
     // Step 8: Attach to MongoDB Draft
-    await addStep("8. Finished & Attached", `Creation ready and attached to draft: ${finalMediaUrl}`);
+    await addStep("8. Finished & Attached", `Creation ready and attached: ${finalMediaUrl}`);
     sessionData.status = "completed";
     sessionData.resultUrl = finalMediaUrl;
 
@@ -574,13 +585,14 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           assetSource: "gemini_browser_automated",
           mediaGenerationStatus: "ready",
           status: "ready",
+          type: isVideoResult ? "reel" : "post",
         },
       });
 
       await logInstagramActivity(
         "gemini_browser_automated",
-        `Gemini browser automation successfully created and attached quote poster to draft.`,
-        { contentId: String(contentId), url: finalMediaUrl }
+        `Gemini browser automation successfully created and attached ${isVideoResult ? "video reel" : "image post"} to draft.`,
+        { contentId: String(contentId), url: finalMediaUrl, isVideo: isVideoResult }
       );
     }
 
