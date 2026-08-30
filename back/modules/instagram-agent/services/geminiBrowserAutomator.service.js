@@ -411,11 +411,25 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     await page.setViewport({ width: 1366, height: 850 });
 
     let capturedAudioBuffer = null;
+    let capturedVideoBuffer = null;
+
     page.on("response", async (response) => {
       try {
         const ct = (response.headers()["content-type"] || "").toLowerCase();
         const url = response.url().toLowerCase();
         if (
+          ct.includes("video/") ||
+          url.includes(".mp4") ||
+          url.includes(".webm") ||
+          url.includes("videoplayback") ||
+          url.includes("googlevideo")
+        ) {
+          const buf = await response.buffer();
+          if (buf && buf.length > 50000) {
+            capturedVideoBuffer = buf;
+            console.log(`[Gemini Agent] Captured Gemini native video stream (${(buf.length / 1024 / 1024).toFixed(2)} MB)!`);
+          }
+        } else if (
           ct.includes("audio/") ||
           url.includes(".mp3") ||
           url.includes(".wav") ||
@@ -434,13 +448,18 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       } catch (_) {}
     });
 
-    // Enable Chrome download behavior to capture MP4 downloads
+    // Enable Chrome download behavior to capture MP4 downloads via both Browser and Page CDP sessions
     try {
       const cdpSession = await page.target().createCDPSession();
+      await cdpSession.send("Browser.setDownloadBehavior", {
+        behavior: "allow",
+        downloadPath: downloadPath,
+        eventsEnabled: true,
+      }).catch(() => {});
       await cdpSession.send("Page.setDownloadBehavior", {
         behavior: "allow",
         downloadPath: downloadPath,
-      });
+      }).catch(() => {});
     } catch (_) {}
 
     await addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
@@ -489,42 +508,101 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
     if (!focused) throw new Error("Google Gemini prompt input box was not found on the page.");
 
-    // Step 4: Inject Creative Generation Prompt
+    // Step 4: Inject Creative Generation Prompt with Angular / Material event dispatching
     await addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
-    await page.keyboard.type(fullPrompt, { delay: 10 });
-    await new Promise((r) => setTimeout(r, 500));
-
-    // Step 5: Send Prompt
-    await addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
-    const sent = await page.evaluate(() => {
-      const btn = Array.from(document.querySelectorAll("button, [role='button']")).find((b) => {
-        const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-        return aria.includes("send message") || aria.includes("send prompt") || aria.includes("submit") || aria.includes("send");
-      });
-      if (btn && !btn.disabled) {
-        btn.click();
-        return true;
+    
+    // Inject value and dispatch input & change events for Angular change detection
+    await page.evaluate((text) => {
+      const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
+      if (el) {
+        el.focus();
+        if (el.isContentEditable) {
+          el.innerHTML = `<p>${text}</p>`;
+        } else {
+          el.value = text;
+        }
+        el.dispatchEvent(new Event("input", { bubbles: true }));
+        el.dispatchEvent(new Event("change", { bubbles: true }));
       }
-      return false;
-    });
+    }, fullPrompt);
 
-    if (!sent) {
+    // Also simulate a typing keypress to ensure all reactive listeners trigger
+    await page.keyboard.type(" ", { delay: 10 });
+    await page.keyboard.press("Backspace");
+    await new Promise((r) => setTimeout(r, 600));
+
+    // Step 5: Submit Prompt to Gemini Engine
+    await addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
+
+    const submitPromptAction = async () => {
+      // 1. Try finding and clicking the Send / Submit button directly
+      const clickedBtn = await page.evaluate(() => {
+        const buttons = Array.from(document.querySelectorAll("button, [role='button'], div.send-button, mat-icon-button, [aria-label*='Send' i], [aria-label*='Submit' i]"));
+        const sendBtn = buttons.find((b) => {
+          const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+          const hasSendText = aria.includes("send message") || aria.includes("send prompt") || aria.includes("submit") || aria.includes("send");
+          const hasSendIcon = !!b.querySelector("svg, mat-icon, [fonticon*='send' i], [fonticon*='arrow' i]");
+          const isVisible = b.offsetWidth > 0 && b.offsetHeight > 0;
+          return (hasSendText || hasSendIcon) && isVisible && !b.disabled && b.getAttribute("aria-disabled") !== "true";
+        });
+
+        if (sendBtn) {
+          sendBtn.focus();
+          sendBtn.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
+          sendBtn.dispatchEvent(new MouseEvent("mouseup", { bubbles: true }));
+          sendBtn.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+          sendBtn.click();
+          return true;
+        }
+        return false;
+      });
+
+      // 2. Also press Enter key in the prompt box
       await page.keyboard.press("Enter");
+      await new Promise((r) => setTimeout(r, 1500));
+
+      // 3. Verify if submission succeeded (prompt cleared or response container appearing)
+      const isSubmitted = await page.evaluate(() => {
+        const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
+        const currentText = (el ? (el.innerText || el.value || "") : "").trim();
+        const hasStopBtn = !!document.querySelector("button[aria-label*='Stop' i], button[aria-label*='pause' i], .stop-generating-button");
+        const hasResponses = document.querySelectorAll("message-content, .model-response-text, [data-test-id='model-response']").length > 0;
+        return currentText === "" || hasStopBtn || hasResponses;
+      });
+
+      return clickedBtn || isSubmitted;
+    };
+
+    let submitted = await submitPromptAction();
+    if (!submitted) {
+      console.log("[Gemini Agent] Retrying prompt submission with native click...");
+      await page.keyboard.press("Enter");
+      await new Promise((r) => setTimeout(r, 1000));
+      submitted = await submitPromptAction();
     }
 
     // Step 6: Wait for Gemini to generate and render the creation (Full 5 minutes timeout)
     const modeDesc = isVideo ? "16:9 animated video with background music (waiting up to 5 minutes)" : "16:9 8K photorealistic image with volumetric lighting (waiting up to 5 minutes)";
     await addStep("6. Generating in Gemini", `Prompt submitted. Gemini is rendering ${modeDesc}...`);
     console.log(`[Gemini Agent] Generation submitted for ${isVideo ? "Video" : "Image"}. Waiting up to 5 minutes for render...`);
-    await new Promise((r) => setTimeout(r, 5000));
+    await new Promise((r) => setTimeout(r, 3000));
 
     await addStep("7. Searching for Media", `Scanning for rendered 16:9 ${isVideo ? "video and download streams" : "8K image"} (waiting up to 5 minutes)...`);
     let extractedMediaBuffer = null;
     let isVideoResult = isVideo;
-    const maxAttempts = 100; // Full 5 minutes (100 attempts * 3s = 300s) for BOTH images and videos!
+    const maxAttempts = 100; // Full 5 minutes (100 attempts * 3s = 300s)
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const elapsed = attempt * 3;
+
+      // Stream live screenshot to the dashboard on every polling step
+      try {
+        const shotBuf = await page.screenshot({ encoding: "base64", type: "jpeg", quality: 40 });
+        sessionData.lastScreenshot = `data:image/jpeg;base64,${shotBuf}`;
+        activeGeminiSessions.set(sessionId, { ...sessionData });
+        activeGeminiSessions.set("latest", { ...sessionData });
+      } catch (_) {}
+
       if (attempt % 5 === 0 || attempt === 1) {
         console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s / 300s elapsed)`);
         await addStep("Rendering in Gemini", `Gemini is generating 16:9 ${isVideo ? "video" : "image"} (${elapsed}s / 300s elapsed - waiting up to 5 minutes)...`);
@@ -556,7 +634,16 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         }
       }
 
-      // 1. If Video Mode: Check CDP Downloaded Files in temporary folder
+      // 1. Check Network Sniffer Captured Video Buffer
+      if (isVideo && capturedVideoBuffer && capturedVideoBuffer.length > 50000) {
+        extractedMediaBuffer = capturedVideoBuffer;
+        isVideoResult = true;
+        console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Captured live video network stream (${(capturedVideoBuffer.length / 1024 / 1024).toFixed(2)} MB).`);
+        await addStep("Media Found", `Captured video network stream (${(capturedVideoBuffer.length / 1024 / 1024).toFixed(2)} MB)`);
+        break;
+      }
+
+      // 2. Check CDP Downloaded Files in temporary folder
       if (isVideo) {
         try {
           if (fs.existsSync(downloadPath)) {
@@ -577,11 +664,11 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         } catch (_) {}
       }
 
-      // 2. Wide DOM Inspection: Video Players, Download Buttons, and Generated Images
+      // 3. Wide DOM Inspection: Video Elements, In-Page Fetch, Download Buttons, and Generated Images
       const domMedia = await page.evaluate((isVid) => {
         if (isVid) {
           // Find video element
-          const vids = Array.from(document.querySelectorAll("video"));
+          const vids = Array.from(document.querySelectorAll("video, video-player video, g-video video"));
           let targetVideo = null;
           for (const v of vids.reverse()) {
             const s = v.src || v.currentSrc || v.querySelector("source")?.src || "";
@@ -594,7 +681,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           // Hover video container if present to trigger action overlay
           if (targetVideo?.element) {
             try {
-              const parentContainer = targetVideo.element.closest("div, section, article") || targetVideo.element;
+              const parentContainer = targetVideo.element.closest("div, section, article, .video-container") || targetVideo.element;
               parentContainer.dispatchEvent(new MouseEvent("mouseover", { bubbles: true }));
               parentContainer.dispatchEvent(new MouseEvent("mouseenter", { bubbles: true }));
             } catch (_) {}
@@ -604,7 +691,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           const buttons = Array.from(document.querySelectorAll("button, a, [role='button'], [tabindex='0']"));
           const downloadBtn = buttons.find((b) => {
             const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-            const hasDownloadText = aria.includes("download video") || aria.includes("download") || aria.includes("save video");
+            const hasDownloadText = aria.includes("download video") || aria.includes("download") || aria.includes("save video") || aria.includes("download full");
             const hasDownloadSvg = !!b.querySelector("svg path[d*='M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z'], svg[aria-label*='download' i]");
             return hasDownloadText || hasDownloadSvg;
           });
@@ -656,7 +743,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         return { clickedDownload: false };
       }, isVideo);
 
-      // 3. If video stream URL found, fetch in browser
+      // 4. If video stream URL found, fetch in browser context
       if (domMedia?.src && (domMedia.type === "video" || domMedia.type === "video_link")) {
         try {
           const base64Data = await page.evaluate(async (vSrc) => {
@@ -679,7 +766,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         } catch (_) {}
       }
 
-      // 4. If image captured (Image Mode or Image visual)
+      // 5. If image captured (Image Mode or Image visual)
       if (domMedia?.base64 && domMedia.type === "image") {
         extractedMediaBuffer = Buffer.from(domMedia.base64, "base64");
         isVideoResult = false;
