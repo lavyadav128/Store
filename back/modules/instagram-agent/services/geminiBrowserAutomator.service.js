@@ -371,15 +371,22 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     "/lib",
   ].filter(Boolean);
 
+  const cookiePath = path.join(process.cwd(), "gemini-cookies.json");
+  const hasCookieFile = fs.existsSync(cookiePath) || !!process.env.GEMINI_COOKIES_JSON;
+
   const launchOptions = {
     headless: "new",
-    userDataDir: sessionDir,
+    protocolTimeout: 300000,
+    timeout: 60000,
     args: launchArgs,
     env: {
       ...process.env,
       LD_LIBRARY_PATH: `${vendorLibDirs.join(":")}:${process.env.LD_LIBRARY_PATH || ""}`,
     },
   };
+  if (!hasCookieFile) {
+    launchOptions.userDataDir = sessionDir;
+  }
   if (resolvedExecutablePath) {
     launchOptions.executablePath = resolvedExecutablePath;
   }
@@ -406,10 +413,13 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
     const pages = await browser.pages();
     page = pages.length > 0 ? pages[0] : await browser.newPage();
+    page.setDefaultTimeout(60000);
+    page.setDefaultNavigationTimeout(60000);
     await page.setViewport({ width: 1366, height: 850 });
 
     let capturedAudioBuffer = null;
     let capturedVideoBuffer = null;
+    let capturedImageBuffer = null;
 
     page.on("response", async (response) => {
       try {
@@ -426,6 +436,23 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           if (buf && buf.length > 50000) {
             capturedVideoBuffer = buf;
             console.log(`[Gemini Agent] Captured Gemini native video stream (${(buf.length / 1024 / 1024).toFixed(2)} MB)!`);
+          }
+        } else if (
+          ct.includes("image/jpeg") ||
+          ct.includes("image/png") ||
+          ct.includes("image/webp")
+        ) {
+          if (
+            url.includes("googleusercontent.com") ||
+            url.includes("imagen") ||
+            url.includes("bard") ||
+            url.includes("generated")
+          ) {
+            const buf = await response.buffer();
+            if (buf && buf.length > 25000) {
+              capturedImageBuffer = buf;
+              console.log(`[Gemini Agent] Captured Gemini native image stream (${(buf.length / 1024).toFixed(1)} KB)!`);
+            }
           }
         } else if (
           ct.includes("audio/") ||
@@ -502,7 +529,6 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           }
           return cookieObj;
         });
-
         await page.setCookie(...cleanCookies);
         console.log(`[Gemini Agent] Injected ${cleanCookies.length} Google authentication cookies into browser session!`);
       }
@@ -511,28 +537,18 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     await addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
-    await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 45000 }).catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 3500));
 
-    // Check if captcha or signed out
+    // Check if captcha or redirected to Google login
     const pageStatus = await page.evaluate(() => {
+      const url = location.href.toLowerCase();
+      if (url.includes("accounts.google.com/v3/signin") || url.includes("accounts.google.com/servicelogin")) {
+        return "sign_in";
+      }
       const bodyText = (document.body?.innerText || "").toLowerCase();
       if (bodyText.includes("unusual traffic") || bodyText.includes("i'm not a robot") || bodyText.includes("recaptcha")) {
         return "captcha";
-      }
-      if (location.href.includes("accounts.google.com")) return "sign_in";
-
-      const hasSignInBtn = Array.from(document.querySelectorAll("a, button, [role='button']")).some(el => {
-        const text = (el.innerText || el.getAttribute("aria-label") || "").trim().toLowerCase();
-        const href = el.getAttribute("href") || "";
-        return (text === "sign in" || text.includes("sign in")) && (href.includes("accounts.google.com") || href.includes("ServiceLogin") || el.tagName === "BUTTON" || el.tagName === "A");
-      });
-
-      const hasSignInBanner = bodyText.includes("sign in to connect to google apps") || bodyText.includes("sign in to create images");
-      const hasUserAvatar = !!document.querySelector("img[src*='googleusercontent.com/a/'], a[aria-label*='Google Account' i], button[aria-label*='Google Account' i], [aria-label*='Account Information' i]");
-
-      if ((hasSignInBtn || hasSignInBanner) && !hasUserAvatar) {
-        return "sign_in";
       }
       return "ok";
     });
@@ -541,46 +557,43 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       throw new Error("Google reCAPTCHA challenge detected. Click 'Gemini Login' in the dashboard, check 'I'm not a robot' in the opened window, then retry.");
     }
     if (pageStatus === "sign_in") {
-      throw new Error("Google Gemini is not signed in. Click 'Gemini Login' in the dashboard (or run 'npm run gemini:login' in terminal), sign in to your Google account in the opened Chrome window, close it, and retry.");
+      throw new Error("Google Gemini redirected to Google Account sign-in. Click 'Gemini Login' in the dashboard (or run 'npm run gemini:login' in terminal), sign in to your Google account in the opened Chrome window, close it, and retry.");
     }
 
     // Step 3: Target Gemini Chat Prompt Input
     await addStep("3. Target Prompt Bar", "Focusing Gemini prompt input area...");
+    const inputSelector = "div.ql-editor, div[role='textbox'], rich-textarea [contenteditable='true'], textarea, [contenteditable='true']";
+
     let focused = false;
-    for (let i = 0; i < 10; i++) {
-      focused = await page.evaluate(() => {
-        const el = document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
+    for (let i = 0; i < 15; i++) {
+      focused = await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
         if (el) {
+          try { el.scrollIntoView({ block: "center" }); } catch (_) {}
           el.focus();
           el.click();
+          try {
+            document.execCommand("selectAll", false, null);
+            document.execCommand("delete", false, null);
+          } catch (_) {}
           return true;
         }
         return false;
-      });
+      }, inputSelector);
       if (focused) break;
       await new Promise((r) => setTimeout(r, 1000));
     }
-    if (!focused) throw new Error("Google Gemini prompt input box was not found on the page.");
 
-    // Step 4: Focus input and type prompt with native keystrokes so Angular form state syncs
+    if (!focused) {
+      throw new Error("Google Gemini prompt input box was not found on the page.");
+    }
+
+    await new Promise((r) => setTimeout(r, 400));
+
+    // Step 4: Inject Creative Generation Prompt with native keystrokes
     await addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
-    
-    // Focus the prompt textbox using Puppeteer
-    const inputSelector = "div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']";
-    await page.waitForSelector(inputSelector, { timeout: 10000 });
-    await page.click(inputSelector);
-    await new Promise((r) => setTimeout(r, 200));
-
-    // Clear any existing text using native Ctrl+A / Backspace
-    await page.keyboard.down(process.platform === "darwin" ? "Meta" : "Control");
-    await page.keyboard.press("KeyA");
-    await page.keyboard.up(process.platform === "darwin" ? "Meta" : "Control");
-    await page.keyboard.press("Backspace");
-    await new Promise((r) => setTimeout(r, 200));
-
-    // Type with native keystrokes so Angular/React model updates cleanly
     await page.keyboard.type(fullPrompt, { delay: 15 });
-    await new Promise((r) => setTimeout(r, 500));
+    await new Promise((r) => setTimeout(r, 600));
 
     // Step 5: Submit Prompt to Gemini Engine with Confirmed Submission Loop
     await addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
@@ -603,38 +616,32 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
       console.log(`[Gemini Agent] Submitting prompt (attempt ${submitAttempt}/6)...`);
 
-      // 1. Focus input and press native Enter
-      try {
-        await page.focus(inputSelector);
-        await page.keyboard.press("Enter");
-      } catch (_) {}
-      await new Promise((r) => setTimeout(r, 600));
+      // 1. Send native Enter keypress
+      await page.keyboard.press("Enter");
+      await new Promise((r) => setTimeout(r, 500));
 
-      // 2. Click Send Button via Puppeteer page.click or coordinates
-      try {
-        const sendBtnHandle = await page.$("button.send-button, button[aria-label*='Send' i], button[aria-label*='Submit' i], div.send-button, mat-icon-button:has(mat-icon)");
-        if (sendBtnHandle) {
-          await sendBtnHandle.click();
-        } else {
-          // Find button bounding box and click with native mouse
-          const btnCoords = await page.evaluate(() => {
-            const buttons = Array.from(document.querySelectorAll("button, [role='button'], div.send-button, mat-icon-button, [aria-label*='Send' i]"));
-            for (const b of buttons.reverse()) {
-              const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-              const hasSend = aria.includes("send") || aria.includes("submit");
-              const hasSvg = !!b.querySelector("svg, mat-icon");
-              const rect = b.getBoundingClientRect();
-              if ((hasSend || hasSvg) && rect.width >= 15 && rect.height >= 15 && rect.top > 0 && rect.top < window.innerHeight) {
-                return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
-              }
-            }
-            return null;
-          });
-          if (btnCoords) await page.mouse.click(btnCoords.x, btnCoords.y);
+      // 2. Find and click the Send button via native mouse coordinates
+      const btnCoords = await page.evaluate(() => {
+        const buttons = Array.from(document.querySelectorAll("button, [role='button'], div.send-button, mat-icon-button, [aria-label*='Send' i]"));
+        for (const b of buttons.reverse()) {
+          const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+          const hasSend = aria.includes("send") || aria.includes("submit");
+          const hasSvg = !!b.querySelector("svg, mat-icon");
+          const rect = b.getBoundingClientRect();
+          if ((hasSend || hasSvg) && rect.width >= 15 && rect.height >= 15 && rect.top > 0 && rect.top < window.innerHeight) {
+            return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+          }
         }
-      } catch (_) {}
+        return null;
+      });
 
-      await new Promise((r) => setTimeout(r, 1000));
+      if (btnCoords) {
+        try {
+          await page.mouse.click(btnCoords.x, btnCoords.y);
+        } catch (_) {}
+      }
+
+      await new Promise((r) => setTimeout(r, 1200));
     }
 
     // Step 6: Wait for Gemini to generate and render the creation (Full 5 minutes timeout)
@@ -713,12 +720,20 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         }
       }
 
-      // 1. Check Network Sniffer Captured Video Buffer
+      // 1. Check Network Sniffer Captured Video or Image Buffer
       if (isVideo && capturedVideoBuffer && capturedVideoBuffer.length > 50000) {
         extractedMediaBuffer = capturedVideoBuffer;
         isVideoResult = true;
         console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Captured live video network stream (${(capturedVideoBuffer.length / 1024 / 1024).toFixed(2)} MB).`);
         await addStep("Media Found", `Captured video network stream (${(capturedVideoBuffer.length / 1024 / 1024).toFixed(2)} MB)`);
+        break;
+      }
+
+      if (!isVideo && capturedImageBuffer && capturedImageBuffer.length > 25000) {
+        extractedMediaBuffer = capturedImageBuffer;
+        isVideoResult = false;
+        console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Captured live image network stream (${(capturedImageBuffer.length / 1024).toFixed(1)} KB).`);
+        await addStep("Media Found", `Captured 16:9 Image from stream (${(capturedImageBuffer.length / 1024).toFixed(1)} KB)`);
         break;
       }
 
@@ -797,7 +812,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         }
 
         // Check generated image element (for Image Mode, or image fallback)
-        const imgs = Array.from(document.querySelectorAll("img"));
+        const imgs = Array.from(document.querySelectorAll("img, picture img"));
         for (const img of imgs.reverse()) {
           const src = img.src || "";
           const isAvatar = src.includes("/a/") || src.includes("avatar") || src.includes("logo") || src.includes("profile");
@@ -805,17 +820,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           const isGenImg = (src.includes("blob:") || src.includes("googleusercontent.com") || src.includes("bard") || src.startsWith("data:")) && !isAvatar && !isIcon;
 
           if (isGenImg && img.naturalWidth >= 150) {
-            try {
-              const canvas = document.createElement("canvas");
-              canvas.width = img.naturalWidth;
-              canvas.height = img.naturalHeight;
-              const ctx = canvas.getContext("2d");
-              ctx.drawImage(img, 0, 0);
-              const dataUrl = canvas.toDataURL("image/png");
-              if (dataUrl.length > 5000) {
-                return { type: "image", base64: dataUrl.split(",")[1] };
-              }
-            } catch (e) {}
+            return { type: "image", src: src, width: img.naturalWidth, height: img.naturalHeight };
           }
         }
 
@@ -845,41 +850,59 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         } catch (_) {}
       }
 
-      // 5. If image captured (Image Mode or Image visual)
-      if (domMedia?.base64 && domMedia.type === "image") {
-        extractedMediaBuffer = Buffer.from(domMedia.base64, "base64");
-        isVideoResult = false;
-        console.log(`[Gemini Agent] Attempt ${attempt}: Media found! 16:9 Image captured.`);
-        await addStep("Media Found", `Captured 16:9 8K Image (Attempt ${attempt})`);
-
-        // Check if Gemini also rendered an audio music player widget below the image
+      // 5. If image found via DOM inspection
+      if (domMedia?.src && domMedia.type === "image") {
         try {
-          const clickedAudio = await page.evaluate(() => {
-            const playBtns = Array.from(document.querySelectorAll("button, [role='button'], [tabindex='0']")).filter((b) => {
-              const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
-              const isPlay = aria.includes("play") || aria.includes("listen") || aria.includes("music");
-              const hasPlaySvg = !!b.querySelector("svg");
-              const insideAudioWidget = !!b.closest("div[class*='audio'], div[class*='player'], div[class*='card'], [role='region'], .model-response-text");
-              return isPlay || (hasPlaySvg && insideAudioWidget);
-            });
+          if (domMedia.src.startsWith("data:")) {
+            extractedMediaBuffer = Buffer.from(domMedia.src.split(",")[1], "base64");
+          } else {
+            const base64Data = await page.evaluate(async (iSrc) => {
+              const resp = await fetch(iSrc);
+              const blob = await resp.blob();
+              return new Promise((resolve) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(",")[1]);
+                reader.readAsDataURL(blob);
+              });
+            }, domMedia.src);
 
-            for (const btn of playBtns) {
-              try {
-                btn.click();
-                return true;
-              } catch (_) {}
+            if (base64Data && base64Data.length > 5000) {
+              extractedMediaBuffer = Buffer.from(base64Data, "base64");
             }
-            return false;
-          });
+          }
 
-          if (clickedAudio && !capturedAudioBuffer) {
-            console.log("[Gemini Agent] Clicked Gemini audio player card to capture native audio stream...");
-            await new Promise((r) => setTimeout(r, 4000));
+          if (extractedMediaBuffer && extractedMediaBuffer.length > 5000) {
+            isVideoResult = false;
+            console.log(`[Gemini Agent] Attempt ${attempt}: Media found! Captured generated image (${(extractedMediaBuffer.length / 1024).toFixed(1)} KB).`);
+            await addStep("Media Found", `Captured 16:9 8K Image (${(extractedMediaBuffer.length / 1024).toFixed(1)} KB)`);
+            break;
           }
         } catch (_) {}
-
-        break;
       }
+
+      // 6. Direct Element Screenshot check for images inside loop
+      if (!isVideo && !extractedMediaBuffer) {
+        try {
+          const imgHandles = await page.$$("img, picture img, [data-test-id='model-response'] img");
+          for (let i = imgHandles.length - 1; i >= 0; i--) {
+            const handle = imgHandles[i];
+            const box = await handle.boundingBox();
+            if (box && box.width >= 150 && box.height >= 120) {
+              const shot = await handle.screenshot({ type: "png" });
+              if (shot && shot.length > 8000) {
+                extractedMediaBuffer = shot;
+                isVideoResult = false;
+                console.log(`[Gemini Agent] Attempt ${attempt}: Captured image via direct Element Screenshot (${(shot.length / 1024).toFixed(1)} KB)!`);
+                await addStep("Media Found", `Captured 16:9 8K Image via Element Screenshot (${(shot.length / 1024).toFixed(1)} KB)`);
+                break;
+              }
+            }
+          }
+          if (extractedMediaBuffer) break;
+        } catch (_) {}
+      }
+
+
 
       // If download was triggered, give it 3 seconds to complete write to disk
       if (domMedia?.clickedDownload && isVideo) {

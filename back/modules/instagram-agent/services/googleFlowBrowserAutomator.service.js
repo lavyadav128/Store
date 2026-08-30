@@ -285,6 +285,8 @@ export async function automateGoogleFlowReelGeneration(prompt, contentId = "live
     const launchOptions = {
       headless: "new",
       userDataDir: sessionDir,
+      protocolTimeout: 300000,
+      timeout: 60000,
       args: launchArgs,
     };
     if (flowExecutablePath) {
