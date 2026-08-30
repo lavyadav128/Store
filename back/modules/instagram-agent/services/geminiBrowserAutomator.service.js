@@ -284,39 +284,49 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   
   let resolvedExecutablePath = undefined;
   if (isLinux) {
-    const candidatePaths = [
+    // 1. Prioritize explicit environment variable or installed system Chromium / Chrome
+    const systemPaths = [
       process.env.PUPPETEER_EXECUTABLE_PATH,
-      "/usr/bin/google-chrome-stable",
-      "/usr/bin/google-chrome",
       "/usr/bin/chromium",
       "/usr/bin/chromium-browser",
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/google-chrome",
       "/snap/bin/chromium",
     ].filter(Boolean);
 
-    // Also search Render and user cache directories for installed Chrome
-    const cacheDirs = [
-      "/opt/render/.cache/puppeteer/chrome",
-      path.join(os.homedir(), ".cache", "puppeteer", "chrome"),
-      "/root/.cache/puppeteer/chrome",
-    ];
+    resolvedExecutablePath = systemPaths.find((p) => fs.existsSync(p));
 
-    for (const base of cacheDirs) {
-      if (fs.existsSync(base)) {
-        try {
-          const subdirs = fs.readdirSync(base);
-          for (const sub of subdirs) {
-            const chromeBin = path.join(base, sub, "chrome-linux64", "chrome");
-            if (fs.existsSync(chromeBin)) candidatePaths.push(chromeBin);
-            const altBin = path.join(base, sub, "chrome");
-            if (fs.existsSync(altBin)) candidatePaths.push(altBin);
-          }
-        } catch (_) {}
+    // 2. Only inspect cache directories if system binaries are not installed
+    if (!resolvedExecutablePath) {
+      const cacheDirs = [
+        "/opt/render/.cache/puppeteer/chrome",
+        path.join(os.homedir(), ".cache", "puppeteer", "chrome"),
+        "/root/.cache/puppeteer/chrome",
+      ];
+
+      for (const base of cacheDirs) {
+        if (fs.existsSync(base)) {
+          try {
+            const subdirs = fs.readdirSync(base);
+            for (const sub of subdirs) {
+              const chromeBin = path.join(base, sub, "chrome-linux64", "chrome");
+              if (fs.existsSync(chromeBin)) {
+                resolvedExecutablePath = chromeBin;
+                break;
+              }
+              const altBin = path.join(base, sub, "chrome");
+              if (fs.existsSync(altBin)) {
+                resolvedExecutablePath = altBin;
+                break;
+              }
+            }
+          } catch (_) {}
+        }
+        if (resolvedExecutablePath) break;
       }
     }
 
-    resolvedExecutablePath = candidatePaths.find((p) => fs.existsSync(p));
-
-    // If no system Chrome binary is found on cloud host, use self-contained @sparticuz/chromium
+    // 3. If no binary is found on cloud host, try self-contained @sparticuz/chromium
     if (!resolvedExecutablePath) {
       try {
         const spartPath = await chromium.executablePath();

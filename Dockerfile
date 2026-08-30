@@ -37,6 +37,10 @@ RUN wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --d
 
 WORKDIR /app
 
+ENV NODE_ENV=production
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+
 # Install back and dash dependencies
 COPY package*.json ./
 COPY back/package*.json ./back/
@@ -52,8 +56,5 @@ RUN npm run build --prefix dash || true
 
 EXPOSE 5000 3000
 
-ENV NODE_ENV=production
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
-
 CMD ["npm", "run", "start", "--prefix", "back"]
+

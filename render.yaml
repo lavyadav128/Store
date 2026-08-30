@@ -1,6 +1,16 @@
-# services:
-#   - type: web
-#     name: notess
-#     env: node
-#     buildCommand: npm install
-#     startCommand: npm start
+services:
+  - type: web
+    name: store-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: PUPPETEER_EXECUTABLE_PATH
+        value: /usr/bin/chromium
+      - key: PUPPETEER_SKIP_CHROMIUM_DOWNLOAD
+        value: "true"

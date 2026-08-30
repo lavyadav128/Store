@@ -247,22 +247,55 @@ export async function automateGoogleFlowReelGeneration(prompt, contentId = "live
   const initialExistingFiles = snapshotFiles();
 
   try {
-    await addStep("1. Launch Browser", "Starting Chromium with persistent Google Flow session profile...");
+    const isLinux = process.platform === "linux";
+    let flowExecutablePath = undefined;
+    if (isLinux) {
+      const systemPaths = [
+        process.env.PUPPETEER_EXECUTABLE_PATH,
+        "/usr/bin/chromium",
+        "/usr/bin/chromium-browser",
+        "/usr/bin/google-chrome-stable",
+        "/usr/bin/google-chrome",
+        "/snap/bin/chromium",
+      ].filter(Boolean);
+      flowExecutablePath = systemPaths.find((p) => fs.existsSync(p));
+    }
 
-    browser = await puppeteer.launch({
+    const launchArgs = isLinux
+      ? [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--disable-quic",
+          "--disable-session-crashed-bubble",
+          "--single-process",
+          "--no-zygote",
+          "--no-first-run",
+          "--window-size=1366,850",
+          `--download-default-directory=${downloadDir}`,
+        ]
+      : [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-quic",
+          "--disable-session-crashed-bubble",
+          "--no-first-run",
+          "--window-size=1366,850",
+          `--download-default-directory=${downloadDir}`,
+        ];
+
+    const launchOptions = {
       headless: "new",
       userDataDir: sessionDir,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-quic",
-        "--disable-session-crashed-bubble",
-        "--no-first-run",
-        "--window-size=1366,850",
-        `--download-default-directory=${downloadDir}`,
-      ],
-    });
+      args: launchArgs,
+    };
+    if (flowExecutablePath) {
+      launchOptions.executablePath = flowExecutablePath;
+    }
+
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
     activePage = page;
