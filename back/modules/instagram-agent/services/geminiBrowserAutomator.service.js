@@ -239,65 +239,19 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     try {
       browser = await puppeteer.launch(launchOptions);
     } catch (launchErr) {
-      console.warn(`[Gemini Agent] Chromium launch unavailable in cloud host: ${launchErr.message}`);
-      await addStep("Cloud AI Visual Engine", "Cloud environment detected (headless container). Rendering 16:9 4K visual via Cloud AI Engine...");
-
-      // Generate 16:9 photorealistic visual via Cloud AI
-      const promptEncoded = encodeURIComponent(`${fullPrompt}, 8k resolution, photorealistic cinematic masterpiece, volumetric natural lighting, 16:9 widescreen, no text, no watermark`);
-      const seed = Math.floor(Math.random() * 1000000);
-      const imageUrl = `https://image.pollinations.ai/prompt/${promptEncoded}?width=1920&height=1080&nologo=true&seed=${seed}&model=flux`;
-
-      const imgRes = await fetch(imageUrl, { timeout: 35000 });
-      if (!imgRes.ok) throw new Error(`Cloud visual engine error: HTTP ${imgRes.status}`);
-      const arrayBuf = await imgRes.arrayBuffer();
-      const imgBuffer = Buffer.from(arrayBuf);
-
-      let finalBuffer = imgBuffer;
-      let isVideoResult = isVideo;
-
-      if (isVideo) {
-        await addStep("Rendering 16:9 Video", "Converting visual into 16:9 animated video reel with background music...");
-        try {
-          finalBuffer = await convertImageToAnimatedReelVideo(imgBuffer);
-          isVideoResult = true;
-        } catch (convErr) {
-          console.warn("[Gemini Agent] Video conversion notice:", convErr.message);
-          isVideoResult = false;
-        }
-      }
-
-      const mediaTypeLabel = isVideoResult ? "16:9 video reel" : "16:9 8K photo";
-      await addStep("Uploading Media", `Uploading ${mediaTypeLabel} to Cloudinary...`);
-      const uploadRes = await uploadBufferToCloudinary(
-        finalBuffer,
-        isVideoResult,
-        isVideoResult ? "instagram-agent/nature-reels" : "instagram-agent/nature-images"
-      );
-
-      const finalMediaUrl = uploadRes.secure_url;
-      await addStep("8. Finished & Attached", `Creation ready: ${finalMediaUrl}`);
-      sessionData.status = "completed";
-      sessionData.resultUrl = finalMediaUrl;
-
-      if (contentId && contentId !== "live_session" && mongoose.Types.ObjectId.isValid(contentId)) {
-        await InstagramContent.updateOne({ _id: contentId }, {
-          $set: {
-            assetUrl: finalMediaUrl,
-            assetSource: "cloud_ai_automated",
-            mediaGenerationStatus: "ready",
-            status: "ready",
-            type: isVideoResult ? "reel" : "post",
-          },
-        });
-
-        await logInstagramActivity(
-          "cloud_ai_automated",
-          `Automated 16:9 ${isVideoResult ? "video reel" : "image post"} created and attached to draft.`,
-          { contentId: String(contentId), url: finalMediaUrl }
+      if (
+        launchErr.message.includes("shared libraries") ||
+        launchErr.message.includes("libnspr4") ||
+        launchErr.message.includes("127") ||
+        launchErr.message.includes("error while loading")
+      ) {
+        throw new Error(
+          `Linux Chromium missing system dependencies (${launchErr.message}).\n` +
+          `Please run on your server (or deploy with Dockerfile):\n` +
+          `sudo apt-get update && sudo apt-get install -y libnss3 libnspr4 libatk1.0-0 libcups2 libdrm2 libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libpango-1.0-0 libcairo2 libasound2 ffmpeg`
         );
       }
-
-      return { url: finalMediaUrl, source: "cloud_ai_automated", session: sessionData };
+      throw launchErr;
     }
 
     page = await browser.newPage();
