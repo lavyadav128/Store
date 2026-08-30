@@ -75,19 +75,26 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
 
 export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
   let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning god rays";
-  scene = scene.replace(/^Award-winning[\s,]+/i, "")
-               .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/i, "")
-               .replace(/Scene\s*\d+[\s\S]*$/i, "")
-               .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
-               .replace(/^(create|generate)\s+(an\s+)?(image|visual|reel|video|poster|animated video)\s+of\s+/i, "")
-               .replace(/(in\s+)?9:16\s+vertical\s+(format|visual|poster|video|portrait)?/gi, "")
-               .replace(/\s+beautifully/gi, "")
-               .replace(/["'{}\[\]]/g, " ")
-               .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, "")
-               .trim();
+  
+  // Recursively clean redundant prefixes and directives
+  scene = scene
+    .replace(/^Award-winning[\s,]+/gi, "")
+    .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/gi, "")
+    .replace(/Scene\s*\d+[\s\S]*$/gi, "")
+    .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
+    .replace(/\b(create|generate|make|one|an?)\b/gi, " ")
+    .replace(/\b(ultra-detailed|8k|4k|cinematic|photorealistic|animated|video|reel|image|photo|visual|poster|picture)\b/gi, " ")
+    .replace(/\b(format|portrait|vertical|9:16|16:9)\b/gi, " ")
+    .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, " ")
+    .replace(/["'{}\[\]]/g, " ")
+    .replace(/\b(of|on|in)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  const sceneWords = scene.split(/\s+/).slice(0, 10).join(" ") || "majestic nature landscape";
-  return `create image of ${sceneWords} in 9:16 vertical portrait format`;
+  const words = scene.split(/\s+/).filter(Boolean);
+  const sceneDescription = (words.length >= 2 ? words.slice(0, 8).join(" ") : (title || "majestic nature and peaceful wilderness"));
+
+  return `create one animated video on ${sceneDescription} in 9:16 vertical format`;
 }
 
 export function cleanPromptForGemini(rawPrompt, isVideo = true) {
@@ -154,6 +161,10 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     sessionDir = path.join(process.cwd(), "back", "data", "gemini-session");
   }
 
+  // Create temporary folder for downloaded video files
+  const downloadPath = path.join(os.tmpdir(), `gemini_downloads_${Date.now()}`);
+  if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath, { recursive: true });
+
   try {
     addStep("1. Launch Browser", "Starting Chromium with persistent Google Gemini profile...");
     browser = await puppeteer.launch({
@@ -170,6 +181,15 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
     const page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 850 });
+
+    // Enable Chrome download behavior to capture MP4 downloads
+    try {
+      const cdpSession = await page.target().createCDPSession();
+      await cdpSession.send("Page.setDownloadBehavior", {
+        behavior: "allow",
+        downloadPath: downloadPath,
+      });
+    } catch (_) {}
 
     addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
     await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
@@ -241,16 +261,84 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     // Step 6: Wait for Gemini to generate and render the creation
-    addStep("6. Generating in Gemini", "Gemini is generating the quote visual. Waiting for render...");
+    addStep("6. Generating in Gemini", "Gemini is generating the animated video reel. Waiting for render...");
 
     let extractedMediaBuffer = null;
-    let extractedMediaUrl = null;
-    const maxWaitSeconds = 40;
+    let isVideoResult = true;
+    const maxWaitSeconds = 50;
 
     for (let sec = 0; sec < maxWaitSeconds; sec++) {
       await new Promise((r) => setTimeout(r, 2000));
 
-      const result = await page.evaluate(() => {
+      // 1. Check if Gemini rendered a video player or "Download video" button
+      const videoInfo = await page.evaluate(() => {
+        // Look for Download button on video player
+        const buttons = Array.from(document.querySelectorAll("button, a, [role='button']"));
+        const downloadBtn = buttons.find((b) => {
+          const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+          return aria.includes("download video") || aria.includes("download");
+        });
+
+        if (downloadBtn) {
+          try {
+            downloadBtn.click();
+          } catch (_) {}
+        }
+
+        // Look for video element
+        const vids = Array.from(document.querySelectorAll("video"));
+        for (const vid of vids.reverse()) {
+          const src = vid.src || vid.currentSrc || vid.querySelector("source")?.src || "";
+          if (src && !src.startsWith("data:image")) {
+            return { hasVideo: true, src };
+          }
+        }
+
+        return { hasDownloadBtn: !!downloadBtn };
+      });
+
+      // 2. Check if a downloaded MP4 file appeared in downloadPath
+      try {
+        if (fs.existsSync(downloadPath)) {
+          const files = fs.readdirSync(downloadPath);
+          const finishedMp4 = files.find((f) => f.toLowerCase().endsWith(".mp4") && !f.endsWith(".crdownload"));
+          if (finishedMp4) {
+            const mp4FullPath = path.join(downloadPath, finishedMp4);
+            const buf = fs.readFileSync(mp4FullPath);
+            if (buf.length > 5000) {
+              extractedMediaBuffer = buf;
+              isVideoResult = true;
+              console.log(`[Gemini Agent] Successfully captured downloaded MP4 video from Gemini in ${sec * 2}s!`);
+              break;
+            }
+          }
+        }
+      } catch (_) {}
+
+      // 3. If video element src is accessible, fetch buffer from browser
+      if (!extractedMediaBuffer && videoInfo?.src) {
+        try {
+          const base64Data = await page.evaluate(async (vSrc) => {
+            const resp = await fetch(vSrc);
+            const blob = await resp.blob();
+            return new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result.split(",")[1]);
+              reader.readAsDataURL(blob);
+            });
+          }, videoInfo.src);
+
+          if (base64Data && base64Data.length > 5000) {
+            extractedMediaBuffer = Buffer.from(base64Data, "base64");
+            isVideoResult = true;
+            console.log(`[Gemini Agent] Successfully fetched video stream from Gemini in ${sec * 2}s!`);
+            break;
+          }
+        } catch (_) {}
+      }
+
+      // 4. Check for generated image element (if image returned)
+      const imgResult = await page.evaluate(() => {
         const imgs = Array.from(document.querySelectorAll("img"));
         for (const img of imgs.reverse()) {
           const src = img.src || "";
@@ -275,10 +363,10 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         return null;
       });
 
-      if (result?.base64) {
-        extractedMediaBuffer = Buffer.from(result.base64, "base64");
-        extractedMediaUrl = result.url;
-        console.log(`[Gemini Agent] Successfully captured generated quote poster from Gemini in ${sec * 2}s!`);
+      if (imgResult?.base64) {
+        extractedMediaBuffer = Buffer.from(imgResult.base64, "base64");
+        isVideoResult = false;
+        console.log(`[Gemini Agent] Successfully captured generated image from Gemini in ${sec * 2}s!`);
         break;
       }
     }
@@ -292,6 +380,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
           const box = await handle.boundingBox();
           if (box && box.width >= 150 && box.height >= 150) {
             extractedMediaBuffer = await handle.screenshot({ type: "png" });
+            isVideoResult = false;
             console.log("[Gemini Agent] Captured image via direct Element Screenshot!");
             break;
           }

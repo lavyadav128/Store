@@ -476,7 +476,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Matching background audio & sound design (e.g. ethereal ambient forest flute, soothing cascading waterfall resonance, gentle binaural wind chimes)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create ultra-detailed 8K cinematic animated nature video of <vivid scene details> in 9:16 vertical format",
+  "imagePrompt": "create animated video on <vivid scene details> in 9:16 vertical format",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`;
 
