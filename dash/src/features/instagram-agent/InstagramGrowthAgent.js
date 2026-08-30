@@ -297,7 +297,7 @@ export default function InstagramGrowthAgent() {
   const handleOpenGeminiLogin = async () => {
     try {
       notify("Opening Chrome Gemini window on your screen...", "info");
-      const res = await request("/google-flow/open-login", "POST");
+      const res = await request("/gemini-login", "POST");
       notify(res.message || "Chrome opened! Sign in to Google, then close the browser.");
     } catch (err) {
       notify(err.message, "error");

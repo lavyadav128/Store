@@ -406,22 +406,30 @@ router.get("/live-flow/:id", handleGetSession);
 router.get("/live-flow", handleGetSession);
 
 import { spawn } from "child_process";
+import fs from "fs";
+import path from "path";
 
 // 1-Click Launch Interactive Login Window for Google Gemini
 const handleOpenLogin = (req, res) => {
   try {
-    const child = spawn(process.execPath, ["login-gemini.mjs"], {
-      cwd: process.cwd(),
+    const scriptPath = fs.existsSync(path.join(process.cwd(), "login-gemini.mjs"))
+      ? path.join(process.cwd(), "login-gemini.mjs")
+      : path.join(process.cwd(), "back", "login-gemini.mjs");
+    const child = spawn(process.execPath, [scriptPath], {
+      cwd: path.dirname(scriptPath),
       detached: true,
       stdio: "ignore",
     });
     child.unref();
-    res.json({ message: "Google Gemini Interactive Login window launched!" });
+    res.json({ message: "Google Gemini Interactive Login window launched! Sign in, then close the browser." });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+router.post("/gemini-login", handleOpenLogin);
+router.post("/google-flow/open-login", handleOpenLogin);
+router.post("/open-login", handleOpenLogin);
 router.post("/open-gemini-login-window", handleOpenLogin);
 router.post("/open-flow-login-window", handleOpenLogin);
 
