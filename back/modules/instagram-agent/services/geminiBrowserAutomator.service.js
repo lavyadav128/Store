@@ -207,14 +207,37 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
   // Configure Puppeteer with robust Linux & Windows support
   const isLinux = process.platform === "linux";
-  const customExecutablePath = process.env.PUPPETEER_EXECUTABLE_PATH || 
-    (isLinux ? [
-      "/usr/bin/google-chrome-stable",
-      "/usr/bin/google-chrome",
-      "/usr/bin/chromium-browser",
-      "/usr/bin/chromium",
-      "/snap/bin/chromium"
-    ].find(p => fs.existsSync(p)) : undefined);
+  
+  const candidateLinuxPaths = [
+    process.env.PUPPETEER_EXECUTABLE_PATH,
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "/snap/bin/chromium",
+  ];
+
+  const possibleCacheBases = [
+    "/opt/render/.cache/puppeteer/chrome",
+    path.join(os.homedir(), ".cache", "puppeteer", "chrome"),
+    "/root/.cache/puppeteer/chrome",
+  ];
+
+  for (const base of possibleCacheBases) {
+    if (fs.existsSync(base)) {
+      try {
+        const subdirs = fs.readdirSync(base);
+        for (const sub of subdirs) {
+          const chromeBin = path.join(base, sub, "chrome-linux64", "chrome");
+          if (fs.existsSync(chromeBin)) candidateLinuxPaths.push(chromeBin);
+          const altBin = path.join(base, sub, "chrome");
+          if (fs.existsSync(altBin)) candidateLinuxPaths.push(altBin);
+        }
+      } catch (_) {}
+    }
+  }
+
+  let resolvedExecutablePath = isLinux ? candidateLinuxPaths.find(p => p && fs.existsSync(p)) : undefined;
 
   const launchArgs = [
     "--no-sandbox",
@@ -228,13 +251,6 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
   if (isLinux) {
     launchArgs.push("--no-zygote", "--single-process");
-  }
-
-  let resolvedExecutablePath = customExecutablePath;
-  if (!resolvedExecutablePath && isLinux) {
-    try {
-      resolvedExecutablePath = await chromium.executablePath();
-    } catch (_) {}
   }
 
   const launchOptions = {
