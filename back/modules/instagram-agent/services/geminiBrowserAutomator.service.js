@@ -157,18 +157,19 @@ export function formatNaturePrompt({ title = "", realm = "", background = "", so
   // Clean wrapper tokens while preserving all rich descriptive details (lighting, fog, textures, composition)
   scene = scene
     .replace(/^create\s+(one\s+)?(animated\s+video|photorealistic\s+8k\s+image)\s+(on|of)\s+/gi, "")
+    .replace(/\s+(in\s+16:9\s+format\s+)?with\s+volumetric[\s\S]*$/gi, "")
+    .replace(/\s+along\s+with\s+matching\s+background\s+music[\s\S]*$/gi, "")
+    .replace(/\s+with\s+matching\s+background\s+music[\s\S]*$/gi, "")
     .replace(/\s+in\s+16:9\s+format\s+with[\s\S]*$/gi, "")
     .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/gi, "")
     .replace(/["'{}\[\]]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
-  const musicDesc = getDetailedSoundscapeDescription(realm, title, soundscape);
-
   if (isVideo) {
-    return `create one animated video on ${scene} in 16:9 format with synchronized ambient background music in the video creation`;
+    return `create one animated video on ${scene} with matching background music`;
   } else {
-    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting, natural colors, and generate its matching nature ambient background music track in the image creation composed of ${musicDesc}`;
+    return `create one photorealistic 8K image of ${scene} along with matching background music based on image`;
   }
 }
 

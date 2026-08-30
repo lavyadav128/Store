@@ -443,7 +443,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create one animated video on <vivid scene details> in 16:9 format with synchronized ambient background music in the video creation",
+  "imagePrompt": "create one animated video on <vivid scene details> with matching background music",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`
         : `You are the creative director for a viral 8K Nature & Landscape Photography Instagram page.
@@ -465,7 +465,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, photography hashtags"],
-  "imagePrompt": "create one photorealistic 8K image of <vivid scene details: lighting, fog, textures, composition> in 16:9 format with volumetric natural lighting, natural colors, and generate its matching nature ambient background music track in the image creation composed of <detailed soundscape description tailored to the image>"
+  "imagePrompt": "create one photorealistic 8K image of <vivid scene details: lighting, fog, textures, composition> along with matching background music based on image"
 }`;
 
       let parsed = null;
