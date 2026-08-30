@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "nodemon --import ./instrument.mjs index.js",
     "start": "node --import ./instrument.mjs index.js",
+    "gemini:login": "node login-gemini.mjs",
+    "login:gemini": "node login-gemini.mjs",
     "flow:login": "node login-google-flow.mjs",
     "flow:train": "node record-google-flow-workflow.mjs",
     "chrome:debug": "node launch-browser-debug.mjs",

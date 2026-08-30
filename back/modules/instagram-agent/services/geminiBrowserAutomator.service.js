@@ -473,13 +473,19 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         return "captcha";
       }
       if (location.href.includes("accounts.google.com")) return "sign_in";
-      const signInBtn = Array.from(document.querySelectorAll("a, button, [role='button']")).find(el => {
+
+      const hasSignInBtn = Array.from(document.querySelectorAll("a, button, [role='button']")).some(el => {
         const text = (el.innerText || el.getAttribute("aria-label") || "").trim().toLowerCase();
         const href = el.getAttribute("href") || "";
-        return text === "sign in" || href.includes("accounts.google.com") || href.includes("ServiceLogin");
+        return (text === "sign in" || text.includes("sign in")) && (href.includes("accounts.google.com") || href.includes("ServiceLogin") || el.tagName === "BUTTON" || el.tagName === "A");
       });
-      const hasInput = !!document.querySelector("div[role='textbox'], rich-textarea textarea, textarea, [contenteditable='true']");
-      if (signInBtn && !hasInput) return "sign_in";
+
+      const hasSignInBanner = bodyText.includes("sign in to connect to google apps") || bodyText.includes("sign in to create images");
+      const hasUserAvatar = !!document.querySelector("img[src*='googleusercontent.com/a/'], a[aria-label*='Google Account' i], button[aria-label*='Google Account' i], [aria-label*='Account Information' i]");
+
+      if ((hasSignInBtn || hasSignInBanner) && !hasUserAvatar) {
+        return "sign_in";
+      }
       return "ok";
     });
 
@@ -487,7 +493,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       throw new Error("Google reCAPTCHA challenge detected. Click 'Gemini Login' in the dashboard, check 'I'm not a robot' in the opened window, then retry.");
     }
     if (pageStatus === "sign_in") {
-      throw new Error("Google Gemini is not signed in. Click 'Gemini Login' in the dashboard, sign in to your Google account once, then retry.");
+      throw new Error("Google Gemini is not signed in. Click 'Gemini Login' in the dashboard (or run 'npm run gemini:login' in terminal), sign in to your Google account in the opened Chrome window, close it, and retry.");
     }
 
     // Step 3: Target Gemini Chat Prompt Input
@@ -606,6 +612,29 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       if (attempt % 5 === 0 || attempt === 1) {
         console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s / 300s elapsed)`);
         await addStep("Rendering in Gemini", `Gemini is generating 16:9 ${isVideo ? "video" : "image"} (${elapsed}s / 300s elapsed - waiting up to 5 minutes)...`);
+      }
+
+      // Check for Gemini Sign-In Notice in response
+      const signinNotice = await page.evaluate(() => {
+        const messageContainers = Array.from(document.querySelectorAll("message-content, .model-response-text, [data-test-id='model-response'], .response-container, .markdown, p"));
+        for (const el of messageContainers.reverse()) {
+          const text = (el.innerText || "").trim().toLowerCase();
+          if (
+            text.includes("are you signed in?") ||
+            text.includes("can't seem to create any for you right now") ||
+            text.includes("sign in to connect to google apps") ||
+            text.includes("sign in to create images")
+          ) {
+            return { needsSignIn: true, rawText: el.innerText.trim() };
+          }
+        }
+        return { needsSignIn: false };
+      });
+
+      if (signinNotice?.needsSignIn) {
+        const signinMsg = `Google Gemini Sign-In Required: Gemini requires you to be logged into a Google account to create images and videos. Please click the 'Gemini Login' button at the top of the dashboard (or run 'npm run gemini:login' in terminal), sign in with your Google account in the opened Chrome window, close it, and retry.`;
+        await addStep("Sign-In Required", signinMsg);
+        throw new Error(signinMsg);
       }
 
       // Check for Gemini Subscription / Paywall / Limit Text Notice (primarily for video generation)
