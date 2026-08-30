@@ -513,18 +513,18 @@ Return strict JSON with this exact schema:
 {
   "topic": "Catchy, viral reel title (5-8 words)",
   "themeCategory": "${themeCategory}",
-  "visualScene": "Detailed description of the 8K nature visual scene",
+  "visualScene": "Detailed description of the 8K nature visual scene (lighting, fog, textures, composition)",
   "cameraMotion": "Cinematic camera movement (e.g. drone dive, upward tilt, tracking shot)",
-  "soundscape": "Matching background audio & sound design (e.g. ethereal ambient forest flute, soothing cascading waterfall resonance, gentle binaural wind chimes)",
+  "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create one animated video on <vivid scene details> in 16:9 format with soothing ambient background music",
+  "imagePrompt": "create one animated video on <vivid scene details: lighting, fog, textures, composition> in 16:9 format with rich matching background music composed of <detailed soundscape description>",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`
         : `You are the creative director for a viral 8K Nature & Landscape Photography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
-Format: "post" (16:9 photorealistic 8K nature image with ambient nature music)
+Format: "post" (16:9 photorealistic 8K nature image with matching nature soundscape)
 Brand Voice: "Breathtaking, serene, crystal-clear, and deeply grounded in Earth's natural beauty"
 
 CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
@@ -536,11 +536,11 @@ Return strict JSON with this exact schema:
 {
   "topic": "Catchy, viral photo title (5-8 words)",
   "themeCategory": "${themeCategory}",
-  "visualScene": "Detailed description of the 8K nature photo scene",
-  "soundscape": "Matching soothing ambient music & acoustic soundscape (e.g. ethereal crystal bowl resonance, calming morning birdsong & gentle stream, zen bamboo flute)",
+  "visualScene": "Detailed description of the 8K nature photo scene (lighting, fog, textures, composition)",
+  "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, photography hashtags"],
-  "imagePrompt": "create one photorealistic 8K image of <vivid scene details> in 16:9 format with soothing ambient background music and volumetric lighting"
+  "imagePrompt": "create one photorealistic 8K image of <vivid scene details: lighting, fog, textures, composition> in 16:9 format with volumetric natural lighting and matching background music composed of <detailed soundscape description>"
 }`;
 
       let parsed = null;

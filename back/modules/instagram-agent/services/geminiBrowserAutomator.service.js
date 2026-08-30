@@ -87,22 +87,60 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
   }
 }
 
-export function formatNaturePrompt({ title = "", realm = "", background = "", rawPrompt = "", isVideo = true }) {
+export function getDetailedSoundscapeDescription(realm = "", title = "", soundscape = "") {
+  if (soundscape && soundscape.length > 10) return soundscape;
+  const r = `${realm} ${title}`.toLowerCase();
+  if (r.includes("morning") || r.includes("sunrise") || r.includes("dawn")) {
+    return "soothing morning birdsong, gentle valley breeze, and uplifting acoustic guitar melodies";
+  }
+  if (r.includes("sunset") || r.includes("dusk") || r.includes("golden hour")) {
+    return "calming ocean surf resonance, warm twilight breeze, and deep ambient meditation frequencies";
+  }
+  if (r.includes("wildlife") || r.includes("deer") || r.includes("tiger") || r.includes("elephant")) {
+    return "peaceful wilderness atmosphere, soft leaves rustling, and gentle resonant cello chords";
+  }
+  if (r.includes("forest") || r.includes("wood") || r.includes("jungle") || r.includes("tree")) {
+    return "soothing ancient forest wind, trickling brook water, and Zen bamboo flute harmonies";
+  }
+  if (r.includes("ocean") || r.includes("sea") || r.includes("coast") || r.includes("beach")) {
+    return "rhythmic turquoise waves crashing softly, sea spray whisper, and warm acoustic synthesizer pads";
+  }
+  if (r.includes("rain") || r.includes("storm") || r.includes("waterfall") || r.includes("river")) {
+    return "gentle rainfall dripping from vibrant green leaves, cascading waterfall resonance, and calming piano notes";
+  }
+  if (r.includes("night") || r.includes("milky way") || r.includes("star") || r.includes("aurora") || r.includes("celestial")) {
+    return "ethereal celestial space pads, subtle night crickets, and peaceful crystalline harp resonance";
+  }
+  if (r.includes("tiny") || r.includes("butterfly") || r.includes("bird") || r.includes("flower") || r.includes("macro")) {
+    return "delicate acoustic harp melodies, soft morning breeze chimes, and gentle nature birdsong";
+  }
+  if (r.includes("mountain") || r.includes("peak") || r.includes("alps") || r.includes("cliff")) {
+    return "crisp mountain breeze whisper, soaring alpine string harmonies, and grounding acoustic cello";
+  }
+  if (r.includes("season") || r.includes("autumn") || r.includes("winter") || r.includes("snow") || r.includes("spring")) {
+    return "cozy leaves rustling, peaceful singing bowl harmonics, and gentle acoustic piano chords";
+  }
+  return "soothing ambient nature soundscape with gentle acoustic resonance and peaceful wilderness breeze";
+}
+
+export function formatNaturePrompt({ title = "", realm = "", background = "", soundscape = "", rawPrompt = "", isVideo = true }) {
   let scene = background || rawPrompt || title || "a majestic deer standing quietly in a misty pine forest at sunrise, golden sunlight passing through the trees, soft fog surrounding the forest floor, tiny water droplets on grass, peaceful atmosphere, ultra-realistic wildlife photography, cinematic composition, natural colors, atmospheric depth, 8K, no text, no watermark";
   
   // Clean wrapper tokens while preserving all rich descriptive details (lighting, fog, textures, composition)
   scene = scene
     .replace(/^create\s+(one\s+)?(animated\s+video|photorealistic\s+8k\s+image)\s+(on|of)\s+/gi, "")
-    .replace(/\s+in\s+16:9\s+format\s+with\s+soothing\s+ambient\s+background\s+music(\s+and\s+volumetric\s+lighting)?/gi, "")
+    .replace(/\s+in\s+16:9\s+format\s+with[\s\S]*$/gi, "")
     .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/gi, "")
     .replace(/["'{}\[\]]/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 
+  const musicDesc = getDetailedSoundscapeDescription(realm, title, soundscape);
+
   if (isVideo) {
-    return `create one animated video on ${scene} in 16:9 format with soothing ambient background music`;
+    return `create one animated video on ${scene} in 16:9 format with rich matching background music composed of ${musicDesc}`;
   } else {
-    return `create one photorealistic 8K image of ${scene} in 16:9 format with soothing ambient background music and volumetric lighting`;
+    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting and matching background music composed of ${musicDesc}`;
   }
 }
 
@@ -130,6 +168,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   let title = "";
   let realm = "";
   let background = "";
+  let soundscape = "";
 
   if (contentId && contentId !== "live_session" && mongoose.Types.ObjectId.isValid(contentId)) {
     try {
@@ -137,7 +176,8 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       if (doc) {
         title = doc.topic || doc.quote || "";
         realm = doc.themeCategory || "";
-        background = doc.creativeBrief || doc.topic || "";
+        background = doc.visualScene || doc.creativeBrief || doc.topic || "";
+        soundscape = doc.soundscape || doc.audioTrack?.title || "";
         if (doc.type === "post" || doc.type === "image") {
           isVideo = false;
         } else if (doc.type === "reel" || doc.type === "video") {
@@ -147,7 +187,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     } catch {}
   }
 
-  const fullPrompt = formatNaturePrompt({ title, realm, background, rawPrompt: prompt, isVideo });
+  const fullPrompt = formatNaturePrompt({ title, realm, background, soundscape, rawPrompt: prompt, isVideo });
   let page = null;
 
   const sessionData = {
