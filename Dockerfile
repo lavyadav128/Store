@@ -1,6 +1,6 @@
 FROM node:20-bullseye-slim
 
-# Install system dependencies, Google Chrome Stable, and FFmpeg
+# Install system dependencies, Chromium, Google Chrome Stable, and FFmpeg
 RUN apt-get update && apt-get install -y \
     wget \
     gnupg \
@@ -20,6 +20,8 @@ RUN apt-get update && apt-get install -y \
     libpango-1.0-0 \
     libcairo2 \
     libasound2 \
+    chromium \
+    chromium-common \
     ffmpeg \
     fonts-liberation \
     libappindicator3-1 \
@@ -52,6 +54,6 @@ EXPOSE 5000 3000
 
 ENV NODE_ENV=production
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=false
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome-stable
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 CMD ["npm", "run", "start", "--prefix", "back"]

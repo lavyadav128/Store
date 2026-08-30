@@ -297,6 +297,10 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     headless: "new",
     userDataDir: sessionDir,
     args: launchArgs,
+    env: {
+      ...process.env,
+      LD_LIBRARY_PATH: `${process.env.LD_LIBRARY_PATH || ""}:/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib:/opt/render/project/.render/chrome`,
+    },
   };
   if (resolvedExecutablePath) {
     launchOptions.executablePath = resolvedExecutablePath;
