@@ -39,6 +39,20 @@ const getFfmpegBin = () => {
   return "ffmpeg";
 };
 
+async function mergeImageWithAudio(inputImagePath, inputAudioPath, outputVideoPath, durationSeconds = 12) {
+  try {
+    const ffmpeg = getFfmpegBin();
+    const cmd = `"${ffmpeg}" -y -loop 1 -i "${inputImagePath}" -i "${inputAudioPath}" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.0008,1.12)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -t ${durationSeconds} -shortest "${outputVideoPath}"`;
+    await execPromise(cmd);
+    if (fs.existsSync(outputVideoPath) && fs.statSync(outputVideoPath).size > 1000) {
+      return true;
+    }
+  } catch (err) {
+    console.warn("FFmpeg audio-image merge notice:", err.message);
+  }
+  return false;
+}
+
 async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, durationSeconds = 10) {
   try {
     const ffmpeg = getFfmpegBin();
@@ -53,8 +67,9 @@ async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, 
   return false;
 }
 
-async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instagram-agent/nature-reels") {
+async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instagram-agent/nature-reels", audioBuffer = null) {
   const tempImgPath = path.join(os.tmpdir(), `gemini_img_${Date.now()}_${Math.random().toString(36).slice(2)}.png`);
+  const tempAudioPath = path.join(os.tmpdir(), `gemini_audio_${Date.now()}_${Math.random().toString(36).slice(2)}.mp3`);
   const tempVideoPath = path.join(os.tmpdir(), `gemini_vid_${Date.now()}_${Math.random().toString(36).slice(2)}.mp4`);
   
   try {
@@ -62,8 +77,16 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
     let fileToUpload = tempImgPath;
     let resourceType = "image";
 
-    // If video mode or image requested with ambient nature audio
-    if (isVideo) {
+    // If native Gemini audio track was captured alongside image, merge them into 16:9 MP4 Reel
+    if (audioBuffer && audioBuffer.length > 3000) {
+      fs.writeFileSync(tempAudioPath, audioBuffer);
+      const merged = await mergeImageWithAudio(tempImgPath, tempAudioPath, tempVideoPath, 15);
+      if (merged) {
+        fileToUpload = tempVideoPath;
+        resourceType = "video";
+        isVideo = true;
+      }
+    } else if (isVideo) {
       resourceType = "video";
       const isAlreadyMp4 = buffer.slice(4, 8).toString("utf8") === "ftyp" || buffer.slice(0, 4).toString("utf8") === "\x00\x00\x00\x18";
       if (!isAlreadyMp4) {
@@ -87,6 +110,7 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
     });
   } finally {
     try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
+    try { if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath); } catch {}
     try { if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath); } catch {}
   }
 }
@@ -142,9 +166,9 @@ export function formatNaturePrompt({ title = "", realm = "", background = "", so
   const musicDesc = getDetailedSoundscapeDescription(realm, title, soundscape);
 
   if (isVideo) {
-    return `create one animated video on ${scene} in 16:9 format with soothing ambient background music`;
+    return `create one animated video on ${scene} in 16:9 format with synchronized ambient background music in the video creation`;
   } else {
-    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting, natural colors, and matching background music based on the image composed of ${musicDesc}`;
+    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting, natural colors, and generate its matching nature ambient background music track in the image creation composed of ${musicDesc}`;
   }
 }
 
@@ -369,6 +393,30 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
 
     page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 850 });
+
+    let capturedAudioBuffer = null;
+    page.on("response", async (response) => {
+      try {
+        const ct = (response.headers()["content-type"] || "").toLowerCase();
+        const url = response.url().toLowerCase();
+        if (
+          ct.includes("audio/") ||
+          url.includes(".mp3") ||
+          url.includes(".wav") ||
+          url.includes(".m4a") ||
+          url.includes(".ogg") ||
+          url.includes("audioplayer") ||
+          url.includes("music") ||
+          url.includes("sound")
+        ) {
+          const buf = await response.buffer();
+          if (buf && buf.length > 3000) {
+            capturedAudioBuffer = buf;
+            console.log(`[Gemini Agent] Captured Gemini native audio stream (${(buf.length / 1024).toFixed(1)} KB)!`);
+          }
+        }
+      } catch (_) {}
+    });
 
     // Enable Chrome download behavior to capture MP4 downloads
     try {
@@ -621,6 +669,33 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         isVideoResult = false;
         console.log(`[Gemini Agent] Attempt ${attempt}: Media found! 16:9 Image captured.`);
         await addStep("Media Found", `Captured 16:9 8K Image (Attempt ${attempt})`);
+
+        // Check if Gemini also rendered an audio music player widget below the image
+        try {
+          const clickedAudio = await page.evaluate(() => {
+            const playBtns = Array.from(document.querySelectorAll("button, [role='button'], [tabindex='0']")).filter((b) => {
+              const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
+              const isPlay = aria.includes("play") || aria.includes("listen") || aria.includes("music");
+              const hasPlaySvg = !!b.querySelector("svg");
+              const insideAudioWidget = !!b.closest("div[class*='audio'], div[class*='player'], div[class*='card'], [role='region'], .model-response-text");
+              return isPlay || (hasPlaySvg && insideAudioWidget);
+            });
+
+            for (const btn of playBtns) {
+              try {
+                btn.click();
+                return true;
+              } catch (_) {}
+            }
+            return false;
+          });
+
+          if (clickedAudio && !capturedAudioBuffer) {
+            console.log("[Gemini Agent] Clicked Gemini audio player card to capture native audio stream...");
+            await new Promise((r) => setTimeout(r, 4000));
+          }
+        } catch (_) {}
+
         break;
       }
 
@@ -682,12 +757,14 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     // Step 8: Upload to Cloudinary & Attach
-    const mediaTypeLabel = isVideoResult ? "16:9 video reel" : "16:9 8K photo";
+    const isMergedVideo = isVideoResult || (capturedAudioBuffer && capturedAudioBuffer.length > 3000);
+    const mediaTypeLabel = isMergedVideo ? "16:9 video reel with native audio" : "16:9 8K photo";
     await addStep("8. Uploading Media", `Uploading ${mediaTypeLabel} to Cloudinary...`);
     const uploadRes = await uploadBufferToCloudinary(
       extractedMediaBuffer,
       isVideoResult,
-      isVideoResult ? "instagram-agent/nature-reels" : "instagram-agent/nature-images"
+      isMergedVideo ? "instagram-agent/nature-reels" : "instagram-agent/nature-images",
+      capturedAudioBuffer
     );
 
     const finalMediaUrl = uploadRes.secure_url;
