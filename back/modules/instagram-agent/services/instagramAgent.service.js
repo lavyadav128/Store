@@ -309,9 +309,9 @@ async function uploadRemoteAsset(url, resourceType) {
   });
 }
 
-/* ═════════════════════════════════════════════════════════════
-   TRENDING AUDIO ENGINE
-═════════════════════════════════════════════════════════════ */
+export function getAvailableMusicTracks() {
+  return [];
+}
 
 export function getTrendingAudioRecommendation(topic, niche = 'Nature & Relaxation') {
   return `🎵 Dynamic Nature Soundscape curated by Google Gemini for "${topic || 'Earth & Wilderness'}"`;
