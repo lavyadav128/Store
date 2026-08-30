@@ -125,7 +125,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     } catch {}
   }
 
-  const fullPrompt = formatNatureVideoPrompt({ title, realm, background, rawPrompt: prompt });
+  let page = null;
 
   const sessionData = {
     contentId: sessionId,
@@ -133,19 +133,35 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     prompt: fullPrompt,
     startedAt: new Date().toISOString(),
     steps: [],
+    lastScreenshot: null,
+    currentStep: "Starting",
+    currentDetail: "Initializing live flow...",
     resultUrl: null,
     error: null,
   };
   activeGeminiSessions.set(sessionId, sessionData);
+  activeGeminiSessions.set("latest", sessionData);
 
-  const addStep = (stepName, detail) => {
+  const addStep = async (stepName, detail) => {
+    let shot = null;
+    if (page && !page.isClosed()) {
+      try {
+        const base64Buf = await page.screenshot({ encoding: "base64", type: "jpeg", quality: 40 });
+        shot = `data:image/jpeg;base64,${base64Buf}`;
+      } catch (_) {}
+    }
     const stepObj = {
       step: stepName,
       detail: detail,
       timestamp: new Date().toLocaleTimeString(),
-      screenshotUrl: null,
+      screenshotUrl: shot,
     };
     sessionData.steps.push(stepObj);
+    if (shot) sessionData.lastScreenshot = shot;
+    sessionData.currentStep = stepName;
+    sessionData.currentDetail = detail;
+    activeGeminiSessions.set(sessionId, { ...sessionData });
+    activeGeminiSessions.set("latest", { ...sessionData });
     console.log(`[Gemini Agent Step] ${stepName}: ${detail}`);
   };
 
@@ -166,7 +182,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   if (!fs.existsSync(downloadPath)) fs.mkdirSync(downloadPath, { recursive: true });
 
   try {
-    addStep("1. Launch Browser", "Starting Chromium with persistent Google Gemini profile...");
+    await addStep("1. Launch Browser", "Starting Chromium with persistent Google Gemini profile...");
     browser = await puppeteer.launch({
       headless: "new",
       userDataDir: sessionDir,
@@ -179,7 +195,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       ],
     });
 
-    const page = await browser.newPage();
+    page = await browser.newPage();
     await page.setViewport({ width: 1366, height: 850 });
 
     // Enable Chrome download behavior to capture MP4 downloads
@@ -191,7 +207,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       });
     } catch (_) {}
 
-    addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
+    await addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
     await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
@@ -220,7 +236,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     // Step 3: Target Gemini Chat Prompt Input
-    addStep("3. Target Prompt Bar", "Focusing Gemini prompt input area...");
+    await addStep("3. Target Prompt Bar", "Focusing Gemini prompt input area...");
     let focused = false;
     for (let i = 0; i < 10; i++) {
       focused = await page.evaluate(() => {
@@ -238,12 +254,12 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     if (!focused) throw new Error("Google Gemini prompt input box was not found on the page.");
 
     // Step 4: Inject Creative Generation Prompt
-    addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
+    await addStep("4. Injecting Prompt", `Sending prompt to Gemini: "${fullPrompt}"`);
     await page.keyboard.type(fullPrompt, { delay: 10 });
     await new Promise((r) => setTimeout(r, 500));
 
     // Step 5: Send Prompt
-    addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
+    await addStep("5. Submit to Gemini", "Submitting creative prompt to Gemini AI engine...");
     const sent = await page.evaluate(() => {
       const btn = Array.from(document.querySelectorAll("button, [role='button']")).find((b) => {
         const aria = (b.getAttribute("aria-label") || b.getAttribute("title") || b.innerText || "").toLowerCase();
@@ -261,11 +277,11 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     // Step 6: Wait for Gemini to generate and render the creation
-    addStep("6. Generating in Gemini", "Prompt submitted. Waiting for generation to complete...");
+    await addStep("6. Generating in Gemini", "Prompt submitted. Waiting for generation to complete...");
     console.log("[Gemini Agent] Generation submitted. Waiting 6 seconds for media to stabilize...");
     await new Promise((r) => setTimeout(r, 6000));
 
-    addStep("7. Searching for Media", "Scanning video elements, download buttons, and media streams...");
+    await addStep("7. Searching for Media", "Scanning video elements, download buttons, and media streams...");
     let extractedMediaBuffer = null;
     let isVideoResult = true;
     const maxAttempts = 20;
@@ -456,7 +472,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     }
 
     // Step 8: Render 8K Animated Nature Reel Video & Upload to Cloudinary
-    addStep("8. Uploading Video Reel", "Uploading 9:16 vertical video reel with atmospheric soundscape to Cloudinary...");
+    await addStep("8. Uploading Video Reel", "Uploading 9:16 vertical video reel with atmospheric soundscape to Cloudinary...");
     const uploadRes = await uploadBufferToCloudinary(
       extractedMediaBuffer,
       true,
@@ -466,7 +482,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     const finalMediaUrl = uploadRes.secure_url;
 
     // Step 8: Attach to MongoDB Draft
-    addStep("8. Finished & Attached", `Creation ready and attached to draft: ${finalMediaUrl}`);
+    await addStep("8. Finished & Attached", `Creation ready and attached to draft: ${finalMediaUrl}`);
     sessionData.status = "completed";
     sessionData.resultUrl = finalMediaUrl;
 
@@ -490,7 +506,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     return { url: finalMediaUrl, source: "gemini_browser_automated", session: sessionData };
   } catch (err) {
     const errorMsg = err.message;
-    addStep("Notice", `Gemini automation status: ${errorMsg}`);
+    await addStep("Notice", `Gemini automation status: ${errorMsg}`);
     sessionData.status = "failed";
     sessionData.error = errorMsg;
 

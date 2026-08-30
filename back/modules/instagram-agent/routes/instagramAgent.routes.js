@@ -382,17 +382,28 @@ router.post("/content/:id/flow-live", handleRunGeminiLive);
 router.post("/run-gemini-live", handleRunGeminiLive);
 router.post("/run-flow-live", handleRunGeminiLive);
 
-router.get("/gemini-session/:id", (req, res) => {
-  const session = liveGeminiSessions.get(String(req.params.id));
-  if (!session) return res.status(404).json({ error: "No active session found." });
+const handleGetSession = (req, res) => {
+  const id = req.params.id;
+  let session = null;
+  if (id && id !== "latest" && id !== "undefined") {
+    session = liveGeminiSessions.get(String(id));
+  }
+  if (!session) {
+    session = liveGeminiSessions.get("latest");
+  }
+  if (!session) {
+    const all = Array.from(liveGeminiSessions.values());
+    session = all[all.length - 1] || null;
+  }
+  if (!session) return res.status(404).json({ error: "No active live flow session found." });
   res.json(session);
-});
+};
 
-router.get("/flow-session/:id", (req, res) => {
-  const session = liveGeminiSessions.get(String(req.params.id));
-  if (!session) return res.status(404).json({ error: "No active session found." });
-  res.json(session);
-});
+router.get("/gemini-session/:id", handleGetSession);
+router.get("/flow-session/:id", handleGetSession);
+router.get("/google-flow/session/:id", handleGetSession);
+router.get("/live-flow/:id", handleGetSession);
+router.get("/live-flow", handleGetSession);
 
 import { spawn } from "child_process";
 
