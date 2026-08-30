@@ -20,7 +20,7 @@ export const NATURE_THEMES = [
     cameraMotion: "Slow cinematic upward pan from water reflections into the swirling cosmic aurora ribbons",
     lighting: "Ethereal neon glow from northern lights, soft star reflections on glass water, volumetric night mist",
     soundscape: "Deep ambient ethereal choir pads, subtle crystalline wind chimes, soft Arctic breeze",
-    prompt: "create one animated video on vibrant emerald aurora borealis over still arctic fjord in 9:16 vertical format",
+    prompt: "create one animated video on vibrant emerald aurora borealis over still arctic fjord in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Mirror-like glacial water reflecting the glowing emerald aurora borealis in 4K clarity.
 Scene 2 (3-6s): Camera glides upward as violet ribbons swirl across the starry Milky Way galaxy.
 Scene 3 (6-10s): Panoramic view of snowy peaks illuminated by the celestial northern lights glow.
@@ -43,7 +43,7 @@ When solar winds collide with Earth's magnetic shield, the sky ignites in ribbon
     cameraMotion: "Smooth slow-motion crane glide across jagged granite pinnacles toward the glowing galactic center",
     lighting: "Cosmic starlight, golden galactic core brilliance, subtle silhouette contrasts",
     soundscape: "Deep soothing binaural space drone, celestial harp resonance, gentle mountain whisper",
-    prompt: "create one animated video on glowing milky way galaxy core over majestic alpine peaks in 9:16 vertical format",
+    prompt: "create one animated video on glowing milky way galaxy core over majestic alpine peaks in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Silhouetted sharp mountain ridge under a canopy of billions of glittering stars.
 Scene 2 (3-6s): The luminous core of the Milky Way galaxy rises in vibrant golds and magentas.
 Scene 3 (6-10s): A shooting star streaks through the cosmic dust cloud, illuminating the alpine peaks.
@@ -68,7 +68,7 @@ The Milky Way core rising over towering alpine summits — a reminder that we ar
     cameraMotion: "Dynamic cinematic drone dive descending through hanging vines and misty rainbow into the crystal pool",
     lighting: "Golden morning sunbeams filtering through rainforest mist, sparkling iridescent water droplets",
     soundscape: "Soothing cascading water rush, serene bamboo flute melody, distant exotic bird calls",
-    prompt: "create one animated video on majestic emerald jungle waterfall plunging into crystal turquoise pool in 9:16 vertical format",
+    prompt: "create one animated video on majestic emerald jungle waterfall plunging into crystal turquoise pool in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Golden sunbeams pierce morning mist through towering tropical palm fronds.
 Scene 2 (3-6s): Powerful cascading waterfall descends into a glowing crystal turquoise lagoon with natural rainbow.
 Scene 3 (6-10s): Gentle ripples spread across clear water, revealing smooth river stones beneath.
@@ -91,7 +91,7 @@ Deep within the ancient tropical rainforest lies an untouched emerald sanctuary.
     cameraMotion: "Low-angle smooth tracking shot gliding just above the glowing blue surf as it breaks",
     lighting: "Vibrant neon-cyan bioluminescent glow, silver moonlight reflection on wet sand",
     soundscape: "Rhythmic gentle ocean waves, deep ambient ocean rumble, soft dreamlike chime harmonics",
-    prompt: "create one animated video on electric blue bioluminescent glowing ocean waves breaking on beach in 9:16 vertical format",
+    prompt: "create one animated video on electric blue bioluminescent glowing ocean waves breaking on beach in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Electric cyan light illuminates the crest of a breaking ocean wave at night.
 Scene 2 (3-6s): The wave washes onto shore, leaving glowing sparkles of light in the wet sand.
 Scene 3 (6-10s): Full moon shines above the ocean horizon as neon ripples shimmer endlessly.
@@ -116,7 +116,7 @@ Along secluded shores, microscopic organisms create a galaxy within the waves. E
     cameraMotion: "Slow cinematic upward tracking shot moving past mossy giant redwood trunks toward the light-filled canopy",
     lighting: "Dense volumetric god rays, soft golden morning haze, rich verdant shadows",
     soundscape: "Gentle morning birdsong, peaceful distant woodland breeze, soothing acoustic cello tones",
-    prompt: "create one animated video on misty giant redwood forest with golden god rays piercing through tall canopy in 9:16 vertical format",
+    prompt: "create one animated video on misty giant redwood forest with golden god rays piercing through tall canopy in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Ancient mossy giant redwoods emerge from swirling morning fog.
 Scene 2 (3-6s): Brilliant volumetric sunbeams illuminate floating dust motes and lush emerald ferns.
 Scene 3 (6-10s): Camera glides upward into the infinite cathedral canopy filled with golden morning light.
@@ -139,7 +139,7 @@ These trees have stood for thousands of years, weathering every storm by growing
     cameraMotion: "Smooth glide along the curved mossy cobblestone path through swaying green bamboo",
     lighting: "Soft twilight emerald ambiance, warm flickering firefly glows, gentle lanterns in distance",
     soundscape: "Rhythmic bamboo wind chimes, soft evening crickets, gentle Japanese Shakuhachi flute",
-    prompt: "create one animated video on misty zen bamboo forest at twilight with floating golden fireflies in 9:16 vertical format",
+    prompt: "create one animated video on misty zen bamboo forest at twilight with floating golden fireflies in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Towering emerald bamboo stalks sway gently against a dusky indigo sky.
 Scene 2 (3-6s): Hundreds of golden fireflies ignite in the twilight, drifting across mossy stone lanterns.
 Scene 3 (6-10s): Camera follows a stone pathway disappearing into the glowing, tranquil grove.
@@ -164,7 +164,7 @@ Bamboo bends with the strongest winds, yet never breaks. In its flexibility lies
     cameraMotion: "Close-up macro pan from falling pink blossom petals onto crystal clear running water",
     lighting: "Soft diffuse spring morning sunlight, translucent pink petal backlight, sparkling water ripples",
     soundscape: "Gentle bubbling mountain brook, soothing koto harp melody, soft spring breeze",
-    prompt: "create one animated video on pink sakura cherry blossom petals falling over crystal mountain river in 9:16 vertical format",
+    prompt: "create one animated video on pink sakura cherry blossom petals falling over crystal mountain river in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Sunlit pink sakura blossoms frame a crystal clear mountain stream.
 Scene 2 (3-6s): Gentle breeze carries a shower of pink petals dancing onto the sparkling water surface.
 Scene 3 (6-10s): Petals drift downstream past mossy river stones into a calm mountain pool.
@@ -187,7 +187,7 @@ The cherry blossom blooms for only a short season, teaching us to cherish each m
     cameraMotion: "Low-angle sweeping drone flight just brushing over purple lavender tips toward the setting sun",
     lighting: "Warm golden hour backlight, rich purple and amber gradient sky, long soft shadows",
     soundscape: "Soothing acoustic acoustic guitar, gentle summer evening breeze, warm ambient pads",
-    prompt: "create one animated video on endless purple lavender fields at golden sunset in 9:16 vertical format",
+    prompt: "create one animated video on endless purple lavender fields at golden sunset in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Golden hour sun dips below the horizon, bathing purple lavender in warm amber light.
 Scene 2 (3-6s): Camera sweeps across endless purple rows rippling in the warm summer breeze.
 Scene 3 (6-10s): The sky turns vibrant violet and gold as twilight settles over the blooming valley.
@@ -212,7 +212,7 @@ Endless purple horizons blooming under the golden sunset. Lavender has soothed h
     cameraMotion: "Slow cinematic pull-back revealing the mountain reflection spanning across the pristine lake",
     lighting: "Brilliant morning alpenglow, crystalline water reflections, crisp high-altitude sky",
     soundscape: "Majestic ambient strings, distant glacier melt stream, serene high-mountain air",
-    prompt: "create one animated video on majestic snow peak mountain reflecting in crystal lake at golden sunrise in 9:16 vertical format",
+    prompt: "create one animated video on majestic snow peak mountain reflecting in crystal lake at golden sunrise in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): First morning sun ignites the snowy mountain peak in vibrant pink alpenglow.
 Scene 2 (3-6s): Camera pans down to reveal a mirror reflection on the glass alpine lake.
 Scene 3 (6-10s): Soft morning mist drifts across the water as the full mountain range lights up.
@@ -237,7 +237,7 @@ Mountains do not rush, yet everything gets done. They stand steadfast through ce
     cameraMotion: "Smooth forward tracking shot gliding through curving sapphire ice arches into glowing crystal chamber",
     lighting: "Electric sapphire blue refraction, glistening ice crystals, bright sunbeam shafts",
     soundscape: "Ethereal crystal bowl resonance, deep glacier rumble, gentle rhythmic water drops",
-    prompt: "create one animated video on glowing turquoise crystal ice cave with sunbeams in 9:16 vertical format",
+    prompt: "create one animated video on glowing turquoise crystal ice cave with sunbeams in 16:9 format with soothing background music",
     reelScript: `Scene 1 (0-3s): Deep sapphire crystal ice arches glowing with ancient translucent blue light.
 Scene 2 (3-6s): Sunbeams pierce through ice crevices, casting diamond sparkles across frozen walls.
 Scene 3 (6-10s): Camera moves out of the cave entrance toward a pristine snowy glacier landscape.

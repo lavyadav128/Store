@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useRef } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -20,13 +20,10 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import InstagramIcon from "@mui/icons-material/Instagram";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import StopIcon from "@mui/icons-material/Stop";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import RefreshIcon from "@mui/icons-material/Refresh";
-import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
-import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CloseIcon from "@mui/icons-material/Close";
@@ -38,6 +35,9 @@ import ForestIcon from "@mui/icons-material/Forest";
 import SpaIcon from "@mui/icons-material/Spa";
 import LandscapeIcon from "@mui/icons-material/Landscape";
 import AcUnitIcon from "@mui/icons-material/AcUnit";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import server from "../../shared/environment";
 
 const authHeaders = () => ({
@@ -45,13 +45,14 @@ const authHeaders = () => ({
   Authorization: `Bearer ${localStorage.getItem("token")}`,
 });
 
-// Sleek Monochrome Card & Field Styling matching Store Website
-const card = {
+// Clean Individual White Box Card Styling
+const whiteCard = {
   borderRadius: "16px",
   border: "1px solid #e4e4e7",
-  boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
+  boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
   p: { xs: 2.5, sm: 3.5 },
-  background: "#ffffff",
+  bgcolor: "#ffffff",
+  color: "#09090b",
 };
 
 const titleStyle = {
@@ -74,12 +75,12 @@ const field = {
 };
 
 const NATURE_REALMS = [
-  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord & Milky Way Galaxy Core" },
-  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", icon: <WaterIcon fontSize="small" />, sample: "Emerald Jungle Waterfall Lagoon & Neon Bioluminescent Waves" },
-  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", icon: <ForestIcon fontSize="small" />, sample: "Misty Giant Redwoods with God Rays & Kyoto Bamboo Fireflies" },
-  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", icon: <SpaIcon fontSize="small" />, sample: "Pink Sakura Mountain Streams & Sunset Purple Lavender Valleys" },
-  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", icon: <LandscapeIcon fontSize="small" />, sample: "Golden Alpenglow Mountain Summits & Crystal Alpine Lakes" },
-  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", icon: <AcUnitIcon fontSize="small" />, sample: "Sapphire Glacial Ice Caves & Diamond Sunbeam Refractions" },
+  { id: "celestial", title: "Celestial & Aurora", realm: "Celestial & Aurora", icon: <NightsStayIcon fontSize="small" />, sample: "Bioluminescent Aurora over Arctic Fjord with Ethereal Choir Pads" },
+  { id: "water", title: "Mystic Waterfalls & Ocean", realm: "Mystic Waters", icon: <WaterIcon fontSize="small" />, sample: "Emerald Jungle Waterfall Lagoon with Zen Bamboo Flute & Water Resonance" },
+  { id: "forest", title: "Ancient Forests & Zen", realm: "Ancient Forests", icon: <ForestIcon fontSize="small" />, sample: "Misty Giant Redwoods with God Rays & Calming Acoustic Cello Resonance" },
+  { id: "blossom", title: "Blooming Wilds & Sakura", realm: "Blooming Wilds", icon: <SpaIcon fontSize="small" />, sample: "Pink Sakura Mountain Streams with Soothing Koto Harp Melody" },
+  { id: "peaks", title: "Majestic Alpine Peaks", realm: "Majestic Peaks", icon: <LandscapeIcon fontSize="small" />, sample: "Golden Alpenglow Mountain Summits with Uplifting Ambient Strings" },
+  { id: "ice", title: "Frozen Wonders & Ice Caves", realm: "Frozen Wonders", icon: <AcUnitIcon fontSize="small" />, sample: "Sapphire Glacial Ice Caverns with Crystalline Bowl Harmonics" },
 ];
 
 export default function InstagramGrowthAgent() {
@@ -202,7 +203,7 @@ export default function InstagramGrowthAgent() {
         category: realmToUse,
         type: "reel",
       });
-      notify(`AI generated 8K Nature Reel: "${created.topic}"`);
+      notify(`AI generated 16:9 Nature Video: "${created.topic}"`);
       setTopic("");
       await load();
     } catch (error) {
@@ -216,11 +217,11 @@ export default function InstagramGrowthAgent() {
     setGeneratingMediaId(contentId);
     setRunningFlowLiveId(contentId);
     setFlowInspectorOpen(true);
-    notify("Starting Google Gemini Live Flow...", "info");
+    notify("Starting Google Gemini 16:9 Video Generation...", "info");
 
     try {
       const updated = await request(`/content/${contentId}/generate-media`, "POST");
-      notify(`Generated 8K Nature Video for: ${updated.topic}!`);
+      notify(`Generated 16:9 Nature Video for: ${updated.topic}!`);
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -258,7 +259,7 @@ export default function InstagramGrowthAgent() {
     setSaving(true);
     try {
       const published = await request(`/content/${contentId}/publish`, "POST");
-      notify(`Published Reel to Instagram: ${published.topic}`);
+      notify(`Published 16:9 Video to Instagram: ${published.topic}`);
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -317,8 +318,8 @@ export default function InstagramGrowthAgent() {
   const currentFollowersDisplay = liveFollowers !== null ? liveFollowers : (account?.followers_count ?? null);
 
   return (
-    <Box sx={{ maxWidth: 1100, mx: "auto", pb: 5, color: "#09090b" }}>
-      {/* ── TOP HEADER (MONOCHROME MINIMALIST) ── */}
+    <Box sx={{ maxWidth: 1120, mx: "auto", pb: 6, color: "#09090b" }}>
+      {/* ── TOP HEADER (CLEAN LIGHT DESIGN) ── */}
       <Box
         sx={{
           display: "flex",
@@ -340,13 +341,13 @@ export default function InstagramGrowthAgent() {
               textTransform: "uppercase",
             }}
           >
-            Autonomous Growth Agent · 4K Nature Video Reels
+            Autonomous Growth Engine · 16:9 Nature Video Reels
           </Typography>
           <Typography sx={{ ...titleStyle, fontSize: { xs: 24, sm: 30 }, mt: 0.3 }}>
-            Instagram Video Reels & Growth Engine
+            Instagram 16:9 Nature Studio & Growth Agent
           </Typography>
           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mt: 0.5 }}>
-            Automated daily 8K animated nature video reels generated by Gemini with pure atmospheric soundscapes.
+            Automated 16:9 widescreen nature videos generated by Gemini with synchronized ambient background music.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -420,35 +421,26 @@ export default function InstagramGrowthAgent() {
         </Box>
       </Box>
 
-      {/* ── REAL-TIME LIVE FOLLOWER COUNTER (BLACK & WHITE OBSIDIAN) ── */}
-      <Paper
+      {/* ── REAL-TIME LIVE FOLLOWER & STATS (INDIVIDUAL WHITE BOXES) ── */}
+      <Box
         sx={{
-          borderRadius: "16px",
-          border: "1px solid #18181b",
-          p: { xs: 2.5, sm: 3.5 },
+          display: "grid",
+          gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+          gap: 2,
           mb: 3,
-          background: "#09090b",
-          color: "#ffffff",
         }}
       >
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr" },
-            gap: 3,
-            alignItems: "center",
-          }}
-        >
-          {/* Follower Count Display */}
-          <Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+        {/* Box 1: Live Followers */}
+        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
               <Box
                 sx={{
                   width: 8,
                   height: 8,
                   borderRadius: "50%",
-                  bgcolor: "#ffffff",
-                  boxShadow: "0 0 10px rgba(255,255,255,0.8)",
+                  bgcolor: "#22c55e",
+                  boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)",
                   animation: "pulse 1.8s infinite",
                   "@keyframes pulse": {
                     "0%": { opacity: 0.4 },
@@ -457,89 +449,90 @@ export default function InstagramGrowthAgent() {
                   },
                 }}
               />
-              <Typography sx={{ fontSize: 11, fontWeight: 700, letterSpacing: "1.2px", color: "#a1a1aa", textTransform: "uppercase" }}>
-                Live Instagram Followers
+              <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                Live Followers
               </Typography>
-              {hasFollowerIncremented && (
-                <Chip
-                  label="+New Follower"
-                  size="small"
-                  sx={{ bgcolor: "#ffffff", color: "#09090b", fontWeight: 800, fontSize: 10, height: 20 }}
-                />
-              )}
             </Box>
+            <PeopleAltOutlinedIcon sx={{ color: "#71717a", fontSize: 18 }} />
+          </Box>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 32, fontWeight: 900, color: "#09090b", lineHeight: 1.1 }}>
+            {currentFollowersDisplay !== null ? Number(currentFollowersDisplay).toLocaleString() : "..."}
+          </Typography>
+          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
+            {account?.username ? `@${account.username}` : "Instagram Active"} {lastFollowerCheck && `· ${lastFollowerCheck}`}
+          </Typography>
+        </Paper>
 
-            <Box sx={{ display: "flex", alignItems: "baseline", gap: 1.5, my: 0.5 }}>
-              <Typography
-                sx={{
-                  fontFamily: "'DM Sans', sans-serif",
-                  fontWeight: 900,
-                  fontSize: { xs: 38, sm: 50 },
-                  letterSpacing: "-1.5px",
-                  lineHeight: 1,
-                  color: "#ffffff",
-                }}
-              >
-                {currentFollowersDisplay !== null ? Number(currentFollowersDisplay).toLocaleString() : "..."}
-              </Typography>
-              <Typography sx={{ fontSize: 16, color: "#71717a", fontWeight: 600 }}>Followers</Typography>
-            </Box>
-
-            <Typography sx={{ fontSize: 12, color: "#71717a", mt: 0.5 }}>
-              {account?.username ? `@${account.username}` : "Instagram Connected"} · {account?.media_count || 0} Posts {lastFollowerCheck && `· Updated ${lastFollowerCheck}`}
+        {/* Box 2: 24H Reach */}
+        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              24H Reach
             </Typography>
+            <TrendingUpIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 32, fontWeight: 900, color: "#09090b", lineHeight: 1.1 }}>
+            {account?.reach !== null && account?.reach !== undefined ? Number(account.reach).toLocaleString() : "Active"}
+          </Typography>
+          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
+            Estimated unique audience reach
+          </Typography>
+        </Paper>
 
-          {/* Minimalist Metrics Grid */}
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "repeat(3, 1fr)",
-              gap: 1.5,
-              background: "#18181b",
-              p: 2,
-              borderRadius: "12px",
-              border: "1px solid #27272a",
-            }}
-          >
-            <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>24H REACH</Typography>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#ffffff", mt: 0.3 }}>
-                {account?.reach !== null && account?.reach !== undefined ? account.reach.toLocaleString() : "Active"}
-              </Typography>
-            </Box>
-            <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>ENGAGEMENT</Typography>
-              <Typography sx={{ fontSize: 18, fontWeight: 800, color: "#ffffff", mt: 0.3 }}>
-                {account?.engagement !== null && account?.engagement !== undefined ? `${account.engagement}%` : "High"}
-              </Typography>
-            </Box>
-            <Box sx={{ textAlign: "center" }}>
-              <Typography sx={{ fontSize: 10, color: "#71717a", fontWeight: 700, letterSpacing: "0.5px" }}>AGENT</Typography>
-              <Typography sx={{ fontSize: 14, fontWeight: 800, color: config.running ? "#ffffff" : "#a1a1aa", mt: 0.5 }}>
-                {config.running ? "Running" : "Paused"}
-              </Typography>
-            </Box>
+        {/* Box 3: Total Posts */}
+        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Total Media
+            </Typography>
+            <MovieCreationIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-        </Box>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 32, fontWeight: 900, color: "#09090b", lineHeight: 1.1 }}>
+            {account?.mediaCount !== null && account?.mediaCount !== undefined ? account.mediaCount : (account?.media_count || 0)}
+          </Typography>
+          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
+            Published reels & videos
+          </Typography>
+        </Paper>
 
-        {accountError && (
-          <Alert severity="warning" sx={{ mt: 2, borderRadius: "8px", bgcolor: "#18181b", color: "#f4f4f5", border: "1px solid #27272a" }}>
-            {accountError}
-          </Alert>
-        )}
-      </Paper>
+        {/* Box 4: Agent Scheduler Status */}
+        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+              Scheduler
+            </Typography>
+            <AutoAwesomeIcon sx={{ color: "#71717a", fontSize: 18 }} />
+          </Box>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 24, fontWeight: 800, color: config.running ? "#16a34a" : "#71717a", lineHeight: 1.2 }}>
+            {config.running ? "Running Daily" : "Paused"}
+          </Typography>
+          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
+            Daily post at {config.dailyPostTime || "07:00"} IST
+          </Typography>
+        </Paper>
+      </Box>
 
-      {/* ── 6 NATURE REEL STUDIOS (MONOCHROME MINIMALIST) ── */}
-      <Paper sx={{ ...card, mb: 3 }}>
+      {accountError && (
+        <Alert severity="warning" sx={{ mb: 3, borderRadius: "12px", border: "1px solid #e4e4e7" }}>
+          {accountError}
+        </Alert>
+      )}
+
+      {/* ── 6 NATURE REEL STUDIOS (INDIVIDUAL WHITE CARDS) ── */}
+      <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
           <Typography sx={{ ...titleStyle, fontSize: 18 }}>
-            Nature Video Studios (1-Click AI Generation)
+            16:9 Nature Video Studios (1-Click AI Generation)
           </Typography>
-          <Chip label="Pure Video · No Quotes" size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, border: "1px solid #e4e4e7" }} />
+          <Chip
+            icon={<MusicNoteIcon fontSize="small" />}
+            label="16:9 Widescreen · With Background Music"
+            size="small"
+            sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, border: "1px solid #e4e4e7" }}
+          />
         </Box>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2.5 }}>
-          Click any Nature Realm to generate a 100% unique 8K animated nature video with matching background soundscape:
+          Click any Nature Realm to generate a 100% unique 16:9 animated video with matching background music:
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 1.5 }}>
@@ -565,7 +558,7 @@ export default function InstagramGrowthAgent() {
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
                 <Box sx={{ color: "#09090b" }}>{r.icon}</Box>
-                <Chip label="Create Reel" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }} />
+                <Chip label="Create 16:9" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }} />
               </Box>
               <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, color: "#09090b" }}>
                 {r.title}
@@ -582,7 +575,7 @@ export default function InstagramGrowthAgent() {
         {/* Custom Prompt Generator */}
         <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
           <TextField
-            label="Custom Nature Scene / Wonder"
+            label="Custom Nature Scene / Marvel"
             value={topic}
             onChange={(e) => setTopic(e.target.value)}
             placeholder="e.g. Glowing Turquoise Glacial Lagoon, Autumn Birch Fog Stream"
@@ -618,16 +611,16 @@ export default function InstagramGrowthAgent() {
               "&:hover": { bgcolor: "#27272a" },
             }}
           >
-            Generate Nature Video
+            Generate 16:9 Video
           </Button>
         </Box>
       </Paper>
 
-      {/* ── DAILY SCHEDULER SETTINGS (MONOCHROME) ── */}
-      <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily Publishing Schedule</Typography>
+      {/* ── DAILY SCHEDULER SETTINGS (WHITE BOX) ── */}
+      <Paper sx={{ ...whiteCard, mb: 3 }}>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily 16:9 Video Scheduler</Typography>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2 }}>
-          Autonomous daily 8K nature video reels scheduled to publish automatically to your Instagram feed.
+          Autonomous daily 16:9 nature videos with synchronized background music scheduled to publish automatically.
         </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
@@ -643,7 +636,7 @@ export default function InstagramGrowthAgent() {
             value={config.dailyPostTime || "07:00"}
             onChange={(e) => set("dailyPostTime", e.target.value)}
             placeholder="e.g. 07:00 or 18:00"
-            helperText="Agent automatically generates and posts 1 unique nature reel daily at this fixed time"
+            helperText="Agent automatically generates and posts 1 unique 16:9 nature video daily at this fixed time"
             sx={field}
             fullWidth
           />
@@ -683,12 +676,12 @@ export default function InstagramGrowthAgent() {
         </Box>
       </Paper>
 
-      {/* ── CONTENT QUEUE WITH DIRECT IN-CARD VIDEO PLAYER & LIVE FLOW ── */}
-      <Paper sx={{ ...card, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & Video Reels</Typography>
+      {/* ── CONTENT QUEUE WITH 16:9 WIDESCREEN VIDEO PLAYER ── */}
+      <Paper sx={{ ...whiteCard, mb: 3 }}>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & 16:9 Videos</Typography>
         {content.length === 0 ? (
           <Typography sx={{ color: "#71717a", fontSize: 13 }}>
-            No drafts yet. Click any Nature Realm above to generate your first 8K nature video reel!
+            No drafts yet. Click any Nature Realm above to generate your first 16:9 nature video!
           </Typography>
         ) : (
           content.map((item) => (
@@ -699,15 +692,15 @@ export default function InstagramGrowthAgent() {
                 pt: 3,
                 mt: 3,
                 display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "220px 1fr" },
+                gridTemplateColumns: { xs: "1fr", md: "380px 1fr" },
                 gap: 2.5,
               }}
             >
-              {/* Direct Interactive HTML5 9:16 Video Player */}
+              {/* 16:9 Widescreen HTML5 Video Player Container */}
               <Box
                 sx={{
                   width: "100%",
-                  height: 310,
+                  aspectRatio: "16 / 9",
                   borderRadius: "12px",
                   overflow: "hidden",
                   bgcolor: "#000000",
@@ -738,7 +731,7 @@ export default function InstagramGrowthAgent() {
                 ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
                   <Box sx={{ textAlign: "center", p: 2 }}>
                     <CircularProgress size={28} sx={{ color: "#ffffff" }} />
-                    <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 8K Video in Gemini...</Typography>
+                    <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 16:9 Video in Gemini...</Typography>
                   </Box>
                 ) : (
                   <Box sx={{ textAlign: "center", p: 2 }}>
@@ -747,7 +740,8 @@ export default function InstagramGrowthAgent() {
                   </Box>
                 )}
                 <Chip
-                  label="8K Reel (9:16)"
+                  icon={<MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} />}
+                  label="16:9 Video + Music"
                   size="small"
                   sx={{
                     position: "absolute",
@@ -779,7 +773,7 @@ export default function InstagramGrowthAgent() {
                         }}
                       />
                       <Chip
-                        label={item.themeCategory || "Nature Reel"}
+                        label={item.themeCategory || "Nature 16:9"}
                         size="small"
                         sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }}
                       />
@@ -802,9 +796,10 @@ export default function InstagramGrowthAgent() {
                   {item.trendingAudioSuggestion && (
                     <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
                       <Chip
-                        label={item.trendingAudioSuggestion}
+                        icon={<MusicNoteIcon fontSize="small" />}
+                        label={`Music: ${item.trendingAudioSuggestion}`}
                         size="small"
-                        sx={{ bgcolor: "#fafafa", color: "#52525b", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
+                        sx={{ bgcolor: "#fafafa", color: "#3f3f46", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
                       />
                     </Box>
                   )}
@@ -839,9 +834,9 @@ export default function InstagramGrowthAgent() {
                     <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
                     <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
                       {item.assetUrl
-                        ? "8K Video Ready for Instagram"
+                        ? "16:9 Video Ready with Background Music"
                         : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
-                        ? "Gemini is rendering video..."
+                        ? "Gemini is rendering 16:9 video..."
                         : item.mediaGenerationError
                         ? `Status: ${item.mediaGenerationError}`
                         : "Ready to render with Gemini"}
@@ -864,7 +859,7 @@ export default function InstagramGrowthAgent() {
                       disabled={generatingMediaId === item._id || saving}
                       sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
                     >
-                      {item.assetUrl ? "Regenerate Video" : "Generate 8K Video"}
+                      {item.assetUrl ? "Regenerate Video" : "Generate 16:9 Video"}
                     </Button>
                     <Button
                       size="small"
@@ -873,7 +868,7 @@ export default function InstagramGrowthAgent() {
                       disabled={!item.assetUrl || saving}
                       sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#09090b", color: "#ffffff", "&:hover": { bgcolor: "#27272a" } }}
                     >
-                      Publish Reel
+                      Publish Video
                     </Button>
                   </Box>
                 </Box>
@@ -883,8 +878,8 @@ export default function InstagramGrowthAgent() {
         )}
       </Paper>
 
-      {/* ── RECENT AUDIT LOG (MONOCHROME) ── */}
-      <Paper sx={card}>
+      {/* ── RECENT AUDIT LOG (WHITE BOX) ── */}
+      <Paper sx={whiteCard}>
         <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Agent Audit Log</Typography>
         {activities.length === 0 ? (
           <Typography sx={{ color: "#71717a", fontSize: 13 }}>No recent activity logged.</Typography>
@@ -927,7 +922,7 @@ export default function InstagramGrowthAgent() {
               }}
             />
             <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
-              Gemini Live Flow Inspector
+              Gemini Live Flow Inspector (16:9 Video)
             </Typography>
           </Box>
           <IconButton onClick={() => setFlowInspectorOpen(false)} size="small">
@@ -1029,7 +1024,7 @@ export default function InstagramGrowthAgent() {
         </DialogActions>
       </Dialog>
 
-      {/* ── 60-DAY META TOKEN MODAL (MONOCHROME) ── */}
+      {/* ── 60-DAY META TOKEN MODAL ── */}
       <Dialog
         open={tokenModalOpen}
         onClose={() => setTokenModalOpen(false)}

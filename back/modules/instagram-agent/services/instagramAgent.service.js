@@ -459,7 +459,7 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
       const geminiPrompt = `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
-Format: "reel" (9:16 vertical animated cinematic video)
+Format: "reel" (16:9 cinematic animated video with matching background music)
 Brand Voice: "Awe-inspiring, serene, calming, and deeply grounded in Earth's natural beauty"
 
 CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
@@ -476,7 +476,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Matching background audio & sound design (e.g. ethereal ambient forest flute, soothing cascading waterfall resonance, gentle binaural wind chimes)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create animated video on <vivid scene details> in 9:16 vertical format",
+  "imagePrompt": "create animated video on <vivid scene details> in 16:9 format with soothing background music",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`;
 

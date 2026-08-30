@@ -28,7 +28,7 @@ const execPromise = util.promisify(exec);
 
 async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, durationSeconds = 10) {
   try {
-    const cmd = `ffmpeg -y -loop 1 -i "${inputImagePath}" -f lavfi -i "anoisesrc=c=pink:r=44100:a=0.02,lowpass=f=350,volume=0.35" -filter_complex "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,zoompan=z='min(zoom+0.001,1.15)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920:fps=25[v]" -map "[v]" -map 1:a -t ${durationSeconds} -pix_fmt yuv420p -c:v libx264 -c:a aac -b:a 128k "${outputVideoPath}"`;
+    const cmd = `ffmpeg -y -loop 1 -i "${inputImagePath}" -f lavfi -i "anoisesrc=c=pink:r=44100:a=0.02,lowpass=f=350,volume=0.35" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.001,1.15)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -t ${durationSeconds} -pix_fmt yuv420p -c:v libx264 -c:a aac -b:a 128k "${outputVideoPath}"`;
     await execPromise(cmd);
     if (fs.existsSync(outputVideoPath) && fs.statSync(outputVideoPath).size > 1000) {
       return true;
@@ -74,7 +74,7 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
 }
 
 export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
-  let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning god rays";
+  let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning sunbeams";
   
   // Recursively clean redundant prefixes and directives
   scene = scene
@@ -84,7 +84,7 @@ export function formatNatureVideoPrompt({ title = "", realm = "", background = "
     .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
     .replace(/\b(create|generate|make|one|an?)\b/gi, " ")
     .replace(/\b(ultra-detailed|8k|4k|cinematic|photorealistic|animated|video|reel|image|photo|visual|poster|picture)\b/gi, " ")
-    .replace(/\b(format|portrait|vertical|9:16|16:9)\b/gi, " ")
+    .replace(/\b(format|portrait|vertical|9:16|16:9|widescreen)\b/gi, " ")
     .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, " ")
     .replace(/["'{}\[\]]/g, " ")
     .replace(/\b(of|on|in)\b/gi, " ")
@@ -94,7 +94,7 @@ export function formatNatureVideoPrompt({ title = "", realm = "", background = "
   const words = scene.split(/\s+/).filter(Boolean);
   const sceneDescription = (words.length >= 2 ? words.slice(0, 8).join(" ") : (title || "majestic nature and peaceful wilderness"));
 
-  return `create one animated video on ${sceneDescription} in 9:16 vertical format`;
+  return `create one animated video on ${sceneDescription} in 16:9 format with soothing ambient background music`;
 }
 
 export function cleanPromptForGemini(rawPrompt, isVideo = true) {
