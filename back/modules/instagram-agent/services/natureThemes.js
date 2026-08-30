@@ -20,7 +20,7 @@ export const NATURE_THEMES = [
     cameraMotion: "Slow cinematic upward pan from water reflections into the swirling cosmic aurora ribbons",
     lighting: "Ethereal neon glow from northern lights, soft star reflections on glass water, volumetric night mist",
     soundscape: "Deep ambient ethereal choir pads, subtle crystalline wind chimes, soft Arctic breeze",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of vibrant emerald and violet aurora borealis dancing over still arctic fjord in 9:16 vertical format",
+    prompt: "create one animated video on vibrant emerald aurora borealis over still arctic fjord in 9:16 vertical format",
     reelScript: `Scene 1 (0-3s): Mirror-like glacial water reflecting the glowing emerald aurora borealis in 4K clarity.
 Scene 2 (3-6s): Camera glides upward as violet ribbons swirl across the starry Milky Way galaxy.
 Scene 3 (6-10s): Panoramic view of snowy peaks illuminated by the celestial northern lights glow.
@@ -43,7 +43,7 @@ When solar winds collide with Earth's magnetic shield, the sky ignites in ribbon
     cameraMotion: "Smooth slow-motion crane glide across jagged granite pinnacles toward the glowing galactic center",
     lighting: "Cosmic starlight, golden galactic core brilliance, subtle silhouette contrasts",
     soundscape: "Deep soothing binaural space drone, celestial harp resonance, gentle mountain whisper",
-    prompt: "create ultra-detailed 8K cinematic nature video of glowing milky way galaxy core over majestic alpine peaks with shooting stars in 9:16 vertical format",
+    prompt: "create one animated video on glowing milky way galaxy core over majestic alpine peaks in 9:16 vertical format",
     reelScript: `Scene 1 (0-3s): Silhouetted sharp mountain ridge under a canopy of billions of glittering stars.
 Scene 2 (3-6s): The luminous core of the Milky Way galaxy rises in vibrant golds and magentas.
 Scene 3 (6-10s): A shooting star streaks through the cosmic dust cloud, illuminating the alpine peaks.
@@ -68,7 +68,7 @@ The Milky Way core rising over towering alpine summits — a reminder that we ar
     cameraMotion: "Dynamic cinematic drone dive descending through hanging vines and misty rainbow into the crystal pool",
     lighting: "Golden morning sunbeams filtering through rainforest mist, sparkling iridescent water droplets",
     soundscape: "Soothing cascading water rush, serene bamboo flute melody, distant exotic bird calls",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of majestic emerald jungle waterfall plunging into crystal clear turquoise pool with god rays in 9:16 vertical format",
+    prompt: "create one animated video on majestic emerald jungle waterfall plunging into crystal turquoise pool in 9:16 vertical format",
     reelScript: `Scene 1 (0-3s): Golden sunbeams pierce morning mist through towering tropical palm fronds.
 Scene 2 (3-6s): Powerful cascading waterfall descends into a glowing crystal turquoise lagoon with natural rainbow.
 Scene 3 (6-10s): Gentle ripples spread across clear water, revealing smooth river stones beneath.
@@ -91,153 +91,153 @@ Deep within the ancient tropical rainforest lies an untouched emerald sanctuary.
     cameraMotion: "Low-angle smooth tracking shot gliding just above the glowing blue surf as it breaks",
     lighting: "Vibrant neon-cyan bioluminescent glow, silver moonlight reflection on wet sand",
     soundscape: "Rhythmic gentle ocean waves, deep ambient ocean rumble, soft dreamlike chime harmonics",
-    prompt: "create ultra-detailed 8K cinematic nature video of electric blue bioluminescent glowing ocean waves breaking on beach at night in 9:16 vertical format",
+    prompt: "create one animated video on electric blue bioluminescent glowing ocean waves breaking on beach in 9:16 vertical format",
     reelScript: `Scene 1 (0-3s): Electric cyan light illuminates the crest of a breaking ocean wave at night.
 Scene 2 (3-6s): The wave washes onto shore, leaving glowing sparkles of light in the wet sand.
 Scene 3 (6-10s): Full moon shines above the ocean horizon as neon ripples shimmer endlessly.
 Audio Direction: Gentle rhythmic ocean swells with ethereal relaxation frequencies.`,
     caption: `🌊 Living Light: The Magic of Bioluminescent Ocean Waves.
 
-Microscopic marine organisms light up the coastline in electric cyan whenever waves disturb the water. It feels like walking through a dream on Earth.
+Along secluded shores, microscopic organisms create a galaxy within the waves. Every crash of the tide paints the sand in neon blue starlight.
 
-💙 Take a slow breath and listen to the rhythm of the tides.
+🌌 Close your eyes and listen to the rhythmic pulse of the ocean.
 
-📌 Double tap & save this for your nighttime relaxation!
-🌊 Have you ever seen bioluminescence in person? Drop your story below! 👇`,
-    hashtags: ["#bioluminescence", "#oceanvibes", "#oceanmagic", "#nightocean", "#naturelovers", "#earthfocus", "#calmingvideos", "#blueaesthetic", "#planetearth", "#reelsinstagram", "#viralnature"]
+📌 Save this reel for deep sleep, study focus, or meditation.
+💙 Have you ever seen bioluminescence in person?`,
+    hashtags: ["#bioluminescence", "#oceanwaves", "#neonwaves", "#nightbeach", "#earthpix", "#relaxingocean", "#magicalnature", "#naturewonders", "#sea", "#coastalvibes", "#earthfocus"]
   },
 
   // ─── 3. ENCHANTED ANCIENT FORESTS ──────────────────────────
   {
-    id: "forest_misty_redwood_sunrise",
+    id: "forest_misty_redwoods_godrays",
     realm: "Ancient Forests",
-    title: "Misty Giant Redwood Forest with Golden God Rays",
-    description: "Centuries-old towering redwood trees cloaked in morning mountain fog, illuminated by dramatic golden god-rays streaming through the mossy canopy.",
-    cameraMotion: "Slow vertical tilt-up showcasing the monumental height of the ancient redwoods into the golden canopy",
-    lighting: "Volumetric golden god-rays, soft atmospheric morning haze, rich emerald moss highlights",
-    soundscape: "Serene morning birdsong, gentle rustling pine needles, calming wooden acoustic melody",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of misty giant redwood forest with golden god rays piercing through tall canopy in 9:16 vertical format",
-    reelScript: `Scene 1 (0-3s): Soft morning fog drifts slowly between massive ancient moss-covered tree trunks.
-Scene 2 (3-6s): Brilliant golden rays of sunlight pierce through the dense canopy, creating beam of pure light.
-Scene 3 (6-10s): Camera tilts smoothly upward toward the infinite morning sky through the redwoods.
-Audio Direction: Calming morning forest birdsong, gentle wind through needles, warm acoustic chords.`,
-    caption: `🌲 In the presence of giants: Ancient Redwoods.
+    title: "Misty Giant Redwoods with Volumetric God Rays",
+    description: "Colossal redwood trees shrouded in mystical morning fog, with golden sunbeams piercing through the ancient forest canopy illuminating lush emerald ferns below.",
+    cameraMotion: "Slow cinematic upward tracking shot moving past mossy giant redwood trunks toward the light-filled canopy",
+    lighting: "Dense volumetric god rays, soft golden morning haze, rich verdant shadows",
+    soundscape: "Gentle morning birdsong, peaceful distant woodland breeze, soothing acoustic cello tones",
+    prompt: "create one animated video on misty giant redwood forest with golden god rays piercing through tall canopy in 9:16 vertical format",
+    reelScript: `Scene 1 (0-3s): Ancient mossy giant redwoods emerge from swirling morning fog.
+Scene 2 (3-6s): Brilliant volumetric sunbeams illuminate floating dust motes and lush emerald ferns.
+Scene 3 (6-10s): Camera glides upward into the infinite cathedral canopy filled with golden morning light.
+Audio Direction: Calming morning birdsong layered with peaceful acoustic resonance.`,
+    caption: `🌿 Walking Among Giants: The Wisdom of Ancient Redwoods.
 
-These trees have stood for thousands of years through storms, seasons, and centuries. Their roots hold the earth, and their canopies touch the sky.
+These trees have stood for thousands of years, weathering every storm by growing deep, interconnected roots. They remind us that true strength is quiet, patient, and grounded.
 
-🍃 Strength is not loud; it is rooted deep and stands with quiet grace.
+🌱 Take a breath. Stand tall. Your roots are stronger than you know.
 
-📌 Save this reel for daily grounding and mental clarity.
-🌳 What is your favorite forest to walk in? Tell us below! 👇`,
-    hashtags: ["#redwoodforest", "#forestphotography", "#naturelovers", "#ancienttrees", "#morningrays", "#earthfocus", "#peacefulnature", "#serenity", "#nature_perfection", "#wildernessculture", "#reelsnature"]
+📌 Save this reel for daily grounding & inner peace.
+🌲 Which ancient forest would you love to walk through?`,
+    hashtags: ["#redwoods", "#ancientforest", "#foresttherapy", "#naturecalm", "#treecathedral", "#peacefulnature", "#sunbeams", "#earthfocus", "#naturelover", "#greenery", "#mindfulness"]
   },
   {
-    id: "forest_zen_bamboo_fireflies",
+    id: "forest_kyoto_bamboo_fireflies",
     realm: "Ancient Forests",
     title: "Kyoto Zen Bamboo Grove with Glowing Fireflies",
-    description: "A tranquil Japanese bamboo pathway at blue hour twilight, softly illuminated by stone lanterns and thousands of floating golden fireflies dancing between slender bamboo stalks.",
-    cameraMotion: "Smooth eye-level tracking shot moving down the stone path between swaying bamboo stalks",
-    lighting: "Deep blue twilight ambiance, warm golden firefly glows, soft paper lantern luminescence",
-    soundscape: "Gentle wind through bamboo stalks, tranquil Koto harp melody, distant mountain spring trickle",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of misty zen bamboo forest at twilight with floating golden fireflies in 9:16 vertical format",
-    reelScript: `Scene 1 (0-3s): Tall emerald bamboo stalks gently swaying in twilight mountain breeze.
-Scene 2 (3-6s): Tiny golden fireflies begin to glow and dance along a mossy stone pathway.
-Scene 3 (6-10s): The pathway leads into a peaceful traditional wooden pagoda under the rising moon.
-Audio Direction: Soothing traditional Koto and Shakuhachi flute with gentle bamboo wind sounds.`,
-    caption: `🎋 Finding Stillness: The Kyoto Zen Bamboo Sanctuary.
+    description: "Towering green bamboo stalks swaying gently in twilight breeze, illuminated by hundreds of floating golden fireflies dancing along a mossy stone pathway.",
+    cameraMotion: "Smooth glide along the curved mossy cobblestone path through swaying green bamboo",
+    lighting: "Soft twilight emerald ambiance, warm flickering firefly glows, gentle lanterns in distance",
+    soundscape: "Rhythmic bamboo wind chimes, soft evening crickets, gentle Japanese Shakuhachi flute",
+    prompt: "create one animated video on misty zen bamboo forest at twilight with floating golden fireflies in 9:16 vertical format",
+    reelScript: `Scene 1 (0-3s): Towering emerald bamboo stalks sway gently against a dusky indigo sky.
+Scene 2 (3-6s): Hundreds of golden fireflies ignite in the twilight, drifting across mossy stone lanterns.
+Scene 3 (6-10s): Camera follows a stone pathway disappearing into the glowing, tranquil grove.
+Audio Direction: Serene Japanese Shakuhachi bamboo flute with gentle night crickets.`,
+    caption: `🎋 Stillness in Motion: The Zen Bamboo Grove.
 
-When the mind is cluttered, nature offers simplicity. The gentle sway of bamboo teaches us flexibility, while fireflies remind us to shine our own light in the dark.
+Bamboo bends with the strongest winds, yet never breaks. In its flexibility lies its greatest power.
 
-🕊️ Breathe in calm, breathe out tension.
+🌸 Learn to bend without breaking when life gets turbulent.
 
-📌 Save this reel for your mindful meditation and study focus!
-🏮 Drop a "🎋" for peaceful vibes!`,
-    hashtags: ["#zenmoments", "#bambooforest", "#kyotojapan", "#mindfulness", "#naturemeditation", "#fireflies", "#tranquility", "#earthfocus", "#reelsinstagram", "#peacefulmind", "#japanfocus"]
+📌 Save this reel for instant relaxation and mindful meditation.
+🏮 Drop a "🎋" for peaceful zen vibes today!`,
+    hashtags: ["#bambooforest", "#zenvibes", "#japanesegardens", "#fireflies", "#mindfulness", "#naturepeace", "#tranquility", "#earthfocus", "#peacefulmoments", "#relaxingvideos", "#asiannature"]
   },
 
   // ─── 4. BLOOMING WILDERNESS & BLOSSOMS ──────────────────────
   {
-    id: "blossom_sakura_mountain_river",
+    id: "blossom_cherry_blossom_river",
     realm: "Blooming Wilds",
-    title: "Pink Sakura Cherry Blossom Waterfall & River",
-    description: "Thousands of pink cherry blossom petals gently fluttering into a crystal clear mountain stream beneath majestic snow-dusted volcanic peaks.",
-    cameraMotion: "Slow-motion floating camera following falling pink petals as they swirl into the turquoise stream",
-    lighting: "Soft pastel spring sunlight, delicate translucent flower petals, crisp clear water reflections",
-    soundscape: "Peaceful acoustic piano melody, soft river babble, gentle spring breeze",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of pink sakura cherry blossom petals falling over crystal mountain river in 9:16 vertical format",
-    reelScript: `Scene 1 (0-3s): Branches heavy with delicate pink cherry blossoms against a clear azure spring sky.
-Scene 2 (3-6s): A gentle breeze shakes the branches, releasing a mesmerizing shower of pink petals.
-Scene 3 (6-10s): Petals drift down to float upon the crystal mountain river with mountain peaks in background.
-Audio Direction: Gentle heartwarming piano with soothing spring water sounds.`,
-    caption: `🌸 The Magic of Spring: Sakura in Full Bloom.
+    title: "Cherry Blossom Petals Falling Over Mountain River",
+    description: "Vibrant pink sakura cherry blossoms arching over a crystal clear bubbling mountain stream, with delicate petals floating down on the water like pink snow.",
+    cameraMotion: "Close-up macro pan from falling pink blossom petals onto crystal clear running water",
+    lighting: "Soft diffuse spring morning sunlight, translucent pink petal backlight, sparkling water ripples",
+    soundscape: "Gentle bubbling mountain brook, soothing koto harp melody, soft spring breeze",
+    prompt: "create one animated video on pink sakura cherry blossom petals falling over crystal mountain river in 9:16 vertical format",
+    reelScript: `Scene 1 (0-3s): Sunlit pink sakura blossoms frame a crystal clear mountain stream.
+Scene 2 (3-6s): Gentle breeze carries a shower of pink petals dancing onto the sparkling water surface.
+Scene 3 (6-10s): Petals drift downstream past mossy river stones into a calm mountain pool.
+Audio Direction: Gentle bubbling stream layered with peaceful acoustic harp.`,
+    caption: `🌸 Hanami: The Transient Beauty of Sakura.
 
-Cherry blossoms bloom brilliantly for only a few days each year. They teach us the beauty of living fully in the present moment.
+The cherry blossom blooms for only a short season, teaching us to cherish each moment fully. Beauty is not about permanence, but presence.
 
-💖 Every new beginning begins with a single step.
+💖 Be present. Cherish today.
 
-📌 Save this reel to bring color, hope, and peace to your feed!
-🌸 What is your favorite season of the year? Comment below!`,
-    hashtags: ["#cherryblossom", "#sakuraseason", "#springvibes", "#naturelovers", "#flowerpower", "#earthfocus", "#beautifulnature", "#pastelcolors", "#reelsviral", "#earthpix", "#japantravel"]
+📌 Save this reel to bring springtime peace into your day!
+🌸 Who would you take to see the cherry blossoms? Tag them! 👇`,
+    hashtags: ["#cherryblossoms", "#sakuraseason", "#springvibes", "#naturelovers", "#flowersofig", "#japanesesakura", "#peacefulstream", "#relaxingnature", "#earthfocus", "#bloomingnature"]
   },
   {
     id: "blossom_lavender_sunset_provence",
     realm: "Blooming Wilds",
-    title: "Golden Hour Sunset Over Endless Purple Lavender Fields",
-    description: "Vast rolling rows of blooming purple lavender stretching toward the horizon under a fiery violet and orange sunset, with butterflies and warm evening light.",
-    cameraMotion: "Low sweeping camera glide along the purple lavender rows toward the setting golden sun",
-    lighting: "Warm golden hour sunset, rich purple violet flower contrast, golden rim lighting",
-    soundscape: "Calming acoustic guitar arpeggios, gentle summer evening breeze, soft cicada hum",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of endless purple lavender fields at golden sunset in 9:16 vertical format",
-    reelScript: `Scene 1 (0-3s): Symmetrical purple lavender rows glowing under warm golden hour sunlight.
-Scene 2 (3-6s): The setting sun casts deep orange and pink hues across the dramatic sky.
-Scene 3 (6-10s): Camera glides smoothly over the lavender flowers toward a rustic stone farmhouse on the hill.
-Audio Direction: Warm fingerpicked acoustic guitar with gentle summer breeze.`,
-    caption: `💜 Golden Hour in the Lavender Valleys.
+    title: "Endless Purple Lavender Fields at Golden Sunset",
+    description: "Vast rolling fields of purple lavender stretching to the horizon under a warm golden-violet sunset sky, with honeybees drifting gently among blooming stalks.",
+    cameraMotion: "Low-angle sweeping drone flight just brushing over purple lavender tips toward the setting sun",
+    lighting: "Warm golden hour backlight, rich purple and amber gradient sky, long soft shadows",
+    soundscape: "Soothing acoustic acoustic guitar, gentle summer evening breeze, warm ambient pads",
+    prompt: "create one animated video on endless purple lavender fields at golden sunset in 9:16 vertical format",
+    reelScript: `Scene 1 (0-3s): Golden hour sun dips below the horizon, bathing purple lavender in warm amber light.
+Scene 2 (3-6s): Camera sweeps across endless purple rows rippling in the warm summer breeze.
+Scene 3 (6-10s): The sky turns vibrant violet and gold as twilight settles over the blooming valley.
+Audio Direction: Warm acoustic guitar fingerpicking with soft ambient summer breeze.`,
+    caption: `💜 Breathe in the Calm of the Lavender Valleys.
 
-The scent of lavender and the warmth of the evening sun create pure peace. When the day winds down, give yourself permission to rest and recharge.
+Endless purple horizons blooming under the golden sunset. Lavender has soothed human hearts for centuries with its gentle scent and serene color.
 
-🌅 Let the beauty of this sunset wash away all stress.
+🌿 Close your eyes and inhale peace, exhale tension.
 
-📌 Save this reel for evening relaxation and positive energy!
-✨ Double tap if you love golden sunsets!`,
-    hashtags: ["#lavenderfields", "#goldenhour", "#sunsetlovers", "#earthfocus", "#naturephotography", "#relaxation", "#beautifuldestinations", "#travelnature", "#positivevibes", "#reelsnature"]
+📌 Save this reel for stress relief and evening unwind.
+✨ What is your favorite flower in nature?`,
+    hashtags: ["#lavenderfields", "#goldenhour", "#provencelife", "#sunsetphotography", "#relaxingnature", "#flowerstagram", "#beautifuldestinations", "#earthfocus", "#purplehaze", "#mindfulmoments"]
   },
 
-  // ─── 5. MAJESTIC MOUNTAIN PEAKS & CANYONS ───────────────────
+  // ─── 5. MAJESTIC ALPINE SUMMITS ─────────────────────────────
   {
-    id: "peaks_matterhorn_alpine_reflection",
+    id: "peaks_matterhorn_alpenglow",
     realm: "Majestic Peaks",
-    title: "Golden Sun Reflection on Majestic Alpine Mountain Lake",
-    description: "A monumental snow-peaked mountain summit catching the first golden sunrise light, perfectly mirrored in a crystal alpine lake surrounded by pine forests.",
-    cameraMotion: "Cinematic drone tracking shot rising from the glass lake mirror to the blazing golden summit",
-    lighting: "First light alpine glow (Alpenglow), crystal clear turquoise water mirror, crisp morning air",
-    soundscape: "Epic orchestral ambient strings, deep mountain horn echo, gentle lake ripples",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of majestic snow peak mountain reflecting in crystal lake at golden sunrise in 9:16 vertical format",
-    reelScript: `Scene 1 (0-3s): Mirror-still mountain lake with pine tree silhouettes in morning twilight.
-Scene 2 (3-6s): The highest peak catches the blazing golden Alpenglow as the sun crests the ridge.
-Scene 3 (6-10s): The entire valley illuminates in golden light, mirrored flawlessly in the turquoise water.
-Audio Direction: Inspiring cinematic atmospheric strings and gentle nature ambience.`,
-    caption: `🏔️ Rise Above: First Light on the Alpine Peaks.
+    title: "Golden Alpenglow Mountain Peak & Crystal Lake",
+    description: "A colossal pyramid mountain peak illuminated in brilliant golden-pink alpenglow at sunrise, perfectly mirrored on the glass surface of an alpine lake.",
+    cameraMotion: "Slow cinematic pull-back revealing the mountain reflection spanning across the pristine lake",
+    lighting: "Brilliant morning alpenglow, crystalline water reflections, crisp high-altitude sky",
+    soundscape: "Majestic ambient strings, distant glacier melt stream, serene high-mountain air",
+    prompt: "create one animated video on majestic snow peak mountain reflecting in crystal lake at golden sunrise in 9:16 vertical format",
+    reelScript: `Scene 1 (0-3s): First morning sun ignites the snowy mountain peak in vibrant pink alpenglow.
+Scene 2 (3-6s): Camera pans down to reveal a mirror reflection on the glass alpine lake.
+Scene 3 (6-10s): Soft morning mist drifts across the water as the full mountain range lights up.
+Audio Direction: Uplifting cinematic ambient strings with gentle glacier water melody.`,
+    caption: `🏔️ The Majesty of Alpine Summits.
 
-The mountains stand unshakeable through every storm and season. When you look at the summits, remember that you have the same quiet resilience within you.
+Mountains do not rush, yet everything gets done. They stand steadfast through centuries of seasons, reminding us of our own quiet resilience.
 
-🌄 Keep climbing. The view from the top is always worth the journey.
+⛰️ You are stronger and more enduring than you know.
 
-📌 Save this reel for daily motivation and strength!
-⛰️ What mountain range is on your travel bucket list? Let us know below! 👇`,
-    hashtags: ["#mountainlovers", "#alps", "#earthfocus", "#mountainlake", "#sunrisephotography", "#earthpix", "#roamtheplanet", "#wanderlust", "#naturelovers", "#cinematicvideo", "#4knature"]
+📌 Save this reel for daily motivation and inner strength.
+🏔️ Have you ever hiked in the high mountains? Tell us below! 👇`,
+    hashtags: ["#alps", "#mountainlovers", "#alpenglow", "#hikingadventures", "#earthfocus", "#naturephotography", "#majesticmountains", "#reflectionlake", "#beautifuldestinations", "#wanderlust"]
   },
 
-  // ─── 6. FROZEN WONDERS & ICE CAVERNS ────────────────────────
+  // ─── 6. FROZEN WONDERS & GLACIAL CAVES ─────────────────────
   {
-    id: "ice_turquoise_glacier_cave",
+    id: "ice_sapphire_glacial_cave",
     realm: "Frozen Wonders",
-    title: "Crystal Blue Glacial Ice Cave with Sparkling Sunrays",
-    description: "An awe-inspiring natural crystal blue ice cave inside a massive glacier, with natural sunbeams illuminating sculpted sapphire ice walls and a flowing glacial stream.",
-    cameraMotion: "Smooth slow-motion forward push gliding through the crystalline blue ice archways",
-    lighting: "Translucent deep sapphire and turquoise ice glow, shimmering light refractions",
-    soundscape: "Crystalline glass chimes, echoing glacial water drops, deep resonant ambient pads",
-    prompt: "create ultra-detailed 8K cinematic animated nature video of glowing turquoise crystal ice cave with sunbeams in 9:16 vertical format",
+    title: "Sapphire Crystal Glacial Ice Cave with Sunbeams",
+    description: "Inside a breathtaking sapphire blue glacial ice cavern, with polished translucent ice walls glowing like diamonds as sunlight filters through the frozen ceiling.",
+    cameraMotion: "Smooth forward tracking shot gliding through curving sapphire ice arches into glowing crystal chamber",
+    lighting: "Electric sapphire blue refraction, glistening ice crystals, bright sunbeam shafts",
+    soundscape: "Ethereal crystal bowl resonance, deep glacier rumble, gentle rhythmic water drops",
+    prompt: "create one animated video on glowing turquoise crystal ice cave with sunbeams in 9:16 vertical format",
     reelScript: `Scene 1 (0-3s): Deep sapphire crystal ice arches glowing with ancient translucent blue light.
 Scene 2 (3-6s): Sunbeams pierce through ice crevices, casting diamond sparkles across frozen walls.
 Scene 3 (6-10s): Camera moves out of the cave entrance toward a pristine snowy glacier landscape.
