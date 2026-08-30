@@ -126,9 +126,9 @@ export function formatNaturePrompt({ title = "", realm = "", background = "", so
   const musicDesc = getDetailedSoundscapeDescription(realm, title, soundscape);
 
   if (isVideo) {
-    return `create one animated video on ${scene} in 16:9 format with rich matching background music composed of ${musicDesc}`;
+    return `create one animated video on ${scene} in 16:9 format with soothing ambient background music`;
   } else {
-    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting and matching background music composed of ${musicDesc}`;
+    return `create one photorealistic 8K image of ${scene} in 16:9 format with volumetric natural lighting, natural colors, and matching background music based on the image composed of ${musicDesc}`;
   }
 }
 
