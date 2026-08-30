@@ -460,6 +460,56 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       }).catch(() => {});
     } catch (_) {}
 
+    // Inject persistent Google authentication cookies from env or local JSON file if available
+    try {
+      let rawCookies = null;
+      if (process.env.GEMINI_COOKIES_JSON) {
+        try {
+          rawCookies = typeof process.env.GEMINI_COOKIES_JSON === "string" ? JSON.parse(process.env.GEMINI_COOKIES_JSON) : process.env.GEMINI_COOKIES_JSON;
+        } catch (_) {}
+      }
+      
+      if (!rawCookies) {
+        const possibleCookieFiles = [
+          path.join(process.cwd(), "back", "data", "gemini-cookies.json"),
+          path.join(process.cwd(), "data", "gemini-cookies.json"),
+          path.join(process.cwd(), "gemini-cookies.json"),
+          path.join(process.cwd(), "back", "gemini-cookies.json"),
+        ];
+        const foundCookieFile = possibleCookieFiles.find((f) => fs.existsSync(f));
+        if (foundCookieFile) {
+          try {
+            rawCookies = JSON.parse(fs.readFileSync(foundCookieFile, "utf8"));
+          } catch (_) {}
+        }
+      }
+
+      if (Array.isArray(rawCookies) && rawCookies.length > 0) {
+        const cleanCookies = rawCookies.map((c) => {
+          const cookieObj = {
+            name: c.name,
+            value: c.value,
+            domain: c.domain,
+            path: c.path || "/",
+            httpOnly: !!c.httpOnly,
+            secure: !!c.secure,
+          };
+          if (c.sameSite && ["Strict", "Lax", "None"].includes(c.sameSite)) {
+            cookieObj.sameSite = c.sameSite;
+          }
+          if (typeof c.expires === "number" && c.expires > 0) {
+            cookieObj.expires = c.expires;
+          }
+          return cookieObj;
+        });
+
+        await page.setCookie(...cleanCookies);
+        console.log(`[Gemini Agent] Injected ${cleanCookies.length} Google authentication cookies into browser session!`);
+      }
+    } catch (cookieErr) {
+      console.warn("[Gemini Agent] Cookie injection notice:", cookieErr.message);
+    }
+
     await addStep("2. Open Google Gemini", "Navigating to https://gemini.google.com/app...");
     await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
     await new Promise((resolve) => setTimeout(resolve, 2000));
