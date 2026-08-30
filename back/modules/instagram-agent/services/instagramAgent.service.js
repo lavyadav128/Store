@@ -310,90 +310,15 @@ async function uploadRemoteAsset(url, resourceType) {
 }
 
 /* ═════════════════════════════════════════════════════════════
-   ROYALTY-FREE MUSIC CATALOG & TRENDING AUDIO ENGINE
+   TRENDING AUDIO ENGINE
 ═════════════════════════════════════════════════════════════ */
 
-const ROYALTY_FREE_AUDIO_LIBRARY = [
-  {
-    id: 'nature-celestial-aurora',
-    title: 'Ethereal Celestial Space Pad & Aurora Harmonics',
-    artist: 'Earth Ambient (Royalty-Free)',
-    genre: 'Celestial Ambient',
-    duration: 142,
-    audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3',
-  },
-  {
-    id: 'nature-zen-waterfall',
-    title: 'Emerald Lagoon Waterfall & Bamboo Zen Flute',
-    artist: 'Zen Sanctuary (Royalty-Free)',
-    genre: 'Water & Flute',
-    duration: 142,
-    audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788078803/instagram-agent/audio/emerald_waterfall_zen.mp3',
-  },
-  {
-    id: 'nature-ancient-redwood',
-    title: 'Mystic Redwood Forest Cello & Morning Mist',
-    artist: 'Deep Forest (Royalty-Free)',
-    genre: 'Forest Cello',
-    duration: 142,
-    audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788078805/instagram-agent/audio/mystic_forest_cello.mp3',
-  },
-  {
-    id: 'nature-sakura-harp',
-    title: 'Blooming Sakura Blossom Koto Harp Melody',
-    artist: 'Kyoto Ambient (Royalty-Free)',
-    genre: 'Koto Harp',
-    duration: 142,
-    audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788078806/instagram-agent/audio/sakura_koto_harp.mp3',
-  },
-  {
-    id: 'nature-alpine-strings',
-    title: 'Golden Alpine Mountain Sunrise Strings',
-    artist: 'Horizon Symphony (Royalty-Free)',
-    genre: 'Mountain Strings',
-    duration: 142,
-    audioUrl: 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788078807/instagram-agent/audio/golden_alpine_strings.mp3',
-  },
-];
-
-export function getAvailableMusicTracks() {
-  return ROYALTY_FREE_AUDIO_LIBRARY;
-}
-
-export function getSoundscapeTrackForRealm(realm = '', soundscapeDesc = '') {
-  const r = (realm || '').toLowerCase();
-  let baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[0];
-  if (r.includes('water') || r.includes('lagoon') || r.includes('ocean') || r.includes('sea')) {
-    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[1];
-  } else if (r.includes('forest') || r.includes('wood') || r.includes('zen') || r.includes('jungle')) {
-    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[2];
-  } else if (r.includes('bloom') || r.includes('wild') || r.includes('sakura') || r.includes('flower')) {
-    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[3];
-  } else if (r.includes('peak') || r.includes('mount') || r.includes('alpin')) {
-    baseTrack = ROYALTY_FREE_AUDIO_LIBRARY[4];
-  }
-
-  return {
-    ...baseTrack,
-    title: soundscapeDesc || baseTrack.title,
-  };
-}
-
 export function getTrendingAudioRecommendation(topic, niche = 'Nature & Relaxation') {
-  const recommendations = [
-    `🎵 Soundscape: "Ethereal Celestial Space Pads" by Earth Ambient (Viral in ${niche})`,
-    `🎵 Soundscape: "Zen Bamboo Flute & Water Resonance" by Zen Sanctuary`,
-    `🎵 Soundscape: "Mystic Forest Cello & Morning Mist" by Deep Forest`,
-    `🎵 Soundscape: "Blooming Sakura Koto Harp Melody" by Kyoto Ambient`,
-    `🎵 Soundscape: "Golden Alpine Mountain Sunrise Strings" by Horizon Symphony`,
-  ];
-  return recommendations[Math.floor(Math.random() * recommendations.length)];
+  return `🎵 Dynamic Nature Soundscape curated by Google Gemini for "${topic || 'Earth & Wilderness'}"`;
 }
 
 export async function attachMusicToContent(content, trackId) {
-  const track = ROYALTY_FREE_AUDIO_LIBRARY.find((t) => t.id === trackId) || ROYALTY_FREE_AUDIO_LIBRARY[0];
-  content.audioTrack = track;
-  content.trendingAudioSuggestion = `🎵 Soundscape: "${track.title}"`;
+  content.trendingAudioSuggestion = `🎵 Soundscape: Curated for ${content.topic}`;
 
   // Append audio recommendation in caption if not already present
   if (!content.caption.includes('🎵')) {
@@ -569,7 +494,6 @@ Return strict JSON with this exact schema:
   }
 
   const topicFp = getQuoteFingerprint(selectedTopic);
-  const resolvedTrack = getSoundscapeTrackForRealm(themeCategory, soundscape);
 
   const content = await InstagramContent.create({
     type: effectiveType,
@@ -582,8 +506,8 @@ Return strict JSON with this exact schema:
     hashtags: hashtags,
     creativeBrief: creativePrompt,
     reelScript: reelScript,
-    audioTrack: resolvedTrack,
-    trendingAudioSuggestion: `🎵 Soundscape: "${soundscape || resolvedTrack.title}"`,
+    soundscape: soundscape,
+    trendingAudioSuggestion: soundscape ? `🎵 Soundscape: "${soundscape}"` : `🎵 Gemini Curated Soundscape for ${selectedTopic}`,
     createdBy: 'agent',
     mediaGenerationStatus: 'not_requested',
   });
@@ -610,97 +534,6 @@ Return strict JSON with this exact schema:
   return content;
 }
 
-export async function compileReelWithAudio(content) {
-  if (!content.assetUrl) {
-    throw new Error('No media asset found to compile for Instagram reel.');
-  }
-
-  // If already a video on Cloudinary, check if it's already an audio-embedded reel
-  const audioTrackUrl =
-    content.audioTrack?.audioUrl ||
-    'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3';
-
-  const tempDir = os.tmpdir();
-  const tempVisualPath = path.join(tempDir, `visual_${Date.now()}_${Math.random().toString(36).slice(2)}`);
-  const tempAudioPath = path.join(tempDir, `audio_${Date.now()}_${Math.random().toString(36).slice(2)}.mp3`);
-  const outputVideoPath = path.join(tempDir, `compiled_reel_${Date.now()}_${Math.random().toString(36).slice(2)}.mp4`);
-
-  try {
-    // 1. Download visual asset
-    const visualRes = await fetch(content.assetUrl);
-    if (!visualRes.ok) throw new Error(`Could not fetch visual asset: HTTP ${visualRes.status}`);
-    const visualBuf = Buffer.from(await visualRes.arrayBuffer());
-    fs.writeFileSync(tempVisualPath, visualBuf);
-
-    // 2. Download background audio track (with User-Agent and fallback to ensure zero 403 errors)
-    let audioBuf = null;
-    try {
-      const audioRes = await fetch(audioTrackUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'audio/*,*/*',
-        },
-      });
-      if (audioRes.ok) {
-        audioBuf = Buffer.from(await audioRes.arrayBuffer());
-      }
-    } catch (_) {}
-
-    if (!audioBuf || audioBuf.length < 1000) {
-      const fallbackUrl = 'https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3';
-      const fallbackRes = await fetch(fallbackUrl);
-      audioBuf = Buffer.from(await fallbackRes.arrayBuffer());
-    }
-    fs.writeFileSync(tempAudioPath, audioBuf);
-
-    // 3. Determine if visual is an image or existing video
-    const isImage =
-      !content.assetUrl.toLowerCase().endsWith('.mp4') &&
-      !content.assetUrl.toLowerCase().includes('/video/upload/');
-
-    const duration = 12; // 12-second Instagram Reel
-    const ffmpeg = getFfmpegBin();
-    let cmd = '';
-
-    if (isImage) {
-      // Convert 16:9 Image into an animated Reel MP4 with slow Ken-Burns pan and AAC 192k audio
-      cmd = `"${ffmpeg}" -y -loop 1 -i "${tempVisualPath}" -i "${tempAudioPath}" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.0008,1.12)':d=${duration * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -t ${duration} -shortest "${outputVideoPath}"`;
-    } else {
-      // Mix/attach the background audio track with the video stream
-      cmd = `"${ffmpeg}" -y -i "${tempVisualPath}" -i "${tempAudioPath}" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 -t ${duration} -shortest "${outputVideoPath}"`;
-    }
-
-    await execPromise(cmd);
-
-    if (!fs.existsSync(outputVideoPath) || fs.statSync(outputVideoPath).size < 1000) {
-      throw new Error('FFmpeg failed to create reel video file with audio.');
-    }
-
-    // 4. Upload compiled reel with audio to Cloudinary
-    const uploadRes = await new Promise((resolve, reject) => {
-      cloudinary.uploader.upload(
-        outputVideoPath,
-        {
-          folder: 'instagram-agent/nature-reels',
-          resource_type: 'video',
-          quality: 'auto:best',
-        },
-        (error, result) => (error ? reject(error) : resolve(result))
-      );
-    });
-
-    content.assetUrl = uploadRes.secure_url;
-    content.type = 'reel';
-    await content.save();
-
-    return uploadRes.secure_url;
-  } finally {
-    try { if (fs.existsSync(tempVisualPath)) fs.unlinkSync(tempVisualPath); } catch (_) {}
-    try { if (fs.existsSync(tempAudioPath)) fs.unlinkSync(tempAudioPath); } catch (_) {}
-    try { if (fs.existsSync(outputVideoPath)) fs.unlinkSync(outputVideoPath); } catch (_) {}
-  }
-}
-
 export async function publishContent(content) {
   const config = await getInstagramConfig();
   if (!config.running) throw new Error('Instagram agent is stopped. Start it before publishing.');
@@ -710,19 +543,26 @@ export async function publishContent(content) {
   await content.save();
 
   try {
-    // 1. Ensure content is compiled into an MP4 Reel with background audio track embedded
-    const reelVideoUrl = await compileReelWithAudio(content);
-
-    // 2. Prepare Instagram Reels payload
     const caption = `${content.caption || ''}\n\n${(content.hashtags || []).join(' ')}`.trim();
-    const creationPayload = {
-      media_type: 'REELS',
-      video_url: reelVideoUrl,
-      caption,
-      share_to_feed: 'true',
-    };
+    const isVideoAsset = content.type === 'reel' || content.assetUrl.toLowerCase().endsWith('.mp4') || content.assetUrl.toLowerCase().includes('/video/upload/');
 
-    // 3. Create container on Instagram Graph API
+    let creationPayload;
+    if (isVideoAsset) {
+      // Direct Reel publishing from Gemini's video
+      creationPayload = {
+        media_type: 'REELS',
+        video_url: content.assetUrl,
+        caption,
+        share_to_feed: 'true',
+      };
+    } else {
+      // Direct 16:9 8K Image post from Gemini's visual
+      creationPayload = {
+        image_url: content.assetUrl,
+        caption,
+      };
+    }
+
     const container = await graph(`/${accountId}/media`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -730,28 +570,30 @@ export async function publishContent(content) {
     });
 
     if (!container.id) {
-      throw new Error(`Failed to create Instagram reel container: ${JSON.stringify(container)}`);
+      throw new Error(`Failed to create Instagram container: ${JSON.stringify(container)}`);
     }
 
-    // 4. Poll container processing status until FINISHED (Instagram transcode pipeline)
-    let isReady = false;
-    for (let attempt = 0; attempt < 30; attempt += 1) {
-      await new Promise((r) => setTimeout(r, 2500));
-      try {
-        const statusRes = await graph(`/${container.id}?fields=status_code,status`);
-        if (statusRes.status_code === 'FINISHED') {
-          isReady = true;
-          break;
+    // If video, poll container until FINISHED
+    if (isVideoAsset) {
+      let isReady = false;
+      for (let attempt = 0; attempt < 30; attempt += 1) {
+        await new Promise((r) => setTimeout(r, 2500));
+        try {
+          const statusRes = await graph(`/${container.id}?fields=status_code,status`);
+          if (statusRes.status_code === 'FINISHED') {
+            isReady = true;
+            break;
+          }
+          if (statusRes.status_code === 'ERROR') {
+            throw new Error(`Instagram video processing error: ${statusRes.status || 'Failed to process reel'}`);
+          }
+        } catch (pollErr) {
+          if (pollErr.message.includes('Instagram video processing error')) throw pollErr;
         }
-        if (statusRes.status_code === 'ERROR') {
-          throw new Error(`Instagram video processing error: ${statusRes.status || 'Failed to process reel'}`);
-        }
-      } catch (pollErr) {
-        if (pollErr.message.includes('Instagram video processing error')) throw pollErr;
       }
     }
 
-    // 5. Publish the container to the Instagram Reels section
+    // Publish container
     const published = await graph(`/${accountId}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -759,15 +601,14 @@ export async function publishContent(content) {
     });
 
     content.status = 'published';
-    content.type = 'reel';
     content.instagramMediaId = published.id || '';
     content.publishedAt = new Date();
     content.error = '';
     await content.save();
-    await logInstagramActivity('content_published', `Published 16:9 Reel with Audio to Instagram: ${content.topic}`, {
+    await logInstagramActivity('content_published', `Published 16:9 ${isVideoAsset ? 'Reel' : 'Post'} directly from Gemini to Instagram: ${content.topic}`, {
       contentId: String(content._id),
       mediaId: published.id || '',
-      url: reelVideoUrl,
+      url: content.assetUrl,
     });
     return content;
   } catch (error) {

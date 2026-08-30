@@ -306,17 +306,13 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  // Open Cinema Lightbox to view Image/Video + Audio simultaneously
+  // Open Cinema Lightbox to view Image/Video directly from Gemini
   const openCinemaModal = (item) => {
     setCinemaItem(item);
     setCinemaModalOpen(true);
-    const trackUrl = item.audioTrack?.audioUrl || "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
-    handleToggleAudio(item._id, trackUrl);
   };
 
   const closeCinemaModal = () => {
-    if (audioRef.current) audioRef.current.pause();
-    setPlayingAudioId(null);
     setCinemaModalOpen(false);
     setCinemaItem(null);
   };
@@ -1011,14 +1007,13 @@ export default function InstagramGrowthAgent() {
                       {item.topic}
                     </Typography>
 
-                    {/* ── AUDIO PREVIEW BAR FOR ADMIN (FOR BOTH IMAGES & VIDEOS) ── */}
+                    {/* Gemini Native Soundscape & Media Direction */}
                     <Box
                       sx={{
-                        mt: 1.2,
-                        p: 1.2,
-                        borderRadius: "10px",
-                        bgcolor: isPlayingThis ? "#f4f4f5" : "#fafafa",
-                        border: isPlayingThis ? "1.5px solid #09090b" : "1px solid #e4e4e7",
+                        p: 1.25,
+                        bgcolor: "#fafafa",
+                        borderRadius: "8px",
+                        border: "1px solid #e4e4e7",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -1027,50 +1022,38 @@ export default function InstagramGrowthAgent() {
                       }}
                     >
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        <IconButton
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleToggleAudio(item._id, audioTrackUrl);
-                          }}
-                          sx={{
-                            bgcolor: isPlayingThis ? "#09090b" : "#ffffff",
-                            color: isPlayingThis ? "#ffffff" : "#09090b",
-                            border: "1px solid #d4d4d8",
-                            "&:hover": { bgcolor: isPlayingThis ? "#27272a" : "#f4f4f5" },
-                          }}
-                        >
-                          {isPlayingThis ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
-                        </IconButton>
+                        <AutoAwesomeIcon sx={{ fontSize: 16, color: "#22c55e" }} />
                         <Box>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#09090b" }}>
-                            {isPlayingThis ? "🔊 Playing Nature Soundscape..." : "🎵 Background Soundscape"}
+                            🎵 Gemini Soundscape Direction
                           </Typography>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#71717a" }}>
-                            {item.trendingAudioSuggestion || item.audioTrack?.title || "Ethereal Ambient Nature Soundscape"}
+                            {item.soundscape || item.trendingAudioSuggestion || "Curated specifically for this scene"}
                           </Typography>
                         </Box>
                       </Box>
-                      <Button
-                        size="small"
-                        startIcon={isPlayingThis ? <PauseIcon fontSize="small" /> : <VolumeUpIcon fontSize="small" />}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleToggleAudio(item._id, audioTrackUrl);
-                        }}
-                        sx={{
-                          borderRadius: "8px",
-                          textTransform: "none",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: isPlayingThis ? "#ffffff" : "#09090b",
-                          bgcolor: isPlayingThis ? "#09090b" : "#ffffff",
-                          border: "1px solid #d4d4d8",
-                          "&:hover": { bgcolor: isPlayingThis ? "#27272a" : "#f4f4f5" },
-                        }}
-                      >
-                        {isPlayingThis ? "Pause Song" : "Listen Song"}
-                      </Button>
+                      {item.assetUrl && (
+                        <Button
+                          size="small"
+                          startIcon={<VisibilityIcon fontSize="small" />}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openCinemaModal(item);
+                          }}
+                          sx={{
+                            borderRadius: "8px",
+                            textTransform: "none",
+                            fontSize: 11,
+                            fontWeight: 700,
+                            color: "#09090b",
+                            bgcolor: "#ffffff",
+                            border: "1px solid #d4d4d8",
+                            "&:hover": { bgcolor: "#f4f4f5" },
+                          }}
+                        >
+                          Cinema Preview
+                        </Button>
+                      )}
                     </Box>
 
                     <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#3f3f46", lineHeight: 1.5 }}>
@@ -1216,31 +1199,16 @@ export default function InstagramGrowthAgent() {
                 )}
               </Box>
 
-              {/* Soundscape & Audio Control Bar */}
+              {/* Gemini Creation Info Bar */}
               <Box sx={{ p: 2, bgcolor: "#18181b", borderRadius: "10px", border: "1px solid #27272a", display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 1.5 }}>
                 <Box>
                   <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#ffffff" }}>
-                    🎵 {cinemaItem.trendingAudioSuggestion || cinemaItem.audioTrack?.title || "Ambient Nature Soundscape"}
+                    {cinemaItem.soundscape || cinemaItem.trendingAudioSuggestion || "Gemini Native Creation"}
                   </Typography>
                   <Typography sx={{ fontSize: 12, color: "#a1a1aa", mt: 0.3 }}>
-                    Series: {cinemaItem.themeCategory} · High-Fidelity Audio Synchronized
+                    Series: {cinemaItem.themeCategory} · High-Fidelity 16:9 Format
                   </Typography>
                 </Box>
-                <Button
-                  variant="contained"
-                  startIcon={playingAudioId === cinemaItem._id ? <PauseIcon /> : <VolumeUpIcon />}
-                  onClick={() => handleToggleAudio(cinemaItem._id, cinemaItem.audioTrack?.audioUrl)}
-                  sx={{
-                    borderRadius: "8px",
-                    bgcolor: playingAudioId === cinemaItem._id ? "#22c55e" : "#27272a",
-                    color: "#ffffff",
-                    fontWeight: 700,
-                    textTransform: "none",
-                    "&:hover": { bgcolor: playingAudioId === cinemaItem._id ? "#16a34a" : "#3f3f46" },
-                  }}
-                >
-                  {playingAudioId === cinemaItem._id ? "Pause Sound" : "Play Sound"}
-                </Button>
               </Box>
 
               {/* Caption */}

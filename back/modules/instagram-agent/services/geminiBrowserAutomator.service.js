@@ -54,36 +54,24 @@ async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, 
 }
 
 async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instagram-agent/nature-reels") {
-  const tempImgPath = path.join(os.tmpdir(), `nature_visual_${Date.now()}_${Math.random().toString(36).slice(2)}.png`);
-  const tempVideoPath = path.join(os.tmpdir(), `nature_reel_${Date.now()}_${Math.random().toString(36).slice(2)}.mp4`);
+  const ext = isVideo ? "mp4" : "png";
+  const tempPath = path.join(os.tmpdir(), `gemini_media_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`);
   
   try {
-    fs.writeFileSync(tempImgPath, buffer);
-    let fileToUpload = tempImgPath;
-    let resourceType = "image";
-
-    if (isVideo) {
-      const converted = await convertImageToAnimatedReelVideo(tempImgPath, tempVideoPath, 10);
-      if (converted) {
-        fileToUpload = tempVideoPath;
-        resourceType = "video";
-      }
-    }
-
+    fs.writeFileSync(tempPath, buffer);
     return await new Promise((resolve, reject) => {
       cloudinary.uploader.upload(
-        fileToUpload,
+        tempPath,
         {
           folder,
-          resource_type: resourceType,
+          resource_type: isVideo ? "video" : "image",
           quality: "auto:best",
         },
         (error, result) => (error ? reject(error) : resolve(result))
       );
     });
   } finally {
-    try { if (fs.existsSync(tempImgPath)) fs.unlinkSync(tempImgPath); } catch {}
-    try { if (fs.existsSync(tempVideoPath)) fs.unlinkSync(tempVideoPath); } catch {}
+    try { if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath); } catch {}
   }
 }
 
@@ -248,50 +236,54 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   // Configure Puppeteer with robust Linux & Windows support
   const isLinux = process.platform === "linux";
   
-  const candidateLinuxPaths = [
-    process.env.PUPPETEER_EXECUTABLE_PATH,
-    "/usr/bin/google-chrome-stable",
-    "/usr/bin/google-chrome",
-    "/usr/bin/chromium-browser",
-    "/usr/bin/chromium",
-    "/snap/bin/chromium",
-  ];
+  let resolvedExecutablePath = undefined;
+  if (isLinux) {
+    const verifiedSystemPaths = [
+      process.env.PUPPETEER_EXECUTABLE_PATH,
+      "/usr/bin/google-chrome-stable",
+      "/usr/bin/google-chrome",
+      "/usr/bin/chromium",
+      "/usr/bin/chromium-browser",
+      "/snap/bin/chromium",
+    ].filter(Boolean);
 
-  const possibleCacheBases = [
-    "/opt/render/.cache/puppeteer/chrome",
-    path.join(os.homedir(), ".cache", "puppeteer", "chrome"),
-    "/root/.cache/puppeteer/chrome",
-  ];
+    resolvedExecutablePath = verifiedSystemPaths.find((p) => fs.existsSync(p));
 
-  for (const base of possibleCacheBases) {
-    if (fs.existsSync(base)) {
+    // If no system Chrome binary is found on cloud host, use self-contained @sparticuz/chromium
+    if (!resolvedExecutablePath) {
       try {
-        const subdirs = fs.readdirSync(base);
-        for (const sub of subdirs) {
-          const chromeBin = path.join(base, sub, "chrome-linux64", "chrome");
-          if (fs.existsSync(chromeBin)) candidateLinuxPaths.push(chromeBin);
-          const altBin = path.join(base, sub, "chrome");
-          if (fs.existsSync(altBin)) candidateLinuxPaths.push(altBin);
+        const spartPath = await chromium.executablePath();
+        if (spartPath && fs.existsSync(spartPath)) {
+          resolvedExecutablePath = spartPath;
+          console.log(`[Gemini Agent] Using bundled standalone Chromium binary: ${spartPath}`);
         }
-      } catch (_) {}
+      } catch (spartErr) {
+        console.warn("[Gemini Agent] Standalone chromium resolution notice:", spartErr.message);
+      }
     }
   }
 
-  let resolvedExecutablePath = isLinux ? candidateLinuxPaths.find(p => p && fs.existsSync(p)) : undefined;
-
-  const launchArgs = [
-    "--no-sandbox",
-    "--disable-setuid-sandbox",
-    "--disable-dev-shm-usage",
-    "--disable-gpu",
-    "--disable-software-rasterizer",
-    "--disable-blink-features=AutomationControlled",
-    "--window-size=1366,850",
-  ];
-
-  if (isLinux) {
-    launchArgs.push("--no-zygote", "--single-process");
-  }
+  const launchArgs = isLinux
+    ? [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-software-rasterizer",
+        "--disable-blink-features=AutomationControlled",
+        "--single-process",
+        "--no-zygote",
+        "--window-size=1366,850",
+      ]
+    : [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--disable-software-rasterizer",
+        "--disable-blink-features=AutomationControlled",
+        "--window-size=1366,850",
+      ];
 
   const launchOptions = {
     headless: "new",
@@ -299,7 +291,7 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     args: launchArgs,
     env: {
       ...process.env,
-      LD_LIBRARY_PATH: `${process.env.LD_LIBRARY_PATH || ""}:/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib:/opt/render/project/.render/chrome`,
+      LD_LIBRARY_PATH: `${process.env.LD_LIBRARY_PATH || ""}:/usr/lib/x86_64-linux-gnu:/usr/lib:/usr/local/lib`,
     },
   };
   if (resolvedExecutablePath) {
