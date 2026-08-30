@@ -5,6 +5,7 @@ import path from 'path';
 import os from 'os';
 import { exec } from 'child_process';
 import util from 'util';
+import ffmpegStatic from 'ffmpeg-static';
 import InstagramAgentConfig from '../schema/InstagramAgentConfig.model.js';
 import InstagramContent from '../schema/InstagramContent.model.js';
 import InstagramActivity from '../schema/InstagramActivity.model.js';
@@ -16,6 +17,16 @@ import { analyzeAudiencePreferences } from './growthOptimizer.js';
 import { automateGeminiGeneration, formatNatureImagePrompt, formatNatureVideoPrompt } from './geminiBrowserAutomator.service.js';
 
 const execPromise = util.promisify(exec);
+
+export const getFfmpegBin = () => {
+  if (ffmpegStatic && typeof ffmpegStatic === 'string' && fs.existsSync(ffmpegStatic)) {
+    return ffmpegStatic;
+  }
+  if (process.env.FFMPEG_PATH && fs.existsSync(process.env.FFMPEG_PATH)) {
+    return process.env.FFMPEG_PATH;
+  }
+  return 'ffmpeg';
+};
 
 // Meta Graph API base URL helper with standard v21.0 default
 function getGraphBase() {
@@ -633,14 +644,15 @@ export async function compileReelWithAudio(content) {
       !content.assetUrl.toLowerCase().includes('/video/upload/');
 
     const duration = 12; // 12-second Instagram Reel
+    const ffmpeg = getFfmpegBin();
     let cmd = '';
 
     if (isImage) {
       // Convert 16:9 Image into an animated Reel MP4 with slow Ken-Burns pan and AAC 192k audio
-      cmd = `ffmpeg -y -loop 1 -i "${tempVisualPath}" -i "${tempAudioPath}" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.0008,1.12)':d=${duration * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -t ${duration} -shortest "${outputVideoPath}"`;
+      cmd = `"${ffmpeg}" -y -loop 1 -i "${tempVisualPath}" -i "${tempAudioPath}" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.0008,1.12)':d=${duration * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -t ${duration} -shortest "${outputVideoPath}"`;
     } else {
       // Mix/attach the background audio track with the video stream
-      cmd = `ffmpeg -y -i "${tempVisualPath}" -i "${tempAudioPath}" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 -t ${duration} -shortest "${outputVideoPath}"`;
+      cmd = `"${ffmpeg}" -y -i "${tempVisualPath}" -i "${tempAudioPath}" -c:v libx264 -pix_fmt yuv420p -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 -t ${duration} -shortest "${outputVideoPath}"`;
     }
 
     await execPromise(cmd);

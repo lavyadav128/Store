@@ -24,11 +24,25 @@ export function getAllGeminiSessions() {
 
 import { exec } from "child_process";
 import util from "util";
+import ffmpegStatic from "ffmpeg-static";
+import chromium from "@sparticuz/chromium";
+
 const execPromise = util.promisify(exec);
+
+const getFfmpegBin = () => {
+  if (ffmpegStatic && typeof ffmpegStatic === "string" && fs.existsSync(ffmpegStatic)) {
+    return ffmpegStatic;
+  }
+  if (process.env.FFMPEG_PATH && fs.existsSync(process.env.FFMPEG_PATH)) {
+    return process.env.FFMPEG_PATH;
+  }
+  return "ffmpeg";
+};
 
 async function convertImageToAnimatedReelVideo(inputImagePath, outputVideoPath, durationSeconds = 10) {
   try {
-    const cmd = `ffmpeg -y -loop 1 -i "${inputImagePath}" -f lavfi -i "anoisesrc=c=pink:r=44100:a=0.02,lowpass=f=350,volume=0.35" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.001,1.15)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -t ${durationSeconds} -pix_fmt yuv420p -c:v libx264 -c:a aac -b:a 128k "${outputVideoPath}"`;
+    const ffmpeg = getFfmpegBin();
+    const cmd = `"${ffmpeg}" -y -loop 1 -i "${inputImagePath}" -f lavfi -i "anoisesrc=c=pink:r=44100:a=0.02,lowpass=f=350,volume=0.35" -filter_complex "[0:v]scale=1920:1080:force_original_aspect_ratio=increase,crop=1920:1080,zoompan=z='min(zoom+0.001,1.15)':d=${durationSeconds * 25}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1920x1080:fps=25[v]" -map "[v]" -map 1:a -t ${durationSeconds} -pix_fmt yuv420p -c:v libx264 -c:a aac -b:a 128k "${outputVideoPath}"`;
     await execPromise(cmd);
     if (fs.existsSync(outputVideoPath) && fs.statSync(outputVideoPath).size > 1000) {
       return true;
@@ -225,13 +239,20 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
     launchArgs.push("--no-zygote", "--single-process");
   }
 
+  let resolvedExecutablePath = customExecutablePath;
+  if (!resolvedExecutablePath && isLinux) {
+    try {
+      resolvedExecutablePath = await chromium.executablePath();
+    } catch (_) {}
+  }
+
   const launchOptions = {
     headless: "new",
     userDataDir: sessionDir,
     args: launchArgs,
   };
-  if (customExecutablePath) {
-    launchOptions.executablePath = customExecutablePath;
+  if (resolvedExecutablePath) {
+    launchOptions.executablePath = resolvedExecutablePath;
   }
 
   try {
