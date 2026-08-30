@@ -88,30 +88,21 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
 }
 
 export function formatNaturePrompt({ title = "", realm = "", background = "", rawPrompt = "", isVideo = true }) {
-  let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning sunbeams";
+  let scene = background || rawPrompt || title || "a majestic deer standing quietly in a misty pine forest at sunrise, golden sunlight passing through the trees, soft fog surrounding the forest floor, tiny water droplets on grass, peaceful atmosphere, ultra-realistic wildlife photography, cinematic composition, natural colors, atmospheric depth, 8K, no text, no watermark";
   
-  // Recursively clean redundant prefixes and directives
+  // Clean wrapper tokens while preserving all rich descriptive details (lighting, fog, textures, composition)
   scene = scene
-    .replace(/^Award-winning[\s,]+/gi, "")
+    .replace(/^create\s+(one\s+)?(animated\s+video|photorealistic\s+8k\s+image)\s+(on|of)\s+/gi, "")
+    .replace(/\s+in\s+16:9\s+format\s+with\s+soothing\s+ambient\s+background\s+music(\s+and\s+volumetric\s+lighting)?/gi, "")
     .replace(/Audio\s*&\s*Sound\s*Design:[\s\S]*$/gi, "")
-    .replace(/Scene\s*\d+[\s\S]*$/gi, "")
-    .replace(/Camera:[\s\S]*?(?=\.|$)/gi, "")
-    .replace(/\b(create|generate|make|one|an?)\b/gi, " ")
-    .replace(/\b(ultra-detailed|8k|4k|cinematic|photorealistic|animated|video|reel|image|photo|visual|poster|picture)\b/gi, " ")
-    .replace(/\b(format|portrait|vertical|9:16|16:9|widescreen)\b/gi, " ")
-    .replace(/\b(quote|typography|text|words|speak|speaker)\b/gi, " ")
     .replace(/["'{}\[\]]/g, " ")
-    .replace(/\b(of|on|in)\b/gi, " ")
     .replace(/\s+/g, " ")
     .trim();
 
-  const words = scene.split(/\s+/).filter(Boolean);
-  const sceneDescription = (words.length >= 2 ? words.slice(0, 8).join(" ") : (title || "majestic nature and peaceful wilderness"));
-
   if (isVideo) {
-    return `create one animated video on ${sceneDescription} in 16:9 format with soothing ambient background music`;
+    return `create one animated video on ${scene} in 16:9 format with soothing ambient background music`;
   } else {
-    return `create one photorealistic 8K image of ${sceneDescription} in 16:9 format with soothing ambient background music and volumetric lighting`;
+    return `create one photorealistic 8K image of ${scene} in 16:9 format with soothing ambient background music and volumetric lighting`;
   }
 }
 
@@ -356,22 +347,22 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
       await page.keyboard.press("Enter");
     }
 
-    // Step 6: Wait for Gemini to generate and render the creation
-    const modeDesc = isVideo ? "16:9 animated video with background music (waiting up to 5 minutes)" : "16:9 8K photorealistic image";
+    // Step 6: Wait for Gemini to generate and render the creation (Full 5 minutes timeout)
+    const modeDesc = isVideo ? "16:9 animated video with background music (waiting up to 5 minutes)" : "16:9 8K photorealistic image with volumetric lighting (waiting up to 5 minutes)";
     await addStep("6. Generating in Gemini", `Prompt submitted. Gemini is rendering ${modeDesc}...`);
-    console.log(`[Gemini Agent] Generation submitted for ${isVideo ? "Video" : "Image"}. Waiting 5 seconds for media to stabilize...`);
+    console.log(`[Gemini Agent] Generation submitted for ${isVideo ? "Video" : "Image"}. Waiting up to 5 minutes for render...`);
     await new Promise((r) => setTimeout(r, 5000));
 
-    await addStep("7. Searching for Media", `Scanning for rendered 16:9 ${isVideo ? "video and download streams" : "8K image"}...`);
+    await addStep("7. Searching for Media", `Scanning for rendered 16:9 ${isVideo ? "video and download streams" : "8K image"} (waiting up to 5 minutes)...`);
     let extractedMediaBuffer = null;
     let isVideoResult = isVideo;
-    const maxAttempts = isVideo ? 100 : 30; // 100 attempts (5 min) for video, 30 attempts (~1.5 min) for image
+    const maxAttempts = 100; // Full 5 minutes (100 attempts * 3s = 300s) for BOTH images and videos!
 
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       const elapsed = attempt * 3;
       if (attempt % 5 === 0 || attempt === 1) {
-        console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s elapsed)`);
-        await addStep("Rendering in Gemini", `Gemini is generating 16:9 ${isVideo ? "video" : "image"} (${elapsed}s elapsed)...`);
+        console.log(`[Gemini Agent] Waiting for media... Attempt ${attempt}/${maxAttempts} (${elapsed}s / 300s elapsed)`);
+        await addStep("Rendering in Gemini", `Gemini is generating 16:9 ${isVideo ? "video" : "image"} (${elapsed}s / 300s elapsed - waiting up to 5 minutes)...`);
       }
 
       // Check for Gemini Subscription / Paywall / Limit Text Notice (primarily for video generation)

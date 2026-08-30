@@ -280,8 +280,9 @@ export default function InstagramGrowthAgent() {
 
   // Toggle Audio Playback for Admin Preview
   const handleToggleAudio = (contentId, audioUrl) => {
-    if (!audioUrl) {
-      audioUrl = "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
+    let cleanUrl = audioUrl;
+    if (!cleanUrl || cleanUrl.includes("pixabay.com")) {
+      cleanUrl = "https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3";
     }
 
     if (playingAudioId === contentId) {
@@ -291,9 +292,15 @@ export default function InstagramGrowthAgent() {
       if (audioRef.current) {
         audioRef.current.pause();
       }
-      const audio = new Audio(audioUrl);
+      const audio = new Audio(cleanUrl);
       audio.onended = () => setPlayingAudioId(null);
-      audio.play().catch(() => notify("Could not play audio stream.", "error"));
+      audio.play().catch(() => {
+        // Fallback to primary Cloudinary anthem
+        const fallbackAudio = new Audio("https://res.cloudinary.com/dlsetxkjj/video/upload/v1788012256/instagram-agent/audio/ultimate_dreams_anthem.mp3");
+        fallbackAudio.onended = () => setPlayingAudioId(null);
+        fallbackAudio.play().catch(() => notify("Click anywhere to allow audio playback in browser.", "info"));
+        audioRef.current = fallbackAudio;
+      });
       audioRef.current = audio;
       setPlayingAudioId(contentId);
     }
