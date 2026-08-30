@@ -73,7 +73,7 @@ async function uploadBufferToCloudinary(buffer, isVideo = true, folder = "instag
   }
 }
 
-export function formatNatureVideoPrompt({ title = "", realm = "", background = "", rawPrompt = "" }) {
+export function formatNaturePrompt({ title = "", realm = "", background = "", rawPrompt = "", isVideo = true }) {
   let scene = background || rawPrompt || title || "breathtaking emerald waterfall cascading into crystal turquoise lagoon with morning sunbeams";
   
   // Recursively clean redundant prefixes and directives
@@ -94,11 +94,23 @@ export function formatNatureVideoPrompt({ title = "", realm = "", background = "
   const words = scene.split(/\s+/).filter(Boolean);
   const sceneDescription = (words.length >= 2 ? words.slice(0, 8).join(" ") : (title || "majestic nature and peaceful wilderness"));
 
-  return `create one animated video on ${sceneDescription} in 16:9 format with soothing ambient background music`;
+  if (isVideo) {
+    return `create one animated video on ${sceneDescription} in 16:9 format with soothing ambient background music`;
+  } else {
+    return `create one photorealistic 8K image of ${sceneDescription} in 16:9 format with natural volumetric lighting and fine details`;
+  }
+}
+
+export function formatNatureVideoPrompt(opts) {
+  return formatNaturePrompt({ ...opts, isVideo: true });
+}
+
+export function formatNatureImagePrompt(opts) {
+  return formatNaturePrompt({ ...opts, isVideo: false });
 }
 
 export function cleanPromptForGemini(rawPrompt, isVideo = true) {
-  return formatNatureVideoPrompt({ rawPrompt });
+  return formatNaturePrompt({ rawPrompt, isVideo });
 }
 
 /**
@@ -121,22 +133,28 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
         title = doc.topic || doc.quote || "";
         realm = doc.themeCategory || "";
         background = doc.creativeBrief || doc.topic || "";
+        if (doc.type === "post" || doc.type === "image") {
+          isVideo = false;
+        } else if (doc.type === "reel" || doc.type === "video") {
+          isVideo = true;
+        }
       }
     } catch {}
   }
 
-  const fullPrompt = formatNatureVideoPrompt({ title, realm, background, rawPrompt: prompt });
+  const fullPrompt = formatNaturePrompt({ title, realm, background, rawPrompt: prompt, isVideo });
   let page = null;
 
   const sessionData = {
     contentId: sessionId,
     status: "running",
     prompt: fullPrompt,
+    mediaType: isVideo ? "video" : "image",
     startedAt: new Date().toISOString(),
     steps: [],
     lastScreenshot: null,
     currentStep: "Starting",
-    currentDetail: "Initializing live flow...",
+    currentDetail: `Initializing live flow for 16:9 ${isVideo ? "Video" : "Image"}...`,
     resultUrl: null,
     error: null,
   };

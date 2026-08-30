@@ -335,6 +335,10 @@ router.post("/content/:id/generate-media", async (req, res) => {
   try {
     const content = await InstagramContent.findById(req.params.id);
     if (!content) return res.status(404).json({ error: "Content not found" });
+    if (req.body?.type) {
+      content.type = (req.body.type === 'image' || req.body.type === 'post') ? 'post' : 'reel';
+      await content.save();
+    }
     res.json(await generateMediaForContent(content));
   } catch (error) {
     res.status(400).json({ error: error.message });

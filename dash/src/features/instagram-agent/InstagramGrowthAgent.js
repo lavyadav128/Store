@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  ButtonGroup,
   Chip,
   CircularProgress,
   Dialog,
@@ -29,6 +30,7 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import MovieCreationIcon from "@mui/icons-material/MovieCreation";
+import ImageIcon from "@mui/icons-material/Image";
 import NightsStayIcon from "@mui/icons-material/NightsStay";
 import WaterIcon from "@mui/icons-material/Water";
 import ForestIcon from "@mui/icons-material/Forest";
@@ -88,6 +90,7 @@ export default function InstagramGrowthAgent() {
   const [config, setConfig] = useState(null);
   const [topic, setTopic] = useState("");
   const [selectedRealm, setSelectedRealm] = useState("Celestial & Aurora");
+  const [mediaMode, setMediaMode] = useState("video"); // "image" | "video"
   const [saving, setSaving] = useState(false);
   const [generatingMediaId, setGeneratingMediaId] = useState(null);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
@@ -118,6 +121,10 @@ export default function InstagramGrowthAgent() {
       if (!response.ok) throw new Error(payload.error || "Could not load Instagram agent.");
       setData(payload);
       setConfig(payload.config);
+
+      if (payload.config?.contentMode === "post") {
+        setMediaMode("image");
+      }
 
       if (payload.account?.followers !== null && payload.account?.followers !== undefined) {
         setLiveFollowers(payload.account.followers);
@@ -169,9 +176,13 @@ export default function InstagramGrowthAgent() {
   const saveConfig = async () => {
     setSaving(true);
     try {
-      const updated = await request("/config", "POST", config);
+      const updatedConfig = {
+        ...config,
+        contentMode: mediaMode === "image" ? "post" : "reel",
+      };
+      const updated = await request("/config", "POST", updatedConfig);
       setConfig(updated);
-      notify("Instagram configuration saved.");
+      notify("Instagram configuration and media mode saved.");
     } catch (error) {
       notify(error.message, "error");
     } finally {
@@ -193,17 +204,18 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const generate = async (customTopic = null, customRealm = null) => {
+  const generate = async (customTopic = null, customRealm = null, forcedType = null) => {
     setSaving(true);
     try {
       const topicToUse = customTopic || topic;
       const realmToUse = customRealm || selectedRealm;
+      const targetType = forcedType || (mediaMode === "image" ? "post" : "reel");
       const created = await request("/content/generate", "POST", {
         topic: topicToUse,
         category: realmToUse,
-        type: "reel",
+        type: targetType,
       });
-      notify(`AI generated 16:9 Nature Video: "${created.topic}"`);
+      notify(`AI generated 16:9 Nature ${targetType === "post" ? "Image" : "Video"}: "${created.topic}"`);
       setTopic("");
       await load();
     } catch (error) {
@@ -213,15 +225,17 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const handleGenerateMedia = async (contentId) => {
+  const handleGenerateMedia = async (contentId, specificType = null) => {
     setGeneratingMediaId(contentId);
     setRunningFlowLiveId(contentId);
     setFlowInspectorOpen(true);
-    notify("Starting Google Gemini 16:9 Video Generation...", "info");
+    const modeLabel = specificType === "post" || specificType === "image" ? "8K 16:9 Image" : "16:9 Video";
+    notify(`Starting Google Gemini to generate ${modeLabel}...`, "info");
 
     try {
-      const updated = await request(`/content/${contentId}/generate-media`, "POST");
-      notify(`Generated 16:9 Nature Video for: ${updated.topic}!`);
+      const payload = specificType ? { type: specificType } : {};
+      const updated = await request(`/content/${contentId}/generate-media`, "POST", payload);
+      notify(`Generated 16:9 ${updated.type === "post" ? "Image" : "Video"} for: ${updated.topic}!`);
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -259,7 +273,7 @@ export default function InstagramGrowthAgent() {
     setSaving(true);
     try {
       const published = await request(`/content/${contentId}/publish`, "POST");
-      notify(`Published 16:9 Video to Instagram: ${published.topic}`);
+      notify(`Published ${published.type === "reel" ? "16:9 Video" : "16:9 Post"} to Instagram: ${published.topic}`);
       await load();
     } catch (error) {
       notify(error.message, "error");
@@ -313,7 +327,7 @@ export default function InstagramGrowthAgent() {
     );
   }
 
-  const { account, accountError, content, activities, apiConfigured } = data;
+  const { account, accountError, content, activities } = data;
   const set = (key, value) => setConfig((previous) => ({ ...previous, [key]: value }));
   const currentFollowersDisplay = liveFollowers !== null ? liveFollowers : (account?.followers_count ?? null);
 
@@ -341,13 +355,13 @@ export default function InstagramGrowthAgent() {
               textTransform: "uppercase",
             }}
           >
-            Autonomous Growth Engine · 16:9 Nature Video Reels
+            Autonomous Growth Engine · 16:9 Nature Studio
           </Typography>
           <Typography sx={{ ...titleStyle, fontSize: { xs: 24, sm: 30 }, mt: 0.3 }}>
-            Instagram 16:9 Nature Studio & Growth Agent
+            Instagram Nature Studio & Growth Agent
           </Typography>
           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mt: 0.5 }}>
-            Automated 16:9 widescreen nature videos generated by Gemini with synchronized ambient background music.
+            Automated 16:9 widescreen nature images and animated videos generated by Gemini with ambient background music.
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
@@ -491,7 +505,7 @@ export default function InstagramGrowthAgent() {
             {account?.mediaCount !== null && account?.mediaCount !== undefined ? account.mediaCount : (account?.media_count || 0)}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
-            Published reels & videos
+            Published reels & photos
           </Typography>
         </Paper>
 
@@ -507,7 +521,7 @@ export default function InstagramGrowthAgent() {
             {config.running ? "Running Daily" : "Paused"}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
-            Daily post at {config.dailyPostTime || "07:00"} IST
+            Daily {mediaMode === "image" ? "Image" : "Video"} at {config.dailyPostTime || "07:00"} IST
           </Typography>
         </Paper>
       </Box>
@@ -518,22 +532,58 @@ export default function InstagramGrowthAgent() {
         </Alert>
       )}
 
-      {/* ── 6 NATURE REEL STUDIOS (INDIVIDUAL WHITE CARDS) ── */}
+      {/* ── 6 NATURE STUDIOS WITH ADMIN IMAGE VS VIDEO SELECTOR (INDIVIDUAL WHITE CARDS) ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
-          <Typography sx={{ ...titleStyle, fontSize: 18 }}>
-            16:9 Nature Video Studios (1-Click AI Generation)
-          </Typography>
-          <Chip
-            icon={<MusicNoteIcon fontSize="small" />}
-            label="16:9 Widescreen · With Background Music"
-            size="small"
-            sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, border: "1px solid #e4e4e7" }}
-          />
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
+          <Box>
+            <Typography sx={{ ...titleStyle, fontSize: 18 }}>
+              16:9 Nature AI Studio
+            </Typography>
+            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13 }}>
+              Select whether you want to generate a 16:9 4K Image or an animated 16:9 Video with background music:
+            </Typography>
+          </Box>
+
+          {/* Admin Image vs Video Mode Switcher */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, bgcolor: "#f4f4f5", p: 0.5, borderRadius: "10px", border: "1px solid #e4e4e7" }}>
+            <Button
+              size="small"
+              startIcon={<ImageIcon fontSize="small" />}
+              onClick={() => setMediaMode("image")}
+              sx={{
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: 12,
+                fontWeight: 700,
+                px: 2,
+                py: 0.6,
+                bgcolor: mediaMode === "image" ? "#09090b" : "transparent",
+                color: mediaMode === "image" ? "#ffffff" : "#71717a",
+                "&:hover": { bgcolor: mediaMode === "image" ? "#27272a" : "#e4e4e7" },
+              }}
+            >
+              🖼️ 16:9 Image Mode
+            </Button>
+            <Button
+              size="small"
+              startIcon={<MovieCreationIcon fontSize="small" />}
+              onClick={() => setMediaMode("video")}
+              sx={{
+                borderRadius: "8px",
+                textTransform: "none",
+                fontSize: 12,
+                fontWeight: 700,
+                px: 2,
+                py: 0.6,
+                bgcolor: mediaMode === "video" ? "#09090b" : "transparent",
+                color: mediaMode === "video" ? "#ffffff" : "#71717a",
+                "&:hover": { bgcolor: mediaMode === "video" ? "#27272a" : "#e4e4e7" },
+              }}
+            >
+              🎬 16:9 Video Mode
+            </Button>
+          </Box>
         </Box>
-        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2.5 }}>
-          Click any Nature Realm to generate a 100% unique 16:9 animated video with matching background music:
-        </Typography>
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "repeat(3, 1fr)" }, gap: 1.5 }}>
           {NATURE_REALMS.map((r) => (
@@ -541,7 +591,7 @@ export default function InstagramGrowthAgent() {
               key={r.id}
               onClick={() => {
                 setSelectedRealm(r.realm);
-                generate(null, r.realm);
+                generate(null, r.realm, mediaMode === "image" ? "post" : "reel");
               }}
               sx={{
                 p: 2,
@@ -558,7 +608,11 @@ export default function InstagramGrowthAgent() {
             >
               <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 0.8 }}>
                 <Box sx={{ color: "#09090b" }}>{r.icon}</Box>
-                <Chip label="Create 16:9" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }} />
+                <Chip
+                  label={mediaMode === "image" ? "Create 16:9 Image" : "Create 16:9 Video"}
+                  size="small"
+                  sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }}
+                />
               </Box>
               <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, color: "#09090b" }}>
                 {r.title}
@@ -581,7 +635,7 @@ export default function InstagramGrowthAgent() {
             placeholder="e.g. Glowing Turquoise Glacial Lagoon, Autumn Birch Fog Stream"
             sx={{ ...field, flex: 1, minWidth: 260 }}
           />
-          <FormControl sx={{ ...field, minWidth: 200 }}>
+          <FormControl sx={{ ...field, minWidth: 180 }}>
             <InputLabel>Nature Realm</InputLabel>
             <Select
               label="Nature Realm"
@@ -597,8 +651,8 @@ export default function InstagramGrowthAgent() {
           </FormControl>
           <Button
             variant="contained"
-            startIcon={<AutoAwesomeIcon fontSize="small" />}
-            onClick={() => generate()}
+            startIcon={mediaMode === "image" ? <ImageIcon fontSize="small" /> : <AutoAwesomeIcon fontSize="small" />}
+            onClick={() => generate(null, null, mediaMode === "image" ? "post" : "reel")}
             disabled={saving}
             sx={{
               borderRadius: "10px",
@@ -611,19 +665,19 @@ export default function InstagramGrowthAgent() {
               "&:hover": { bgcolor: "#27272a" },
             }}
           >
-            Generate 16:9 Video
+            {mediaMode === "image" ? "Generate 16:9 Image" : "Generate 16:9 Video"}
           </Button>
         </Box>
       </Paper>
 
       {/* ── DAILY SCHEDULER SETTINGS (WHITE BOX) ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily 16:9 Video Scheduler</Typography>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 0.5 }}>Daily Content Scheduler</Typography>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2 }}>
-          Autonomous daily 16:9 nature videos with synchronized background music scheduled to publish automatically.
+          Autonomous daily 16:9 nature creations scheduled to publish automatically to your Instagram page.
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr 1fr" }, gap: 2 }}>
           <TextField
             label="Niche Focus"
             value={config.niche || "4K Nature & Earth Cinematography, Relaxation & Visual Serenity"}
@@ -631,12 +685,23 @@ export default function InstagramGrowthAgent() {
             sx={field}
             fullWidth
           />
+          <FormControl sx={field} fullWidth>
+            <InputLabel>Default Post Format</InputLabel>
+            <Select
+              label="Default Post Format"
+              value={mediaMode}
+              onChange={(e) => setMediaMode(e.target.value)}
+            >
+              <MenuItem value="video">🎬 16:9 Video Reel (with Music)</MenuItem>
+              <MenuItem value="image">🖼️ 16:9 4K Nature Image</MenuItem>
+            </Select>
+          </FormControl>
           <TextField
             label="Daily Post Time (IST) ⏰"
             value={config.dailyPostTime || "07:00"}
             onChange={(e) => set("dailyPostTime", e.target.value)}
             placeholder="e.g. 07:00 or 18:00"
-            helperText="Agent automatically generates and posts 1 unique 16:9 nature video daily at this fixed time"
+            helperText="Automatic daily post time"
             sx={field}
             fullWidth
           />
@@ -676,205 +741,231 @@ export default function InstagramGrowthAgent() {
         </Box>
       </Paper>
 
-      {/* ── CONTENT QUEUE WITH 16:9 WIDESCREEN VIDEO PLAYER ── */}
+      {/* ── CONTENT QUEUE WITH BOTH IMAGE & VIDEO ACTIONS ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & 16:9 Videos</Typography>
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Content Queue & Media Items</Typography>
         {content.length === 0 ? (
           <Typography sx={{ color: "#71717a", fontSize: 13 }}>
-            No drafts yet. Click any Nature Realm above to generate your first 16:9 nature video!
+            No drafts yet. Click any Nature Realm above to generate your first 16:9 nature creation!
           </Typography>
         ) : (
-          content.map((item) => (
-            <Box
-              key={item._id}
-              sx={{
-                borderTop: "1px solid #f4f4f5",
-                pt: 3,
-                mt: 3,
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", md: "380px 1fr" },
-                gap: 2.5,
-              }}
-            >
-              {/* 16:9 Widescreen HTML5 Video Player Container */}
+          content.map((item) => {
+            const isVideoItem = item.type === "reel" || item.assetUrl?.toLowerCase().endsWith(".mp4") || item.assetUrl?.toLowerCase().includes("/video/upload/");
+            return (
               <Box
+                key={item._id}
                 sx={{
-                  width: "100%",
-                  aspectRatio: "16 / 9",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  bgcolor: "#000000",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  border: "1px solid #27272a",
-                  position: "relative",
+                  borderTop: "1px solid #f4f4f5",
+                  pt: 3,
+                  mt: 3,
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", md: "380px 1fr" },
+                  gap: 2.5,
                 }}
               >
-                {item.assetUrl ? (
-                  item.assetUrl.toLowerCase().endsWith(".mp4") || item.assetUrl.toLowerCase().includes("/video/upload/") ? (
-                    <video
-                      src={item.assetUrl}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                      controls
-                      loop
-                      playsInline
-                      preload="metadata"
-                    />
-                  ) : (
-                    <img
-                      src={item.assetUrl}
-                      alt={item.topic}
-                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
-                    />
-                  )
-                ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
-                  <Box sx={{ textAlign: "center", p: 2 }}>
-                    <CircularProgress size={28} sx={{ color: "#ffffff" }} />
-                    <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 16:9 Video in Gemini...</Typography>
-                  </Box>
-                ) : (
-                  <Box sx={{ textAlign: "center", p: 2 }}>
-                    <MovieCreationIcon sx={{ color: "#52525b", fontSize: 36 }} />
-                    <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Video Generated</Typography>
-                  </Box>
-                )}
-                <Chip
-                  icon={<MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} />}
-                  label="16:9 Video + Music"
-                  size="small"
-                  sx={{
-                    position: "absolute",
-                    top: 8,
-                    left: 8,
-                    bgcolor: "rgba(0,0,0,0.85)",
-                    color: "#ffffff",
-                    fontSize: 9,
-                    fontWeight: 700,
-                    height: 20,
-                    border: "1px solid rgba(255,255,255,0.2)",
-                  }}
-                />
-              </Box>
-
-              {/* Reel Details & Publishing Actions */}
-              <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                <Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
-                      <Chip
-                        label={item.status === "published" ? "Published" : item.status === "ready" ? "Video Ready" : "Draft"}
-                        size="small"
-                        sx={{
-                          fontWeight: 700,
-                          bgcolor: item.status === "published" ? "#09090b" : item.status === "ready" ? "#27272a" : "#f4f4f5",
-                          color: item.status === "draft" ? "#09090b" : "#ffffff",
-                          fontSize: 11,
-                        }}
-                      />
-                      <Chip
-                        label={item.themeCategory || "Nature 16:9"}
-                        size="small"
-                        sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }}
-                      />
-                    </Box>
-                    <IconButton
-                      size="small"
-                      onClick={() => deleteContent(item._id)}
-                      sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}
-                      title="Delete draft"
-                    >
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
-
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, mt: 1.2 }}>
-                    {item.topic}
-                  </Typography>
-
-                  {/* Atmospheric Soundscape Badge */}
-                  {item.trendingAudioSuggestion && (
-                    <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
-                      <Chip
-                        icon={<MusicNoteIcon fontSize="small" />}
-                        label={`Music: ${item.trendingAudioSuggestion}`}
-                        size="small"
-                        sx={{ bgcolor: "#fafafa", color: "#3f3f46", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
-                      />
-                    </Box>
-                  )}
-
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#3f3f46", lineHeight: 1.5 }}>
-                    {item.caption}
-                  </Typography>
-
-                  {item.hashtags?.length > 0 && (
-                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 12, mt: 0.8 }}>
-                      {item.hashtags.join(" ")}
-                    </Typography>
-                  )}
-                </Box>
-
-                {/* ── Action Panel ── */}
+                {/* 16:9 Media Preview Container */}
                 <Box
                   sx={{
-                    mt: 2,
-                    p: 1.5,
-                    borderRadius: "10px",
-                    bgcolor: "#fafafa",
-                    border: "1px solid #e4e4e7",
+                    width: "100%",
+                    aspectRatio: "16 / 9",
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    bgcolor: "#000000",
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "space-between",
-                    flexWrap: "wrap",
-                    gap: 1.5,
+                    justifyContent: "center",
+                    border: "1px solid #27272a",
+                    position: "relative",
                   }}
                 >
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
-                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
-                      {item.assetUrl
-                        ? "16:9 Video Ready with Background Music"
-                        : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
-                        ? "Gemini is rendering 16:9 video..."
-                        : item.mediaGenerationError
-                        ? `Status: ${item.mediaGenerationError}`
-                        : "Ready to render with Gemini"}
+                  {item.assetUrl ? (
+                    isVideoItem ? (
+                      <video
+                        src={item.assetUrl}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                        controls
+                        loop
+                        playsInline
+                        preload="metadata"
+                      />
+                    ) : (
+                      <img
+                        src={item.assetUrl}
+                        alt={item.topic}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+                      />
+                    )
+                  ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
+                    <Box sx={{ textAlign: "center", p: 2 }}>
+                      <CircularProgress size={28} sx={{ color: "#ffffff" }} />
+                      <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 16:9 {item.type === "post" ? "Image" : "Video"} in Gemini...</Typography>
+                    </Box>
+                  ) : (
+                    <Box sx={{ textAlign: "center", p: 2 }}>
+                      {item.type === "post" ? (
+                        <ImageIcon sx={{ color: "#52525b", fontSize: 36 }} />
+                      ) : (
+                        <MovieCreationIcon sx={{ color: "#52525b", fontSize: 36 }} />
+                      )}
+                      <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Media Generated</Typography>
+                    </Box>
+                  )}
+                  <Chip
+                    icon={isVideoItem ? <MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} /> : <ImageIcon style={{ color: "#ffffff", fontSize: 12 }} />}
+                    label={isVideoItem ? "16:9 Video + Music" : "16:9 4K Image"}
+                    size="small"
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      left: 8,
+                      bgcolor: "rgba(0,0,0,0.85)",
+                      color: "#ffffff",
+                      fontSize: 9,
+                      fontWeight: 700,
+                      height: 20,
+                      border: "1px solid rgba(255,255,255,0.2)",
+                    }}
+                  />
+                </Box>
+
+                {/* Details & Action Controls */}
+                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+                  <Box>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 1 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexWrap: "wrap" }}>
+                        <Chip
+                          label={item.status === "published" ? "Published" : item.status === "ready" ? "Ready" : "Draft"}
+                          size="small"
+                          sx={{
+                            fontWeight: 700,
+                            bgcolor: item.status === "published" ? "#09090b" : item.status === "ready" ? "#27272a" : "#f4f4f5",
+                            color: item.status === "draft" ? "#09090b" : "#ffffff",
+                            fontSize: 11,
+                          }}
+                        />
+                        <Chip
+                          label={item.themeCategory || "Nature"}
+                          size="small"
+                          sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }}
+                        />
+                        <Chip
+                          label={item.type === "post" ? "🖼️ Image Post" : "🎬 Video Reel"}
+                          size="small"
+                          sx={{ bgcolor: "#fafafa", border: "1px solid #e4e4e7", color: "#09090b", fontWeight: 700, fontSize: 11 }}
+                        />
+                      </Box>
+                      <IconButton
+                        size="small"
+                        onClick={() => deleteContent(item._id)}
+                        sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}
+                        title="Delete draft"
+                      >
+                        <DeleteOutlineIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, mt: 1.2 }}>
+                      {item.topic}
                     </Typography>
+
+                    {/* Atmospheric Soundscape Badge */}
+                    {item.trendingAudioSuggestion && isVideoItem && (
+                      <Box sx={{ mt: 0.8, display: "flex", alignItems: "center", gap: 0.8 }}>
+                        <Chip
+                          icon={<MusicNoteIcon fontSize="small" />}
+                          label={`Music: ${item.trendingAudioSuggestion}`}
+                          size="small"
+                          sx={{ bgcolor: "#fafafa", color: "#3f3f46", border: "1px solid #e4e4e7", fontWeight: 600, fontSize: 11 }}
+                        />
+                      </Box>
+                    )}
+
+                    <Typography sx={{ fontFamily: "'DM Sans', sans-serif", whiteSpace: "pre-wrap", fontSize: 13, mt: 1, color: "#3f3f46", lineHeight: 1.5 }}>
+                      {item.caption}
+                    </Typography>
+
+                    {item.hashtags?.length > 0 && (
+                      <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 12, mt: 0.8 }}>
+                        {item.hashtags.join(" ")}
+                      </Typography>
+                    )}
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      startIcon={<VisibilityIcon fontSize="small" />}
-                      onClick={() => openLiveFlowInspector(item._id)}
-                      sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
-                    >
-                      Live Flow
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => handleGenerateMedia(item._id)}
-                      disabled={generatingMediaId === item._id || saving}
-                      sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
-                    >
-                      {item.assetUrl ? "Regenerate Video" : "Generate 16:9 Video"}
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => publishNow(item._id)}
-                      disabled={!item.assetUrl || saving}
-                      sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#09090b", color: "#ffffff", "&:hover": { bgcolor: "#27272a" } }}
-                    >
-                      Publish Video
-                    </Button>
+
+                  {/* ── Action Panel with Image and Video Generation Options ── */}
+                  <Box
+                    sx={{
+                      mt: 2,
+                      p: 1.5,
+                      borderRadius: "10px",
+                      bgcolor: "#fafafa",
+                      border: "1px solid #e4e4e7",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      flexWrap: "wrap",
+                      gap: 1.5,
+                    }}
+                  >
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                      <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
+                      <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
+                        {item.assetUrl
+                          ? `16:9 ${isVideoItem ? "Video Ready with Music" : "4K Image Ready"}`
+                          : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
+                          ? "Gemini is rendering creation..."
+                          : item.mediaGenerationError
+                          ? `Status: ${item.mediaGenerationError}`
+                          : "Ready to render with Gemini"}
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<VisibilityIcon fontSize="small" />}
+                        onClick={() => openLiveFlowInspector(item._id)}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
+                      >
+                        Live Flow
+                      </Button>
+                      
+                      {/* Admin Image or Video Choice */}
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<ImageIcon fontSize="small" />}
+                        onClick={() => handleGenerateMedia(item._id, "post")}
+                        disabled={generatingMediaId === item._id || saving}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
+                      >
+                        {item.assetUrl && !isVideoItem ? "Regen Image" : "16:9 Image"}
+                      </Button>
+                      <Button
+                        size="small"
+                        variant="outlined"
+                        startIcon={<MovieCreationIcon fontSize="small" />}
+                        onClick={() => handleGenerateMedia(item._id, "reel")}
+                        disabled={generatingMediaId === item._id || saving}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
+                      >
+                        {item.assetUrl && isVideoItem ? "Regen Video" : "16:9 Video"}
+                      </Button>
+
+                      <Button
+                        size="small"
+                        variant="contained"
+                        onClick={() => publishNow(item._id)}
+                        disabled={!item.assetUrl || saving}
+                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, bgcolor: "#09090b", color: "#ffffff", "&:hover": { bgcolor: "#27272a" } }}
+                      >
+                        Publish Now
+                      </Button>
+                    </Box>
                   </Box>
                 </Box>
               </Box>
-            </Box>
-          ))
+            );
+          })
         )}
       </Paper>
 
@@ -922,7 +1013,7 @@ export default function InstagramGrowthAgent() {
               }}
             />
             <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
-              Gemini Live Flow Inspector (16:9 Video)
+              Gemini Live Flow Inspector ({flowInspectorSession?.mediaType === "image" ? "16:9 Image" : "16:9 Video"})
             </Typography>
           </Box>
           <IconButton onClick={() => setFlowInspectorOpen(false)} size="small">
@@ -934,9 +1025,16 @@ export default function InstagramGrowthAgent() {
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {/* Prompt Info Card */}
               <Box sx={{ p: 1.8, bgcolor: "#fafafa", borderRadius: "10px", border: "1px solid #e4e4e7" }}>
-                <Typography sx={{ fontWeight: 700, fontSize: 11, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  Active Prompt Sent to Gemini
-                </Typography>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
+                  <Typography sx={{ fontWeight: 700, fontSize: 11, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                    Active Prompt Sent to Gemini
+                  </Typography>
+                  <Chip
+                    label={flowInspectorSession.mediaType === "image" ? "🖼️ Image Mode" : "🎬 Video Mode"}
+                    size="small"
+                    sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }}
+                  />
+                </Box>
                 <Typography sx={{ fontWeight: 600, fontSize: 13, color: "#09090b", mt: 0.4 }}>
                   "{flowInspectorSession.prompt}"
                 </Typography>
