@@ -365,6 +365,28 @@ router.post("/content/generate", async (req, res) => {
   }
 });
 
+// Cloudinary Direct Signed Upload Token (Eliminates Render server timeouts for multi-video uploads)
+router.get("/cloudinary/signature", async (_req, res) => {
+  try {
+    const timestamp = Math.round(new Date().getTime() / 1000);
+    const folder = "instagram-agent/admin-reels";
+    const signature = cloudinary.utils.api_sign_request(
+      { timestamp, folder },
+      process.env.CLOUDINARY_API_SECRET
+    );
+    return res.json({
+      cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+      apiKey: process.env.CLOUDINARY_API_KEY,
+      folder,
+      timestamp,
+      signature,
+    });
+  } catch (err) {
+    console.error("[Cloudinary Signature Error]:", err);
+    return res.status(500).json({ error: err.message });
+  }
+});
+
 // Admin Direct Video Upload for a Single 12-Series Instagram Reel
 router.post("/content/upload-reel", videoUpload.single("video"), async (req, res) => {
   try {

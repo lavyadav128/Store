@@ -266,13 +266,59 @@ export default function InstagramGrowthAgent() {
     const uploadedIds = [];
     const uploadErrors = [];
 
+    // Fetch signed direct Cloudinary upload credentials to bypass cloud hosting/Render upload timeouts
+    let sigData = null;
+    try {
+      const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`, {
+        headers: authHeaders(),
+      });
+      if (sigRes.ok) {
+        sigData = await sigRes.json();
+      }
+    } catch (_) {}
+
     for (let i = 0; i < uploadFiles.length; i++) {
       const item = uploadFiles[i];
       setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
 
       try {
+        let directVideoUrl = "";
+
+        // Fast Direct Edge Upload to Cloudinary if signature available (10x faster, zero timeout on Render)
+        if (sigData?.cloudName && sigData?.signature && item.file) {
+          try {
+            const cFormData = new FormData();
+            cFormData.append("file", item.file);
+            cFormData.append("api_key", sigData.apiKey);
+            cFormData.append("timestamp", sigData.timestamp);
+            cFormData.append("signature", sigData.signature);
+            cFormData.append("folder", sigData.folder || "instagram-agent/admin-reels");
+
+            const cUploadRes = await fetch(
+              `https://api.cloudinary.com/v1_1/${sigData.cloudName}/video/upload`,
+              {
+                method: "POST",
+                body: cFormData,
+              }
+            );
+
+            if (cUploadRes.ok) {
+              const cUploadJson = await cUploadRes.json();
+              if (cUploadJson.secure_url) {
+                directVideoUrl = cUploadJson.secure_url;
+              }
+            }
+          } catch (cErr) {
+            console.warn(`[Cloudinary Direct Upload fallback for ${item.topic}]:`, cErr.message);
+          }
+        }
+
         const formData = new FormData();
-        formData.append("video", item.file);
+        if (directVideoUrl) {
+          formData.append("videoUrl", directVideoUrl);
+        } else {
+          formData.append("video", item.file);
+        }
         formData.append("category", item.realm || globalRealm);
         formData.append("topic", item.topic);
         formData.append("caption", item.caption);

@@ -135,7 +135,16 @@ const allowedOrigins = new Set([
 const corsOptions = {
   origin(origin, callback) {
     // Requests without an Origin are server-to-server/health-check calls.
-    if (!origin || allowedOrigins.has(origin)) return callback(null, true);
+    if (!origin) return callback(null, true);
+    if (
+      allowedOrigins.has(origin) ||
+      origin.includes("onrender.com") ||
+      origin.includes("localhost") ||
+      origin.includes("127.0.0.1") ||
+      /^https?:\/\/(\d{1,3}\.){3}\d{1,3}(:\d+)?$/.test(origin)
+    ) {
+      return callback(null, true);
+    }
     return callback(new Error("Origin is not allowed by CORS"));
   },
   // List of HTTP methods we allow from those origins
