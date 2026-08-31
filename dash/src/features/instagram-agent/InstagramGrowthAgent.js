@@ -313,25 +313,37 @@ export default function InstagramGrowthAgent() {
           }
         }
 
-        const formData = new FormData();
-        if (directVideoUrl) {
-          formData.append("videoUrl", directVideoUrl);
-        } else {
-          formData.append("video", item.file);
-        }
-        formData.append("category", item.realm || globalRealm);
-        formData.append("topic", item.topic);
-        formData.append("caption", item.caption);
-        formData.append("aspectRatio", item.aspectRatio || globalAspectRatio);
-
+        let res;
         const token = localStorage.getItem("token") || "";
-        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        if (directVideoUrl) {
+          res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(token ? { Authorization: `Bearer ${token}` } : {}),
+            },
+            body: JSON.stringify({
+              videoUrl: directVideoUrl,
+              category: item.realm || globalRealm,
+              topic: item.topic,
+              caption: item.caption,
+              aspectRatio: item.aspectRatio || globalAspectRatio,
+            }),
+          });
+        } else {
+          const formData = new FormData();
+          formData.append("video", item.file);
+          formData.append("category", item.realm || globalRealm);
+          formData.append("topic", item.topic);
+          formData.append("caption", item.caption);
+          formData.append("aspectRatio", item.aspectRatio || globalAspectRatio);
 
-        const res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
-          method: "POST",
-          headers,
-          body: formData,
-        });
+          res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
+            method: "POST",
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            body: formData,
+          });
+        }
 
         const rawText = await res.text();
         let parsed;
