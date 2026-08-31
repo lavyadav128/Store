@@ -269,17 +269,6 @@ export default function InstagramGrowthAgent() {
     const uploadedIds = [];
     const uploadErrors = [];
 
-    // Fetch signed direct Cloudinary upload credentials to bypass cloud hosting/Render upload timeouts
-    let sigData = null;
-    try {
-      const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`, {
-        headers: authHeaders(),
-      });
-      if (sigRes.ok) {
-        sigData = await sigRes.json();
-      }
-    } catch (_) {}
-
     for (let i = 0; i < uploadFiles.length; i++) {
       const item = uploadFiles[i];
       setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
@@ -287,35 +276,49 @@ export default function InstagramGrowthAgent() {
       try {
         let directVideoUrl = "";
 
-        // Fast Direct Edge Upload to Cloudinary if signature available (10x faster, zero timeout on Render)
-        if (sigData?.cloudName && sigData?.signature && item.file) {
+        // 1. Fetch a FRESH Cloudinary signature for EACH individual video
+        let sig = null;
+        try {
+          const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`, {
+            headers: authHeaders(),
+          });
+          if (sigRes.ok) {
+            sig = await sigRes.json();
+          }
+        } catch (sErr) {
+          console.warn("[Signature fetch warning]:", sErr.message);
+        }
+
+        // 2. Direct High-Speed Edge Upload to Cloudinary CDN
+        if (sig?.cloudName && sig?.signature && item.file) {
           try {
             const cFormData = new FormData();
             cFormData.append("file", item.file);
-            cFormData.append("api_key", sigData.apiKey);
-            cFormData.append("timestamp", sigData.timestamp);
-            cFormData.append("signature", sigData.signature);
-            cFormData.append("folder", sigData.folder || "instagram-agent/admin-reels");
+            cFormData.append("api_key", sig.apiKey);
+            cFormData.append("timestamp", sig.timestamp);
+            cFormData.append("signature", sig.signature);
+            cFormData.append("folder", sig.folder || "instagram-agent/admin-reels");
 
             const cUploadRes = await fetch(
-              `https://api.cloudinary.com/v1_1/${sigData.cloudName}/video/upload`,
+              `https://api.cloudinary.com/v1_1/${sig.cloudName}/video/upload`,
               {
                 method: "POST",
                 body: cFormData,
               }
             );
 
-            if (cUploadRes.ok) {
-              const cUploadJson = await cUploadRes.json();
-              if (cUploadJson.secure_url) {
-                directVideoUrl = cUploadJson.secure_url;
-              }
+            const cUploadJson = await cUploadRes.json();
+            if (cUploadRes.ok && cUploadJson.secure_url) {
+              directVideoUrl = cUploadJson.secure_url;
+            } else {
+              console.warn(`[Cloudinary direct upload issue for ${item.topic}]:`, cUploadJson?.error?.message);
             }
           } catch (cErr) {
             console.warn(`[Cloudinary Direct Upload fallback for ${item.topic}]:`, cErr.message);
           }
         }
 
+        // 3. Register Reel Metadata with Backend (Instant 1KB JSON payload)
         let res;
         const token = localStorage.getItem("token") || "";
         if (directVideoUrl) {
