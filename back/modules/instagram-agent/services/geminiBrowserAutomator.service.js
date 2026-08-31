@@ -374,19 +374,28 @@ export async function automateGeminiGeneration(prompt, contentId = "live_session
   const cookiePath = path.join(process.cwd(), "gemini-cookies.json");
   const hasCookieFile = fs.existsSync(cookiePath) || !!process.env.GEMINI_COOKIES_JSON;
 
+  // Clean stale lock files if sessionDir exists to prevent any startup hangs
+  if (sessionDir && fs.existsSync(sessionDir)) {
+    try {
+      const lockFiles = ["SingletonLock", "SingletonSocket", "SingletonCookie", "DevToolsActivePort"];
+      for (const f of lockFiles) {
+        const p = path.join(sessionDir, f);
+        if (fs.existsSync(p)) fs.unlinkSync(p);
+      }
+    } catch (_) {}
+  }
+
   const launchOptions = {
     headless: "new",
     protocolTimeout: 300000,
     timeout: 60000,
+    userDataDir: sessionDir,
     args: launchArgs,
     env: {
       ...process.env,
       LD_LIBRARY_PATH: `${vendorLibDirs.join(":")}:${process.env.LD_LIBRARY_PATH || ""}`,
     },
   };
-  if (!hasCookieFile) {
-    launchOptions.userDataDir = sessionDir;
-  }
   if (resolvedExecutablePath) {
     launchOptions.executablePath = resolvedExecutablePath;
   }

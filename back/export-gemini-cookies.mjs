@@ -18,25 +18,25 @@ const sessionDir = candidateSessionDirs.find((d) => fs.existsSync(d)) || path.jo
 console.log("📁 Reading session profile from:", sessionDir);
 
 async function exportCookies() {
-  const tempProfile = path.join(os.tmpdir(), `gemini_export_${Date.now()}`);
   let browser = null;
   try {
-    fs.cpSync(sessionDir, tempProfile, {
-      recursive: true,
-      filter: (src) => {
-        const lower = src.toLowerCase();
-        return !lower.includes("cache") && !lower.includes("crashpad") && !lower.includes("lock");
-      },
-    });
+    const lockFiles = ["SingletonLock", "SingletonSocket", "SingletonCookie", "DevToolsActivePort"];
+    for (const f of lockFiles) {
+      const p = path.join(sessionDir, f);
+      if (fs.existsSync(p)) fs.unlinkSync(p);
+    }
 
-    const browser = await puppeteer.launch({
+    browser = await puppeteer.launch({
       headless: "new",
-      userDataDir: tempProfile,
+      userDataDir: sessionDir,
+      protocolTimeout: 300000,
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     });
 
-    const page = await browser.newPage();
-    await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 35000 }).catch(() => {});
+    const pages = await browser.pages();
+    const page = pages.length > 0 ? pages[0] : await browser.newPage();
+    await page.goto("https://gemini.google.com/app", { waitUntil: "networkidle2", timeout: 45000 }).catch(() => {});
+    await new Promise((r) => setTimeout(r, 4000));
 
     const client = await page.target().createCDPSession();
     const { cookies } = await client.send("Network.getAllCookies");
