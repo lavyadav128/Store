@@ -20,7 +20,8 @@ import {
   sendInstagramMessage,
   verifyMetaSignature,
 } from "../services/instagramAgent.service.js";
-import { automateGeminiGeneration, liveGeminiSessions } from "../services/geminiBrowserAutomator.service.js";
+import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
+import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
 
 const router = express.Router();
 export const instagramWebhookRouter = express.Router();
@@ -272,6 +273,8 @@ router.put("/config", async (req, res) => {
     "postsPerDay",
     "dailyPostTime",
     "geminiApiKey",
+    "pexelsApiKey",
+    "freesoundApiKey",
     "topAudienceCategory",
     "autoReplyComments",
     "autoReplyMessages",
@@ -345,97 +348,34 @@ router.post("/content/:id/generate-media", async (req, res) => {
   }
 });
 
-// Trigger and Watch Live Gemini Browser Automation with Real-Time Screenshots
-const handleRunGeminiLive = async (req, res) => {
+// Test Pexels API Search
+router.post("/pexels/test", async (req, res) => {
   try {
-    const id = req.params.id || req.body?.contentId;
-    let content = id ? await InstagramContent.findById(id).catch(() => null) : null;
-    const prompt = content?.creativeBrief || content?.topic || req.body?.prompt || "Inspiring 8K vertical visual for Instagram";
-    const result = await automateGeminiGeneration(prompt, content?._id || "live_session", content?.type === "reel");
-
-    if (content && result?.url) {
-      content.assetUrl = result.url;
-      content.assetSource = "gemini_browser_automated";
-      content.mediaGenerationStatus = "ready";
-      content.status = "ready";
-      await content.save().catch(async () => {
-        await InstagramContent.updateOne({ _id: content._id }, {
-          $set: {
-            assetUrl: result.url,
-            assetSource: "gemini_browser_automated",
-            mediaGenerationStatus: "ready",
-            status: "ready",
-          }
-        });
-      });
-    }
-
-    res.json({
-      content,
-      session: result?.session || liveGeminiSessions.get(String(content?._id || "live_session")),
+    const result = await fetchUniquePexelsMedia({
+      topic: req.body.topic || "mountain sunrise mist",
+      realm: req.body.realm || "🌅 Nature's Morning",
+      type: req.body.type || "reel",
+      orientation: req.body.orientation || "portrait",
     });
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
-};
+});
 
-router.post("/content/:id/run-gemini-live", handleRunGeminiLive);
-router.post("/content/:id/gemini-live", handleRunGeminiLive);
-router.post("/content/:id/run-flow-live", handleRunGeminiLive);
-router.post("/content/:id/flow-live", handleRunGeminiLive);
-router.post("/run-gemini-live", handleRunGeminiLive);
-router.post("/run-flow-live", handleRunGeminiLive);
-
-const handleGetSession = (req, res) => {
-  const id = req.params.id;
-  let session = null;
-  if (id && id !== "latest" && id !== "undefined") {
-    session = liveGeminiSessions.get(String(id));
-  }
-  if (!session) {
-    session = liveGeminiSessions.get("latest");
-  }
-  if (!session) {
-    const all = Array.from(liveGeminiSessions.values());
-    session = all[all.length - 1] || null;
-  }
-  if (!session) return res.status(404).json({ error: "No active live flow session found." });
-  res.json(session);
-};
-
-router.get("/gemini-session/:id", handleGetSession);
-router.get("/flow-session/:id", handleGetSession);
-router.get("/google-flow/session/:id", handleGetSession);
-router.get("/live-flow/:id", handleGetSession);
-router.get("/live-flow", handleGetSession);
-
-import { spawn } from "child_process";
-import fs from "fs";
-import path from "path";
-
-// 1-Click Launch Interactive Login Window for Google Gemini
-const handleOpenLogin = (req, res) => {
+// Test Freesound API Search
+router.post("/freesound/test", async (req, res) => {
   try {
-    const scriptPath = fs.existsSync(path.join(process.cwd(), "login-gemini.mjs"))
-      ? path.join(process.cwd(), "login-gemini.mjs")
-      : path.join(process.cwd(), "back", "login-gemini.mjs");
-    const child = spawn(process.execPath, [scriptPath], {
-      cwd: path.dirname(scriptPath),
-      detached: true,
-      stdio: "ignore",
+    const result = await fetchMatchingFreesoundAudio({
+      topic: req.body.topic || "mountain sunrise mist",
+      realm: req.body.realm || "🌅 Nature's Morning",
+      soundscape: req.body.soundscape || "birds morning ambient",
     });
-    child.unref();
-    res.json({ message: "Google Gemini Interactive Login window launched! Sign in, then close the browser." });
+    res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(400).json({ error: error.message });
   }
-};
-
-router.post("/gemini-login", handleOpenLogin);
-router.post("/google-flow/open-login", handleOpenLogin);
-router.post("/open-login", handleOpenLogin);
-router.post("/open-gemini-login-window", handleOpenLogin);
-router.post("/open-flow-login-window", handleOpenLogin);
+});
 
 
 router.patch("/content/:id", async (req, res) => {

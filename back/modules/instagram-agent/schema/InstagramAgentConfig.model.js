@@ -19,6 +19,8 @@ const instagramAgentConfigSchema = new mongoose.Schema({
   lastStartedAt: { type: Date, default: null },
   lastStoppedAt: { type: Date, default: null },
   geminiApiKey: { type: String, default: "" },
+  pexelsApiKey: { type: String, default: "" },
+  freesoundApiKey: { type: String, default: "" },
   lastError: { type: String, default: "" },
 }, { timestamps: true });
 

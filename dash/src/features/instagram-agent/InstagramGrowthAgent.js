@@ -260,21 +260,18 @@ export default function InstagramGrowthAgent() {
 
   const handleGenerateMedia = async (contentId, specificType = null) => {
     setGeneratingMediaId(contentId);
-    setRunningFlowLiveId(contentId);
-    setFlowInspectorOpen(true);
-    const modeLabel = specificType === "post" || specificType === "image" ? "8K 16:9 Image" : "16:9 Video";
-    notify(`Starting Google Gemini to generate ${modeLabel}...`, "info");
+    const modeLabel = specificType === "post" || specificType === "image" ? "8K 16:9 Portrait Image" : "16:9 Portrait Reel";
+    notify(`Fetching HD media from Pexels API & matched soundscape from Freesound API...`, "info");
 
     try {
       const payload = specificType ? { type: specificType } : {};
       const updated = await request(`/content/${contentId}/generate-media`, "POST", payload);
-      notify(`Generated 16:9 ${updated.type === "post" ? "Image" : "Video"} for: ${updated.topic}!`);
+      notify(`Ready! Fetched HD 16:9 ${updated.type === "post" ? "Image" : "Reel"} for: ${updated.topic}!`);
       await load();
     } catch (error) {
       notify(error.message, "error");
     } finally {
       setGeneratingMediaId(null);
-      setRunningFlowLiveId(null);
     }
   };
 
@@ -381,13 +378,23 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const handleOpenGeminiLogin = async () => {
+  const handleTestPexelsAndAudio = async () => {
     try {
-      notify("Opening Chrome Gemini window on your screen...", "info");
-      const res = await request("/gemini-login", "POST");
-      notify(res.message || "Chrome opened! Sign in to Google, then close the browser.");
+      notify("Testing Pexels 16:9 HD Media & Freesound Audio APIs...", "info");
+      const pRes = await request("/pexels/test", "POST", {
+        topic: "mountain sunrise mist",
+        realm: "🌅 Nature's Morning",
+        type: mediaMode === "image" ? "post" : "reel",
+        orientation: "portrait",
+      });
+      const fRes = await request("/freesound/test", "POST", {
+        topic: "mountain sunrise mist",
+        realm: "🌅 Nature's Morning",
+        soundscape: "birds morning ambient",
+      });
+      notify(`✅ Success! Pexels HD ${pRes.type} & Freesound Audio connected!`, "success");
     } catch (err) {
-      notify(err.message, "error");
+      notify(`Test Notice: ${err.message}`, "error");
     }
   };
 
@@ -437,28 +444,11 @@ export default function InstagramGrowthAgent() {
           </Typography>
         </Box>
         <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-          {/* Live Flow Button */}
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<VisibilityIcon fontSize="small" />}
-            onClick={() => openLiveFlowInspector()}
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              bgcolor: generatingMediaId ? "#22c55e" : "#09090b",
-              color: "#ffffff",
-              fontWeight: 700,
-              "&:hover": { bgcolor: "#27272a" },
-            }}
-          >
-            {generatingMediaId ? "🔴 Live Flow (Active)" : "👁️ Live Flow"}
-          </Button>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<VpnKeyIcon fontSize="small" />}
-            onClick={handleOpenGeminiLogin}
+            startIcon={<AutoAwesomeIcon fontSize="small" />}
+            onClick={handleTestPexelsAndAudio}
             sx={{
               borderRadius: "8px",
               textTransform: "none",
@@ -469,7 +459,7 @@ export default function InstagramGrowthAgent() {
               "&:hover": { bgcolor: "#f4f4f5", borderColor: "#09090b" },
             }}
           >
-            Gemini Login
+            Test Pexels & Audio
           </Button>
           <Button
             variant="outlined"
@@ -782,6 +772,27 @@ export default function InstagramGrowthAgent() {
           />
         </Box>
 
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, mt: 2 }}>
+          <TextField
+            label="Pexels API Key (for 1080p/4K HD 16:9 Portrait Videos & Photos)"
+            type="password"
+            value={config.pexelsApiKey || ""}
+            onChange={(e) => set("pexelsApiKey", e.target.value)}
+            placeholder="Enter Pexels API Key"
+            sx={field}
+            fullWidth
+          />
+          <TextField
+            label="Freesound API Key (for Matching Background Soundscapes)"
+            type="password"
+            value={config.freesoundApiKey || ""}
+            onChange={(e) => set("freesoundApiKey", e.target.value)}
+            placeholder="Enter Freesound API Key"
+            sx={field}
+            fullWidth
+          />
+        </Box>
+
         <Box sx={{ display: "flex", gap: 1.2, mt: 2.5, flexWrap: "wrap" }}>
           <Button
             variant="outlined"
@@ -916,7 +927,7 @@ export default function InstagramGrowthAgent() {
                   ) : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id ? (
                     <Box sx={{ textAlign: "center", p: 2 }}>
                       <CircularProgress size={28} sx={{ color: "#ffffff" }} />
-                      <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Rendering 16:9 {item.type === "post" ? "Image" : "Video"} in Gemini...</Typography>
+                      <Typography sx={{ fontSize: 11, color: "#a1a1aa", mt: 1 }}>Fetching 16:9 {item.type === "post" ? "Image" : "Reel"} via Pexels & Freesound APIs...</Typography>
                     </Box>
                   ) : (
                     <Box sx={{ textAlign: "center", p: 2 }}>
@@ -925,14 +936,14 @@ export default function InstagramGrowthAgent() {
                       ) : (
                         <MovieCreationIcon sx={{ color: "#52525b", fontSize: 36 }} />
                       )}
-                      <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Media Generated</Typography>
+                      <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>No Media Fetched</Typography>
                     </Box>
                   )}
                   
                   {/* Aspect & Audio Badges */}
                   <Chip
                     icon={isVideoItem ? <MusicNoteIcon style={{ color: "#ffffff", fontSize: 12 }} /> : <ImageIcon style={{ color: "#ffffff", fontSize: 12 }} />}
-                    label={isVideoItem ? "16:9 Video + Song" : "16:9 Image + Song"}
+                    label={isVideoItem ? "16:9 Portrait Reel + Sound" : "16:9 Portrait Post + Sound"}
                     size="small"
                     sx={{
                       position: "absolute",
@@ -992,6 +1003,13 @@ export default function InstagramGrowthAgent() {
                           size="small"
                           sx={{ bgcolor: "#fafafa", border: "1px solid #e4e4e7", color: "#09090b", fontWeight: 700, fontSize: 11 }}
                         />
+                        {item.pexelsPhotographer && (
+                          <Chip
+                            label={`📸 ${item.pexelsPhotographer}`}
+                            size="small"
+                            sx={{ bgcolor: "#f4f4f5", color: "#71717a", fontSize: 10 }}
+                          />
+                        )}
                       </Box>
                       <IconButton
                         size="small"
@@ -1007,7 +1025,7 @@ export default function InstagramGrowthAgent() {
                       {item.topic}
                     </Typography>
 
-                    {/* Gemini Native Soundscape & Media Direction */}
+                    {/* Freesound Matched Soundscape & Media Direction */}
                     <Box
                       sx={{
                         p: 1.25,
@@ -1025,10 +1043,10 @@ export default function InstagramGrowthAgent() {
                         <AutoAwesomeIcon sx={{ fontSize: 16, color: "#22c55e" }} />
                         <Box>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#09090b" }}>
-                            🎵 Gemini Soundscape Direction
+                            🎵 Matched Freesound Background Audio
                           </Typography>
                           <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#71717a" }}>
-                            {item.soundscape || item.trendingAudioSuggestion || "Curated specifically for this scene"}
+                            {item.freesoundTitle || item.soundscape || item.trendingAudioSuggestion || "Curated specifically for this scene"}
                           </Typography>
                         </Box>
                       </Box>

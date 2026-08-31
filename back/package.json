@@ -6,12 +6,6 @@
   "scripts": {
     "dev": "nodemon --import ./instrument.mjs index.js",
     "start": "node --import ./instrument.mjs index.js",
-    "gemini:login": "node login-gemini.mjs",
-    "gemini:export-cookies": "node export-gemini-cookies.mjs",
-    "login:gemini": "node login-gemini.mjs",
-    "flow:login": "node login-google-flow.mjs",
-    "flow:train": "node record-google-flow-workflow.mjs",
-    "chrome:debug": "node launch-browser-debug.mjs",
     "prod": "pm2 start index.js --node-args=\"--import ./instrument.mjs\"",
     "proxy": "http://localhost:3000",
     "test": "echo \"No test specified\" && exit 0"

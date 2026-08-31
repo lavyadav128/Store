@@ -14,7 +14,9 @@ import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NATURE_THEMES, getUniqueNatureTheme, getDailyNatureTheme } from './natureThemes.js';
 import { MOTIVATIONAL_THEMES, getUniqueMotivationalTheme, getQuoteFingerprint, getDailyMotivationalTheme } from './motivationalThemes.js';
 import { analyzeAudiencePreferences } from './growthOptimizer.js';
-import { automateGeminiGeneration, formatNatureImagePrompt, formatNatureVideoPrompt } from './geminiBrowserAutomator.service.js';
+import { fetchUniquePexelsMedia, formatPexelsQuery } from './pexelsMedia.service.js';
+import { fetchMatchingFreesoundAudio, formatFreesoundQuery } from './freesoundAudio.service.js';
+import { composeReelWithAudio } from './reelComposer.service.js';
 
 const execPromise = util.promisify(exec);
 
@@ -314,7 +316,7 @@ export function getAvailableMusicTracks() {
 }
 
 export function getTrendingAudioRecommendation(topic, niche = 'Nature & Relaxation') {
-  return `🎵 Dynamic Nature Soundscape curated by Google Gemini for "${topic || 'Earth & Wilderness'}"`;
+  return `🎵 Nature Soundscape matched via Freesound API for "${topic || 'Earth & Wilderness'}"`;
 }
 
 export async function attachMusicToContent(content, trackId) {
@@ -328,8 +330,8 @@ export async function attachMusicToContent(content, trackId) {
   await content.save();
   await logInstagramActivity(
     'music_attached',
-    `Attached free royalty-free music "${track.title}" to ${content.type}: ${content.topic}`,
-    { contentId: String(content._id), trackId: track.id }
+    `Attached soundscape track to ${content.type}: ${content.topic}`,
+    { contentId: String(content._id) }
   );
   return content;
 }
@@ -340,23 +342,49 @@ export async function generateMediaForContent(content) {
   await content.save();
 
   try {
-    // Google Gemini browser automation is the sole media provider.
-    const promptText = content.creativeBrief || content.topic;
-    const mediaResult = await automateGeminiGeneration(
-      promptText,
-      content._id,
-      content.type === 'reel'
-    );
+    const isVideo = content.type === 'reel';
 
-    if (!mediaResult?.url) {
-      throw new Error(
-        mediaResult?.session?.error ||
-          'Google Gemini finished without an image/video file. No fallback generator was used.'
-      );
+    // 1. Fetch authentic HD 9:16 vertical video or 8K photo from Pexels API
+    const pexelsMedia = await fetchUniquePexelsMedia({
+      topic: content.topic,
+      realm: content.themeCategory,
+      type: content.type,
+      orientation: 'portrait', // 16:9 portrait (9:16 vertical for Reels)
+      customQuery: content.creativeBrief,
+    });
+
+    // 2. Fetch matching royalty-free background audio from Freesound API
+    const freesoundAudio = await fetchMatchingFreesoundAudio({
+      topic: content.topic,
+      realm: content.themeCategory,
+      soundscape: content.soundscape,
+    });
+
+    // 3. Compose Reel with audio if video format
+    let finalAssetUrl = pexelsMedia.url;
+    if (isVideo && freesoundAudio?.audioUrl) {
+      try {
+        finalAssetUrl = await composeReelWithAudio({
+          videoUrl: pexelsMedia.url,
+          audioUrl: freesoundAudio.audioUrl,
+        });
+      } catch (composeErr) {
+        console.warn('[Instagram Agent] Reel composition notice:', composeErr.message);
+      }
     }
-    
-    content.assetUrl = mediaResult.url;
-    content.assetSource = 'gemini_browser_automated';
+
+    // 4. Save media and audio attributes
+    content.assetUrl = finalAssetUrl;
+    content.assetSource = isVideo ? 'pexels_hd_video' : 'pexels_hd_photo';
+    content.pexelsId = pexelsMedia.pexelsId;
+    content.pexelsPhotographer = pexelsMedia.photographer;
+    content.pexelsPhotographerUrl = pexelsMedia.photographerUrl;
+    content.freesoundId = freesoundAudio.freesoundId;
+    content.freesoundTitle = freesoundAudio.title;
+    content.freesoundAuthor = freesoundAudio.author;
+    content.audioUrl = freesoundAudio.audioUrl;
+    content.audioDuration = freesoundAudio.duration;
+    content.trendingAudioSuggestion = `🎵 Soundscape: "${freesoundAudio.title}" by ${freesoundAudio.author}`;
     content.mediaGenerationStatus = 'ready';
     content.status = 'ready';
     if (!content.scheduledFor) content.scheduledFor = new Date();
@@ -364,8 +392,8 @@ export async function generateMediaForContent(content) {
 
     await logInstagramActivity(
       'media_generated',
-      `Generated media with Google Gemini for ${content.type}: ${content.topic}`,
-      { contentId: String(content._id), url: content.assetUrl }
+      `Fetched HD 9:16 ${isVideo ? 'Video Reel' : 'Photo'} via Pexels API and matched background audio via Freesound API for ${content.type}: ${content.topic}`,
+      { contentId: String(content._id), url: content.assetUrl, audioUrl: content.audioUrl }
     );
     return content;
   } catch (error) {
@@ -411,14 +439,12 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
   let selectedTopic = topic || selectedTheme.title;
   let caption = selectedTheme.caption;
   let themeCategory = selectedTheme.realm || targetCategory;
-  let creativePrompt = isVideo
-    ? formatNatureVideoPrompt({ title: selectedTopic, realm: themeCategory, background: selectedTheme.description })
-    : formatNatureImagePrompt({ title: selectedTopic, realm: themeCategory, background: selectedTheme.description });
+  let creativePrompt = selectedTheme.description || selectedTopic;
   let hashtags = selectedTheme.hashtags;
   let reelScript = isVideo ? selectedTheme.reelScript : '';
   let soundscape = selectedTheme.soundscape || 'Ethereal Ambient Nature Soundscape';
 
-  // 4. Use Gemini Pro AI to dynamically generate brand new, unique Nature content
+  // 4. Use Gemini Pro AI (if API key available) to dynamically generate brand new, unique Nature content
   if (geminiKey) {
     try {
       const genAI = new GoogleGenerativeAI(geminiKey);
@@ -426,7 +452,7 @@ export async function generateContentDraft({ topic = '', type = 'reel', category
         ? `You are the executive director for a viral 4K Nature & Earth Cinematography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
-Format: "reel" (16:9 cinematic animated video with matching background music)
+Format: "reel" (16:9 vertical video with matching background music)
 Brand Voice: "Awe-inspiring, serene, calming, and deeply grounded in Earth's natural beauty"
 
 CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
@@ -443,13 +469,13 @@ Return strict JSON with this exact schema:
   "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, calming Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, cinematography hashtags"],
-  "imagePrompt": "create video on <concise topic>",
+  "imagePrompt": "nature scene search keywords",
   "reelScript": "Scene 1 (0-3s Hook): <visual & audio>\\nScene 2 (4-7s Wonder): <visual & audio>\\nScene 3 (8-10s Peace CTA): <visual & audio>\\nAudio Direction: <exact soundscape>"
 }`
         : `You are the creative director for a viral 8K Nature & Landscape Photography Instagram page.
 Category / Realm: "${themeCategory}" (e.g. Celestial & Aurora, Mystic Waters, Ancient Forests, Blooming Wilds, Majestic Peaks, Frozen Wonders)
 Topic Request: "${topic || selectedTopic}"
-Format: "post" (16:9 photorealistic 8K nature image with matching nature soundscape)
+Format: "post" (16:9 vertical 8K nature image with matching nature soundscape)
 Brand Voice: "Breathtaking, serene, crystal-clear, and deeply grounded in Earth's natural beauty"
 
 CRITICAL REQUIREMENT: The topic and visual scene MUST be completely unique and NEVER duplicate any of these recently used scenes:
@@ -465,7 +491,7 @@ Return strict JSON with this exact schema:
   "soundscape": "Detailed descriptive acoustic background music & sound design based on the visual scene (e.g. gentle rain dripping from monstera leaves, soothing bamboo flute, resonant cello chords, calm alpine breeze)",
   "caption": "Viral, inspiring Instagram caption about this nature marvel with (1) Inspiring nature insight, (2) Deep breathing / mindful reset prompt, (3) Question CTA encouraging saves & comments",
   "hashtags": ["12-15 viral nature, travel, photography hashtags"],
-  "imagePrompt": "create image on <concise topic>"
+  "imagePrompt": "nature photo search keywords"
 }`;
 
       let parsed = null;
@@ -489,7 +515,7 @@ Return strict JSON with this exact schema:
       if (parsed?.themeCategory) themeCategory = parsed.themeCategory;
       if (parsed?.soundscape) soundscape = parsed.soundscape;
     } catch (geminiError) {
-      console.warn('Gemini dynamic draft generation notice:', geminiError.message);
+      console.warn('AI dynamic draft generation notice:', geminiError.message);
     }
   }
 
@@ -507,7 +533,7 @@ Return strict JSON with this exact schema:
     creativeBrief: creativePrompt,
     reelScript: reelScript,
     soundscape: soundscape,
-    trendingAudioSuggestion: soundscape ? `🎵 Soundscape: "${soundscape}"` : `🎵 Gemini Curated Soundscape for ${selectedTopic}`,
+    trendingAudioSuggestion: soundscape ? `🎵 Soundscape: "${soundscape}"` : `🎵 Freesound Curated Audio for ${selectedTopic}`,
     createdBy: 'agent',
     mediaGenerationStatus: 'not_requested',
   });
