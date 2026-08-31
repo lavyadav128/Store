@@ -56,6 +56,41 @@ export async function getPexelsApiKey() {
   return null;
 }
 
+// Select the optimal 9:16 vertical video file for Instagram Reels & Cloudinary (< 90MB)
+export function selectBestReelVideoFile(videoFiles = []) {
+  const mp4Files = (videoFiles || []).filter((f) => f.file_type === "video/mp4" && f.link);
+  if (mp4Files.length === 0) return null;
+
+  // 1. Filter for portrait (vertical) videos: height >= width
+  const portraitFiles = mp4Files.filter((f) => (f.height || 0) >= (f.width || 0));
+  const candidates = portraitFiles.length > 0 ? portraitFiles : mp4Files;
+
+  // 2. Prioritize standard Full HD (1080x1920) and 720p (720x1280)
+  // Exclude raw 4K UHD (height > 1920 or width > 1080) which exceed Cloudinary's 100MB free-tier limit
+  const optimalHdFiles = candidates.filter(
+    (f) => (f.height || 0) <= 1920 && (f.width || 0) <= 1080 && (f.width || 0) >= 540
+  );
+
+  if (optimalHdFiles.length > 0) {
+    // Sort descending (prefer 1080p, then 720p)
+    optimalHdFiles.sort((a, b) => {
+      const aRes = (a.width || 0) * (a.height || 0);
+      const bRes = (b.width || 0) * (b.height || 0);
+      return bRes - aRes;
+    });
+    return optimalHdFiles[0];
+  }
+
+  // 3. If only large or small files exist, pick the file closest to 1080x1920 under 100MB
+  candidates.sort((a, b) => {
+    const aDiff = Math.abs((a.width || 0) - 1080) + Math.abs((a.height || 0) - 1920);
+    const bDiff = Math.abs((b.width || 0) - 1080) + Math.abs((b.height || 0) - 1920);
+    return aDiff - bDiff;
+  });
+
+  return candidates[0];
+}
+
 /**
  * Fetch unique HD 9:16 Vertical Video or 8K Photo from Pexels API and upload to Cloudinary
  */
@@ -69,7 +104,7 @@ export async function fetchUniquePexelsMedia({
   const apiKey = await getPexelsApiKey();
   if (!apiKey) {
     throw new Error(
-      "Pexels API key is not configured. Please add PEXELS_API_KEY to your environment or Dashboard settings."
+      "Pexels API key is not configured. Please add PEXELS_API_KEY to your environment variables."
     );
   }
 
@@ -122,31 +157,17 @@ export async function fetchUniquePexelsMedia({
         const picked = candidates[Math.floor(Math.random() * candidates.length)];
 
         if (isVideo) {
-          // Select best vertical HD video file (1080p or highest resolution)
-          const videoFiles = (picked.video_files || []).filter(
-            (f) => f.file_type === "video/mp4" && f.link
-          );
-
-          // Sort by resolution descending, prioritizing portrait height
-          videoFiles.sort((a, b) => {
-            const aRes = (a.width || 0) * (a.height || 0);
-            const bRes = (b.width || 0) * (b.height || 0);
-            return bRes - aRes;
-          });
-
-          // Prefer 1080x1920 or vertical HD
-          const portraitFile = videoFiles.find((f) => (f.height || 0) >= (f.width || 0)) || videoFiles[0];
-
-          if (portraitFile?.link) {
+          const bestFile = selectBestReelVideoFile(picked.video_files);
+          if (bestFile?.link) {
             selectedItem = picked;
-            selectedFileUrl = portraitFile.link;
-            bestWidth = portraitFile.width || 1080;
-            bestHeight = portraitFile.height || 1920;
+            selectedFileUrl = bestFile.link;
+            bestWidth = bestFile.width || 1080;
+            bestHeight = bestFile.height || 1920;
             break;
           }
         } else {
-          // Select best HD photo
-          const photoUrl = picked.src?.large2x || picked.src?.original || picked.src?.large;
+          // Select optimized high-res photo (<10MB)
+          const photoUrl = picked.src?.large2x || picked.src?.large || picked.src?.original;
           if (photoUrl) {
             selectedItem = picked;
             selectedFileUrl = photoUrl;
@@ -177,13 +198,12 @@ export async function fetchUniquePexelsMedia({
       if (items.length > 0) {
         selectedItem = items[0];
         if (isVideo) {
-          const files = (selectedItem.video_files || []).filter((f) => f.file_type === "video/mp4" && f.link);
-          const best = files.find((f) => (f.height || 0) >= (f.width || 0)) || files[0];
-          selectedFileUrl = best?.link;
-          bestWidth = best?.width || 1080;
-          bestHeight = best?.height || 1920;
+          const bestFile = selectBestReelVideoFile(selectedItem.video_files);
+          selectedFileUrl = bestFile?.link;
+          bestWidth = bestFile?.width || 1080;
+          bestHeight = bestFile?.height || 1920;
         } else {
-          selectedFileUrl = selectedItem.src?.large2x || selectedItem.src?.original;
+          selectedFileUrl = selectedItem.src?.large2x || selectedItem.src?.large || selectedItem.src?.original;
           bestWidth = selectedItem.width || 1080;
           bestHeight = selectedItem.height || 1920;
         }
@@ -197,14 +217,39 @@ export async function fetchUniquePexelsMedia({
     );
   }
 
-  console.log(`[Pexels Media] Found 1080p/4K Pexels ${isVideo ? "Video" : "Photo"} (ID: ${selectedItem.id}) by ${selectedItem.user?.name || selectedItem.photographer || "Pexels Creator"}. Uploading to Cloudinary...`);
+  console.log(`[Pexels Media] Found 1080p HD Pexels ${isVideo ? "Video" : "Photo"} (ID: ${selectedItem.id}, ${bestWidth}x${bestHeight}) by ${selectedItem.user?.name || selectedItem.photographer || "Pexels Creator"}. Uploading to Cloudinary...`);
 
-  // 2. Upload to Cloudinary to get a permanent, optimized CDN URL for Instagram Reels / Graph API
-  const cloudinaryUpload = await cloudinary.uploader.upload(selectedFileUrl, {
-    folder: "instagram-agent",
-    resource_type: isVideo ? "video" : "image",
-    overwrite: true,
-  });
+  // 2. Upload to Cloudinary to get a permanent, optimized CDN URL for Instagram Reels
+  let cloudinaryUpload;
+  try {
+    cloudinaryUpload = await cloudinary.uploader.upload(selectedFileUrl, {
+      folder: "instagram-agent",
+      resource_type: isVideo ? "video" : "image",
+      overwrite: true,
+    });
+  } catch (uploadErr) {
+    // If upload fails (e.g. file size over 100MB), fallback to SD/smaller version of the same video
+    if (isVideo && selectedItem.video_files && selectedItem.video_files.length > 1) {
+      console.warn(`[Pexels Media] Cloudinary primary upload notice (${uploadErr.message}). Retrying with optimized SD file...`);
+      const sdFile = (selectedItem.video_files || []).find(
+        (f) => f.quality === "sd" || ((f.width || 0) <= 720 && (f.file_type === "video/mp4"))
+      );
+      if (sdFile?.link) {
+        cloudinaryUpload = await cloudinary.uploader.upload(sdFile.link, {
+          folder: "instagram-agent",
+          resource_type: "video",
+          overwrite: true,
+        });
+        selectedFileUrl = sdFile.link;
+        bestWidth = sdFile.width || 720;
+        bestHeight = sdFile.height || 1280;
+      } else {
+        throw uploadErr;
+      }
+    } else {
+      throw uploadErr;
+    }
+  }
 
   console.log(`[Pexels Media] Successfully uploaded to Cloudinary: ${cloudinaryUpload.secure_url}`);
 
