@@ -263,12 +263,14 @@ export default function InstagramGrowthAgent() {
     setUploadingReel(true);
     let successCount = 0;
     let firstUploadedId = null;
+    const uploadedIds = [];
+    const uploadErrors = [];
 
-    try {
-      for (let i = 0; i < uploadFiles.length; i++) {
-        const item = uploadFiles[i];
-        setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
+    for (let i = 0; i < uploadFiles.length; i++) {
+      const item = uploadFiles[i];
+      setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
 
+      try {
         const formData = new FormData();
         formData.append("video", item.file);
         formData.append("category", item.realm || globalRealm);
@@ -296,18 +298,31 @@ export default function InstagramGrowthAgent() {
         if (!res.ok) throw new Error(parsed.error || `Failed to upload video ${i + 1}`);
 
         if (i === 0 && parsed?._id) firstUploadedId = parsed._id;
+        uploadedIds.push(item.id);
         successCount++;
+      } catch (err) {
+        console.error(`[Upload Failed for "${item.topic}"]:`, err.message);
+        uploadErrors.push(`"${item.topic}": ${err.message}`);
       }
+    }
 
+    try {
       if (publishFirstImmediately && firstUploadedId) {
         setUploadProgressText("Publishing 1st reel immediately to Instagram...");
         await request(`/content/${firstUploadedId}/publish`, "POST");
         notify(`🎉 1st Reel published to Instagram & ${successCount - 1} reels queued for upcoming days!`, "success");
-      } else {
-        notify(`✅ Successfully queued ${successCount} daily video reel(s)! (Strict 1 post per day schedule).`, "success");
+      } else if (successCount > 0) {
+        if (uploadErrors.length === 0) {
+          notify(`✅ Successfully queued all ${successCount} daily video reel(s)! (Strict 1 post per day schedule).`, "success");
+        } else {
+          notify(`⚠️ Queued ${successCount} video(s). ${uploadErrors.length} video(s) failed (retained in staging).`, "warning");
+        }
+      } else if (uploadErrors.length > 0) {
+        notify(`Upload failed: ${uploadErrors[0]}`, "error");
       }
 
-      handleClearAllStaged();
+      // Remove successfully uploaded items from staging list
+      setUploadFiles((prev) => prev.filter((f) => !uploadedIds.includes(f.id)));
       await load();
     } catch (err) {
       notify(err.message, "error");
@@ -646,13 +661,13 @@ export default function InstagramGrowthAgent() {
               minHeight: 52,
             }}
           >
-            Select Videos (.mp4, .mov)
+            {uploadFiles.length > 0 ? "📁 Add More Videos" : "Select Videos (.mp4, .mov)"}
           </Button>
           <input
             type="file"
             ref={fileInputRef}
             onChange={handleMultipleVideoSelect}
-            accept="video/*,.mp4,.mov,.webm"
+            accept="video/*"
             multiple
             style={{ display: "none" }}
           />
@@ -660,13 +675,23 @@ export default function InstagramGrowthAgent() {
 
         {uploadFiles.length > 0 && (
           <Box sx={{ mb: 2.5, p: 2, bgcolor: "#fafafa", borderRadius: "12px", border: "1px solid #e4e4e7" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
               <Typography sx={{ fontWeight: 800, fontSize: 13, color: "#09090b" }}>
-                Staged Videos for Daily Queue ({uploadFiles.length} videos selected)
+                Staged Videos for Daily Queue ({uploadFiles.length} videos staged)
               </Typography>
-              <Button size="small" onClick={handleClearAllStaged} sx={{ color: "#ef4444", textTransform: "none", fontSize: 11, fontWeight: 700 }}>
-                Clear All
-              </Button>
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Button
+                  size="small"
+                  onClick={() => fileInputRef.current?.click()}
+                  startIcon={<CloudUploadIcon fontSize="small" />}
+                  sx={{ color: "#09090b", textTransform: "none", fontSize: 11, fontWeight: 700 }}
+                >
+                  + Add More Videos
+                </Button>
+                <Button size="small" onClick={handleClearAllStaged} sx={{ color: "#ef4444", textTransform: "none", fontSize: 11, fontWeight: 700 }}>
+                  Clear All
+                </Button>
+              </Box>
             </Box>
 
             <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>

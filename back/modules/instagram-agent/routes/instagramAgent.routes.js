@@ -365,7 +365,7 @@ router.post("/content/generate", async (req, res) => {
   }
 });
 
-// Admin Direct Video Upload for 12-Series Instagram Reels
+// Admin Direct Video Upload for a Single 12-Series Instagram Reel
 router.post("/content/upload-reel", videoUpload.single("video"), async (req, res) => {
   try {
     const filePath = req.file?.path;
@@ -411,6 +411,63 @@ router.post("/content/upload-reel", videoUpload.single("video"), async (req, res
   } catch (error) {
     console.error("[Admin Upload Reel Route Error]:", error);
     res.status(400).json({ error: error.message });
+  }
+});
+
+// Admin Bulk Video Upload for Multiple 12-Series Instagram Reels in One Batch
+router.post("/content/upload-reels-bulk", videoUpload.array("videos", 30), async (req, res) => {
+  try {
+    const files = req.files || [];
+    if (!files.length) {
+      return res.status(400).json({ error: "No video files received in bulk upload." });
+    }
+
+    const defaultCategory = req.body.category || "🌅 Nature's Morning";
+    const defaultAspectRatio = req.body.aspectRatio || "9:16";
+    let metadataList = [];
+    if (req.body.metadata) {
+      try {
+        metadataList = typeof req.body.metadata === "string" ? JSON.parse(req.body.metadata) : req.body.metadata;
+      } catch (_) {}
+    }
+
+    const createdReels = [];
+    const errors = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const meta = metadataList[i] || {};
+      const category = meta.category || defaultCategory;
+      const topic = meta.topic || file.originalname.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+      const customCaption = meta.caption || "";
+      const aspectRatio = meta.aspectRatio || defaultAspectRatio;
+
+      try {
+        const reel = await createAdminUploadedReel({
+          filePath: file.path,
+          fileBuffer: file.buffer,
+          category,
+          topic,
+          customCaption,
+          aspectRatio,
+        });
+        createdReels.push(reel);
+      } catch (err) {
+        console.error(`[Bulk Upload Error on file ${i + 1} (${file.originalname})]:`, err.message);
+        errors.push({ file: file.originalname, error: err.message });
+      }
+    }
+
+    return res.status(201).json({
+      success: true,
+      totalReceived: files.length,
+      uploadedCount: createdReels.length,
+      reels: createdReels,
+      errors: errors.length ? errors : undefined,
+    });
+  } catch (error) {
+    console.error("[Admin Bulk Upload Route Error]:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
