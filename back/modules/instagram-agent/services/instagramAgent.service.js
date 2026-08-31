@@ -794,45 +794,11 @@ export async function createAdminUploadedReel({
   const selectedTheme = getUniqueNatureTheme(new Set(), category);
   const selectedTopic = topic || selectedTheme.title || `${category} Reel`;
 
-  let caption = customCaption || selectedTheme.caption || `🌿 ${category}: ${selectedTopic}\n\nExperience the calm and wonder of Earth's greatest marvels. Take a deep breath and reset.\n\n📌 Save this reel for daily peace!`;
+  let caption = customCaption || selectedTheme.caption || `🌿 ${category}: ${selectedTopic}\n\nExperience the calm and wonder of Earth's greatest marvels. Take a deep breath and reset.\n\n📌 Save this reel for daily peace!\n💬 Share your thoughts below! 👇`;
   let hashtags = (Array.isArray(customHashtags) && customHashtags.length > 0)
     ? customHashtags
-    : (selectedTheme.hashtags || ['#naturelovers', '#reelsinstagram', '#earthfocus', '#peacefulnature', '#8knature']);
+    : (selectedTheme.hashtags || ['#naturelovers', '#reelsinstagram', '#earthfocus', '#peacefulnature', '#8knature', '#cinematicnature', '#naturegram']);
   let soundscape = selectedTheme.soundscape || 'Matching Ambient Nature Soundscape';
-
-  const config = await getInstagramConfig();
-  const geminiKey = config.geminiApiKey || process.env.GEMINI_API_KEY;
-
-  if (geminiKey && !customCaption) {
-    try {
-      const genAI = new GoogleGenerativeAI(geminiKey);
-      const model = genAI.getGenerativeModel({
-        model: 'gemini-1.5-flash',
-        generationConfig: { responseMimeType: 'application/json' },
-      });
-      const prompt = `You are the lead content creator for an Instagram Reels page specializing in 4K Nature & Serenity.
-Admin has provided a high-definition Reel video in ${aspectRatio === "9:16" ? "9:16 Vertical Portrait" : "16:9 Landscape"} format.
-Selected 12-Series Realm: "${category}"
-Topic/Title: "${selectedTopic}"
-
-Generate:
-1. "caption": An engaging, viral, serene Instagram Reels caption with (1) Inspiring hook, (2) Mindful breath reset, (3) Question CTA for comments.
-2. "hashtags": An array of 12-15 high-reach hashtags for this specific realm.
-3. "soundscape": Recommended audio direction.
-
-Return strict JSON:
-{
-  "caption": "caption text",
-  "hashtags": ["#tag1", "#tag2", ...],
-  "soundscape": "soundscape description"
-}`;
-      const res = await model.generateContent(prompt);
-      const parsed = JSON.parse(res.response.text());
-      if (parsed.caption) caption = parsed.caption;
-      if (Array.isArray(parsed.hashtags) && parsed.hashtags.length > 0) hashtags = parsed.hashtags;
-      if (parsed.soundscape) soundscape = parsed.soundscape;
-    } catch (_) {}
-  }
 
   // Calculate sequential daily queue date
   const scheduledDate = await getNextAvailableScheduleDate();
