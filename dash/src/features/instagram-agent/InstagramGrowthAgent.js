@@ -102,6 +102,7 @@ export default function InstagramGrowthAgent() {
 
   const [uploadFiles, setUploadFiles] = useState([]);
   const [globalRealm, setGlobalRealm] = useState("🌅 Nature's Morning");
+  const [globalAspectRatio, setGlobalAspectRatio] = useState("9:16");
   const [uploadingReel, setUploadingReel] = useState(false);
   const [uploadProgressText, setUploadProgressText] = useState("");
   const fileInputRef = useRef(null);
@@ -168,6 +169,7 @@ export default function InstagramGrowthAgent() {
         size: (file.size / (1024 * 1024)).toFixed(2),
         previewUrl: URL.createObjectURL(file),
         realm: globalRealm,
+        aspectRatio: globalAspectRatio,
         topic: cleanName,
         caption: "",
       };
@@ -212,13 +214,14 @@ export default function InstagramGrowthAgent() {
     try {
       for (let i = 0; i < uploadFiles.length; i++) {
         const item = uploadFiles[i];
-        setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}"...`);
+        setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
 
         const formData = new FormData();
         formData.append("video", item.file);
         formData.append("category", item.realm || globalRealm);
         formData.append("topic", item.topic);
         formData.append("caption", item.caption);
+        formData.append("aspectRatio", item.aspectRatio || globalAspectRatio);
 
         const token = localStorage.getItem("token") || "";
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
@@ -542,11 +545,11 @@ export default function InstagramGrowthAgent() {
           Upload multiple videos at once. The agent will queue them sequentially (Day 1, Day 2, Day 3...), automatically generating viral captions, tags, and soundscapes. The agent posts <strong>strictly ONE Reel per day</strong> and cleans up Cloudinary storage automatically after publishing.
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.5fr 1fr" }, gap: 2, mb: 2 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr 1fr" }, gap: 2, mb: 2 }}>
           <FormControl sx={field} fullWidth>
-            <InputLabel>Default Series for Uploaded Videos ⭐</InputLabel>
+            <InputLabel>Default 12-Series Realm ⭐</InputLabel>
             <Select
-              label="Default Series for Uploaded Videos ⭐"
+              label="Default 12-Series Realm ⭐"
               value={globalRealm}
               onChange={(e) => setGlobalRealm(e.target.value)}
             >
@@ -558,6 +561,20 @@ export default function InstagramGrowthAgent() {
             </Select>
           </FormControl>
 
+          {/* Aspect Ratio Format Selector */}
+          <FormControl sx={field} fullWidth>
+            <InputLabel>Reel Format / Aspect Ratio 📐</InputLabel>
+            <Select
+              label="Reel Format / Aspect Ratio 📐"
+              value={globalAspectRatio}
+              onChange={(e) => setGlobalAspectRatio(e.target.value)}
+            >
+              <MenuItem value="9:16">📱 9:16 Vertical Reel (Instagram Standard)</MenuItem>
+              <MenuItem value="16:9">🖥️ 16:9 Landscape / Widescreen</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Multiple File Dropzone Button */}
           <Button
             variant="outlined"
             onClick={() => fileInputRef.current?.click()}
@@ -574,7 +591,7 @@ export default function InstagramGrowthAgent() {
               minHeight: 52,
             }}
           >
-            Select Multiple Video Reels (.mp4, .mov)
+            Select Videos (.mp4, .mov)
           </Button>
           <input
             type="file"
@@ -603,7 +620,7 @@ export default function InstagramGrowthAgent() {
                   key={item.id}
                   sx={{
                     display: "grid",
-                    gridTemplateColumns: { xs: "1fr", sm: "60px 1.5fr 1fr auto" },
+                    gridTemplateColumns: { xs: "1fr", sm: "60px 1.4fr 1fr 110px auto" },
                     gap: 1.5,
                     alignItems: "center",
                     p: 1.2,
@@ -631,6 +648,15 @@ export default function InstagramGrowthAgent() {
                           {r.title}
                         </MenuItem>
                       ))}
+                    </Select>
+                  </FormControl>
+                  <FormControl size="small" sx={field} fullWidth>
+                    <Select
+                      value={item.aspectRatio || "9:16"}
+                      onChange={(e) => updateStagedItem(item.id, "aspectRatio", e.target.value)}
+                    >
+                      <MenuItem value="9:16">📱 9:16</MenuItem>
+                      <MenuItem value="16:9">🖥️ 16:9</MenuItem>
                     </Select>
                   </FormControl>
                   <IconButton size="small" onClick={() => handleRemoveStagedFile(item.id)} sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}>
@@ -705,6 +731,8 @@ export default function InstagramGrowthAgent() {
         ) : (
           queuedItems.map((item, idx) => {
             const scheduledDateStr = item.scheduledFor ? new Date(item.scheduledFor).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : `Day +${idx + 1}`;
+            const isVerticalReel = item.aspectRatio === "9:16" || !item.aspectRatio;
+
             return (
               <Box
                 key={item._id}
@@ -713,21 +741,25 @@ export default function InstagramGrowthAgent() {
                   pt: 2.5,
                   mt: 2.5,
                   display: "grid",
-                  gridTemplateColumns: { xs: "1fr", md: "280px 1fr" },
+                  gridTemplateColumns: { xs: "1fr", md: isVerticalReel ? "200px 1fr" : "280px 1fr" },
                   gap: 2.5,
+                  alignItems: "start",
                 }}
               >
                 <Box
                   onClick={() => openCinemaModal(item)}
                   sx={{
                     width: "100%",
-                    aspectRatio: "16 / 9",
+                    maxWidth: isVerticalReel ? 180 : "100%",
+                    aspectRatio: isVerticalReel ? "9 / 16" : "16 / 9",
+                    maxHeight: isVerticalReel ? 260 : 180,
                     borderRadius: "10px",
                     overflow: "hidden",
                     bgcolor: "#000000",
                     position: "relative",
                     cursor: "pointer",
                     border: "1px solid #27272a",
+                    margin: "0 auto",
                   }}
                 >
                   <video
@@ -736,15 +768,19 @@ export default function InstagramGrowthAgent() {
                     playsInline
                     preload="metadata"
                   />
-                  <Box sx={{ position: "absolute", top: 8, left: 8 }}>
-                    <Chip label={`🗓️ ${scheduledDateStr}`} size="small" sx={{ bgcolor: "rgba(0,0,0,0.8)", color: "#ffffff", fontWeight: 700, fontSize: 10 }} />
+                  <Box sx={{ position: "absolute", top: 8, left: 8, display: "flex", flexDirection: "column", gap: 0.5 }}>
+                    <Chip label={`🗓️ ${scheduledDateStr}`} size="small" sx={{ bgcolor: "rgba(0,0,0,0.8)", color: "#ffffff", fontWeight: 700, fontSize: 9.5 }} />
+                    <Chip label={isVerticalReel ? "📱 9:16" : "🖥️ 16:9"} size="small" sx={{ bgcolor: "rgba(0,0,0,0.8)", color: "#ffffff", fontWeight: 700, fontSize: 9.5 }} />
                   </Box>
                 </Box>
 
                 <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
                   <Box>
                     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
-                      <Chip label={item.themeCategory || "🌅 Nature's Morning"} size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
+                      <Box sx={{ display: "flex", gap: 0.8, alignItems: "center" }}>
+                        <Chip label={item.themeCategory || "🌅 Nature's Morning"} size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
+                        <Chip label={isVerticalReel ? "📱 9:16 Vertical Reel" : "🖥️ 16:9 Landscape"} size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10 }} />
+                      </Box>
                       <Typography sx={{ fontSize: 11, color: "#71717a" }}>
                         Scheduled for: {config.dailyPostTime || "07:00"} IST ({scheduledDateStr})
                       </Typography>
@@ -970,10 +1006,25 @@ export default function InstagramGrowthAgent() {
         </DialogTitle>
         <DialogContent sx={{ p: 2.5 }}>
           {cinemaItem?.assetUrl && (
-            <Box sx={{ width: "100%", maxHeight: 420, borderRadius: "10px", overflow: "hidden", bgcolor: "#000000", display: "flex", justifyContent: "center" }}>
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: cinemaItem?.aspectRatio === "16:9" ? "100%" : "340px",
+                maxHeight: cinemaItem?.aspectRatio === "16:9" ? 420 : 540,
+                aspectRatio: cinemaItem?.aspectRatio === "16:9" ? "16 / 9" : "9 / 16",
+                borderRadius: "12px",
+                overflow: "hidden",
+                bgcolor: "#000000",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                margin: "0 auto",
+                border: "1px solid #27272a",
+              }}
+            >
               <video
                 src={cinemaItem.assetUrl}
-                style={{ width: "100%", maxHeight: 420, objectFit: "contain" }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
                 controls
                 autoPlay
                 loop
@@ -981,7 +1032,19 @@ export default function InstagramGrowthAgent() {
               />
             </Box>
           )}
-          <Typography sx={{ mt: 2, fontSize: 13, color: "#d4d4d8", whiteSpace: "pre-wrap" }}>
+          <Box sx={{ mt: 2, display: "flex", gap: 1, alignItems: "center" }}>
+            <Chip
+              label={cinemaItem?.aspectRatio === "16:9" ? "🖥️ 16:9 Landscape" : "📱 9:16 Vertical Reel"}
+              size="small"
+              sx={{ bgcolor: "#27272a", color: "#ffffff", fontWeight: 700, fontSize: 10 }}
+            />
+            <Chip
+              label={cinemaItem?.themeCategory || "Nature Series"}
+              size="small"
+              sx={{ bgcolor: "#27272a", color: "#ffffff", fontWeight: 700, fontSize: 10 }}
+            />
+          </Box>
+          <Typography sx={{ mt: 1.5, fontSize: 13, color: "#d4d4d8", whiteSpace: "pre-wrap" }}>
             {cinemaItem?.caption}
           </Typography>
         </DialogContent>

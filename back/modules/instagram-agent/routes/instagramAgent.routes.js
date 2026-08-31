@@ -375,6 +375,7 @@ router.post("/content/upload-reel", videoUpload.single("video"), async (req, res
     const category = req.body.category || "🌅 Nature's Morning";
     const topic = req.body.topic || "";
     const customCaption = req.body.caption || "";
+    const aspectRatio = req.body.aspectRatio || "9:16";
 
     let customHashtags = [];
     if (req.body.hashtags) {
@@ -404,6 +405,7 @@ router.post("/content/upload-reel", videoUpload.single("video"), async (req, res
       topic,
       customCaption,
       customHashtags,
+      aspectRatio,
     });
 
     res.status(201).json(reelDraft);

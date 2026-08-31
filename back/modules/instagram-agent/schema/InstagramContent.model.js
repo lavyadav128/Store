@@ -19,7 +19,8 @@ const instagramContentSchema = new mongoose.Schema({
   caption: { type: String, required: true },
   hashtags: { type: [String], default: [] },
   creativeBrief: { type: String, default: "" },
-  reelScript: { type: String, default: "" },
+  // Aspect ratio format (9:16 vertical reels or 16:9 landscape)
+  aspectRatio: { type: String, enum: ["16:9", "9:16", "1:1"], default: "9:16" },
   // Meta needs a publicly retrievable image/video URL.
   assetUrl: { type: String, default: "" },
   assetSource: {

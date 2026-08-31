@@ -763,6 +763,7 @@ export async function createAdminUploadedReel({
   topic = "",
   customCaption = "",
   customHashtags = [],
+  aspectRatio = "9:16",
 }) {
   let assetUrl = fileUrl;
 
@@ -807,7 +808,7 @@ export async function createAdminUploadedReel({
         generationConfig: { responseMimeType: 'application/json' },
       });
       const prompt = `You are the lead content creator for an Instagram Reels page specializing in 4K Nature & Serenity.
-Admin has provided a high-definition Reel video.
+Admin has provided a high-definition Reel video in ${aspectRatio === "9:16" ? "9:16 Vertical Portrait" : "16:9 Landscape"} format.
 Selected 12-Series Realm: "${category}"
 Topic/Title: "${selectedTopic}"
 
@@ -841,7 +842,8 @@ Return strict JSON:
     themeCategory: category,
     caption: caption,
     hashtags: hashtags,
-    creativeBrief: `Admin uploaded reel for ${category}`,
+    creativeBrief: `Admin uploaded ${aspectRatio} reel for ${category}`,
+    aspectRatio: aspectRatio || "9:16",
     assetUrl: assetUrl,
     assetSource: 'admin',
     soundscape: soundscape,
@@ -854,10 +856,11 @@ Return strict JSON:
 
   await logInstagramActivity(
     'admin_reel_created',
-    `Admin queued video reel for [${category}]: "${selectedTopic}" (Scheduled for ${scheduledDate.toLocaleDateString()})`,
+    `Admin queued ${aspectRatio} video reel for [${category}]: "${selectedTopic}" (Scheduled for ${scheduledDate.toLocaleDateString()})`,
     {
       contentId: String(content._id),
       category,
+      aspectRatio,
       assetUrl,
       scheduledFor: scheduledDate,
     }
