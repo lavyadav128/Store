@@ -168,7 +168,7 @@ router.get("/overview", async (_req, res) => {
 
 import { NATURE_THEMES } from "../services/natureThemes.js";
 import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
-import { analyzeAudiencePreferences } from "../services/growthOptimizer.js";
+import { analyzeAudiencePreferences, getChannelGrowthAnalysis } from "../services/growthOptimizer.js";
 
 // Real-Time Live Followers Endpoint (fast polling)
 router.get("/live-followers", async (_req, res) => {
@@ -188,6 +188,20 @@ router.get("/live-followers", async (_req, res) => {
       error: err.message,
       updatedAt: new Date().toISOString(),
     });
+  }
+});
+
+// Comprehensive Channel Growth & Health Analyzer
+router.get("/analytics/growth", async (_req, res) => {
+  try {
+    let account = null;
+    try {
+      account = await getAccountSnapshot();
+    } catch (_) {}
+    const analysis = await getChannelGrowthAnalysis(account);
+    return res.json(analysis);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
   }
 });
 

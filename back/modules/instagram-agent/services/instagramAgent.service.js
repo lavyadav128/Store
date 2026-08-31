@@ -630,11 +630,29 @@ export async function publishContent(content) {
     content.instagramMediaId = published.id || '';
     content.publishedAt = new Date();
     content.error = '';
+
+    // ── POST-PUBLISH STORAGE CLEANUP ──
+    // Delete the heavy video file from Cloudinary and clear assetUrl from active queue
+    // (The reel stays live on Instagram Reels permanently)
+    if (content.assetUrl && content.assetUrl.includes('res.cloudinary.com')) {
+      const publicId = getCloudinaryPublicId(content.assetUrl);
+      if (publicId) {
+        console.log(`[Cloudinary Cleanup] Deleting published video from Cloudinary (${publicId})...`);
+        try {
+          await cloudinary.uploader.destroy(publicId, { resource_type: isVideoAsset ? 'video' : 'image' });
+          console.log(`[Cloudinary Cleanup] Video ${publicId} successfully deleted from Cloudinary.`);
+        } catch (delErr) {
+          console.warn(`[Cloudinary Cleanup] Notice: could not destroy ${publicId}:`, delErr.message);
+        }
+      }
+    }
+
+    content.assetUrl = ''; // Cleared so it's removed from active queue while preserved in publish history
     await content.save();
-    await logInstagramActivity('content_published', `Published 16:9 ${isVideoAsset ? 'Reel' : 'Post'} directly from Gemini to Instagram: ${content.topic}`, {
+
+    await logInstagramActivity('content_published', `Published 16:9 ${isVideoAsset ? 'Reel' : 'Post'} to Instagram: ${content.topic}. Cleaned up Cloudinary storage.`, {
       contentId: String(content._id),
       mediaId: published.id || '',
-      url: content.assetUrl,
     });
     return content;
   } catch (error) {
@@ -648,6 +666,12 @@ export async function publishContent(content) {
   }
 }
 
+export function getCloudinaryPublicId(url) {
+  if (!url || typeof url !== 'string') return null;
+  const match = url.match(/\/upload\/(?:v\d+\/)?(.+?)(?:\.[a-zA-Z0-9]+)?$/);
+  return match ? match[1] : null;
+}
+
 export function verifyMetaSignature(rawBody, signature) {
   const secret = process.env.META_APP_SECRET;
   if (!secret || !signature) return false;
@@ -657,15 +681,75 @@ export function verifyMetaSignature(rawBody, signature) {
   return supplied.length === expectedBuffer.length && crypto.timingSafeEqual(supplied, expectedBuffer);
 }
 
+/**
+ * Publishes due content adhering strictly to 1-post-per-day rate limit
+ */
 export async function publishDueContent() {
   const config = await getInstagramConfig();
   if (!config.running || !accountConfigured()) return;
+
+  // STRICT 1 POST PER DAY RATE LIMIT
+  const now = new Date();
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+  const publishedToday = await InstagramContent.countDocuments({
+    status: 'published',
+    publishedAt: { $gte: startOfDay, $lte: endOfDay },
+  });
+
+  if (publishedToday >= 1) {
+    // Already published today! Strictly only 1 post per day allowed.
+    return;
+  }
+
   const due = await InstagramContent.findOne({
     status: { $in: ['ready', 'scheduled'] },
     assetUrl: { $ne: '' },
     scheduledFor: { $lte: new Date() },
-  }).sort({ scheduledFor: 1 });
+  }).sort({ scheduledFor: 1, createdAt: 1 });
+
   if (due) await publishContent(due);
+}
+
+/**
+ * Calculates the next available calendar date for sequentially queued videos
+ */
+export async function getNextAvailableScheduleDate() {
+  const config = await getInstagramConfig();
+  const [hourStr, minStr] = (config.dailyPostTime || "07:00").split(":");
+  const postHour = parseInt(hourStr, 10) || 7;
+  const postMin = parseInt(minStr, 10) || 0;
+
+  const now = new Date();
+  const todayPostTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), postHour, postMin, 0, 0);
+
+  const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+
+  const publishedToday = await InstagramContent.countDocuments({
+    status: "published",
+    publishedAt: { $gte: startOfDay, $lte: endOfDay },
+  });
+
+  // Find the latest scheduled post in queue
+  const latestScheduled = await InstagramContent.findOne({
+    status: { $in: ["ready", "scheduled"] },
+    assetUrl: { $ne: "" },
+  }).sort({ scheduledFor: -1 });
+
+  let nextDate = new Date(todayPostTime);
+
+  if (latestScheduled && latestScheduled.scheduledFor) {
+    const latestDate = new Date(latestScheduled.scheduledFor);
+    nextDate = new Date(latestDate.getTime() + 24 * 60 * 60 * 1000);
+    nextDate.setHours(postHour, postMin, 0, 0);
+  } else if (publishedToday >= 1 || now.getTime() > todayPostTime.getTime()) {
+    // If today's post already happened or time has passed, queue for tomorrow morning
+    nextDate = new Date(todayPostTime.getTime() + 24 * 60 * 60 * 1000);
+  }
+
+  return nextDate;
 }
 
 /**
@@ -746,6 +830,9 @@ Return strict JSON:
     } catch (_) {}
   }
 
+  // Calculate sequential daily queue date
+  const scheduledDate = await getNextAvailableScheduleDate();
+
   const content = await InstagramContent.create({
     type: 'reel',
     topic: selectedTopic,
@@ -761,17 +848,18 @@ Return strict JSON:
     trendingAudioSuggestion: `🎵 Soundscape: "${soundscape}"`,
     mediaGenerationStatus: 'ready',
     status: 'ready',
-    scheduledFor: new Date(),
+    scheduledFor: scheduledDate,
     createdBy: 'admin',
   });
 
   await logInstagramActivity(
     'admin_reel_created',
-    `Admin uploaded video reel for [${category}]: "${selectedTopic}"`,
+    `Admin queued video reel for [${category}]: "${selectedTopic}" (Scheduled for ${scheduledDate.toLocaleDateString()})`,
     {
       contentId: String(content._id),
       category,
       assetUrl,
+      scheduledFor: scheduledDate,
     }
   );
 

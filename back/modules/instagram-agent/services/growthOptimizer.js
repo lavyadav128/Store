@@ -2,16 +2,29 @@
 // ─────────────────────────────────────────────────────────────
 // Autonomous Audience Feedback & Growth Optimization Engine
 // Learns what content the audience likes most (views, likes, saves)
-// across Life, Career, Strength, Health & Discipline pillars,
-// and dynamically biases future content generation toward top performers.
+// across the 12 Nature & Earth Series, providing actionable analytics.
 // ─────────────────────────────────────────────────────────────
 
 import InstagramContent from "../schema/InstagramContent.model.js";
 import InstagramAgentConfig from "../schema/InstagramAgentConfig.model.js";
 
+export const NATURE_SERIES_CATEGORIES = [
+  "🌅 Nature's Morning",
+  "🌄 Sunset of the Day",
+  "🦌 Wildlife Moments",
+  "🌲 Hidden Forests",
+  "🌊 Ocean Diaries",
+  "🌧️ Rainy Nature",
+  "🌌 Nature at Night",
+  "🦋 Tiny Wonders",
+  "🏔️ Mountain Stories",
+  "🍂 Earth Through the Seasons",
+  "🐘 Wildlife Around the World",
+  "🌍 One Planet, Many Worlds",
+];
+
 /**
  * Calculates the audience performance score for a piece of content.
- * Formula: Likes (1x) + Comments (2.5x) + Saves (3x) / Reach (or Views)
  */
 export function computeEngagementScore(metrics = {}) {
   const likes = Number(metrics.likes || metrics.like_count || 0);
@@ -27,40 +40,31 @@ export function computeEngagementScore(metrics = {}) {
 }
 
 /**
- * Analyzes all published posts across categories to identify top-performing themes.
+ * Analyzes all published posts across 12 Nature Series to identify top-performing themes.
  */
 export async function analyzeAudiencePreferences() {
   const publishedPosts = await InstagramContent.find({
     status: "published",
-    publishedAt: { $ne: null },
   }).sort({ publishedAt: -1 }).limit(100);
-
-  const defaultCategories = [
-    "Career & Success",
-    "Strength & Resilience",
-    "Health & Vitality",
-    "Life & How to Live",
-    "Discipline & Habits",
-  ];
 
   if (!publishedPosts.length) {
     return {
-      topCategory: "Career & Success",
-      categoryBreakdown: defaultCategories.reduce((acc, cat) => {
+      topCategory: "🌅 Nature's Morning",
+      categoryBreakdown: NATURE_SERIES_CATEGORIES.reduce((acc, cat) => {
         acc[cat] = { count: 0, avgScore: 0, totalLikes: 0, totalComments: 0 };
         return acc;
       }, {}),
-      recommendation: "Focus on Career Ambition, Mental Strength & Daily Habits to jumpstart audience growth and viral reach.",
+      recommendation: "Maintain consistent 07:00 AM IST daily reel posting across 12 Nature realms to build algorithmic authority.",
     };
   }
 
   const categoryStats = {};
-  for (const cat of defaultCategories) {
+  for (const cat of NATURE_SERIES_CATEGORIES) {
     categoryStats[cat] = { count: 0, totalScore: 0, totalLikes: 0, totalComments: 0 };
   }
 
   for (const post of publishedPosts) {
-    const category = post.themeCategory || "Career & Success";
+    const category = post.themeCategory || "🌅 Nature's Morning";
     if (!categoryStats[category]) {
       categoryStats[category] = { count: 0, totalScore: 0, totalLikes: 0, totalComments: 0 };
     }
@@ -77,7 +81,7 @@ export async function analyzeAudiencePreferences() {
   }
 
   // Calculate average score per category
-  let topCategory = "Career & Success";
+  let topCategory = "🌅 Nature's Morning";
   let maxAvgScore = -1;
 
   for (const [cat, data] of Object.entries(categoryStats)) {
@@ -101,26 +105,65 @@ export async function analyzeAudiencePreferences() {
     { upsert: true }
   );
 
-  let aiRecommendation = `Your audience is engaging most with "${topCategory}". The agent will bias daily generation toward this category for maximum growth.`;
-
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (apiKey && publishedPosts.length >= 3) {
-    try {
-      const { GoogleGenerativeAI } = await import("@google/generative-ai");
-      const genAI = new GoogleGenerativeAI(apiKey);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-pro" });
-      const prompt = `Based on these Instagram analytics for a high-performance motivation, career & life wisdom page:
-${JSON.stringify(categoryStats, null, 2)}
-Top Performing Theme: "${topCategory}".
-Write 1-2 concise, high-impact growth optimization tips to increase saves, shares, and follower conversion.`;
-      const res = await model.generateContent(prompt);
-      aiRecommendation = res.response.text().trim();
-    } catch (_) {}
-  }
-
   return {
     topCategory,
     categoryBreakdown: categoryStats,
-    recommendation: aiRecommendation,
+    recommendation: `Audience engagement is highest on [${topCategory}]. Continue queuing daily vertical reels in this realm.`,
+  };
+}
+
+/**
+ * Comprehensive Channel Growth & Health Analyzer for the Admin Page
+ */
+export async function getChannelGrowthAnalysis(accountSnapshot = null) {
+  const publishedCount = await InstagramContent.countDocuments({ status: "published" });
+  const queuedCount = await InstagramContent.countDocuments({
+    status: { $in: ["ready", "scheduled"] },
+    assetUrl: { $ne: "" },
+  });
+
+  const recentPosts = await InstagramContent.find({
+    status: "published",
+  }).sort({ publishedAt: -1 }).limit(30);
+
+  let totalLikes = 0;
+  let totalComments = 0;
+  for (const p of recentPosts) {
+    totalLikes += Number(p.likesCount || 0);
+    totalComments += Number(p.commentsCount || 0);
+  }
+
+  const followers = accountSnapshot?.followers ?? 0;
+  const reach = accountSnapshot?.reach ?? 0;
+  const engagement = accountSnapshot?.engagement ?? (totalLikes + totalComments * 2);
+
+  let growthStatus = "🌱 Growth Incubating";
+  let growthBadgeColor = "#71717a";
+  let growthSummary = "Your channel queue is active. Upload more reels into the daily queue to gain consistent algorithmic momentum.";
+
+  if (publishedCount >= 14 || followers > 500) {
+    growthStatus = "🚀 High Growth Momentum";
+    growthBadgeColor = "#22c55e";
+    growthSummary = `Strong performance! You have published ${publishedCount} daily reels. Instagram algorithm is rewarding your consistent daily 07:00 IST schedule.`;
+  } else if (publishedCount >= 3 || followers > 50) {
+    growthStatus = "📈 Steady Growth Velocity";
+    growthBadgeColor = "#3b82f6";
+    growthSummary = `Consistent growth detected. You have ${queuedCount} upcoming daily reels lined up. Keep the queue populated for uninterrupted daily posting.`;
+  }
+
+  const audienceIntel = await analyzeAudiencePreferences();
+
+  return {
+    growthStatus,
+    growthBadgeColor,
+    growthSummary,
+    followers,
+    reach,
+    engagement,
+    publishedCount,
+    queuedCount,
+    topCategory: audienceIntel.topCategory,
+    recommendation: audienceIntel.recommendation,
+    analyzedAt: new Date().toISOString(),
   };
 }
