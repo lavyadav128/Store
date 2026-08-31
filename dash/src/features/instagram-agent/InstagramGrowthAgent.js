@@ -291,65 +291,49 @@ export default function InstagramGrowthAgent() {
 
         // 2. Direct High-Speed Edge Upload to Cloudinary CDN
         if (sig?.cloudName && sig?.signature && item.file) {
-          try {
-            const cFormData = new FormData();
-            cFormData.append("file", item.file);
-            cFormData.append("api_key", sig.apiKey);
-            cFormData.append("timestamp", sig.timestamp);
-            cFormData.append("signature", sig.signature);
-            cFormData.append("folder", sig.folder || "instagram-agent/admin-reels");
+          const cFormData = new FormData();
+          cFormData.append("file", item.file);
+          cFormData.append("api_key", sig.apiKey);
+          cFormData.append("timestamp", sig.timestamp);
+          cFormData.append("signature", sig.signature);
+          cFormData.append("folder", sig.folder || "instagram-agent/admin-reels");
 
-            const cUploadRes = await fetch(
-              `https://api.cloudinary.com/v1_1/${sig.cloudName}/video/upload`,
-              {
-                method: "POST",
-                body: cFormData,
-              }
-            );
-
-            const cUploadJson = await cUploadRes.json();
-            if (cUploadRes.ok && cUploadJson.secure_url) {
-              directVideoUrl = cUploadJson.secure_url;
-            } else {
-              console.warn(`[Cloudinary direct upload issue for ${item.topic}]:`, cUploadJson?.error?.message);
+          const cUploadRes = await fetch(
+            `https://api.cloudinary.com/v1_1/${sig.cloudName}/auto/upload`,
+            {
+              method: "POST",
+              body: cFormData,
             }
-          } catch (cErr) {
-            console.warn(`[Cloudinary Direct Upload fallback for ${item.topic}]:`, cErr.message);
+          );
+
+          const cUploadJson = await cUploadRes.json();
+          if (cUploadRes.ok && cUploadJson.secure_url) {
+            directVideoUrl = cUploadJson.secure_url;
+          } else {
+            throw new Error(cUploadJson?.error?.message || "Cloudinary direct edge upload failed.");
           }
         }
 
-        // 3. Register Reel Metadata with Backend (Instant 1KB JSON payload)
-        let res;
-        const token = localStorage.getItem("token") || "";
-        if (directVideoUrl) {
-          res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              ...(token ? { Authorization: `Bearer ${token}` } : {}),
-            },
-            body: JSON.stringify({
-              videoUrl: directVideoUrl,
-              category: item.realm || globalRealm,
-              topic: item.topic,
-              caption: item.caption,
-              aspectRatio: item.aspectRatio || globalAspectRatio,
-            }),
-          });
-        } else {
-          const formData = new FormData();
-          formData.append("video", item.file);
-          formData.append("category", item.realm || globalRealm);
-          formData.append("topic", item.topic);
-          formData.append("caption", item.caption);
-          formData.append("aspectRatio", item.aspectRatio || globalAspectRatio);
-
-          res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
-            method: "POST",
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-            body: formData,
-          });
+        if (!directVideoUrl) {
+          throw new Error("Unable to obtain secure video CDN URL. Please check network connection.");
         }
+
+        // 3. Register Reel Metadata with Backend (Instant 1KB JSON payload)
+        const token = localStorage.getItem("token") || "";
+        const res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            videoUrl: directVideoUrl,
+            category: item.realm || globalRealm,
+            topic: item.topic,
+            caption: item.caption,
+            aspectRatio: item.aspectRatio || globalAspectRatio,
+          }),
+        });
 
         const rawText = await res.text();
         let parsed;
