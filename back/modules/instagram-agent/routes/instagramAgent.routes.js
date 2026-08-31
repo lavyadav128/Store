@@ -24,7 +24,7 @@ import {
 import os from "os";
 import path from "path";
 import multer from "multer";
-import { upload } from "../../../config/cloudinary.js";
+import { upload, cloudinary } from "../../../config/cloudinary.js";
 import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
 import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
 
@@ -169,7 +169,6 @@ router.get("/overview", async (_req, res) => {
 import { NATURE_THEMES } from "../services/natureThemes.js";
 import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
 import { analyzeAudiencePreferences } from "../services/growthOptimizer.js";
-import { upload, cloudinary } from "../../../config/cloudinary.js";
 
 // Real-Time Live Followers Endpoint (fast polling)
 router.get("/live-followers", async (_req, res) => {
