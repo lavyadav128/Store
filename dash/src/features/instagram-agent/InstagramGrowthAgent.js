@@ -86,9 +86,28 @@ const NATURE_REALMS = [
 ];
 
 export default function InstagramGrowthAgent() {
-  const [data, setData] = useState(null);
-  const [config, setConfig] = useState(null);
-  const [growthAnalysis, setGrowthAnalysis] = useState(null);
+  const [data, setData] = useState({
+    account: { connected: true, username: "", followers: null, reach: null, mediaCount: null },
+    content: [],
+    promotions: [],
+    activities: [],
+    accountError: "",
+  });
+  const [config, setConfig] = useState({
+    running: false,
+    dailyPostTime: "07:00",
+    niche: "Nature, Wildlife & Earth Cinematography",
+    autoReplyComments: true,
+    autoReplyMessages: true,
+  });
+  const [growthAnalysis, setGrowthAnalysis] = useState({
+    growthStatus: "🌱 Growth Active",
+    growthBadgeColor: "#22c55e",
+    growthSummary: "Autonomous daily 1-reel scheduler is ready. Upload videos to the queue to begin publishing.",
+    topCategory: "🌅 Nature's Morning",
+    recommendation: "Maintain a steady daily 07:00 IST posting schedule for optimal Instagram Reels distribution.",
+  });
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
 
@@ -118,6 +137,7 @@ export default function InstagramGrowthAgent() {
   const notify = (text, severity = "success") => setSnack({ open: true, text, severity });
 
   const load = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch(`${server}/api/instagram-agent/overview`, {
         headers: authHeaders(),
@@ -125,7 +145,7 @@ export default function InstagramGrowthAgent() {
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "Could not load Instagram agent.");
       setData(payload);
-      setConfig(payload.config);
+      if (payload.config) setConfig(payload.config);
 
       if (payload.account?.followers !== null && payload.account?.followers !== undefined) {
         setLiveFollowers(payload.account.followers);
@@ -142,6 +162,8 @@ export default function InstagramGrowthAgent() {
       } catch (_) {}
     } catch (error) {
       notify(error.message, "error");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -371,18 +393,10 @@ export default function InstagramGrowthAgent() {
     setCinemaItem(null);
   };
 
-  if (!data || !config) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh" }}>
-        <CircularProgress sx={{ color: "#09090b" }} />
-      </Box>
-    );
-  }
-
-  const { account, accountError, content = [], promotions = [], activities = [] } = data;
+  const { account, accountError, content = [], promotions = [], activities = [] } = data || {};
   
-  const queuedItems = content.filter((c) => c.status !== "published" && c.assetUrl);
-  const publishedItems = content.filter((c) => c.status === "published");
+  const queuedItems = (content || []).filter((c) => c.status !== "published" && c.assetUrl);
+  const publishedItems = (content || []).filter((c) => c.status === "published");
   const currentFollowersDisplay = liveFollowers ?? account?.followers;
 
   return (

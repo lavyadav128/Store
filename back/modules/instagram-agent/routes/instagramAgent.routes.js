@@ -27,6 +27,9 @@ import multer from "multer";
 import { upload, cloudinary } from "../../../config/cloudinary.js";
 import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
 import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
+import { NATURE_THEMES } from "../services/natureThemes.js";
+import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
+import { analyzeAudiencePreferences, getChannelGrowthAnalysis } from "../services/growthOptimizer.js";
 
 // Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
 const videoDiskStorage = multer.diskStorage({
@@ -165,10 +168,6 @@ router.get("/overview", async (_req, res) => {
     return res.status(500).json({ error: error.message });
   }
 });
-
-import { NATURE_THEMES } from "../services/natureThemes.js";
-import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
-import { analyzeAudiencePreferences, getChannelGrowthAnalysis } from "../services/growthOptimizer.js";
 
 // Real-Time Live Followers Endpoint (fast polling)
 router.get("/live-followers", async (_req, res) => {
