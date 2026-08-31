@@ -399,30 +399,6 @@ export default function InstagramGrowthAgent() {
     setCinemaItem(null);
   };
 
-  // Poll live inspection steps while Live Flow modal is open
-  useEffect(() => {
-    if (!flowInspectorOpen) return;
-    const sessionId = runningFlowLiveId || "latest";
-    const pollInterval = setInterval(async () => {
-      try {
-        const res = await fetch(`${server}/api/instagram-agent/live-flow/${sessionId}`, {
-          headers: authHeaders(),
-        });
-        if (res.ok) {
-          const session = await res.json();
-          setFlowInspectorSession(session);
-        }
-      } catch (_) {}
-    }, 1000);
-
-    return () => clearInterval(pollInterval);
-  }, [runningFlowLiveId, flowInspectorOpen]);
-
-  const openLiveFlowInspector = (contentId = null) => {
-    if (contentId) setRunningFlowLiveId(contentId);
-    setFlowInspectorOpen(true);
-  };
-
   const publishNow = async (contentId) => {
     setSaving(true);
     try {
@@ -1350,25 +1326,15 @@ export default function InstagramGrowthAgent() {
                       <AutoAwesomeIcon sx={{ color: "#09090b", fontSize: 16 }} />
                       <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: "#09090b" }}>
                         {item.assetUrl
-                          ? `16:9 ${isVideoItem ? "Video Ready with Song" : "4K Image Ready with Song"}`
+                          ? `16:9 ${isVideoItem ? "Portrait Reel Ready with Audio" : "Portrait Image Ready with Audio"}`
                           : item.mediaGenerationStatus === "generating" || generatingMediaId === item._id
-                          ? "Gemini is rendering creation..."
+                          ? "Fetching HD media from Pexels & Freesound APIs..."
                           : item.mediaGenerationError
                           ? `Status: ${item.mediaGenerationError}`
-                          : "Ready to render with Gemini"}
+                          : "Ready to fetch HD media"}
                       </Typography>
                     </Box>
                     <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-                      <Button
-                        size="small"
-                        variant="outlined"
-                        startIcon={<VisibilityIcon fontSize="small" />}
-                        onClick={() => openLiveFlowInspector(item._id)}
-                        sx={{ borderRadius: "8px", textTransform: "none", fontSize: 11, fontWeight: 700, color: "#09090b", borderColor: "#d4d4d8" }}
-                      >
-                        Live Flow
-                      </Button>
-                      
                       {/* Admin Image or Video Choice */}
                       <Button
                         size="small"
@@ -1524,140 +1490,6 @@ export default function InstagramGrowthAgent() {
           ))
         )}
       </Paper>
-
-      {/* ── LIVE FLOW INSPECTOR MODAL WITH REAL-TIME BROWSER PREVIEW ── */}
-      <Dialog
-        open={flowInspectorOpen}
-        onClose={() => setFlowInspectorOpen(false)}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: "14px", border: "1px solid #e4e4e7" } }}
-      >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <Box
-              sx={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                bgcolor: flowInspectorSession?.status === "running" ? "#22c55e" : "#09090b",
-                animation: flowInspectorSession?.status === "running" ? "pulse 1.5s infinite" : "none",
-                "@keyframes pulse": {
-                  "0%": { opacity: 0.3 },
-                  "50%": { opacity: 1 },
-                  "100%": { opacity: 0.3 },
-                },
-              }}
-            />
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16 }}>
-              Gemini Live Flow Inspector ({flowInspectorSession?.mediaType === "image" ? "16:9 Image" : "16:9 Video"})
-            </Typography>
-          </Box>
-          <IconButton onClick={() => setFlowInspectorOpen(false)} size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent dividers sx={{ p: 2.5 }}>
-          {flowInspectorSession ? (
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              {/* Prompt Info Card */}
-              <Box sx={{ p: 1.8, bgcolor: "#fafafa", borderRadius: "10px", border: "1px solid #e4e4e7" }}>
-                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5 }}>
-                  <Typography sx={{ fontWeight: 700, fontSize: 11, color: "#71717a", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                    Active Prompt Sent to Gemini
-                  </Typography>
-                  <Chip
-                    label={flowInspectorSession.mediaType === "image" ? "🖼️ Image Mode" : "🎬 Video Mode"}
-                    size="small"
-                    sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10, height: 20 }}
-                  />
-                </Box>
-                <Typography sx={{ fontWeight: 600, fontSize: 13, color: "#09090b", mt: 0.4 }}>
-                  "{flowInspectorSession.prompt}"
-                </Typography>
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, mt: 1 }}>
-                  <Chip
-                    label={`Status: ${flowInspectorSession.status?.toUpperCase() || "RUNNING"}`}
-                    size="small"
-                    sx={{
-                      bgcolor: flowInspectorSession.status === "completed" ? "#09090b" : flowInspectorSession.status === "failed" ? "#ef4444" : "#22c55e",
-                      color: "#ffffff",
-                      fontWeight: 800,
-                      fontSize: 10,
-                      height: 20,
-                    }}
-                  />
-                  {flowInspectorSession.startedAt && (
-                    <Typography sx={{ fontSize: 11, color: "#71717a" }}>
-                      Started: {new Date(flowInspectorSession.startedAt).toLocaleTimeString()}
-                    </Typography>
-                  )}
-                </Box>
-              </Box>
-
-              {/* Real-Time Browser Viewport Screen */}
-              {flowInspectorSession.lastScreenshot && (
-                <Box sx={{ borderRadius: "10px", overflow: "hidden", border: "1px solid #18181b", bgcolor: "#000000" }}>
-                  <Box sx={{ p: 1, bgcolor: "#18181b", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#ffffff", letterSpacing: "0.5px" }}>
-                      🔴 LIVE CHROMIUM VIEWPORT SCREENSHOT
-                    </Typography>
-                    <Typography sx={{ fontSize: 10, color: "#a1a1aa" }}>Live Feed</Typography>
-                  </Box>
-                  <img
-                    src={flowInspectorSession.lastScreenshot}
-                    alt="Live Gemini Browser Screen"
-                    style={{ width: "100%", maxHeight: 340, objectFit: "contain", display: "block" }}
-                  />
-                </Box>
-              )}
-
-              {/* Live Flow Steps Timeline */}
-              <Box>
-                <Typography sx={{ fontWeight: 700, fontSize: 12, color: "#71717a", textTransform: "uppercase", mb: 1 }}>
-                  Live Execution Steps ({flowInspectorSession.steps?.length || 0})
-                </Typography>
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                  {flowInspectorSession.steps?.map((st, idx) => (
-                    <Box
-                      key={idx}
-                      sx={{
-                        p: 1.5,
-                        bgcolor: idx === flowInspectorSession.steps.length - 1 ? "#ffffff" : "#fafafa",
-                        borderRadius: "8px",
-                        border: idx === flowInspectorSession.steps.length - 1 ? "1.5px solid #09090b" : "1px solid #e4e4e7",
-                      }}
-                    >
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#09090b" }}>{st.step}</Typography>
-                        <Typography sx={{ fontSize: 11, color: "#71717a" }}>{st.timestamp}</Typography>
-                      </Box>
-                      <Typography sx={{ fontSize: 12, color: "#52525b", mt: 0.3 }}>{st.detail}</Typography>
-                    </Box>
-                  ))}
-                </Box>
-              </Box>
-
-              {/* Error Alert if failed */}
-              {flowInspectorSession.error && (
-                <Alert severity="error" sx={{ borderRadius: "8px" }}>
-                  {flowInspectorSession.error}
-                </Alert>
-              )}
-            </Box>
-          ) : (
-            <Box sx={{ textAlign: "center", py: 5 }}>
-              <CircularProgress size={28} sx={{ color: "#09090b" }} />
-              <Typography sx={{ mt: 1.5, fontSize: 12, color: "#71717a" }}>Waiting for active Gemini live flow...</Typography>
-            </Box>
-          )}
-        </DialogContent>
-        <DialogActions sx={{ p: 2 }}>
-          <Button onClick={() => setFlowInspectorOpen(false)} sx={{ textTransform: "none", color: "#09090b", fontWeight: 700 }}>
-            Close
-          </Button>
-        </DialogActions>
-      </Dialog>
 
       {/* ── 60-DAY META TOKEN MODAL ── */}
       <Dialog
