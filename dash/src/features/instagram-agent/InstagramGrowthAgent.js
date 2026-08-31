@@ -134,7 +134,26 @@ export default function InstagramGrowthAgent() {
   const [collabNote, setCollabNote] = useState("");
   const [reviewingCollab, setReviewingCollab] = useState(false);
 
-  const notify = (text, severity = "success") => setSnack({ open: true, text, severity });
+  const fetchLiveFollowers = useCallback(async () => {
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/live-followers`, {
+        headers: authHeaders(),
+      });
+      if (res.ok) {
+        const payload = await res.json();
+        if (payload.followers !== null && payload.followers !== undefined) {
+          setLiveFollowers((prev) => {
+            if (prev !== null && payload.followers > prev) {
+              setHasFollowerIncremented(true);
+              setTimeout(() => setHasFollowerIncremented(false), 8000);
+            }
+            return payload.followers;
+          });
+          setLastFollowerCheck(new Date().toLocaleTimeString());
+        }
+      }
+    } catch (_) {}
+  }, []);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -149,6 +168,7 @@ export default function InstagramGrowthAgent() {
 
       if (payload.account?.followers !== null && payload.account?.followers !== undefined) {
         setLiveFollowers(payload.account.followers);
+        setLastFollowerCheck(new Date().toLocaleTimeString());
       }
 
       try {
@@ -166,6 +186,15 @@ export default function InstagramGrowthAgent() {
       setLoading(false);
     }
   }, []);
+
+  useEffect(() => {
+    load();
+    fetchLiveFollowers();
+    const timer = setInterval(() => {
+      fetchLiveFollowers();
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [load, fetchLiveFollowers]);
 
   const request = async (path, method = "POST", body) => {
     const response = await fetch(`${server}/api/instagram-agent${path}`, {
@@ -456,11 +485,21 @@ export default function InstagramGrowthAgent() {
             </Box>
             <PeopleAltOutlinedIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 30, fontWeight: 900, color: "#09090b" }}>
-            {currentFollowersDisplay !== null ? Number(currentFollowersDisplay).toLocaleString() : "..."}
+          <Typography
+            sx={{
+              fontFamily: "'DM Sans', sans-serif",
+              fontSize: 30,
+              fontWeight: 900,
+              color: hasFollowerIncremented ? "#22c55e" : "#09090b",
+              transition: "color 0.4s ease",
+            }}
+          >
+            {currentFollowersDisplay !== null && currentFollowersDisplay !== undefined
+              ? Number(currentFollowersDisplay).toLocaleString()
+              : (loading ? "..." : "0")}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
-            {account?.username ? `@${account.username}` : "Connected"} {lastFollowerCheck && `· ${lastFollowerCheck}`}
+            {account?.username ? `@${account.username}` : "@quietframes.ai"} {lastFollowerCheck ? `· ${lastFollowerCheck}` : ""}
           </Typography>
         </Paper>
 
