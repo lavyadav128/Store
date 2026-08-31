@@ -21,9 +21,26 @@ import {
   sendInstagramMessage,
   verifyMetaSignature,
 } from "../services/instagramAgent.service.js";
+import os from "os";
+import path from "path";
+import multer from "multer";
 import { upload } from "../../../config/cloudinary.js";
 import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
 import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
+
+// Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
+const videoDiskStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, os.tmpdir()),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname || ".mp4") || ".mp4";
+    cb(null, `admin_reel_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`);
+  },
+});
+
+const videoUpload = multer({
+  storage: videoDiskStorage,
+  limits: { fileSize: 150 * 1024 * 1024 }, // 150MB
+});
 
 const router = express.Router();
 export const instagramWebhookRouter = express.Router();
@@ -337,8 +354,9 @@ router.post("/content/generate", async (req, res) => {
 });
 
 // Admin Direct Video Upload for 12-Series Instagram Reels
-router.post("/content/upload-reel", upload.single("video"), async (req, res) => {
+router.post("/content/upload-reel", videoUpload.single("video"), async (req, res) => {
   try {
+    const filePath = req.file?.path;
     const fileBuffer = req.file?.buffer;
     const fileUrl = req.body.videoUrl || req.body.assetUrl;
     const category = req.body.category || "🌅 Nature's Morning";
@@ -361,11 +379,12 @@ router.post("/content/upload-reel", upload.single("video"), async (req, res) => 
       }
     }
 
-    if (!fileBuffer && !fileUrl) {
+    if (!filePath && !fileBuffer && !fileUrl) {
       return res.status(400).json({ error: "Please provide a video file or a video URL." });
     }
 
     const reelDraft = await createAdminUploadedReel({
+      filePath,
       fileBuffer,
       fileUrl,
       category,
@@ -376,6 +395,7 @@ router.post("/content/upload-reel", upload.single("video"), async (req, res) => 
 
     res.status(201).json(reelDraft);
   } catch (error) {
+    console.error("[Admin Upload Reel Route Error]:", error);
     res.status(400).json({ error: error.message });
   }
 });

@@ -181,7 +181,12 @@ export default function InstagramGrowthAgent() {
           headers,
           body: formData,
         });
-        res = await response.json();
+        const rawText = await response.text();
+        try {
+          res = JSON.parse(rawText);
+        } catch (_) {
+          throw new Error(response.statusText || "Server error: Received non-JSON response during video upload.");
+        }
         if (!response.ok) throw new Error(res.error || "Failed to upload video reel.");
       } else {
         res = await request("/content/upload-reel", "POST", {
@@ -828,27 +833,6 @@ export default function InstagramGrowthAgent() {
             onChange={(e) => set("dailyPostTime", e.target.value)}
             placeholder="e.g. 07:00 or 18:00"
             helperText="Automatic daily post time"
-            sx={field}
-            fullWidth
-          />
-        </Box>
-
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, mt: 2 }}>
-          <TextField
-            label="Pexels API Key (for 1080p/4K HD 16:9 Portrait Videos & Photos)"
-            type="password"
-            value={config.pexelsApiKey || ""}
-            onChange={(e) => set("pexelsApiKey", e.target.value)}
-            placeholder="Enter Pexels API Key"
-            sx={field}
-            fullWidth
-          />
-          <TextField
-            label="Freesound API Key (for Matching Background Soundscapes)"
-            type="password"
-            value={config.freesoundApiKey || ""}
-            onChange={(e) => set("freesoundApiKey", e.target.value)}
-            placeholder="Enter Freesound API Key"
             sx={field}
             fullWidth
           />

@@ -672,6 +672,7 @@ export async function publishDueContent() {
  * Admin direct video upload with automatic 12-series AI hashtags & caption generation
  */
 export async function createAdminUploadedReel({
+  filePath,
   fileBuffer,
   fileUrl,
   category = "🌅 Nature's Morning",
@@ -681,7 +682,17 @@ export async function createAdminUploadedReel({
 }) {
   let assetUrl = fileUrl;
 
-  if (fileBuffer) {
+  if (filePath && fs.existsSync(filePath)) {
+    console.log(`[Admin Reel Upload] Uploading video file from disk (${filePath}) to Cloudinary...`);
+    const uploaded = await cloudinary.uploader.upload(filePath, {
+      folder: 'instagram-agent/admin-reels',
+      resource_type: 'video',
+    });
+    assetUrl = uploaded.secure_url;
+    try {
+      fs.unlinkSync(filePath);
+    } catch (_) {}
+  } else if (fileBuffer) {
     console.log(`[Admin Reel Upload] Uploading admin video buffer (${fileBuffer.length} bytes) to Cloudinary...`);
     const uploaded = await uploadBuffer(fileBuffer, 'video');
     assetUrl = uploaded.secure_url;
