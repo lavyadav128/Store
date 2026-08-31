@@ -119,39 +119,10 @@ app.set('trust proxy', 1);
 //  it reaches the actual route handler
 // ═════════════════════════════════════════════════════════════
 
-// ── CORS CONFIGURATION ──
-// Tells the browser which external origins (domains/ports) are allowed
-// to send requests to our backend
-const allowedOrigins = new Set([
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:3002',
-  'http://127.0.0.1:3000',
-  'http://127.0.0.1:3001',
-  'http://127.0.0.1:3002',
-  'https://note-vevp.onrender.com',
-  ...String(process.env.CORS_ALLOWED_ORIGINS || process.env.FRONTEND_ORIGIN || "").split(",").map((origin) => origin.trim()).filter(Boolean),
-]);
 const corsOptions = {
-  origin(origin, callback) {
-    // Requests without an Origin are server-to-server/health-check calls.
-    if (!origin) return callback(null, true);
-    if (
-      allowedOrigins.has(origin) ||
-      origin.includes("onrender.com") ||
-      origin.includes("localhost") ||
-      origin.includes("127.0.0.1") ||
-      /^https?:\/\/(\d{1,3}\.){3}\d{1,3}(:\d+)?$/.test(origin)
-    ) {
-      return callback(null, true);
-    }
-    return callback(new Error("Origin is not allowed by CORS"));
-  },
-  // List of HTTP methods we allow from those origins
+  origin: true, // Dynamically allows all origins (mobile LAN, Render, Vercel, localhost)
   methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
-  // "credentials: true" allows cookies and Authorization headers to be sent
   credentials: true,
-  // Only these headers are allowed in requests from the frontend
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 };
 app.use(cors(corsOptions));

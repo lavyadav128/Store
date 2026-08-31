@@ -37,10 +37,13 @@ import CampaignIcon from "@mui/icons-material/Campaign";
 import ScheduleIcon from "@mui/icons-material/Schedule";
 import server from "../../shared/environment";
 
-const authHeaders = () => ({
-  "Content-Type": "application/json",
-  Authorization: `Bearer ${localStorage.getItem("token")}`,
-});
+const authHeaders = () => {
+  const token = localStorage.getItem("token");
+  return {
+    "Content-Type": "application/json",
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+  };
+};
 
 const whiteCard = {
   borderRadius: "16px",
