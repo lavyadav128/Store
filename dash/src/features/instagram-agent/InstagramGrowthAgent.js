@@ -37,6 +37,7 @@ import FullscreenIcon from "@mui/icons-material/Fullscreen";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
 import LoopIcon from "@mui/icons-material/Loop";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import server from "../../shared/environment";
 
 const authHeaders = () => ({
@@ -122,10 +123,94 @@ export default function InstagramGrowthAgent() {
   const [exchangingToken, setExchangingToken] = useState(false);
   const [longLivedResult, setLongLivedResult] = useState(null);
 
-  // Autonomous Gemini Live Inspector Modal State
-  const [flowInspectorOpen, setFlowInspectorOpen] = useState(false);
-  const [flowInspectorSession, setFlowInspectorSession] = useState(null);
-  const [runningFlowLiveId, setRunningFlowLiveId] = useState(null);
+  // Admin Video Upload for 12 Nature Series Reels
+  const [uploadVideoFile, setUploadVideoFile] = useState(null);
+  const [uploadVideoUrl, setUploadVideoUrl] = useState("");
+  const [uploadRealm, setUploadRealm] = useState("🌅 Nature's Morning");
+  const [uploadTopic, setUploadTopic] = useState("");
+  const [uploadCaption, setUploadCaption] = useState("");
+  const [uploadingReel, setUploadingReel] = useState(false);
+  const [uploadVideoPreview, setUploadVideoPreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleVideoFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith("video/") && !file.name.match(/\.(mp4|mov|webm|mkv)$/i)) {
+        notify("Please select a valid video file (.mp4, .mov, .webm)", "warning");
+        return;
+      }
+      setUploadVideoFile(file);
+      setUploadVideoPreview(URL.createObjectURL(file));
+      if (!uploadTopic) {
+        const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+        setUploadTopic(cleanName);
+      }
+    }
+  };
+
+  const handleClearSelectedFile = () => {
+    setUploadVideoFile(null);
+    if (uploadVideoPreview) URL.revokeObjectURL(uploadVideoPreview);
+    setUploadVideoPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleUploadAdminReel = async (publishImmediately = false) => {
+    if (!uploadVideoFile && !uploadVideoUrl.trim()) {
+      notify("Please select a video file or enter a video URL.", "warning");
+      return;
+    }
+
+    setUploadingReel(true);
+    notify(`Uploading reel video & generating AI hashtags for ${uploadRealm}...`, "info");
+
+    try {
+      let res;
+      if (uploadVideoFile) {
+        const formData = new FormData();
+        formData.append("video", uploadVideoFile);
+        formData.append("category", uploadRealm);
+        formData.append("topic", uploadTopic);
+        formData.append("caption", uploadCaption);
+
+        const token = localStorage.getItem("token") || "";
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        const response = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+        res = await response.json();
+        if (!response.ok) throw new Error(res.error || "Failed to upload video reel.");
+      } else {
+        res = await request("/content/upload-reel", "POST", {
+          videoUrl: uploadVideoUrl.trim(),
+          category: uploadRealm,
+          topic: uploadTopic,
+          caption: uploadCaption,
+        });
+      }
+
+      if (publishImmediately && res?._id) {
+        notify("Reel uploaded! Publishing directly to Instagram Reels...", "info");
+        await request(`/content/${res._id}/publish`, "POST");
+        notify(`🎉 Reel successfully published to Instagram Reels: "${res.topic}"!`, "success");
+      } else {
+        notify(`✅ Reel draft created for [${uploadRealm}] with AI hashtags & captions!`, "success");
+      }
+
+      handleClearSelectedFile();
+      setUploadVideoUrl("");
+      setUploadTopic("");
+      setUploadCaption("");
+      await load();
+    } catch (err) {
+      notify(err.message, "error");
+    } finally {
+      setUploadingReel(false);
+    }
+  };
 
   const notify = (text, severity = "success") => setSnack({ open: true, text, severity });
 
@@ -823,6 +908,167 @@ export default function InstagramGrowthAgent() {
             }}
           >
             {config.running ? "Pause Scheduler" : "Start 12-Series Loop"}
+          </Button>
+        </Box>
+      </Paper>
+
+      {/* ── ADMIN DIRECT VIDEO UPLOAD FOR 12-SERIES INSTAGRAM REELS (WHITE BOX) ── */}
+      <Paper sx={{ ...whiteCard, mb: 3 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <CloudUploadIcon sx={{ color: "#09090b", fontSize: 22 }} />
+            <Typography sx={{ ...titleStyle, fontSize: 18 }}>Admin Direct Video Upload · 12-Series Reels Generator</Typography>
+          </Box>
+          <Chip label="12 Series AI Tagging" size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
+        </Box>
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2.5 }}>
+          Upload your daily video (or paste direct video URL), select one of the 12 Nature Series, and let AI automatically generate the viral Reels caption, trending hashtags, and matching soundscape.
+        </Typography>
+
+        {/* Video Upload Dropzone / File Picker */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: uploadVideoPreview ? "280px 1fr" : "1fr" }, gap: 2.5, mb: 2 }}>
+          {/* File Picker or Drag Container */}
+          <Box
+            onClick={() => fileInputRef.current?.click()}
+            sx={{
+              p: 3,
+              border: "2px dashed #d4d4d8",
+              borderRadius: "12px",
+              bgcolor: "#fafafa",
+              textAlign: "center",
+              cursor: "pointer",
+              transition: "all 0.2s ease",
+              "&:hover": { borderColor: "#09090b", bgcolor: "#f4f4f5" },
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: 130,
+            }}
+          >
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleVideoFileSelect}
+              accept="video/*,.mp4,.mov,.webm"
+              style={{ display: "none" }}
+            />
+            <CloudUploadIcon sx={{ fontSize: 36, color: "#71717a", mb: 1 }} />
+            <Typography sx={{ fontWeight: 700, fontSize: 13, color: "#09090b" }}>
+              {uploadVideoFile ? uploadVideoFile.name : "Click to Browse & Upload Reel Video (.mp4, .mov)"}
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
+              {uploadVideoFile ? `${(uploadVideoFile.size / (1024 * 1024)).toFixed(2)} MB · Click to replace` : "16:9 Portrait / 9:16 vertical recommended"}
+            </Typography>
+          </Box>
+
+          {/* Video Preview if selected */}
+          {uploadVideoPreview && (
+            <Box sx={{ position: "relative", width: "100%", maxHeight: 180, borderRadius: "12px", overflow: "hidden", bgcolor: "#000000", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <video
+                src={uploadVideoPreview}
+                style={{ width: "100%", height: "100%", maxHeight: 180, objectFit: "contain" }}
+                controls
+                playsInline
+              />
+              <IconButton
+                size="small"
+                onClick={(e) => { e.stopPropagation(); handleClearSelectedFile(); }}
+                sx={{ position: "absolute", top: 6, right: 6, bgcolor: "rgba(0,0,0,0.7)", color: "#ffffff", "&:hover": { bgcolor: "#ef4444" } }}
+                title="Remove video"
+              >
+                <CloseIcon fontSize="small" />
+              </IconButton>
+            </Box>
+          )}
+        </Box>
+
+        {/* Alternative: Direct Video URL */}
+        <TextField
+          label="Or Paste Direct Video URL (Optional)"
+          value={uploadVideoUrl}
+          onChange={(e) => setUploadVideoUrl(e.target.value)}
+          placeholder="https://... (e.g. Cloudinary, MP4 direct link)"
+          sx={{ ...field, mb: 2 }}
+          fullWidth
+        />
+
+        {/* 12-Series Selection & Topic Details */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr" }, gap: 2, mb: 2 }}>
+          <FormControl sx={field} fullWidth>
+            <InputLabel>Select 1 of 12 Nature Series ⭐</InputLabel>
+            <Select
+              label="Select 1 of 12 Nature Series ⭐"
+              value={uploadRealm}
+              onChange={(e) => setUploadRealm(e.target.value)}
+            >
+              {NATURE_REALMS.map((r) => (
+                <MenuItem key={r.id} value={r.realm}>
+                  {r.title}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <TextField
+            label="Reel Topic / Title (Optional)"
+            value={uploadTopic}
+            onChange={(e) => setUploadTopic(e.target.value)}
+            placeholder="e.g. Dawn Alpenglow over Mountain Lake"
+            helperText="Leave empty to auto-generate from selected series"
+            sx={field}
+            fullWidth
+          />
+        </Box>
+
+        {/* Custom Caption / Overrides (Optional) */}
+        <TextField
+          label="Custom Caption (Optional - AI automatically generates viral caption & hashtags if empty)"
+          value={uploadCaption}
+          onChange={(e) => setUploadCaption(e.target.value)}
+          placeholder="Write custom caption or leave blank for AI generation..."
+          multiline
+          rows={2}
+          sx={{ ...field, mb: 2.5 }}
+          fullWidth
+        />
+
+        {/* Action Buttons */}
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+          <Button
+            variant="contained"
+            onClick={() => handleUploadAdminReel(false)}
+            disabled={uploadingReel || (!uploadVideoFile && !uploadVideoUrl.trim())}
+            startIcon={uploadingReel ? <CircularProgress size={16} sx={{ color: "#ffffff" }} /> : <CloudUploadIcon fontSize="small" />}
+            sx={{
+              borderRadius: "8px",
+              textTransform: "none",
+              bgcolor: "#09090b",
+              color: "#ffffff",
+              fontWeight: 700,
+              px: 3,
+              py: 1.2,
+              "&:hover": { bgcolor: "#27272a" },
+            }}
+          >
+            {uploadingReel ? "Uploading & Generating AI Reel..." : "📤 Upload & Draft Reel (AI Captions & Tags)"}
+          </Button>
+          <Button
+            variant="outlined"
+            onClick={() => handleUploadAdminReel(true)}
+            disabled={uploadingReel || (!uploadVideoFile && !uploadVideoUrl.trim())}
+            startIcon={<AutoAwesomeIcon fontSize="small" />}
+            sx={{
+              borderRadius: "8px",
+              textTransform: "none",
+              borderColor: "#09090b",
+              color: "#09090b",
+              fontWeight: 700,
+              px: 3,
+              py: 1.2,
+              "&:hover": { bgcolor: "#f4f4f5" },
+            }}
+          >
+            🚀 Upload & Publish Reel Immediately
           </Button>
         </Box>
       </Paper>

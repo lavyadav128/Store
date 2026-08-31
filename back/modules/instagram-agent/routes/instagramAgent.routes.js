@@ -7,6 +7,7 @@ import InstagramActivity from "../schema/InstagramActivity.model.js";
 import {
   accountConfigured,
   attachMusicToContent,
+  createAdminUploadedReel,
   exchangeLongLivedToken,
   generateContentDraft,
   generateMediaForContent,
@@ -20,6 +21,7 @@ import {
   sendInstagramMessage,
   verifyMetaSignature,
 } from "../services/instagramAgent.service.js";
+import { upload } from "../../../config/cloudinary.js";
 import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
 import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
 
@@ -329,6 +331,50 @@ router.post("/stop", async (_req, res) => {
 router.post("/content/generate", async (req, res) => {
   try {
     res.status(201).json(await generateContentDraft({ topic: req.body.topic, type: req.body.type, category: req.body.category }));
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Admin Direct Video Upload for 12-Series Instagram Reels
+router.post("/content/upload-reel", upload.single("video"), async (req, res) => {
+  try {
+    const fileBuffer = req.file?.buffer;
+    const fileUrl = req.body.videoUrl || req.body.assetUrl;
+    const category = req.body.category || "🌅 Nature's Morning";
+    const topic = req.body.topic || "";
+    const customCaption = req.body.caption || "";
+
+    let customHashtags = [];
+    if (req.body.hashtags) {
+      if (Array.isArray(req.body.hashtags)) {
+        customHashtags = req.body.hashtags;
+      } else if (typeof req.body.hashtags === "string") {
+        try {
+          customHashtags = JSON.parse(req.body.hashtags);
+        } catch (_) {
+          customHashtags = req.body.hashtags
+            .split(/[\s,]+/)
+            .filter(Boolean)
+            .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`));
+        }
+      }
+    }
+
+    if (!fileBuffer && !fileUrl) {
+      return res.status(400).json({ error: "Please provide a video file or a video URL." });
+    }
+
+    const reelDraft = await createAdminUploadedReel({
+      fileBuffer,
+      fileUrl,
+      category,
+      topic,
+      customCaption,
+      customHashtags,
+    });
+
+    res.status(201).json(reelDraft);
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
