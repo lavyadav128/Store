@@ -95,7 +95,7 @@ export default function InstagramGrowthAgent() {
   });
   const [config, setConfig] = useState({
     running: false,
-    dailyPostTime: "07:00",
+    dailyPostTime: "12:00",
     niche: "Nature, Wildlife & Earth Cinematography",
     autoReplyComments: true,
     autoReplyMessages: true,
@@ -105,11 +105,13 @@ export default function InstagramGrowthAgent() {
     growthBadgeColor: "#22c55e",
     growthSummary: "Autonomous daily 1-reel scheduler is ready. Upload videos to the queue to begin publishing.",
     topCategory: "🌅 Nature's Morning",
-    recommendation: "Maintain a steady daily 07:00 IST posting schedule for optimal Instagram Reels distribution.",
+    recommendation: "Maintain a steady daily 12:00 PM (12 Noon IST) posting schedule for optimal Instagram Reels distribution.",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [snack, setSnack] = useState({ open: false, text: "", severity: "success" });
+
+  const notify = (text, severity = "success") => setSnack({ open: true, text, severity });
 
   const [liveFollowers, setLiveFollowers] = useState(null);
   const [hasFollowerIncremented, setHasFollowerIncremented] = useState(false);
@@ -385,7 +387,7 @@ export default function InstagramGrowthAgent() {
         notify("Instagram Daily Scheduler paused.");
       } else {
         await request("/start", "POST");
-        notify("Instagram 12-Series Daily Runner started! (Strict 1 post/day at 07:00 IST).");
+        notify("Instagram 12-Series Daily Runner started! (Strict 1 post/day at 12:00 PM Noon IST).");
       }
       await load();
     } catch (error) {
@@ -544,7 +546,7 @@ export default function InstagramGrowthAgent() {
             {config.running ? "Active (1/Day)" : "Paused"}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 1 }}>
-            Posts exactly 1 reel daily at {config.dailyPostTime || "07:00"} IST
+            Posts exactly 1 reel daily at {config.dailyPostTime || "12:00"} (12:00 PM Noon IST)
           </Typography>
         </Paper>
       </Box>
@@ -835,7 +837,7 @@ export default function InstagramGrowthAgent() {
                         <Chip label={isVerticalReel ? "📱 9:16 Vertical Reel" : "🖥️ 16:9 Landscape"} size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10 }} />
                       </Box>
                       <Typography sx={{ fontSize: 11, color: "#71717a" }}>
-                        Scheduled for: {config.dailyPostTime || "07:00"} IST ({scheduledDateStr})
+                        Scheduled for: {config.dailyPostTime || "12:00"} (12:00 PM Noon IST) · {scheduledDateStr}
                       </Typography>
                     </Box>
                     <Typography sx={{ ...titleStyle, fontSize: 16, mt: 0.5 }}>{item.topic}</Typography>
@@ -965,10 +967,10 @@ export default function InstagramGrowthAgent() {
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5 }}>
           <TextField
             label="Daily Post Time (IST) ⏰"
-            value={config.dailyPostTime || "07:00"}
+            value={config.dailyPostTime || "12:00"}
             onChange={(e) => setConfigField("dailyPostTime", e.target.value)}
-            placeholder="07:00"
-            helperText="Strict daily posting time (Only 1 reel per day)"
+            placeholder="12:00"
+            helperText="Strict daily posting time (Only 1 reel per day at 12:00 PM Noon)"
             sx={field}
             fullWidth
           />

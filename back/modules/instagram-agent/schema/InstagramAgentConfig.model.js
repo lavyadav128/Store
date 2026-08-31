@@ -9,7 +9,7 @@ const instagramAgentConfigSchema = new mongoose.Schema({
   brandVoice: { type: String, trim: true, default: "Powerful, inspiring, stoic, deeply motivating, and thought-provoking in Hindi & English" },
   contentMode: { type: String, enum: ["post", "reel", "both"], default: "both" },
   postsPerDay: { type: Number, min: 1, max: 3, default: 1 },
-  dailyPostTime: { type: String, default: "07:00" }, // 24-hr format (e.g. 07:00 for 7:00 AM IST morning motivation)
+  dailyPostTime: { type: String, default: "12:00" }, // 24-hr format (e.g. 12:00 for 12:00 PM Noon IST)
   running: { type: Boolean, default: false },
   autoReplyComments: { type: Boolean, default: true },
   autoReplyMessages: { type: Boolean, default: true },

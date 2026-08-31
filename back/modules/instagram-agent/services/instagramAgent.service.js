@@ -45,7 +45,10 @@ function getGraphBase() {
 export async function getInstagramConfig() {
   let config = await InstagramAgentConfig.findOne({ key: 'default' });
   if (!config) {
-    config = await InstagramAgentConfig.create({ key: 'default' });
+    config = await InstagramAgentConfig.create({ key: 'default', dailyPostTime: '12:00' });
+  } else if (!config.dailyPostTime || config.dailyPostTime === '07:00') {
+    config.dailyPostTime = '12:00';
+    await config.save();
   }
   return config;
 }
@@ -717,8 +720,8 @@ export async function publishDueContent() {
  */
 export async function getNextAvailableScheduleDate() {
   const config = await getInstagramConfig();
-  const [hourStr, minStr] = (config.dailyPostTime || "07:00").split(":");
-  const postHour = parseInt(hourStr, 10) || 7;
+  const [hourStr, minStr] = (config.dailyPostTime || "12:00").split(":");
+  const postHour = parseInt(hourStr, 10) || 12;
   const postMin = parseInt(minStr, 10) || 0;
 
   const now = new Date();

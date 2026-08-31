@@ -18,10 +18,10 @@ export async function createDailyDrafts() {
   const missing = Math.max(0, (config.postsPerDay || 1) - alreadyCreated);
   if (missing <= 0) return;
 
-  // Calculate schedule time based on config.dailyPostTime (default: "07:00" IST)
-  const [postHour, postMinute] = (config.dailyPostTime || "07:00").split(":").map(Number);
+  // Calculate schedule time based on config.dailyPostTime (default: "12:00" PM Noon IST)
+  const [postHour, postMinute] = (config.dailyPostTime || "12:00").split(":").map(Number);
   const scheduledTime = new Date();
-  scheduledTime.setHours(postHour || 7, postMinute || 0, 0, 0);
+  scheduledTime.setHours(postHour || 12, postMinute || 0, 0, 0);
 
   // If the scheduled time for today has already passed, schedule for today + 10 mins or tomorrow
   if (scheduledTime.getTime() < Date.now()) {
@@ -40,7 +40,7 @@ export async function createDailyDrafts() {
 
   await logInstagramActivity(
     "daily_drafts_created",
-    `Created ${missing} unique daily 8K Nature Reel draft(s), scheduled for ${config.dailyPostTime || "07:00"} IST.`
+    `Created ${missing} unique daily 8K Nature Reel draft(s), scheduled for ${config.dailyPostTime || "12:00"} IST.`
   );
 }
 

@@ -54,7 +54,7 @@ export async function analyzeAudiencePreferences() {
         acc[cat] = { count: 0, avgScore: 0, totalLikes: 0, totalComments: 0 };
         return acc;
       }, {}),
-      recommendation: "Maintain consistent 07:00 AM IST daily reel posting across 12 Nature realms to build algorithmic authority.",
+      recommendation: "Maintain consistent 12:00 PM (12 Noon IST) daily reel posting across 12 Nature realms to build algorithmic authority.",
     };
   }
 
@@ -144,7 +144,7 @@ export async function getChannelGrowthAnalysis(accountSnapshot = null) {
   if (publishedCount >= 14 || followers > 500) {
     growthStatus = "🚀 High Growth Momentum";
     growthBadgeColor = "#22c55e";
-    growthSummary = `Strong performance! You have published ${publishedCount} daily reels. Instagram algorithm is rewarding your consistent daily 07:00 IST schedule.`;
+    growthSummary = `Strong performance! You have published ${publishedCount} daily reels. Instagram algorithm is rewarding your consistent daily 12:00 PM Noon IST schedule.`;
   } else if (publishedCount >= 3 || followers > 50) {
     growthStatus = "📈 Steady Growth Velocity";
     growthBadgeColor = "#3b82f6";
