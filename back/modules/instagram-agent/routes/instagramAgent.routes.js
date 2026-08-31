@@ -436,6 +436,58 @@ router.post("/content/upload-reel", videoUpload.single("video"), async (req, res
   }
 });
 
+// Admin 1-Click Direct Upload & Instant Instagram Reel Publisher
+router.post("/content/publish-direct", videoUpload.single("video"), async (req, res) => {
+  try {
+    const filePath = req.file?.path;
+    const fileBuffer = req.file?.buffer;
+    const fileUrl = req.body.videoUrl || req.body.assetUrl;
+    const category = req.body.category || "🌅 Nature's Morning";
+    const topic = req.body.topic || "";
+    const customCaption = req.body.caption || "";
+    const aspectRatio = req.body.aspectRatio || "9:16";
+
+    let customHashtags = [];
+    if (req.body.hashtags) {
+      if (Array.isArray(req.body.hashtags)) {
+        customHashtags = req.body.hashtags;
+      } else if (typeof req.body.hashtags === "string") {
+        try {
+          customHashtags = JSON.parse(req.body.hashtags);
+        } catch (_) {
+          customHashtags = req.body.hashtags
+            .split(/[\s,]+/)
+            .filter(Boolean)
+            .map((tag) => (tag.startsWith("#") ? tag : `#${tag}`));
+        }
+      }
+    }
+
+    if (!filePath && !fileBuffer && !fileUrl) {
+      return res.status(400).json({ error: "Please provide a video file or a video URL." });
+    }
+
+    // 1. Create content draft record with asset URL
+    const reelDraft = await createAdminUploadedReel({
+      filePath,
+      fileBuffer,
+      fileUrl,
+      category,
+      topic,
+      customCaption,
+      customHashtags,
+      aspectRatio,
+    });
+
+    // 2. Immediately publish to Instagram Reels & clean up Cloudinary storage
+    const published = await publishContent(reelDraft);
+    res.status(200).json(published);
+  } catch (error) {
+    console.error("[Admin Direct Publish Route Error]:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Admin Bulk Video Upload for Multiple 12-Series Instagram Reels in One Batch
 router.post("/content/upload-reels-bulk", videoUpload.array("videos", 30), async (req, res) => {
   try {

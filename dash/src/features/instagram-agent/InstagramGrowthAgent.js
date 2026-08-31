@@ -22,7 +22,6 @@ import {
   Typography,
 } from "@mui/material";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import StopIcon from "@mui/icons-material/Stop";
 import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -31,10 +30,10 @@ import CloseIcon from "@mui/icons-material/Close";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import TrendingUpIcon from "@mui/icons-material/TrendingUp";
 import PeopleAltOutlinedIcon from "@mui/icons-material/PeopleAltOutlined";
-import LoopIcon from "@mui/icons-material/Loop";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CampaignIcon from "@mui/icons-material/Campaign";
-import ScheduleIcon from "@mui/icons-material/Schedule";
+import SendIcon from "@mui/icons-material/Send";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import server from "../../shared/environment";
 
 const authHeaders = () => {
@@ -74,41 +73,122 @@ const field = {
 };
 
 const NATURE_REALMS = [
-  { id: "morning", title: "🌅 Nature's Morning", realm: "🌅 Nature's Morning" },
-  { id: "sunset", title: "🌄 Sunset of the Day", realm: "🌄 Sunset of the Day" },
-  { id: "wildlife", title: "🦌 Wildlife Moments", realm: "🦌 Wildlife Moments" },
-  { id: "forest", title: "🌲 Hidden Forests", realm: "🌲 Hidden Forests" },
-  { id: "ocean", title: "🌊 Ocean Diaries", realm: "🌊 Ocean Diaries" },
-  { id: "rain", title: "🌧️ Rainy Nature", realm: "🌧️ Rainy Nature" },
-  { id: "night", title: "🌌 Nature at Night", realm: "🌌 Nature at Night" },
-  { id: "tiny", title: "🦋 Tiny Wonders", realm: "🦋 Tiny Wonders" },
-  { id: "mountains", title: "🏔️ Mountain Stories", realm: "🏔️ Mountain Stories" },
-  { id: "seasons", title: "🍂 Earth Through the Seasons", realm: "🍂 Earth Through the Seasons" },
-  { id: "world_wildlife", title: "🐘 Wildlife Around the World", realm: "🐘 Wildlife Around the World" },
-  { id: "one_planet", title: "🌍 One Planet, Many Worlds", realm: "🌍 One Planet, Many Worlds" },
+  {
+    id: "morning",
+    title: "🌅 Nature's Morning",
+    realm: "🌅 Nature's Morning",
+    defaultTopic: "Golden Morning Valley Sunrise",
+    defaultCaption: "🌅 Nature's Morning: The Sacred Silence of Dawn.\n\nThere is a quiet magic in the first light of day. Take a slow, deep breath. Inhale clarity, exhale tension.\n\n📌 Save this post for your daily peace.\n💬 What is your favorite time to wake up in nature? Drop a '🌅' below! 👇",
+    defaultHashtags: "#naturesmorning #sunrisephotography #mountainsunrise #earthfocus #peacefulnature #8knature #cinematicnature",
+  },
+  {
+    id: "sunset",
+    title: "🌄 Sunset of the Day",
+    realm: "🌄 Sunset of the Day",
+    defaultTopic: "Crimson Coastal Sunset Waves",
+    defaultCaption: "🌄 Sunset of the Day: Where Fire Meets Ocean.\n\nAs the sun dips below the horizon, let go of everything that no longer serves you.\n\n✨ Rest, breathe, and reset.\n📌 Save this for your evening serenity! 👇",
+    defaultHashtags: "#sunsetlovers #sunsetoftheday #goldenhoursea #cinematicsunset #earthfocus #peacefulnature #sunsetreel",
+  },
+  {
+    id: "wildlife",
+    title: "🦌 Wildlife Moments",
+    realm: "🦌 Wildlife Moments",
+    defaultTopic: "Wild Stag in Autumn Mist",
+    defaultCaption: "🦌 Wildlife Moments: Grace in the Wild.\n\nWitnessing pure majesty undisturbed in nature. A reminder of the silent strength within all living things.\n\n📌 Double tap if you love wildlife! 🦌✨",
+    defaultHashtags: "#wildlifemoments #wildlifephotography #naturelovers #earthfocus #forestanimals #cinematicwildlife",
+  },
+  {
+    id: "forest",
+    title: "🌲 Hidden Forests",
+    realm: "🌲 Hidden Forests",
+    defaultTopic: "Ancient Redwood Canopy Light Rays",
+    defaultCaption: "🌲 Hidden Forests: Sanctuary of Ancient Giants.\n\nStep into the quiet mossy depths where sunlight pierces the canopy like emerald beams.\n\n🌿 Take a deep breath of fresh pine air.\n📌 Save this reel for daily calming vibes.",
+    defaultHashtags: "#hiddenforests #redwoods #forestbathing #earthfocus #peacefulnature #cinematicforest #naturevibes",
+  },
+  {
+    id: "ocean",
+    title: "🌊 Ocean Diaries",
+    realm: "🌊 Ocean Diaries",
+    defaultTopic: "Turquoise Shoreline & Coral Depths",
+    defaultCaption: "🌊 Ocean Diaries: The Endless Blue Rhythm.\n\nThe rhythmic crash of crystal waves against golden sand resets the mind. Listen closely to the tide.\n\n🌊 Drop a '💙' if you need an ocean escape! 👇",
+    defaultHashtags: "#oceandiaries #oceanlovers #beachvibes #turquoiseocean #peacefulnature #earthfocus #cinematicwaves",
+  },
+  {
+    id: "rain",
+    title: "🌧️ Rainy Nature",
+    realm: "🌧️ Rainy Nature",
+    defaultTopic: "Gentle Rain on Mountain Pine Needles",
+    defaultCaption: "🌧️ Rainy Nature: The Soothing Symphony of Raindrops.\n\nRain washes away the old and nurtures life. Let the gentle sound of rainfall calm your thoughts.\n\n☕ Save this for rainy day comfort.\n💬 Do you love rainy weather? Drop a '🌧️' below!",
+    defaultHashtags: "#rainynature #rainambience #peacefulrain #rainlovers #earthfocus #cinematicnature #naturetherapy",
+  },
+  {
+    id: "night",
+    title: "🌌 Nature at Night",
+    realm: "🌌 Nature at Night",
+    defaultTopic: "Milky Way Galaxy over Desert Dunes",
+    defaultCaption: "🌌 Nature at Night: Under a Billion Stars.\n\nLook up. In the vastness of the cosmic sky, find peace in how small yet deeply connected we are.\n\n✨ Sleep peacefully tonight.\n📌 Save this for bedtime serenity!",
+    defaultHashtags: "#natureatnight #astrophotography #milkywaychasers #nightsky #peacefulnight #earthfocus #cinematicnight",
+  },
+  {
+    id: "tiny",
+    title: "🦋 Tiny Wonders",
+    realm: "🦋 Tiny Wonders",
+    defaultTopic: "Emerald Hummingbird & Morning Dew Flower",
+    defaultCaption: "🦋 Tiny Wonders: Microscopic Miracles.\n\nThe smallest details of nature hold infinite beauty. Slow down and appreciate the little things today.\n\n🌸 Double tap if this brightened your day! 🦋",
+    defaultHashtags: "#tinywonders #macronature #hummingbird #earthfocus #peacefulnature #naturemacro #8knature",
+  },
+  {
+    id: "mountains",
+    title: "🏔️ Mountain Stories",
+    realm: "🏔️ Mountain Stories",
+    defaultTopic: "Alpine Glacier Peak at High Altitude",
+    defaultCaption: "🏔️ Mountain Stories: Standing Tall Above the Clouds.\n\nNo storm lasts forever. Stand tall like the mountain peaks, enduring through every season.\n\n🏔️ Tag someone who loves mountain adventures! 👇",
+    defaultHashtags: "#mountainstories #alpinelife #glacierviews #earthfocus #mountainlovers #cinematicmountains #peakviews",
+  },
+  {
+    id: "seasons",
+    title: "🍂 Earth Through the Seasons",
+    realm: "🍂 Earth Through the Seasons",
+    defaultTopic: "Golden Aspen Autumn Forest Cascade",
+    defaultCaption: "🍂 Earth Through the Seasons: The Golden Dance of Autumn.\n\nNature teaches us how graceful it can be to let things go. Embrace every season of your journey.\n\n🍂 Save this autumn serenity! 👇",
+    defaultHashtags: "#earththroughtheseasons #autumnleaves #goldenautumn #earthfocus #peacefulnature #seasonschange",
+  },
+  {
+    id: "world_wildlife",
+    title: "🐘 Wildlife Around the World",
+    realm: "🐘 Wildlife Around the World",
+    defaultTopic: "Elephant Herd on African Savannah Sunset",
+    defaultCaption: "🐘 Wildlife Around the World: Giants of the Savannah.\n\nFamily, loyalty, and timeless wisdom across the golden plains. Protect our wild earth.\n\n🌍 Drop a '🐘' to show love for wild animals! 👇",
+    defaultHashtags: "#wildlifearoundtheworld #africansavannah #elephantlove #earthfocus #conservation #cinematicwildlife",
+  },
+  {
+    id: "one_planet",
+    title: "🌍 One Planet, Many Worlds",
+    realm: "🌍 One Planet, Many Worlds",
+    defaultTopic: "Bioluminescent Lagoon & Emerald Waterfalls",
+    defaultCaption: "🌍 One Planet, Many Worlds: Earth's Hidden Realms.\n\nFrom glowing lagoons to roaring emerald falls, our planet is a masterpiece of living art.\n\n✨ Protect and cherish our only home.\n📌 Share this reel to spread nature's beauty!",
+    defaultHashtags: "#oneplanetmanyworlds #earthfocus #discoverearth #planetearth #cinematicnature #naturegeography",
+  },
 ];
 
 export default function InstagramGrowthAgent() {
   const [data, setData] = useState({
-    account: { connected: true, username: "", followers: null, reach: null, mediaCount: null },
+    account: { connected: true, username: "quietframes.ai", followers: 4, reach: null, mediaCount: 25 },
     content: [],
     promotions: [],
     activities: [],
     accountError: "",
   });
   const [config, setConfig] = useState({
-    running: false,
-    dailyPostTime: "12:00",
-    niche: "Nature, Wildlife & Earth Cinematography",
     autoReplyComments: true,
     autoReplyMessages: true,
   });
   const [growthAnalysis, setGrowthAnalysis] = useState({
-    growthStatus: "🌱 Growth Active",
+    growthStatus: "🌱 Active & Connected",
     growthBadgeColor: "#22c55e",
-    growthSummary: "Autonomous daily 1-reel scheduler is ready. Upload videos to the queue to begin publishing.",
+    growthSummary: "Instagram Reels publisher is ready. Select your video and publish directly to @quietframes.ai.",
     topCategory: "🌅 Nature's Morning",
-    recommendation: "Maintain a steady daily 12:00 PM (12 Noon IST) posting schedule for optimal Instagram Reels distribution.",
+    recommendation: "Publish high-quality 9:16 vertical 4K nature reels with clear hooks and audio soundscapes.",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -124,11 +204,17 @@ export default function InstagramGrowthAgent() {
   const [exchangingToken, setExchangingToken] = useState(false);
   const [longLivedResult, setLongLivedResult] = useState(null);
 
-  const [uploadFiles, setUploadFiles] = useState([]);
-  const [globalRealm, setGlobalRealm] = useState("🌅 Nature's Morning");
-  const [globalAspectRatio, setGlobalAspectRatio] = useState("9:16");
-  const [uploadingReel, setUploadingReel] = useState(false);
-  const [uploadProgressText, setUploadProgressText] = useState("");
+  // Direct Upload & Publish States
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState("");
+  const [videoUrlInput, setVideoUrlInput] = useState("");
+  const [realm, setRealm] = useState("🌅 Nature's Morning");
+  const [aspectRatio, setAspectRatio] = useState("9:16");
+  const [topic, setTopic] = useState("Golden Morning Valley Sunrise");
+  const [caption, setCaption] = useState(NATURE_REALMS[0].defaultCaption);
+  const [hashtags, setHashtags] = useState(NATURE_REALMS[0].defaultHashtags);
+  const [publishing, setPublishing] = useState(false);
+  const [publishProgressText, setPublishProgressText] = useState("");
   const fileInputRef = useRef(null);
 
   const [cinemaModalOpen, setCinemaModalOpen] = useState(false);
@@ -150,43 +236,47 @@ export default function InstagramGrowthAgent() {
           setLiveFollowers((prev) => {
             if (prev !== null && payload.followers > prev) {
               setHasFollowerIncremented(true);
-              setTimeout(() => setHasFollowerIncremented(false), 8000);
+              setTimeout(() => setHasFollowerIncremented(false), 5000);
             }
             return payload.followers;
           });
-          setLastFollowerCheck(new Date().toLocaleTimeString());
         }
       }
     } catch (_) {}
+    setLastFollowerCheck(new Date());
   }, []);
 
   const load = useCallback(async () => {
-    setLoading(true);
     try {
-      const response = await fetch(`${server}/api/instagram-agent/overview`, {
-        headers: authHeaders(),
-      });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "Could not load Instagram agent.");
-      setData(payload);
-      if (payload.config) setConfig(payload.config);
+      const [overviewRes, growthRes] = await Promise.all([
+        fetch(`${server}/api/instagram-agent/overview`, { headers: authHeaders() }),
+        fetch(`${server}/api/instagram-agent/growth-intel`, { headers: authHeaders() }),
+      ]);
 
-      if (payload.account?.followers !== null && payload.account?.followers !== undefined) {
-        setLiveFollowers(payload.account.followers);
-        setLastFollowerCheck(new Date().toLocaleTimeString());
+      if (overviewRes.ok) {
+        const overviewData = await overviewRes.json();
+        setData((prev) => ({
+          ...prev,
+          ...overviewData,
+          account: overviewData.account || prev.account,
+          content: overviewData.content || [],
+          promotions: overviewData.promotions || [],
+          activities: overviewData.activities || [],
+        }));
+        if (overviewData.config) {
+          setConfig((prev) => ({ ...prev, ...overviewData.config }));
+        }
+        if (overviewData.account?.followers !== undefined) {
+          setLiveFollowers(overviewData.account.followers);
+        }
       }
 
-      try {
-        const gRes = await fetch(`${server}/api/instagram-agent/analytics/growth`, {
-          headers: authHeaders(),
-        });
-        if (gRes.ok) {
-          const gData = await gRes.json();
-          setGrowthAnalysis(gData);
-        }
-      } catch (_) {}
-    } catch (error) {
-      notify(error.message, "error");
+      if (growthRes.ok) {
+        const growthData = await growthRes.json();
+        setGrowthAnalysis(growthData);
+      }
+    } catch (err) {
+      console.warn("[Instagram Agent Overview Warning]:", err.message);
     } finally {
       setLoading(false);
     }
@@ -201,98 +291,64 @@ export default function InstagramGrowthAgent() {
     return () => clearInterval(timer);
   }, [load, fetchLiveFollowers]);
 
-  const request = async (path, method = "POST", body) => {
-    const response = await fetch(`${server}/api/instagram-agent${path}`, {
-      method,
-      headers: authHeaders(),
-      body: body === undefined ? undefined : JSON.stringify(body),
-    });
-    const payload = await response.json();
-    if (!response.ok) throw new Error(payload.error || "Request failed.");
-    return payload;
+  const handleRealmChange = (newRealmTitle) => {
+    setRealm(newRealmTitle);
+    const target = NATURE_REALMS.find((r) => r.realm === newRealmTitle) || NATURE_REALMS[0];
+    setTopic(target.defaultTopic);
+    setCaption(target.defaultCaption);
+    setHashtags(target.defaultHashtags);
   };
 
-  const handleMultipleVideoSelect = (e) => {
-    const files = Array.from(e.target.files || []);
-    if (!files.length) return;
+  const handleFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-    const newEntries = files.map((file, idx) => {
-      const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
-      return {
-        id: `${Date.now()}_${idx}_${Math.random().toString(36).substring(2, 6)}`,
-        file,
-        name: file.name,
-        size: (file.size / (1024 * 1024)).toFixed(2),
-        previewUrl: URL.createObjectURL(file),
-        realm: globalRealm,
-        aspectRatio: globalAspectRatio,
-        topic: cleanName,
-        caption: "",
-      };
-    });
+    if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+    setSelectedFile(file);
+    setVideoUrlInput("");
+    setVideoPreviewUrl(URL.createObjectURL(file));
 
-    setUploadFiles((prev) => [...prev, ...newEntries]);
+    const cleanName = file.name.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
+    setTopic(cleanName);
+    notify(`Selected video: "${file.name}" (${(file.size / (1024 * 1024)).toFixed(1)} MB)`);
+  };
+
+  const handleClearSelectedFile = () => {
+    if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+    setSelectedFile(null);
+    setVideoPreviewUrl("");
+    setVideoUrlInput("");
     if (fileInputRef.current) fileInputRef.current.value = "";
-    notify(`Added ${files.length} video(s) to upload staging.`);
   };
 
-  const handleRemoveStagedFile = (id) => {
-    setUploadFiles((prev) => {
-      const target = prev.find((f) => f.id === id);
-      if (target?.previewUrl) URL.revokeObjectURL(target.previewUrl);
-      return prev.filter((f) => f.id !== id);
-    });
-  };
-
-  const handleClearAllStaged = () => {
-    uploadFiles.forEach((f) => {
-      if (f.previewUrl) URL.revokeObjectURL(f.previewUrl);
-    });
-    setUploadFiles([]);
-  };
-
-  const updateStagedItem = (id, fieldName, value) => {
-    setUploadFiles((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, [fieldName]: value } : item))
-    );
-  };
-
-  const handleUploadAllToQueue = async (publishFirstImmediately = false) => {
-    if (!uploadFiles.length) {
-      notify("Please select one or more video files to queue.", "warning");
+  const handlePublishDirectly = async () => {
+    if (!selectedFile && !videoUrlInput.trim()) {
+      notify("Please select a video file or paste a video URL first.", "warning");
       return;
     }
 
-    setUploadingReel(true);
-    let successCount = 0;
-    let firstUploadedId = null;
-    const uploadedIds = [];
-    const uploadErrors = [];
+    setPublishing(true);
+    setPublishProgressText("Preparing secure upload to CDN...");
 
-    for (let i = 0; i < uploadFiles.length; i++) {
-      const item = uploadFiles[i];
-      setUploadProgressText(`Uploading video ${i + 1} of ${uploadFiles.length}: "${item.topic}" (${item.aspectRatio || globalAspectRatio})...`);
+    try {
+      let finalVideoUrl = videoUrlInput.trim();
 
-      try {
-        let directVideoUrl = "";
+      // 1. If file is selected, upload directly to Cloudinary Edge CDN
+      if (selectedFile) {
+        setPublishProgressText(`Uploading "${selectedFile.name}" directly to Cloudinary CDN...`);
 
-        // 1. Fetch a FRESH Cloudinary signature for EACH individual video
+        // Fetch signature from backend
         let sig = null;
         try {
           const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`, {
             headers: authHeaders(),
           });
-          if (sigRes.ok) {
-            sig = await sigRes.json();
-          }
-        } catch (sErr) {
-          console.warn("[Signature fetch warning]:", sErr.message);
-        }
+          if (sigRes.ok) sig = await sigRes.json();
+        } catch (_) {}
 
-        // 2. Direct High-Speed Edge Upload to Cloudinary CDN
-        if (sig?.cloudName && sig?.signature && item.file) {
+        if (sig?.cloudName && sig?.signature) {
           const cFormData = new FormData();
-          cFormData.append("file", item.file);
+          cFormData.append("file", selectedFile);
           cFormData.append("api_key", sig.apiKey);
           cFormData.append("timestamp", sig.timestamp);
           cFormData.append("signature", sig.signature);
@@ -300,109 +356,81 @@ export default function InstagramGrowthAgent() {
 
           const cUploadRes = await fetch(
             `https://api.cloudinary.com/v1_1/${sig.cloudName}/auto/upload`,
-            {
-              method: "POST",
-              body: cFormData,
-            }
+            { method: "POST", body: cFormData }
           );
 
           const cUploadJson = await cUploadRes.json();
           if (cUploadRes.ok && cUploadJson.secure_url) {
-            directVideoUrl = cUploadJson.secure_url;
+            finalVideoUrl = cUploadJson.secure_url;
           } else {
-            throw new Error(cUploadJson?.error?.message || "Cloudinary direct edge upload failed.");
+            throw new Error(cUploadJson?.error?.message || "Cloudinary direct upload failed.");
           }
-        }
-
-        if (!directVideoUrl) {
-          throw new Error("Unable to obtain secure video CDN URL. Please check network connection.");
-        }
-
-        // 3. Register Reel Metadata with Backend (Instant 1KB JSON payload)
-        const token = localStorage.getItem("token") || "";
-        const res = await fetch(`${server}/api/instagram-agent/content/upload-reel`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-          body: JSON.stringify({
-            videoUrl: directVideoUrl,
-            category: item.realm || globalRealm,
-            topic: item.topic,
-            caption: item.caption,
-            aspectRatio: item.aspectRatio || globalAspectRatio,
-          }),
-        });
-
-        const rawText = await res.text();
-        let parsed;
-        try {
-          parsed = JSON.parse(rawText);
-        } catch (_) {
-          throw new Error(res.statusText || `Server error during upload of video ${i + 1}`);
-        }
-
-        if (!res.ok) throw new Error(parsed.error || `Failed to upload video ${i + 1}`);
-
-        if (i === 0 && parsed?._id) firstUploadedId = parsed._id;
-        uploadedIds.push(item.id);
-        successCount++;
-      } catch (err) {
-        console.error(`[Upload Failed for "${item.topic}"]:`, err.message);
-        uploadErrors.push(`"${item.topic}": ${err.message}`);
-      }
-    }
-
-    try {
-      if (publishFirstImmediately && firstUploadedId) {
-        setUploadProgressText("Publishing 1st reel immediately to Instagram...");
-        await request(`/content/${firstUploadedId}/publish`, "POST");
-        notify(`🎉 1st Reel published to Instagram & ${successCount - 1} reels queued for upcoming days!`, "success");
-      } else if (successCount > 0) {
-        if (uploadErrors.length === 0) {
-          notify(`✅ Successfully queued all ${successCount} daily video reel(s)! (Strict 1 post per day schedule).`, "success");
         } else {
-          notify(`⚠️ Queued ${successCount} video(s). ${uploadErrors.length} video(s) failed (retained in staging).`, "warning");
+          throw new Error("Unable to connect to Cloudinary upload service. Please check network and retry.");
         }
-      } else if (uploadErrors.length > 0) {
-        notify(`Upload failed: ${uploadErrors[0]}`, "error");
       }
 
-      // Remove successfully uploaded items from staging list
-      setUploadFiles((prev) => prev.filter((f) => !uploadedIds.includes(f.id)));
+      if (!finalVideoUrl) {
+        throw new Error("Missing video CDN URL.");
+      }
+
+      // 2. Publish to Instagram Reels via Meta Graph API Container
+      setPublishProgressText("Processing & Publishing to Instagram Reels (@quietframes.ai)...");
+
+      const token = localStorage.getItem("token") || "";
+      const publishRes = await fetch(`${server}/api/instagram-agent/content/publish-direct`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          videoUrl: finalVideoUrl,
+          category: realm,
+          topic: topic.trim() || `${realm} Reel`,
+          caption: `${caption.trim()}\n\n${hashtags.trim()}`,
+          aspectRatio,
+        }),
+      });
+
+      const rawText = await publishRes.text();
+      let parsed;
+      try {
+        parsed = JSON.parse(rawText);
+      } catch (_) {
+        throw new Error(publishRes.statusText || "Server error while publishing to Instagram.");
+      }
+
+      if (!publishRes.ok) {
+        throw new Error(parsed.error || "Failed to publish reel to Instagram.");
+      }
+
+      notify(`🎉 Successfully Published to Instagram Reels! (@quietframes.ai). Cloudinary storage cleaned up.`, "success");
+      handleClearSelectedFile();
       await load();
+      await fetchLiveFollowers();
     } catch (err) {
       notify(err.message, "error");
     } finally {
-      setUploadingReel(false);
-      setUploadProgressText("");
+      setPublishing(false);
+      setPublishProgressText("");
     }
   };
 
-  const publishNow = async (contentId) => {
-    setSaving(true);
+  const handleExchangeLongLivedToken = async () => {
+    setExchangingToken(true);
+    setTokenModalOpen(true);
     try {
-      const published = await request(`/content/${contentId}/publish`, "POST");
-      notify(`Published Reel to Instagram: "${published.topic}". Cloudinary asset cleaned up.`, "success");
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
+      const res = await fetch(`${server}/api/instagram-agent/exchange-token`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      setLongLivedResult(data);
+    } catch (err) {
+      setLongLivedResult({ error: err.message });
     } finally {
-      setSaving(false);
-    }
-  };
-
-  const deleteContent = async (contentId) => {
-    setSaving(true);
-    try {
-      await request(`/content/${contentId}`, "DELETE");
-      notify("Removed reel from queue.", "info");
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
-    } finally {
-      setSaving(false);
+      setExchangingToken(false);
     }
   };
 
@@ -410,15 +438,15 @@ export default function InstagramGrowthAgent() {
     if (!selectedCollab) return;
     setReviewingCollab(true);
     try {
-      await fetch(`${server}/api/instagram-agent/promotions/${selectedCollab._id}`, {
-        method: "PATCH",
+      const res = await fetch(`${server}/api/instagram-agent/promotions/${selectedCollab._id}/review`, {
+        method: "POST",
         headers: authHeaders(),
-        body: JSON.stringify({ status, adminNote: collabNote }),
+        body: JSON.stringify({ status, adminNotes: collabNote }),
       });
-      notify(`Brand inquiry marked as ${status.toUpperCase()}!`, "success");
+      const updated = await res.json();
+      if (!res.ok) throw new Error(updated.error || "Review failed");
+      notify(`Brand inquiry marked as ${status}.`);
       setCollabModalOpen(false);
-      setSelectedCollab(null);
-      setCollabNote("");
       await load();
     } catch (err) {
       notify(err.message, "error");
@@ -427,209 +455,127 @@ export default function InstagramGrowthAgent() {
     }
   };
 
-  const setConfigField = (key, val) => setConfig((prev) => ({ ...prev, [key]: val }));
-
-  const saveConfig = async () => {
-    setSaving(true);
-    try {
-      await request("/config", "POST", config);
-      notify("Instagram Growth Agent settings saved successfully.");
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const toggleAgent = async () => {
-    setSaving(true);
-    try {
-      if (config.running) {
-        await request("/stop", "POST");
-        notify("Instagram Daily Scheduler paused.");
-      } else {
-        await request("/start", "POST");
-        notify("Instagram 12-Series Daily Runner started! (Strict 1 post/day at 12:00 PM Noon IST).");
-      }
-      await load();
-    } catch (error) {
-      notify(error.message, "error");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleExchangeLongLivedToken = async () => {
-    setTokenModalOpen(true);
-    setExchangingToken(true);
-    setLongLivedResult(null);
-    try {
-      const res = await request("/token/long-lived", "POST");
-      setLongLivedResult(res);
-      notify("60-Day Meta token generated successfully!", "success");
-      await load();
-    } catch (err) {
-      setLongLivedResult({ error: err.message });
-      notify(err.message, "error");
-    } finally {
-      setExchangingToken(false);
-    }
-  };
-
-  const openCinemaModal = (item) => {
-    setCinemaItem(item);
-    setCinemaModalOpen(true);
-  };
-
-  const closeCinemaModal = () => {
-    setCinemaModalOpen(false);
-    setCinemaItem(null);
-  };
-
-  const { account, accountError, content = [], promotions = [], activities = [] } = data || {};
-  
-  const queuedItems = (content || []).filter((c) => c.status !== "published" && c.assetUrl);
-  const publishedItems = (content || []).filter((c) => c.status === "published");
-  const currentFollowersDisplay = liveFollowers ?? account?.followers;
+  const account = data.account || {};
+  const content = data.content || [];
+  const promotions = data.promotions || [];
+  const publishedItems = content.filter((c) => c.status === "published");
 
   return (
-    <Box sx={{ maxWidth: "1280px", margin: "0 auto", p: { xs: 2, sm: 3, md: 4 }, bgcolor: "#fafafa", minHeight: "100vh" }}>
+    <Box sx={{ maxWidth: 1200, margin: "0 auto", p: { xs: 2, sm: 3, md: 4 } }}>
+      {/* ── HEADER BANNER ── */}
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
         <Box>
-          <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase", letterSpacing: "1px" }}>
-            Instagram Nature Studio · Daily 1-Post Queue Engine
-          </Typography>
-          <Typography sx={{ ...titleStyle, fontSize: { xs: 24, sm: 30 }, mt: 0.3 }}>
-            Instagram Nature Studio & Growth Agent
-          </Typography>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mt: 0.5 }}>
-            Automated 12-Series Nature Reels · Strict 1 Reel/Day · Cloudinary Auto-Cleanup · Brand Collabs & Community Auto-Replies
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+            <Typography variant="h4" sx={{ ...titleStyle, fontSize: { xs: 24, sm: 28 } }}>
+              Instagram Reels Publisher
+            </Typography>
+            <Chip
+              label="1-Click Direct Publish"
+              size="small"
+              sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 11 }}
+            />
+          </Box>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 14 }}>
+            Direct Instagram Reel Uploader & AI Nature Cinematography Engine · Connected to <strong>@{account.username || "quietframes.ai"}</strong>
           </Typography>
         </Box>
-        <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+
+        <Box sx={{ display: "flex", gap: 1.2, alignItems: "center" }}>
           <Button
             variant="outlined"
             size="small"
-            startIcon={<RefreshIcon fontSize="small" />}
-            onClick={load}
-            sx={{ borderRadius: "8px", textTransform: "none", color: "#09090b", borderColor: "#d4d4d8", fontWeight: 700, bgcolor: "#ffffff" }}
+            onClick={() => { load(); fetchLiveFollowers(); }}
+            startIcon={<RefreshIcon />}
+            sx={{ borderRadius: "8px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7", fontWeight: 700 }}
           >
-            Refresh
+            Sync
           </Button>
           <Button
-            variant="contained"
+            variant="outlined"
             size="small"
-            startIcon={<VpnKeyIcon fontSize="small" />}
             onClick={handleExchangeLongLivedToken}
-            sx={{ borderRadius: "8px", textTransform: "none", bgcolor: "#09090b", color: "#ffffff", fontWeight: 700 }}
+            startIcon={<VpnKeyIcon />}
+            sx={{ borderRadius: "8px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7", fontWeight: 700 }}
           >
-            60-Day Token
+            60-Day Meta Token
           </Button>
         </Box>
       </Box>
 
-      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: 2, mb: 3 }}>
+      {/* ── TOP STATS BAR WITH LIVE PULSE ── */}
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 3 }}>
         <Paper sx={{ ...whiteCard, p: 2.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
-              <Box
-                sx={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  bgcolor: "#22c55e",
-                  boxShadow: "0 0 8px rgba(34, 197, 94, 0.6)",
-                  animation: "pulse 1.8s infinite",
-                  "@keyframes pulse": { "0%": { opacity: 0.4 }, "50%": { opacity: 1 }, "100%": { opacity: 0.4 } },
-                }}
-              />
-              <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
-                Live Followers
-              </Typography>
-            </Box>
-            <PeopleAltOutlinedIcon sx={{ color: "#71717a", fontSize: 18 }} />
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
+              Live Followers
+            </Typography>
+            <Box
+              sx={{
+                width: 8,
+                height: 8,
+                borderRadius: "50%",
+                bgcolor: "#22c55e",
+                animation: "pulse 1.5s infinite",
+                "@keyframes pulse": { "0%": { opacity: 0.4 }, "50%": { opacity: 1 }, "100%": { opacity: 0.4 } },
+              }}
+            />
           </Box>
-          <Typography
-            sx={{
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 30,
-              fontWeight: 900,
-              color: hasFollowerIncremented ? "#22c55e" : "#09090b",
-              transition: "color 0.4s ease",
-            }}
-          >
-            {currentFollowersDisplay !== null && currentFollowersDisplay !== undefined
-              ? Number(currentFollowersDisplay).toLocaleString()
-              : (loading ? "..." : "0")}
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+            {liveFollowers !== null ? liveFollowers.toLocaleString() : (account.followers !== null ? account.followers : "—")}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
-            {account?.username ? `@${account.username}` : "@quietframes.ai"} {lastFollowerCheck ? `· ${lastFollowerCheck}` : ""}
+            Live count from @{account.username || "quietframes.ai"}
           </Typography>
         </Paper>
 
         <Paper sx={{ ...whiteCard, p: 2.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
-              Growth Status
+              Published Reels
             </Typography>
             <TrendingUpIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 800, color: growthAnalysis?.growthBadgeColor || "#09090b", mt: 0.5 }}>
-            {growthAnalysis?.growthStatus || "🌱 Growth Active"}
-          </Typography>
-          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 1 }}>
-            {growthAnalysis?.reach ? `${Number(growthAnalysis.reach).toLocaleString()} unique reach` : "Daily growth tracking active"}
-          </Typography>
-        </Paper>
-
-        <Paper sx={{ ...whiteCard, p: 2.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
-            <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
-              Upcoming Queue
-            </Typography>
-            <ScheduleIcon sx={{ color: "#71717a", fontSize: 18 }} />
-          </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 30, fontWeight: 900, color: "#09090b" }}>
-            {queuedItems.length}
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+            {publishedItems.length || account.mediaCount || 0}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
-            Daily Reels lined up in queue
+            Live on Instagram Reels
           </Typography>
         </Paper>
 
         <Paper sx={{ ...whiteCard, p: 2.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1 }}>
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
-              Daily Runner
+              Brand Collab Requests
             </Typography>
-            <LoopIcon sx={{ color: "#71717a", fontSize: 18 }} />
+            <CampaignIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 22, fontWeight: 800, color: config.running ? "#16a34a" : "#71717a", mt: 0.5 }}>
-            {config.running ? "Active (1/Day)" : "Paused"}
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+            {promotions.length}
           </Typography>
-          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 1 }}>
-            Posts exactly 1 reel daily at {config.dailyPostTime || "12:00"} (12:00 PM Noon IST)
+          <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
+            Sponsorships & Partnership DMs
           </Typography>
         </Paper>
       </Box>
 
+      {/* ── AI CHANNEL GROWTH ADVISOR ── */}
       {growthAnalysis && (
         <Paper sx={{ ...whiteCard, mb: 3, bgcolor: "#09090b", color: "#ffffff", borderColor: "#27272a" }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
               <AutoAwesomeIcon sx={{ color: "#22c55e", fontSize: 20 }} />
               <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 16, color: "#ffffff" }}>
-                AI Channel Growth Advisor · Performance Intel
+                Channel Growth Intelligence · @{account.username || "quietframes.ai"}
               </Typography>
             </Box>
             <Chip
-              label={growthAnalysis.growthStatus}
+              label={growthAnalysis.growthStatus || "🌱 Active"}
               size="small"
-              sx={{ bgcolor: "#27272a", color: "#ffffff", fontWeight: 700, fontSize: 11 }}
+              sx={{ bgcolor: "#27272a", color: growthAnalysis.growthBadgeColor || "#22c55e", fontWeight: 700, fontSize: 11 }}
             />
           </Box>
-          <Typography sx={{ fontSize: 13.5, color: "#e4e4e7", lineHeight: 1.6, mb: 1.5 }}>
+          <Typography sx={{ fontSize: 13, color: "#d4d4d8", mb: 1.5 }}>
             {growthAnalysis.growthSummary}
           </Typography>
           <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", pt: 1, borderTop: "1px solid #27272a" }}>
@@ -637,323 +583,278 @@ export default function InstagramGrowthAgent() {
               ⭐ Top Audience Realm: <strong style={{ color: "#ffffff" }}>{growthAnalysis.topCategory}</strong>
             </Typography>
             <Typography sx={{ fontSize: 12, color: "#a1a1aa" }}>
-              💡 Growth Tip: <span style={{ color: "#d4d4d8" }}>{growthAnalysis.recommendation}</span>
+              💡 Recommendation: <span style={{ color: "#d4d4d8" }}>{growthAnalysis.recommendation}</span>
             </Typography>
           </Box>
         </Paper>
       )}
 
-      {accountError && (
-        <Alert severity="warning" sx={{ mb: 3, borderRadius: "12px", border: "1px solid #e4e4e7" }}>
-          {accountError}
-        </Alert>
-      )}
-
-      <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
+      {/* ── DIRECT INSTAGRAM REEL PUBLISHER CARD ── */}
+      <Paper sx={{ ...whiteCard, mb: 3, border: "2px solid #09090b" }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-            <CloudUploadIcon sx={{ color: "#09090b", fontSize: 22 }} />
-            <Typography sx={{ ...titleStyle, fontSize: 18 }}>
-              Multi-Video Queue Uploader · 12-Series Nature Reels
+            <CloudUploadIcon sx={{ color: "#09090b", fontSize: 24 }} />
+            <Typography sx={{ ...titleStyle, fontSize: 20 }}>
+              Direct Instagram Reel Publisher
             </Typography>
           </Box>
-          <Chip label="Strict 1 Post / Day" size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
+          <Chip label="Instant Publishing" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 800, fontSize: 11 }} />
         </Box>
-        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2.5 }}>
-          Upload multiple videos at once. The agent will queue them sequentially (Day 1, Day 2, Day 3...), automatically generating viral captions, tags, and soundscapes. The agent posts <strong>strictly ONE Reel per day</strong> and cleans up Cloudinary storage automatically after publishing.
+        <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13.5, mb: 3 }}>
+          Upload your video, pick your 12-Series Nature Realm & Aspect Ratio, and click <strong>Publish to Instagram</strong>. The video is published directly to your Instagram Reels feed and the temporary file is purged from Cloudinary immediately after.
         </Typography>
 
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.2fr 1fr 1fr" }, gap: 2, mb: 2 }}>
-          <FormControl sx={field} fullWidth>
-            <InputLabel>Default 12-Series Realm ⭐</InputLabel>
-            <Select
-              label="Default 12-Series Realm ⭐"
-              value={globalRealm}
-              onChange={(e) => setGlobalRealm(e.target.value)}
-            >
-              {NATURE_REALMS.map((r) => (
-                <MenuItem key={r.id} value={r.realm}>
-                  {r.title}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          {/* Aspect Ratio Format Selector */}
-          <FormControl sx={field} fullWidth>
-            <InputLabel>Reel Format / Aspect Ratio 📐</InputLabel>
-            <Select
-              label="Reel Format / Aspect Ratio 📐"
-              value={globalAspectRatio}
-              onChange={(e) => setGlobalAspectRatio(e.target.value)}
-            >
-              <MenuItem value="9:16">📱 9:16 Vertical Reel (Instagram Standard)</MenuItem>
-              <MenuItem value="16:9">🖥️ 16:9 Landscape / Widescreen</MenuItem>
-            </Select>
-          </FormControl>
-
-          {/* Multiple File Dropzone Button */}
-          <Button
-            variant="outlined"
-            onClick={() => fileInputRef.current?.click()}
-            startIcon={<CloudUploadIcon />}
-            sx={{
-              borderRadius: "10px",
-              textTransform: "none",
-              fontWeight: 700,
-              fontSize: 13,
-              borderColor: "#09090b",
-              color: "#09090b",
-              bgcolor: "#fafafa",
-              "&:hover": { bgcolor: "#f4f4f5", borderColor: "#09090b" },
-              minHeight: 52,
-            }}
-          >
-            {uploadFiles.length > 0 ? "📁 Add More Videos" : "Select Videos (.mp4, .mov)"}
-          </Button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleMultipleVideoSelect}
-            accept="video/*"
-            multiple
-            style={{ display: "none" }}
-          />
-        </Box>
-
-        {uploadFiles.length > 0 && (
-          <Box sx={{ mb: 2.5, p: 2, bgcolor: "#fafafa", borderRadius: "12px", border: "1px solid #e4e4e7" }}>
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1 }}>
-              <Typography sx={{ fontWeight: 800, fontSize: 13, color: "#09090b" }}>
-                Staged Videos for Daily Queue ({uploadFiles.length} videos staged)
-              </Typography>
-              <Box sx={{ display: "flex", gap: 1 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
+          {/* Left Column: Media Selection & Player Preview */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "flex", gap: 1.5 }}>
+              <Button
+                variant="contained"
+                onClick={() => fileInputRef.current?.click()}
+                startIcon={<CloudUploadIcon />}
+                sx={{
+                  flex: 1,
+                  borderRadius: "10px",
+                  textTransform: "none",
+                  fontWeight: 800,
+                  fontSize: 13.5,
+                  bgcolor: "#09090b",
+                  color: "#ffffff",
+                  "&:hover": { bgcolor: "#27272a" },
+                  minHeight: 48,
+                }}
+              >
+                {selectedFile ? "📁 Change Video File" : "📁 Choose Video File (.mp4, .mov)"}
+              </Button>
+              {selectedFile && (
                 <Button
-                  size="small"
-                  onClick={() => fileInputRef.current?.click()}
-                  startIcon={<CloudUploadIcon fontSize="small" />}
-                  sx={{ color: "#09090b", textTransform: "none", fontSize: 11, fontWeight: 700 }}
+                  variant="outlined"
+                  onClick={handleClearSelectedFile}
+                  sx={{ borderRadius: "10px", textTransform: "none", color: "#ef4444", borderColor: "#fca5a5" }}
                 >
-                  + Add More Videos
+                  Clear
                 </Button>
-                <Button size="small" onClick={handleClearAllStaged} sx={{ color: "#ef4444", textTransform: "none", fontSize: 11, fontWeight: 700 }}>
-                  Clear All
-                </Button>
-              </Box>
+              )}
             </Box>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="video/*"
+              style={{ display: "none" }}
+            />
 
-            <Box sx={{ display: "flex", flexDirection: "column", gap: 1.5 }}>
-              {uploadFiles.map((item, idx) => (
-                <Box
-                  key={item.id}
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: { xs: "1fr", sm: "60px 1.4fr 1fr 110px auto" },
-                    gap: 1.5,
-                    alignItems: "center",
-                    p: 1.2,
-                    bgcolor: "#ffffff",
-                    borderRadius: "8px",
-                    border: "1px solid #e4e4e7",
-                  }}
-                >
-                  <Chip label={`Day +${idx + 1}`} size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10 }} />
-                  <TextField
-                    size="small"
-                    label="Reel Topic"
-                    value={item.topic}
-                    onChange={(e) => updateStagedItem(item.id, "topic", e.target.value)}
-                    sx={field}
-                    fullWidth
-                  />
-                  <FormControl size="small" sx={field} fullWidth>
-                    <Select
-                      value={item.realm}
-                      onChange={(e) => updateStagedItem(item.id, "realm", e.target.value)}
-                    >
-                      {NATURE_REALMS.map((r) => (
-                        <MenuItem key={r.id} value={r.realm}>
-                          {r.title}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl size="small" sx={field} fullWidth>
-                    <Select
-                      value={item.aspectRatio || "9:16"}
-                      onChange={(e) => updateStagedItem(item.id, "aspectRatio", e.target.value)}
-                    >
-                      <MenuItem value="9:16">📱 9:16</MenuItem>
-                      <MenuItem value="16:9">🖥️ 16:9</MenuItem>
-                    </Select>
-                  </FormControl>
-                  <IconButton size="small" onClick={() => handleRemoveStagedFile(item.id)} sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}>
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
+            <Typography sx={{ fontSize: 11, color: "#71717a", textAlign: "center" }}>— OR PASTE A PUBLIC VIDEO URL —</Typography>
+
+            <TextField
+              size="small"
+              label="Public Video URL (Optional)"
+              value={videoUrlInput}
+              onChange={(e) => {
+                setVideoUrlInput(e.target.value);
+                if (e.target.value) {
+                  setSelectedFile(null);
+                  setVideoPreviewUrl(e.target.value);
+                }
+              }}
+              placeholder="https://..."
+              sx={field}
+              fullWidth
+            />
+
+            {/* Video Player Preview Box */}
+            <Box
+              sx={{
+                width: "100%",
+                height: aspectRatio === "16:9" ? 220 : 340,
+                borderRadius: "12px",
+                bgcolor: "#09090b",
+                border: "1px solid #e4e4e7",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                overflow: "hidden",
+                position: "relative",
+              }}
+            >
+              {videoPreviewUrl ? (
+                <video
+                  src={videoPreviewUrl}
+                  style={{ width: "100%", height: "100%", objectFit: "contain" }}
+                  controls
+                  playsInline
+                />
+              ) : (
+                <Box sx={{ textAlign: "center", p: 2 }}>
+                  <CloudUploadIcon sx={{ color: "#52525b", fontSize: 42, mb: 1 }} />
+                  <Typography sx={{ color: "#a1a1aa", fontSize: 13, fontWeight: 600 }}>
+                    Video Preview Will Appear Here
+                  </Typography>
+                  <Typography sx={{ color: "#71717a", fontSize: 11, mt: 0.5 }}>
+                    Select a video above to see instant preview
+                  </Typography>
                 </Box>
-              ))}
+              )}
             </Box>
           </Box>
-        )}
 
-        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", alignItems: "center" }}>
-          <Button
-            variant="contained"
-            onClick={() => handleUploadAllToQueue(false)}
-            disabled={uploadingReel || !uploadFiles.length}
-            startIcon={uploadingReel ? <CircularProgress size={16} sx={{ color: "#ffffff" }} /> : <CloudUploadIcon fontSize="small" />}
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              bgcolor: "#09090b",
-              color: "#ffffff",
-              fontWeight: 700,
-              px: 3,
-              py: 1.2,
-              "&:hover": { bgcolor: "#27272a" },
-            }}
-          >
-            {uploadingReel ? (uploadProgressText || "Uploading...") : `📤 Upload ${uploadFiles.length || ""} Videos to Daily Queue`}
-          </Button>
+          {/* Right Column: Settings, Metadata & Publish Button */}
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1.2fr 1fr" }, gap: 1.5 }}>
+              <FormControl sx={field} fullWidth size="small">
+                <InputLabel>12-Series Nature Realm ⭐</InputLabel>
+                <Select
+                  label="12-Series Nature Realm ⭐"
+                  value={realm}
+                  onChange={(e) => handleRealmChange(e.target.value)}
+                >
+                  {NATURE_REALMS.map((r) => (
+                    <MenuItem key={r.id} value={r.realm}>
+                      {r.title}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
 
-          <Button
-            variant="outlined"
-            onClick={() => handleUploadAllToQueue(true)}
-            disabled={uploadingReel || !uploadFiles.length}
-            startIcon={<AutoAwesomeIcon fontSize="small" />}
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              borderColor: "#09090b",
-              color: "#09090b",
-              fontWeight: 700,
-              px: 2.5,
-              py: 1.2,
-              "&:hover": { bgcolor: "#f4f4f5" },
-            }}
-          >
-            🚀 Upload All & Publish 1st Reel Immediately
-          </Button>
+              <FormControl sx={field} fullWidth size="small">
+                <InputLabel>Format / Aspect Ratio 📐</InputLabel>
+                <Select
+                  label="Format / Aspect Ratio 📐"
+                  value={aspectRatio}
+                  onChange={(e) => setAspectRatio(e.target.value)}
+                >
+                  <MenuItem value="9:16">📱 9:16 Vertical Reel</MenuItem>
+                  <MenuItem value="16:9">🖥️ 16:9 Landscape</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+
+            <TextField
+              size="small"
+              label="Reel Topic / Title"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. Mountain Sunrise over Valley Mist"
+              sx={field}
+              fullWidth
+            />
+
+            <TextField
+              label="Instagram Reel Caption"
+              value={caption}
+              onChange={(e) => setCaption(e.target.value)}
+              multiline
+              rows={4}
+              sx={field}
+              fullWidth
+              helperText="Auto-populated with engaging hook & mindful breathing prompt"
+            />
+
+            <TextField
+              size="small"
+              label="Viral Hashtags"
+              value={hashtags}
+              onChange={(e) => setHashtags(e.target.value)}
+              sx={field}
+              fullWidth
+            />
+
+            {/* Main Publish Action Button */}
+            <Button
+              variant="contained"
+              onClick={handlePublishDirectly}
+              disabled={publishing || (!selectedFile && !videoUrlInput.trim())}
+              startIcon={publishing ? <CircularProgress size={20} color="inherit" /> : <SendIcon />}
+              sx={{
+                mt: 1,
+                borderRadius: "12px",
+                textTransform: "none",
+                fontWeight: 800,
+                fontSize: 16,
+                minHeight: 56,
+                bgcolor: "#09090b",
+                color: "#ffffff",
+                boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
+                "&:hover": { bgcolor: "#27272a" },
+              }}
+            >
+              {publishing ? (publishProgressText || "Publishing to Instagram...") : "🚀 Publish Directly to Instagram Reels"}
+            </Button>
+          </Box>
         </Box>
       </Paper>
 
+      {/* ── PUBLISHED REELS HISTORY GRID ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
-          <Box>
-            <Typography sx={{ ...titleStyle, fontSize: 18 }}>Active Daily Reels Queue</Typography>
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13 }}>
-              Strict 1 Reel per calendar day. Upon publishing, the video is automatically purged from Cloudinary storage to keep costs zero.
-            </Typography>
-          </Box>
-          <Chip label={`${queuedItems.length} Reels in Queue`} size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 11 }} />
+          <Typography sx={{ ...titleStyle, fontSize: 18 }}>
+            Live Published Reels ({publishedItems.length})
+          </Typography>
+          <Typography sx={{ fontSize: 12, color: "#71717a" }}>
+            Posts live on @{account.username || "quietframes.ai"}
+          </Typography>
         </Box>
 
-        {queuedItems.length === 0 ? (
-          <Box sx={{ textAlign: "center", py: 4, bgcolor: "#fafafa", borderRadius: "12px", border: "1px dashed #d4d4d8" }}>
-            <ScheduleIcon sx={{ fontSize: 36, color: "#a1a1aa", mb: 1 }} />
-            <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#09090b" }}>No reels in the upcoming daily queue</Typography>
-            <Typography sx={{ color: "#71717a", fontSize: 12, mt: 0.5 }}>
-              Use the Multi-Video Queue Uploader above to add daily reels for upcoming dates.
+        {publishedItems.length === 0 ? (
+          <Box sx={{ p: 4, textAlign: "center", bgcolor: "#fafafa", borderRadius: "12px", border: "1px dashed #e4e4e7" }}>
+            <Typography sx={{ color: "#71717a", fontSize: 14 }}>
+              No reels published yet. Use the publisher above to upload and publish your first Instagram Reel!
             </Typography>
           </Box>
         ) : (
-          queuedItems.map((item, idx) => {
-            const scheduledDateStr = item.scheduledFor ? new Date(item.scheduledFor).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" }) : `Day +${idx + 1}`;
-            const isVerticalReel = item.aspectRatio === "9:16" || !item.aspectRatio;
-
-            return (
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
+            {publishedItems.map((item) => (
               <Box
                 key={item._id}
                 sx={{
-                  borderTop: "1px solid #f4f4f5",
-                  pt: 2.5,
-                  mt: 2.5,
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", md: isVerticalReel ? "200px 1fr" : "280px 1fr" },
-                  gap: 2.5,
-                  alignItems: "start",
+                  p: 2,
+                  borderRadius: "12px",
+                  bgcolor: "#fafafa",
+                  border: "1px solid #e4e4e7",
+                  display: "flex",
+                  flexDirection: "column",
+                  justifyContent: "space-between",
                 }}
               >
-                <Box
-                  onClick={() => openCinemaModal(item)}
-                  sx={{
-                    width: "100%",
-                    maxWidth: isVerticalReel ? 180 : "100%",
-                    aspectRatio: isVerticalReel ? "9 / 16" : "16 / 9",
-                    maxHeight: isVerticalReel ? 260 : 180,
-                    borderRadius: "10px",
-                    overflow: "hidden",
-                    bgcolor: "#000000",
-                    position: "relative",
-                    cursor: "pointer",
-                    border: "1px solid #27272a",
-                    margin: "0 auto",
-                  }}
-                >
-                  <video
-                    src={item.assetUrl}
-                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                    playsInline
-                    preload="metadata"
-                  />
-                  <Box sx={{ position: "absolute", top: 8, left: 8, display: "flex", flexDirection: "column", gap: 0.5 }}>
-                    <Chip label={`🗓️ ${scheduledDateStr}`} size="small" sx={{ bgcolor: "rgba(0,0,0,0.8)", color: "#ffffff", fontWeight: 700, fontSize: 9.5 }} />
-                    <Chip label={isVerticalReel ? "📱 9:16" : "🖥️ 16:9"} size="small" sx={{ bgcolor: "rgba(0,0,0,0.8)", color: "#ffffff", fontWeight: 700, fontSize: 9.5 }} />
+                <Box>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                    <Chip
+                      label={item.themeCategory || "Nature Reel"}
+                      size="small"
+                      sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10 }}
+                    />
+                    <Chip
+                      label={item.aspectRatio === "16:9" ? "🖥️ 16:9" : "📱 9:16"}
+                      size="small"
+                      sx={{ bgcolor: "#e4e4e7", color: "#09090b", fontWeight: 700, fontSize: 10 }}
+                    />
                   </Box>
+                  <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#09090b", mb: 0.5 }}>
+                    {item.topic}
+                  </Typography>
+                  <Typography sx={{ fontSize: 12, color: "#71717a", maxHeight: 50, overflow: "hidden", textOverflow: "ellipsis" }}>
+                    {item.caption}
+                  </Typography>
                 </Box>
 
-                <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
-                  <Box>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.5, flexWrap: "wrap", gap: 1 }}>
-                      <Box sx={{ display: "flex", gap: 0.8, alignItems: "center" }}>
-                        <Chip label={item.themeCategory || "🌅 Nature's Morning"} size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
-                        <Chip label={isVerticalReel ? "📱 9:16 Vertical Reel" : "🖥️ 16:9 Landscape"} size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 10 }} />
-                      </Box>
-                      <Typography sx={{ fontSize: 11, color: "#71717a" }}>
-                        Scheduled for: {config.dailyPostTime || "12:00"} (12:00 PM Noon IST) · {scheduledDateStr}
-                      </Typography>
-                    </Box>
-                    <Typography sx={{ ...titleStyle, fontSize: 16, mt: 0.5 }}>{item.topic}</Typography>
-                    <Typography sx={{ fontSize: 12.5, color: "#52525b", mt: 0.8, whiteSpace: "pre-wrap", maxHeight: 70, overflow: "hidden", textOverflow: "ellipsis" }}>
-                      {item.caption}
-                    </Typography>
-                    <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.8 }}>
-                      {(item.hashtags || []).slice(0, 8).join(" ")}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: "flex", gap: 1, mt: 2, flexWrap: "wrap" }}>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={() => publishNow(item._id)}
-                      disabled={saving}
-                      startIcon={<AutoAwesomeIcon fontSize="small" />}
-                      sx={{ borderRadius: "8px", textTransform: "none", bgcolor: "#09090b", color: "#ffffff", fontWeight: 700, fontSize: 11 }}
-                    >
-                      🚀 Publish Now (Instant)
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => openCinemaModal(item)}
-                      startIcon={<VisibilityIcon fontSize="small" />}
-                      sx={{ borderRadius: "8px", textTransform: "none", color: "#09090b", borderColor: "#d4d4d8", fontWeight: 700, fontSize: 11 }}
-                    >
-                      Preview
-                    </Button>
-                    <IconButton size="small" onClick={() => deleteContent(item._id)} sx={{ color: "#71717a", "&:hover": { color: "#ef4444" } }}>
-                      <DeleteOutlineIcon fontSize="small" />
-                    </IconButton>
-                  </Box>
+                <Box sx={{ mt: 2, pt: 1.5, borderTop: "1px solid #e4e4e7", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <Typography sx={{ fontSize: 11, color: "#a1a1aa" }}>
+                    {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : "Live on IG"}
+                  </Typography>
+                  <Chip
+                    icon={<CheckCircleIcon sx={{ fontSize: "14px !important", color: "#22c55e !important" }} />}
+                    label="Live on Reels"
+                    size="small"
+                    sx={{ bgcolor: "#f0fdf4", color: "#16a34a", fontWeight: 700, fontSize: 10 }}
+                  />
                 </Box>
               </Box>
-            );
-          })
+            ))}
+          </Box>
         )}
       </Paper>
 
-      {/* ── BRAND COLLABORATIONS & SPONSORSHIP INQUIRIES PANEL ── */}
+      {/* ── BRAND COLLABORATIONS PANEL ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -962,7 +863,7 @@ export default function InstagramGrowthAgent() {
               Brand Collaborations & Sponsorship Inquiries
             </Typography>
           </Box>
-          <Chip label={`${promotions.length} Inquiries Detected`} size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
+          <Chip label={`${promotions.length} Inquiries`} size="small" sx={{ bgcolor: "#f4f4f5", color: "#09090b", fontWeight: 700, fontSize: 11 }} />
         </Box>
         <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13, mb: 2 }}>
           Incoming messages and comments containing sponsorship, partnership, or collab keywords are intercepted here for admin approval.
@@ -1034,161 +935,32 @@ export default function InstagramGrowthAgent() {
         )}
       </Paper>
 
-      {/* ── AUTOMATION SETTINGS & COMMUNITY AUTO-REPLIES ── */}
+      {/* ── AUTOMATION SETTINGS ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Daily Automation & Auto-Replies</Typography>
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2.5 }}>
-          <TextField
-            label="Daily Post Time (IST) ⏰"
-            value={config.dailyPostTime || "12:00"}
-            onChange={(e) => setConfigField("dailyPostTime", e.target.value)}
-            placeholder="12:00"
-            helperText="Strict daily posting time (Only 1 reel per day at 12:00 PM Noon)"
-            sx={field}
-            fullWidth
-          />
-          <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={Boolean(config.autoReplyComments)}
-                  onChange={(e) => setConfigField("autoReplyComments", e.target.checked)}
-                  color="default"
-                />
-              }
-              label={<Typography sx={{ fontSize: 13, fontWeight: 600 }}>💬 Auto-Reply to Post Comments</Typography>}
-            />
-            <FormControlLabel
-              control={
-                <Switch
-                  checked={Boolean(config.autoReplyMessages)}
-                  onChange={(e) => setConfigField("autoReplyMessages", e.target.checked)}
-                  color="default"
-                />
-              }
-              label={<Typography sx={{ fontSize: 13, fontWeight: 600 }}>📩 Auto-Reply to Direct Messages (DMs)</Typography>}
-            />
-          </Box>
-        </Box>
-
-        <Box sx={{ display: "flex", gap: 1.2, mt: 2.5, flexWrap: "wrap" }}>
-          <Button
-            variant="outlined"
-            onClick={saveConfig}
-            disabled={saving}
-            sx={{ borderRadius: "8px", textTransform: "none", borderColor: "#d4d4d8", color: "#09090b", fontWeight: 700 }}
-          >
-            Save Settings
-          </Button>
-          <Button
-            variant="contained"
-            onClick={toggleAgent}
-            disabled={saving}
-            startIcon={config.running ? <StopIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
-            sx={{
-              borderRadius: "8px",
-              textTransform: "none",
-              bgcolor: config.running ? "#ef4444" : "#09090b",
-              color: "#ffffff",
-              fontWeight: 700,
-              "&:hover": { bgcolor: config.running ? "#dc2626" : "#27272a" },
-            }}
-          >
-            {config.running ? "Pause Daily Scheduler" : "Start Daily 1-Reel Runner"}
-          </Button>
-        </Box>
-      </Paper>
-
-      {/* ── RECENT AGENT ACTIVITY LOG ── */}
-      <Paper sx={whiteCard}>
-        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Agent Audit Trail & Activity Feed</Typography>
-        {activities.length === 0 ? (
-          <Typography sx={{ color: "#71717a", fontSize: 13 }}>No recent activity logged.</Typography>
-        ) : (
-          activities.slice(0, 8).map((act) => (
-            <Box key={act._id} sx={{ py: 1.2, borderBottom: "1px solid #f4f4f5" }}>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: "#09090b" }}>
-                {act.message || act.description}
-              </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#a1a1aa" }}>
-                {new Date(act.createdAt).toLocaleString()} · {act.type || act.action}
-              </Typography>
-            </Box>
-          ))
-        )}
-      </Paper>
-
-      {/* ── VIDEO LIGHTBOX MODAL ── */}
-      <Dialog
-        open={cinemaModalOpen}
-        onClose={closeCinemaModal}
-        maxWidth="md"
-        fullWidth
-        PaperProps={{ sx: { borderRadius: "14px", bgcolor: "#09090b", color: "#ffffff" } }}
-      >
-        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid #27272a" }}>
-          <Typography sx={{ fontWeight: 800, fontSize: 16 }}>{cinemaItem?.topic || "Reel Preview"}</Typography>
-          <IconButton onClick={closeCinemaModal} sx={{ color: "#a1a1aa" }}>
-            <CloseIcon />
-          </IconButton>
-        </DialogTitle>
-        <DialogContent sx={{ p: 2.5 }}>
-          {cinemaItem?.assetUrl && (
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: cinemaItem?.aspectRatio === "16:9" ? "100%" : "340px",
-                maxHeight: cinemaItem?.aspectRatio === "16:9" ? 420 : 540,
-                aspectRatio: cinemaItem?.aspectRatio === "16:9" ? "16 / 9" : "9 / 16",
-                borderRadius: "12px",
-                overflow: "hidden",
-                bgcolor: "#000000",
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-                margin: "0 auto",
-                border: "1px solid #27272a",
-              }}
-            >
-              <video
-                src={cinemaItem.assetUrl}
-                style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                controls
-                autoPlay
-                loop
-                playsInline
+        <Typography sx={{ ...titleStyle, fontSize: 18, mb: 2 }}>Community Auto-Replies</Typography>
+        <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 4 }}>
+          <FormControlLabel
+            control={
+              <Switch
+                checked={Boolean(config.autoReplyComments)}
+                onChange={(e) => setConfig((prev) => ({ ...prev, autoReplyComments: e.target.checked }))}
+                color="default"
               />
-            </Box>
-          )}
-          <Box sx={{ mt: 2, display: "flex", gap: 1, alignItems: "center" }}>
-            <Chip
-              label={cinemaItem?.aspectRatio === "16:9" ? "🖥️ 16:9 Landscape" : "📱 9:16 Vertical Reel"}
-              size="small"
-              sx={{ bgcolor: "#27272a", color: "#ffffff", fontWeight: 700, fontSize: 10 }}
-            />
-            <Chip
-              label={cinemaItem?.themeCategory || "Nature Series"}
-              size="small"
-              sx={{ bgcolor: "#27272a", color: "#ffffff", fontWeight: 700, fontSize: 10 }}
-            />
-          </Box>
-          <Typography sx={{ mt: 1.5, fontSize: 13, color: "#d4d4d8", whiteSpace: "pre-wrap" }}>
-            {cinemaItem?.caption}
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ p: 2, borderTop: "1px solid #27272a" }}>
-          <Button onClick={closeCinemaModal} sx={{ color: "#a1a1aa", textTransform: "none" }}>Close</Button>
-          {cinemaItem && (
-            <Button
-              variant="contained"
-              onClick={() => { publishNow(cinemaItem._id); closeCinemaModal(); }}
-              sx={{ bgcolor: "#ffffff", color: "#09090b", fontWeight: 700, textTransform: "none" }}
-            >
-              Publish to Instagram Now
-            </Button>
-          )}
-        </DialogActions>
-      </Dialog>
+            }
+            label={<Typography sx={{ fontSize: 13, fontWeight: 600 }}>💬 Auto-Reply to Post Comments</Typography>}
+          />
+          <FormControlLabel
+            control={
+              <Switch
+                checked={Boolean(config.autoReplyMessages)}
+                onChange={(e) => setConfig((prev) => ({ ...prev, autoReplyMessages: e.target.checked }))}
+                color="default"
+              />
+            }
+            label={<Typography sx={{ fontSize: 13, fontWeight: 600 }}>📩 Auto-Reply to Direct Messages (DMs)</Typography>}
+          />
+        </Box>
+      </Paper>
 
       {/* ── BRAND COLLAB REVIEW DIALOG ── */}
       <Dialog
