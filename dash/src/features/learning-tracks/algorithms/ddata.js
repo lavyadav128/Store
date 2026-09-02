@@ -16432,6 +16432,137 @@ class Solution {
         }
     }`
     },
+    {
+        title: `QUESTION: 
+      Given the root of a Binary Tree, serialize the tree into a string so that it can be stored/transmitted, and then deserialize that string back into the original Binary Tree.
+      
+      EXAMPLE: 
+      Input Tree:
+              1
+             / \\
+            2   3
+               / \\
+              4   5
+      
+      Serialized: "1,2,#,#,3,4,#,#,5,#,#"
+      Output after Deserialization: Original Binary Tree`,
+      
+        bruteForceComplexity: `Time Complexity: O(N) — visits every node during serialization and deserialization
+      Space Complexity: O(N) — stores the serialized string and uses extra recursion/queue space`,
+      
+        bruteForceCode: `class Codec {
+      
+          // Serialize using level-order traversal
+          public String serialize(TreeNode root) {
+              if (root == null) return "";
+      
+              Queue<TreeNode> queue = new LinkedList<>();
+              StringBuilder result = new StringBuilder();
+      
+              queue.offer(root);
+      
+              while (!queue.isEmpty()) {
+                  TreeNode node = queue.poll();
+      
+                  if (node == null) {
+                      result.append("#,");
+                      continue;
+                  }
+      
+                  result.append(node.val).append(",");
+      
+                  queue.offer(node.left);
+                  queue.offer(node.right);
+              }
+      
+              return result.toString();
+          }
+      
+          // Deserialize using level-order traversal
+          public TreeNode deserialize(String data) {
+              if (data == null || data.isEmpty()) return null;
+      
+              String[] values = data.split(",");
+              TreeNode root = new TreeNode(Integer.parseInt(values[0]));
+      
+              Queue<TreeNode> queue = new LinkedList<>();
+              queue.offer(root);
+      
+              int i = 1;
+      
+              while (!queue.isEmpty() && i < values.length) {
+                  TreeNode node = queue.poll();
+      
+                  // Left child
+                  if (!values[i].equals("#")) {
+                      node.left = new TreeNode(Integer.parseInt(values[i]));
+                      queue.offer(node.left);
+                  }
+                  i++;
+      
+                  // Right child
+                  if (i < values.length && !values[i].equals("#")) {
+                      node.right = new TreeNode(Integer.parseInt(values[i]));
+                      queue.offer(node.right);
+                  }
+                  i++;
+              }
+      
+              return root;
+          }
+      }`,
+      
+        optimalComplexity: `Time Complexity: O(N) — every node is visited exactly once during serialization and deserialization
+      Space Complexity: O(N) — required to store the serialized tree and recursion/queue data`,
+      
+        optimalCode: `class Codec {
+      
+          // Serialize using preorder traversal
+          public String serialize(TreeNode root) {
+              StringBuilder result = new StringBuilder();
+              serializeHelper(root, result);
+              return result.toString();
+          }
+      
+          private void serializeHelper(TreeNode node, StringBuilder result) {
+              if (node == null) {
+                  result.append("#,");
+                  return;
+              }
+      
+              result.append(node.val).append(",");
+      
+              serializeHelper(node.left, result);
+              serializeHelper(node.right, result);
+          }
+      
+          // Deserialize using preorder traversal
+          public TreeNode deserialize(String data) {
+              String[] values = data.split(",");
+              int[] index = {0};
+      
+              return deserializeHelper(values, index);
+          }
+      
+          private TreeNode deserializeHelper(String[] values, int[] index) {
+              if (values[index[0]].equals("#")) {
+                  index[0]++;
+                  return null;
+              }
+      
+              TreeNode node = new TreeNode(
+                  Integer.parseInt(values[index[0]])
+              );
+      
+              index[0]++;
+      
+              node.left = deserializeHelper(values, index);
+              node.right = deserializeHelper(values, index);
+      
+              return node;
+          }
+      }`
+      },
 
   ],
 
