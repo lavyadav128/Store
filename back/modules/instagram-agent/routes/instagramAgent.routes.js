@@ -10,7 +10,6 @@ import {
   createAdminUploadedReel,
   exchangeLongLivedToken,
   generateContentDraft,
-  generateMediaForContent,
   getAccountSnapshot,
   getAvailableMusicTracks,
   getInstagramConfig,
@@ -25,10 +24,7 @@ import os from "os";
 import path from "path";
 import multer from "multer";
 import { upload, cloudinary } from "../../../config/cloudinary.js";
-import { fetchUniquePexelsMedia, getPexelsApiKey } from "../services/pexelsMedia.service.js";
-import { fetchMatchingFreesoundAudio, getFreesoundApiKey } from "../services/freesoundAudio.service.js";
 import { NATURE_THEMES } from "../services/natureThemes.js";
-import { MOTIVATIONAL_THEMES } from "../services/motivationalThemes.js";
 import { analyzeAudiencePreferences, getChannelGrowthAnalysis } from "../services/growthOptimizer.js";
 
 // Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
@@ -63,7 +59,7 @@ instagramWebhookRouter.post(
   "/webhook",
   express.raw({ type: "application/json" }),
   async (req, res) => {
-    if (!verifyMetaSignature(req.body, req.headers["x-hub-signature-256"])) return res.sendStatus(403);
+    if (!verifyMetaSignature(req, req.headers["x-hub-signature-256"])) return res.sendStatus(403);
     const payload = JSON.parse(req.body.toString("utf8"));
     const config = await getInstagramConfig();
     const isPromotion = (message) =>
@@ -123,7 +119,7 @@ instagramWebhookRouter.post(
   }
 );
 
-// Cloudinary Direct Signed Upload Token (Eliminates Render server timeouts for multi-video uploads)
+// Cloudinary Direct Signed Upload Token (Eliminates Render server timeouts for direct video uploads)
 router.get("/cloudinary/signature", async (_req, res) => {
   try {
     const timestamp = Math.round(new Date().getTime() / 1000);
@@ -213,6 +209,19 @@ router.get("/live-followers", async (_req, res) => {
 });
 
 // Comprehensive Channel Growth & Health Analyzer
+router.get("/growth-intel", async (_req, res) => {
+  try {
+    let account = null;
+    try {
+      account = await getAccountSnapshot();
+    } catch (_) {}
+    const analysis = await getChannelGrowthAnalysis(account);
+    return res.json(analysis);
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+});
+
 router.get("/analytics/growth", async (_req, res) => {
   try {
     let account = null;
@@ -226,17 +235,16 @@ router.get("/analytics/growth", async (_req, res) => {
   }
 });
 
-// List all 6 Nature Realms Themes & Prompt Templates
+// List all Nature Themes & Prompt Templates
 router.get("/nature-themes", (_req, res) => {
   res.json(NATURE_THEMES);
 });
 
-// List all Master Motivational Mindset Themes
 router.get("/themes", (_req, res) => {
   res.json(NATURE_THEMES);
 });
 
-// Upload Direct Google Flow Video Reel or 8K Image File
+// Upload Direct Video Reel or Image Asset
 router.post("/content/:id/upload-asset", upload.single("file"), async (req, res) => {
   try {
     const content = await InstagramContent.findById(req.params.id);
@@ -261,7 +269,7 @@ router.post("/content/:id/upload-asset", upload.single("file"), async (req, res)
 
     const result = await uploadStream();
     content.assetUrl = result.secure_url;
-    content.assetSource = "google_flow";
+    content.assetSource = "admin";
     content.mediaGenerationStatus = "ready";
     content.status = "ready";
     if (isVideo) content.type = "reel";
@@ -269,7 +277,7 @@ router.post("/content/:id/upload-asset", upload.single("file"), async (req, res)
 
     await logInstagramActivity(
       "asset_uploaded",
-      `Attached Google Flow ${resourceType} to ${content.type}: ${content.topic}`,
+      `Attached ${resourceType} to ${content.type}: ${content.topic}`,
       { contentId: String(content._id), url: content.assetUrl }
     );
 
@@ -289,7 +297,7 @@ router.get("/audience-growth", async (_req, res) => {
   }
 });
 
-// List Available Royalty-Free Music Tracks
+// List Available Music Tracks
 router.get("/audio/tracks", (_req, res) => {
   res.json(getAvailableMusicTracks());
 });
@@ -308,6 +316,15 @@ router.post("/content/:id/attach-audio", async (req, res) => {
 });
 
 // Exchange Short-Lived Token for 60-Day Long-Lived Token
+router.post("/exchange-token", async (_req, res) => {
+  try {
+    const result = await exchangeLongLivedToken();
+    res.json(result);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 router.post("/token/exchange-long-lived", async (_req, res) => {
   try {
     const result = await exchangeLongLivedToken();
@@ -325,9 +342,6 @@ router.put("/config", async (req, res) => {
     "contentMode",
     "postsPerDay",
     "dailyPostTime",
-    "geminiApiKey",
-    "pexelsApiKey",
-    "freesoundApiKey",
     "topAudienceCategory",
     "autoReplyComments",
     "autoReplyMessages",
@@ -488,107 +502,6 @@ router.post("/content/publish-direct", videoUpload.single("video"), async (req, 
   }
 });
 
-// Admin Bulk Video Upload for Multiple 12-Series Instagram Reels in One Batch
-router.post("/content/upload-reels-bulk", videoUpload.array("videos", 30), async (req, res) => {
-  try {
-    const files = req.files || [];
-    if (!files.length) {
-      return res.status(400).json({ error: "No video files received in bulk upload." });
-    }
-
-    const defaultCategory = req.body.category || "🌅 Nature's Morning";
-    const defaultAspectRatio = req.body.aspectRatio || "9:16";
-    let metadataList = [];
-    if (req.body.metadata) {
-      try {
-        metadataList = typeof req.body.metadata === "string" ? JSON.parse(req.body.metadata) : req.body.metadata;
-      } catch (_) {}
-    }
-
-    const createdReels = [];
-    const errors = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files[i];
-      const meta = metadataList[i] || {};
-      const category = meta.category || defaultCategory;
-      const topic = meta.topic || file.originalname.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ");
-      const customCaption = meta.caption || "";
-      const aspectRatio = meta.aspectRatio || defaultAspectRatio;
-
-      try {
-        const reel = await createAdminUploadedReel({
-          filePath: file.path,
-          fileBuffer: file.buffer,
-          category,
-          topic,
-          customCaption,
-          aspectRatio,
-        });
-        createdReels.push(reel);
-      } catch (err) {
-        console.error(`[Bulk Upload Error on file ${i + 1} (${file.originalname})]:`, err.message);
-        errors.push({ file: file.originalname, error: err.message });
-      }
-    }
-
-    return res.status(201).json({
-      success: true,
-      totalReceived: files.length,
-      uploadedCount: createdReels.length,
-      reels: createdReels,
-      errors: errors.length ? errors : undefined,
-    });
-  } catch (error) {
-    console.error("[Admin Bulk Upload Route Error]:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
-
-router.post("/content/:id/generate-media", async (req, res) => {
-  try {
-    const content = await InstagramContent.findById(req.params.id);
-    if (!content) return res.status(404).json({ error: "Content not found" });
-    if (req.body?.type) {
-      content.type = (req.body.type === 'image' || req.body.type === 'post') ? 'post' : 'reel';
-      await content.save();
-    }
-    res.json(await generateMediaForContent(content));
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Test Pexels API Search
-router.post("/pexels/test", async (req, res) => {
-  try {
-    const result = await fetchUniquePexelsMedia({
-      topic: req.body.topic || "mountain sunrise mist",
-      realm: req.body.realm || "🌅 Nature's Morning",
-      type: req.body.type || "reel",
-      orientation: req.body.orientation || "portrait",
-    });
-    res.json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Test Freesound API Search
-router.post("/freesound/test", async (req, res) => {
-  try {
-    const result = await fetchMatchingFreesoundAudio({
-      topic: req.body.topic || "mountain sunrise mist",
-      realm: req.body.realm || "🌅 Nature's Morning",
-      soundscape: req.body.soundscape || "birds morning ambient",
-    });
-    res.json(result);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-
 router.patch("/content/:id", async (req, res) => {
   const allowed = [
     "topic",
@@ -634,6 +547,22 @@ router.post("/content/:id/publish", async (req, res) => {
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
+});
+
+router.post("/promotions/:id/review", async (req, res) => {
+  const status = req.body.status;
+  if (!["approved", "declined"].includes(status))
+    return res.status(400).json({ error: "Status must be approved or declined." });
+  const item = await InstagramBrandRequest.findByIdAndUpdate(
+    req.params.id,
+    { $set: { status, adminNotes: String(req.body.adminNotes || "").slice(0, 2000) } },
+    { new: true }
+  );
+  if (!item) return res.status(404).json({ error: "Promotion request not found" });
+  await logInstagramActivity("promotion_reviewed", `Promotion request ${status} by admin.`, {
+    requestId: String(item._id),
+  });
+  res.json(item);
 });
 
 router.patch("/promotions/:id", async (req, res) => {

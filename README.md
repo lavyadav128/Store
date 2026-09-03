@@ -2,7 +2,6 @@
 
 An AI-powered edtech platform that helps students discover the right course, learn with a personalised assistant, make secure payments, and recover lost revenue using an **Autonomous AI Revenue Recovery Agent**.
 
-Built for the **Razorpay Buildathon — AI Revenue Recovery Track**.
 
 ---
 
@@ -48,7 +47,6 @@ Razorpay Webhook / Checkout / Mandate Event
 
 ## 🏆 Key Features
 
-### 1. Razorpay Buildathon — 5 Competition Directions Covered
 
 Our AI Revenue Recovery Agent natively handles all 5 competition directions specified in the Razorpay Buildathon brief:
 
@@ -99,14 +97,6 @@ Our AI Revenue Recovery Agent natively handles all 5 competition directions spec
 
 ---
 
-### 6. Pochi — Apple iOS Siri-Style Executive Voice AI Assistant
-
-- **Authentic Apple Siri Visual**: Obsidian 3D glass sphere with 3 multi-layered fluid animated ribbons (Turquoise, Magenta, Mint) and a white-hot core starburst.
-- **1-Tap & Hotkey Activation**: Launch instantly from the bottom-right orb or press `Ctrl + Space`.
-- **Spoken Voice Output**: Answers general Q&A, study guidance, platform metrics, and payment inquiries aloud.
-- **Executive Admin Voice Control**: Direct administrative authority to edit batch prices, create new courses, delete batches, change recovery policy ceilings, or trigger voice logouts directly on command (e.g., *"Pochi, edit IIT JEE batch price to 4999"*).
-
----
 
 ### 7. AI Study & Commerce Assistant
 
@@ -210,21 +200,5 @@ npm start
 - Backend runs at: `http://localhost:5000`
 - Frontend runs at: `http://localhost:3000`
 
----
 
-## 📸 Recommended Demo Flow for Buildathon Judges
 
-1. **Failure Ingestion**: Initiate a checkout in Razorpay Test Mode or simulate a payment failure webhook.
-2. **AI Signal Detection**: Observe the failure appear immediately in the **Omni-Channel Signal Stream** with root cause diagnosis.
-3. **Policy Gate Evaluation**:
-   - For signals **≤ ₹5,000**, see automatic approval and instant discount voucher creation.
-   - For signals **> ₹5,000**, see escalation to the **Human-in-the-Loop Approval Queue**.
-4. **Student Recovery Notification**: Log in as a student to receive the recovery notification pop-up and discounted checkout link.
-5. **Verified Recovery**: Complete the checkout using the discount link. The backend verifies the Razorpay signature, grants course access, and attributes the recovered revenue in the financial metrics.
-6. **Pochi Executive Control**: Tap the Siri orb and say *"Pochi, edit IIT JEE batch price to 4999"* to see Pochi update MongoDB directly and confirm verbally.
-
----
-
-## 👥 Author
-
-Built for the **Razorpay Buildathon — AI Revenue Recovery Track**.
