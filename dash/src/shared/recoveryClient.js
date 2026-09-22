@@ -15,6 +15,8 @@ export async function reportCheckoutFailure(orderId, response) {
         razorpayOrderId: orderId,
         razorpayPaymentId: error.metadata?.payment_id || null,
         reason: error.reason || error.description || 'payment_failed',
+
+      
       }),
     });
     const data = await res.json();
@@ -25,4 +27,3 @@ export async function reportCheckoutFailure(orderId, response) {
     console.warn('[RecoveryClient] Failed to report checkout failure:', err);
   }
 }
-

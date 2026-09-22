@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>NoteNova AI Ecosystem — Master Architecture, Flowcharts & System Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4 portrait;
+    margin: 10mm 12mm 12mm 12mm;
+    @bottom-right {
+      content: "Page " counter(page) " of " counter(pages);
+      font-size: 7.5pt;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #64748b;
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    background-color: #ffffff;
+    line-height: 1.4;
+    font-size: 8.5pt;
+  }
+
+  .page {
+    page-break-after: always;
+    padding-bottom: 5mm;
+  }
+  .page:last-child {
+    page-break-after: auto;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header h1 {
+    font-size: 15pt;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.4px;
+  }
+  .header p {
+    font-size: 8pt;
+    color: #64748b;
+    margin-top: 1px;
+  }
+  .badge {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 7pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .badge-blue { background: #2563eb; }
+  .badge-purple { background: #7c3aed; }
+  .badge-pink { background: #db2777; }
+  .badge-emerald { background: #059669; }
+  .badge-amber { background: #d97706; }
+
+  /* Flowchart Container */
+  .flowchart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+
+  .phase-box {
+    border: 1.2px solid #cbd5e1;
+    border-radius: 7px;
+    padding: 6px 10px;
+    background: #f8fafc;
+  }
+  .phase-header {
+    font-size: 8pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .p-blue { border-color: #3b82f6; background: #eff6ff; }
+  .p-blue .phase-header { color: #1d4ed8; }
+  .p-red { border-color: #ef4444; background: #fef2f2; }
+  .p-red .phase-header { color: #b91c1c; }
+  .p-purple { border-color: #8b5cf6; background: #f5f3ff; }
+  .p-purple .phase-header { color: #6d28d9; }
+  .p-amber { border-color: #f59e0b; background: #fffbeb; }
+  .p-amber .phase-header { color: #b45309; }
+  .p-green { border-color: #10b981; background: #ecfdf5; }
+  .p-green .phase-header { color: #047857; }
+  .p-cyan { border-color: #06b6d4; background: #ecfeff; }
+  .p-cyan .phase-header { color: #0e7490; }
+
+  .node-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 6px;
+  }
+  .node {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    padding: 5px 7px;
+  }
+  .node-title {
+    font-weight: 700;
+    font-size: 7.5pt;
+    color: #0f172a;
+    margin-bottom: 1px;
+  }
+  .node-file {
+    font-family: 'Fira Code', monospace;
+    font-size: 6.5pt;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 1px 3px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 2px;
+  }
+  .node-desc {
+    font-size: 6.8pt;
+    color: #64748b;
+  }
+
+  .arrow-down {
+    text-align: center;
+    font-size: 9.5pt;
+    color: #64748b;
+    margin: -3px 0;
+    font-weight: 800;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0;
+    font-size: 7.2pt;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 4px 6px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+  }
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  .code {
+    font-family: 'Fira Code', monospace;
+    font-size: 6.8pt;
+    color: #0f172a;
+    background: #e2e8f0;
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+  .method-post { color: #b45309; font-weight: 800; }
+  .method-get { color: #047857; font-weight: 800; }
+  .method-patch { color: #7c3aed; font-weight: 800; }
+  .method-delete { color: #b91c1c; font-weight: 800; }
+
+  .summary-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 8px 10px;
+    margin-top: 6px;
+    font-size: 7.5pt;
+  }
+  .summary-box h4 {
+    font-size: 8pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 3px;
+  }
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: MASTER EXECUTIVE ECOSYSTEM -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>NoteNova Autonomous AI Ecosystem — Master Architecture</h1>
+      <p>Multi-Agent Infrastructure &middot; Meta Graph API &middot; Groq Llama-3.3 &middot; Razorpay &middot; Xenova RAG &middot; Web Speech</p>
+    </div>
+    <div class="badge badge-blue">Executive Overview</div>
+  </div>
+
+  <div class="summary-box" style="margin-bottom: 10px; border-left: 3px solid #2563eb;">
+    <h4>🤖 Overview of the 5 Autonomous Core Systems</h4>
+    <p>This technical document details the end-to-end execution flows, routes, schemas, and AI models powering the 5 specialized autonomous agents in the NoteNova ecosystem.</p>
+  </div>
+
+  <div class="node-grid" style="grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px;">
+    
+    <div class="phase-box p-green">
+      <div class="phase-header">1. AI Revenue Recovery Agent</div>
+      <p class="node-desc">Autonomous 5-signal financial engine. Captures failed checkouts & OTP timeouts, runs Groq Llama-3.3 diagnosis, evaluates policy gates (&le; ₹5,000 auto vs &gt; ₹5,000 HITL), mints 24h vouchers, and recovers revenue via WhatsApp & in-app alerts.</p>
+      <div style="margin-top: 4px;"><span class="code">/api/agent/revenue-recovery/*</span></div>
+    </div>
+
+    <div class="phase-box p-pink">
+      <div class="phase-header">2. Instagram Growth Agent</div>
+      <p class="node-desc">1-Click direct Meta Graph API publisher for 8K Reels. Auto-schedules daily morning drafts at 06:00 AM IST, polls video containers until FINISHED status, publishes live, and purges Cloudinary storage automatically.</p>
+      <div style="margin-top: 4px;"><span class="code">/api/instagram-agent/*</span></div>
+    </div>
+
+    <div class="phase-box p-cyan">
+      <div class="phase-header">3. AI Client Acquisition Agent</div>
+      <p class="node-desc">B2B client project pipeline. Ingests leads, analyzes technical requirements with AI, drafts milestone proposals, dispatches WhatsApp/Email outreach, generates public escrow payment links (/pay/:code), and builds codebases.</p>
+      <div style="margin-top: 4px;"><span class="code">/api/client-agent/*</span></div>
+    </div>
+
+    <div class="phase-box p-purple">
+      <div class="phase-header">4. Pochi (Admin Voice Assistant)</div>
+      <p class="node-desc">3D glowing Siri/Orb executive hologram. Speech-to-Text & Speech-to-Text interaction equipped with direct database mutation tools to modify batch prices, review refunds, and inspect live revenue analytics.</p>
+      <div style="margin-top: 4px;"><span class="code">/api/admin/pochi/*</span></div>
+    </div>
+
+  </div>
+
+  <div class="phase-box p-blue" style="margin-bottom: 10px;">
+    <div class="phase-header">5. AI Academic Chatbot & Study Copilot</div>
+    <p class="node-desc">Omniscient student doubt solver built with local Xenova/all-MiniLM-L6-v2 vector embeddings (RAG). Intercepts PDF summarization (__PDF_SUMMARISE__), detects in-chat Promise-to-Pay commitments, diagnoses live payment declines, and provides real-time course recommendations from live MongoDB catalog.</p>
+    <div style="margin-top: 4px;"><span class="code">/api/chatbot</span></div>
+  </div>
+
+  <div class="summary-box">
+    <h4>🛠️ Technology & Model Stack</h4>
+    <div class="summary-grid">
+      <div><strong>Primary Cognitive LLM:</strong> Groq Cloud SDK (llama-3.3-70b-versatile, qwen3.8-27b)</div>
+      <div><strong>Fallback LLM:</strong> OpenRouter API (nvidia/nemotron-nano-9b-v2:free)</div>
+      <div><strong>Payment Gateway:</strong> Razorpay Node SDK (HMAC-SHA256 Signed Webhooks)</div>
+      <div><strong>Vector Embeddings:</strong> @xenova/transformers (all-MiniLM-L6-v2)</div>
+      <div><strong>Voice Engine:</strong> Web Speech API (webkitSpeechRecognition + SpeechSynthesis)</div>
+      <div><strong>Social Engine:</strong> Meta Graph API v21.0 (Instagram Business Container API)</div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: AI REVENUE RECOVERY AGENT FLOW -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>1. AI Revenue Recovery Agent — Architecture & Flowchart</h1>
+      <p>End-to-End Failure Detection, Cognitive Diagnosis, Policy Gating, Voucher Minting & ROI Attribution</p>
+    </div>
+    <div class="badge badge-emerald">Revenue Agent</div>
+  </div>
+
+  <div class="flowchart-container">
+    <div class="phase-box p-blue">
+      <div class="phase-header">Phase 1: Storefront Selection & Razorpay Order</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. Course Click</div><div class="node-file">Courses.js</div><div class="node-desc">Student selects paid batch.</div></div>
+        <div class="node"><div class="node-title">2. Create Order API</div><div class="node-file">POST /api/create-order</div><div class="node-desc">Razorpay order & PaymentAttempt created.</div></div>
+        <div class="node"><div class="node-title">3. Gateway Modal</div><div class="node-file">new window.Razorpay()</div><div class="node-desc">Opens checkout iframe.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Payment Fails: Bank OTP Timeout / Decline / Modal Closed)</div>
+
+    <div class="phase-box p-red">
+      <div class="phase-header">Phase 2: Dual Fast-Path Ingestion & Webhook Capture</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">Client Fast-Path</div><div class="node-file">recoveryClient.js ➔ POST /api/recovery/payment-failed</div><div class="node-desc">Instant browser-side failure alert.</div></div>
+        <div class="node"><div class="node-title">HMAC Webhook</div><div class="node-file">webhook.js ➔ POST /webhook/razorpay</div><div class="node-desc">Cryptographically signed payment.failed.</div></div>
+        <div class="node"><div class="node-title">FailedPayment DB</div><div class="node-file">FailedPayment.model.js</div><div class="node-desc">Recorded with status: "open".</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Orchestrator invokes Cognitive Engine)</div>
+
+    <div class="phase-box p-purple">
+      <div class="phase-header">Phase 3: AI Reasoning & Policy Gate Governance</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">AI Reasoning</div><div class="node-file">reasoningService.js (Groq Llama-3.3)</div><div class="node-desc">Diagnoses root cause, proposes 10% discount.</div></div>
+        <div class="node"><div class="node-title">Auto-Approve (≤ ₹5,000)</div><div class="node-file">gateService.js ➔ "approved"</div><div class="node-desc">Autonomous voucher minting triggered.</div></div>
+        <div class="node"><div class="node-title">HITL Queue (> ₹5,000)</div><div class="node-file">gateService.js ➔ "pending"</div><div class="node-desc">Routed to Human Admin Approval Queue.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Action Approved)</div>
+
+    <div class="phase-box p-amber">
+      <div class="phase-header">Phase 4: Voucher Minting & Multi-Channel Recovery Touchpoints</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. 24h Voucher</div><div class="node-file">RecoveryOffer.model.js</div><div class="node-desc">Locks ₹4,499 price for 24h.</div></div>
+        <div class="node"><div class="node-title">2. In-App Alert</div><div class="node-file">Notification.model.js</div><div class="node-desc">Notification: "10% OFF Approved!"</div></div>
+        <div class="node"><div class="node-title">3. WhatsApp Nudge</div><div class="node-file">whatsappRecovery.js</div><div class="node-desc">Direct link: /pay-discount/:id.</div></div>
+        <div class="node"><div class="node-title">4. Instant Modal</div><div class="node-file">DiscountRecoveryModal.js</div><div class="node-desc">Pops up immediately on screen.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Student Pays Discounted Amount)</div>
+
+    <div class="phase-box p-green">
+      <div class="phase-header">Phase 5: Discount Checkout, Verified Attribution & Unlock</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">Create Discount Order</div><div class="node-file">POST /api/recovery-offers/public/:id/create-order</div><div class="node-desc">Razorpay order generated for ₹4,499.</div></div>
+        <div class="node"><div class="node-title">Verified Webhook</div><div class="node-file">webhook.js ➔ payment.captured</div><div class="node-desc">Signal marked "recovered", batch unlocked.</div></div>
+        <div class="node"><div class="node-title">Financial ROI Ledger</div><div class="node-file">GET /api/agent/revenue-recovery/metrics</div><div class="node-desc">+₹4,999 Gross | ₹500 Cost | +₹4,499 Net Margin.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Method & Route</th><th>Frontend / Trigger File</th><th>Backend File & Schema</th><th>Function & Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/create-order</span></td><td><span class="code">Courses.js</span></td><td><span class="code">back/index.js</span> (Line 238)</td><td>Creates initial Razorpay order and logs <span class="code">PaymentAttempt</span>.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/recovery/payment-failed</span></td><td><span class="code">recoveryClient.js</span></td><td><span class="code">recoveryClient.routes.js</span> (Line 17)</td><td>Fast-path failure reporter; immediately evaluates gate and returns discount.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/agent/revenue-recovery/webhook/razorpay</span></td><td>Razorpay Webhook Cloud</td><td><span class="code">webhook.js</span> (Line 18)</td><td>HMAC-verified webhook listener for <span class="code">payment.failed</span> & <span class="code">payment.captured</span>.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/recovery-offers/public/:id/create-order</span></td><td><span class="code">DiscountRecoveryModal.js</span></td><td><span class="code">recoveryOffer.routes.js</span> (Line 33)</td><td>Creates discounted Razorpay order for verified 24h recovery voucher.</td></tr>
+      <tr><td><span class="method-get">GET</span> <span class="code">/api/agent/revenue-recovery/metrics</span></td><td><span class="code">RevenueRecoveryDashboard.js</span></td><td><span class="code">revenue-recovery/routes.js</span> (Line 176)</td><td>Calculates real-time Gross Revenue, Net Profit Margin, and Conversion %.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PAGE 3: INSTAGRAM GROWTH AGENT FLOW -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>2. Instagram Growth Agent — Architecture & Flowchart</h1>
+      <p>1-Click Direct Meta Graph API Publisher &middot; Video Container Polling &middot; Storage Cleanup</p>
+    </div>
+    <div class="badge badge-pink">Instagram Agent</div>
+  </div>
+
+  <div class="flowchart-container">
+    <div class="phase-box p-pink">
+      <div class="phase-header">Stage 1: Content Ingestion & Scheduling</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">Daily Morning Cron</div><div class="node-file">instagramScheduler.service.js</div><div class="node-desc">Runs at 06:00 AM IST daily to prepare drafts.</div></div>
+        <div class="node"><div class="node-title">Admin Video Upload</div><div class="node-file">InstagramGrowthAgent.js</div><div class="node-desc">Uploads MP4 video to Cloudinary storage.</div></div>
+        <div class="node"><div class="node-title">Draft Record Created</div><div class="node-file">InstagramContent.model.js</div><div class="node-desc">Stored with status: "ready" or "scheduled".</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Admin Clicks "Publish to Instagram" or Scheduler Fires)</div>
+
+    <div class="phase-box p-purple">
+      <div class="phase-header">Stage 2: Meta Graph API Container Creation & Polling</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. Create Media Container</div><div class="node-file">POST /{ig-user-id}/media</div><div class="node-desc">Payload: media_type: 'REELS', video_url, caption.</div></div>
+        <div class="node"><div class="node-title">2. Async Polling Loop</div><div class="node-file">GET /{container-id}?fields=status_code</div><div class="node-desc">Polls every 2.5s until status is FINISHED.</div></div>
+        <div class="node"><div class="node-title">3. Publish Container</div><div class="node-file">POST /{ig-user-id}/media_publish</div><div class="node-desc">Live publishes Reel to user's Instagram feed.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Publish Confirmed by Instagram)</div>
+
+    <div class="phase-box p-green">
+      <div class="phase-header">Stage 3: Post-Publish Storage Cleanup & Growth Analytics</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. Purge Video Storage</div><div class="node-file">cloudinary.uploader.destroy()</div><div class="node-desc">Deletes video from Cloudinary to maintain 0 B waste.</div></div>
+        <div class="node"><div class="node-title">2. Status: "published"</div><div class="node-file">InstagramContent.model.js</div><div class="node-desc">Saves instagramMediaId and published timestamp.</div></div>
+        <div class="node"><div class="node-title">3. Growth Optimizer</div><div class="node-file">growthOptimizer.js (23:00 IST)</div><div class="node-desc">Optimizes captions & hashtags based on engagement.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Method & Route</th><th>Frontend / Trigger File</th><th>Backend File & Schema</th><th>Function & Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/instagram-agent/content/upload</span></td><td><span class="code">InstagramGrowthAgent.js</span></td><td><span class="code">instagramAgent.routes.js</span></td><td>Uploads direct MP4 video to Cloudinary and generates content draft.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/instagram-agent/publish-now</span></td><td><span class="code">InstagramGrowthAgent.js</span></td><td><span class="code">instagramAgent.service.js</span></td><td>1-Click direct publisher to Meta Graph API with container polling loop.</td></tr>
+      <tr><td><span class="method-get">GET</span> <span class="code">/api/instagram-agent/status</span></td><td><span class="code">InstagramGrowthAgent.js</span></td><td><span class="code">InstagramAgentConfig.model.js</span></td><td>Fetches live publishing agent status, queue metrics, and logs.</td></tr>
+      <tr><td><span class="method-patch">PATCH</span> <span class="code">/api/instagram-agent/config</span></td><td><span class="code">InstagramGrowthAgent.js</span></td><td><span class="code">InstagramAgentConfig.model.js</span></td><td>Updates daily posting schedule, target hashtags, and auto-run state.</td></tr>
+      <tr><td><span class="method-delete">DELETE</span> <span class="code">/api/instagram-agent/content/:id</span></td><td><span class="code">InstagramGrowthAgent.js</span></td><td><span class="code">InstagramContent.model.js</span></td><td>Deletes pending content item and purges linked Cloudinary asset.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PAGE 4: AI CLIENT ACQUISITION AGENT FLOW -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>3. AI Client Acquisition Agent — Architecture & Flowchart</h1>
+      <p>Automated B2B Lead Scraping &middot; Technical AI Proposals &middot; Public Escrow Checkout &middot; Code Generation</p>
+    </div>
+    <div class="badge badge-cyan">Client Agent</div>
+  </div>
+
+  <div class="flowchart-container">
+    <div class="phase-box p-cyan">
+      <div class="phase-header">Stage 1: Lead Discovery & Autonomous Intake</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. Public Client Enquiry</div><div class="node-file">POST /public/enquiry</div><div class="node-desc">Client submits project scope on public form.</div></div>
+        <div class="node"><div class="node-title">2. Lead Scraping Cron</div><div class="node-file">clientAgentScheduler.service.js</div><div class="node-desc">Discovers qualified B2B client leads.</div></div>
+        <div class="node"><div class="node-title">3. Lead Created</div><div class="node-file">ClientLead.model.js</div><div class="node-desc">Stored with status: "new" & budget estimate.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (AI Analyzes Requirements & Prepares Proposal)</div>
+
+    <div class="phase-box p-purple">
+      <div class="phase-header">Stage 2: AI Scope Analysis & Multi-Channel Outreach</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. AI Lead Analysis</div><div class="node-file">clientAgent.service.js (Groq)</div><div class="node-desc">Extracts deliverables, tech stack, and timeline.</div></div>
+        <div class="node"><div class="node-title">2. Proposal Generation</div><div class="node-file">POST /leads/:id/proposal</div><div class="node-desc">Generates commercial proposal & milestone breakdown.</div></div>
+        <div class="node"><div class="node-title">3. Multi-Channel Outreach</div><div class="node-file">emailService & twilioservice</div><div class="node-desc">Dispatches email + WhatsApp proposal to client.</div></div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Client Reviews & Pays Deposit)</div>
+
+    <div class="phase-box p-green">
+      <div class="phase-header">Stage 3: Public Escrow Payment Portal & Codebase Build</div>
+      <div class="node-grid">
+        <div class="node"><div class="node-title">1. Public Payment Portal</div><div class="node-file">ProjectPayment.js (/pay/:code)</div><div class="node-desc">Dedicated escrow payment page for client.</div></div>
+        <div class="node"><div class="node-title">2. Razorpay Milestone Pay</div><div class="node-file">POST /public/payment/:code/verify</div><div class="node-desc">Verifies payment signature and marks project funded.</div></div>
+        <div class="node"><div class="node-title">3. AI Codebase Build</div><div class="node-file">buildProjectCodebaseWithAi()</div><div class="node-desc">Generates complete project code & ZIP for delivery.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Method & Route</th><th>Frontend / Trigger File</th><th>Backend File & Schema</th><th>Function & Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/client-agent/public/enquiry</span></td><td>Public Landing Form</td><td><span class="code">clientAgent.routes.js</span></td><td>Ingests incoming client project requirement & creates <span class="code">ClientLead</span>.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/client-agent/leads/:id/analyse</span></td><td><span class="code">ClientAgentDashboard.js</span></td><td><span class="code">clientAgent.service.js</span></td><td>Runs Groq AI model to extract technical scope and feasibility.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/client-agent/leads/:id/proposal</span></td><td><span class="code">ClientAgentDashboard.js</span></td><td><span class="code">ClientProject.model.js</span></td><td>Generates structured proposal, milestone schedule, and access code.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/client-agent/public/payment/:code/create-order</span></td><td><span class="code">ProjectPayment.js</span></td><td><span class="code">clientAgent.routes.js</span></td><td>Creates milestone deposit Razorpay order on public client portal.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/client-agent/projects/:id/build-codebase</span></td><td><span class="code">ClientAgentDashboard.js</span></td><td><span class="code">clientAgent.service.js</span></td><td>Generates complete project codebase using AI and packages as ZIP.</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- PAGE 5: POCHI (ADMIN VOICE AI) & STUDENT CHATBOT FLOWS -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>4. Pochi (Voice AI) & 5. AI Academic Chatbot</h1>
+      <p>Executive 3D Voice Assistant &middot; Database Mutation Tools &middot; Xenova MiniLM RAG &middot; Promise-to-Pay</p>
+    </div>
+    <div class="badge badge-purple">Pochi & Chatbot</div>
+  </div>
+
+  <!-- POCHI VOICE AI -->
+  <div class="phase-box p-purple" style="margin-bottom: 8px;">
+    <div class="phase-header">🤖 System 4: Pochi — Admin Executive 3D Voice AI</div>
+    <div class="node-grid">
+      <div class="node"><div class="node-title">1. Voice Input (STT)</div><div class="node-file">PochiVoiceAssistant.js</div><div class="node-desc">Web Speech API captures voice in English/Hindi.</div></div>
+      <div class="node"><div class="node-title">2. Pochi Query API</div><div class="node-file">POST /api/admin/pochi/query</div><div class="node-desc">Sends voice query with full admin context.</div></div>
+      <div class="node"><div class="node-title">3. Tool Execution</div><div class="node-file">pochiAdminContext.js</div><div class="node-desc">Direct DB mutation: edits price, refunds, doubts.</div></div>
+      <div class="node"><div class="node-title">4. Hologram Speech (TTS)</div><div class="node-file">Pochi3DViewerModal.js</div><div class="node-desc">3D Orb visualizer pulses as voice replies.</div></div>
+    </div>
+  </div>
+
+  <!-- CHATBOT & STUDY COPILOT -->
+  <div class="phase-box p-blue" style="margin-bottom: 8px;">
+    <div class="phase-header">💬 System 5: AI Academic Chatbot & Study Copilot (RAG)</div>
+    <div class="node-grid">
+      <div class="node"><div class="node-title">1. Message / PDF Upload</div><div class="node-file">dash/src/features/pochi/chatbot.js</div><div class="node-desc">Student asks academic question or uploads PDF.</div></div>
+      <div class="node"><div class="node-title">2. Intent Interceptors</div><div class="node-file">studentContext.js</div><div class="node-desc">Fast-path: PDF Summary, P2P date, Payment status.</div></div>
+      <div class="node"><div class="node-title">3. Vector Search (RAG)</div><div class="node-file">Xenova/all-MiniLM-L6-v2</div><div class="node-desc">Cosine similarity on website_knowledge.md chunks.</div></div>
+      <div class="node"><div class="node-title">4. Omniscient Context</div><div class="node-file">Groq Llama-3.3-70b</div><div class="node-desc">Injects live course catalog, price in ₹, user history.</div></div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Method & Route</th><th>Frontend / Trigger File</th><th>Backend File & Schema</th><th>Function & Purpose</th></tr></thead>
+    <tbody>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/admin/pochi/query</span></td><td><span class="code">PochiVoiceAssistant.js</span></td><td><span class="code">pochi.routes.js</span> (Line 18)</td><td>Admin-only voice assistant endpoint; executes direct DB tools.</td></tr>
+      <tr><td><span class="method-get">GET</span> <span class="code">/api/admin/pochi/context</span></td><td><span class="code">PochiVoiceAssistant.js</span></td><td><span class="code">pochiAdminContext.js</span></td><td>Fetches live store snapshot (revenue, doubts, active students) for Pochi.</td></tr>
+      <tr><td><span class="method-post">POST</span> <span class="code">/api/chatbot</span></td><td><span class="code">features/pochi/chatbot.js</span></td><td><span class="code">modules/pochi/chatbot.js</span> (Line 291)</td><td>RAG academic study copilot, PDF summarizer, and live course advisor.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="summary-box">
+    <h4>💡 Key Features of the Chatbot & Pochi</h4>
+    <div class="summary-grid">
+      <div><strong>🤝 Promise-to-Pay in Chat:</strong> If a student says <em>"main kal pay karunga"</em>, the chatbot registers the commitment in <span class="code">FailedPayment</span>, pauses recovery alerts, and confirms their seat.</div>
+      <div><strong>📄 PDF Summarization:</strong> Parses uploaded notes using <span class="code">pdf-parse</span> (up to 15,000 characters) and generates structured takeaways.</div>
+      <div><strong>🛡️ Pochi Database Tools:</strong> Direct mutation of MongoDB records (<span class="code">Batch.price</span>, <span class="code">RefundRequest</span>, doubt responses) via voice.</div>
+      <div><strong>🌐 Omniscient Catalog Injection:</strong> Chatbot checks real-time prices and never recommends courses the student already owns.</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

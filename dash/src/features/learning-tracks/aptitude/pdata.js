@@ -1706,6 +1706,2273 @@ const questionsData = {
 
 
 
+  "probability-and-p&c": [
+
+  {
+    "title": "What is permutation?",
+    "answer": "Arrangement of objects where order matters."
+  },
+
+  {
+    "title": "What is combination?",
+    "answer": "Selection of objects where order does not matter."
+  },
+
+  {
+    "title": "What is the main difference between permutation and combination?",
+    "answer": "Permutation considers order; combination does not."
+  },
+
+  {
+    "title": "What is the formula for permutation?",
+    "answer": "nPr = n! / (n-r)!"
+  },
+
+  {
+    "title": "What is the formula for combination?",
+    "answer": "nCr = n! / [r!(n-r)!]"
+  },
+
+  {
+    "title": "What is factorial?",
+    "answer": "n! = n × (n-1) × (n-2) × ... × 1."
+  },
+
+  {
+    "title": "What is 0 factorial?",
+    "answer": "0! = 1."
+  },
+
+  {
+    "title": "What is 1 factorial?",
+    "answer": "1! = 1."
+  },
+
+  {
+    "title": "What is 5 factorial?",
+    "answer": "5! = 5 × 4 × 3 × 2 × 1 = 120."
+  },
+
+  {
+    "title": "What is 6 factorial?",
+    "answer": "6! = 720."
+  },
+
+  {
+    "title": "What is 7 factorial?",
+    "answer": "7! = 5040."
+  },
+
+  {
+    "title": "What is 8 factorial?",
+    "answer": "8! = 40320."
+  },
+
+  {
+    "title": "What is 10 factorial?",
+    "answer": "10! = 3628800."
+  },
+
+  {
+    "title": "What is 5P2?",
+    "answer": "5P2 = 5! / 3! = 20."
+  },
+
+  {
+    "title": "What is 5C2?",
+    "answer": "5C2 = 5! / (2!3!) = 10."
+  },
+
+  {
+    "title": "What is 6P3?",
+    "answer": "6P3 = 6! / 3! = 120."
+  },
+
+  {
+    "title": "What is 6C3?",
+    "answer": "6C3 = 6! / (3!3!) = 20."
+  },
+
+  {
+    "title": "When should permutation be used?",
+    "answer": "When different orders are considered different."
+  },
+
+  {
+    "title": "When should combination be used?",
+    "answer": "When only selection matters and order does not matter."
+  },
+
+  {
+    "title": "How many ways can 3 people be arranged in a row?",
+    "answer": "3! = 6 ways."
+  },
+
+  {
+    "title": "How many ways can 5 people be arranged in a row?",
+    "answer": "5! = 120 ways."
+  },
+
+  {
+    "title": "How many ways can 6 people be arranged in a row?",
+    "answer": "6! = 720 ways."
+  },
+
+  {
+    "title": "How many ways can 3 people be selected from 5 people?",
+    "answer": "5C3 = 10 ways."
+  },
+
+  {
+    "title": "How many ways can 2 people be selected from 6 people?",
+    "answer": "6C2 = 15 ways."
+  },
+
+  {
+    "title": "How many ways can 4 people be selected from 10 people?",
+    "answer": "10C4 = 210 ways."
+  },
+
+  {
+    "title": "What is the relationship between nCr and nC(n-r)?",
+    "answer": "nCr = nC(n-r)."
+  },
+
+  {
+    "title": "What is 10C8?",
+    "answer": "10C8 = 10C2 = 45."
+  },
+
+  {
+    "title": "What is 10C7?",
+    "answer": "10C7 = 10C3 = 120."
+  },
+
+  {
+    "title": "What is nC0?",
+    "answer": "nC0 = 1."
+  },
+
+  {
+    "title": "What is nCn?",
+    "answer": "nCn = 1."
+  },
+
+  {
+    "title": "What is the formula connecting permutation and combination?",
+    "answer": "nPr = nCr × r!."
+  },
+
+  {
+    "title": "How many ways can r objects be arranged from n objects?",
+    "answer": "nPr."
+  },
+
+  {
+    "title": "How many ways can r objects be selected from n objects?",
+    "answer": "nCr."
+  },
+
+  {
+    "title": "How many 3-digit numbers can be formed using 1,2,3 without repetition?",
+    "answer": "3! = 6 numbers."
+  },
+
+  {
+    "title": "How many 3-digit numbers can be formed using 1,2,3,4,5 without repetition?",
+    "answer": "5P3 = 60 numbers."
+  },
+
+  {
+    "title": "How many 3-digit numbers can be formed using 1,2,3,4,5 with repetition allowed?",
+    "answer": "5 × 5 × 5 = 125 numbers."
+  },
+
+  {
+    "title": "How many 4-digit numbers can be formed using 1,2,3,4,5 without repetition?",
+    "answer": "5P4 = 120 numbers."
+  },
+
+  {
+    "title": "How many 4-digit numbers can be formed using 0,1,2,3,4 without repetition?",
+    "answer": "96 numbers."
+  },
+
+  {
+    "title": "Why cannot zero be placed first in a number?",
+    "answer": "Because a number cannot start with zero and still have the required number of digits."
+  },
+
+  {
+    "title": "How many ways can the letters of ABC be arranged?",
+    "answer": "3! = 6 ways."
+  },
+
+  {
+    "title": "How many ways can the letters of CAT be arranged?",
+    "answer": "3! = 6 ways."
+  },
+
+  {
+    "title": "How many ways can the letters of ABCD be arranged?",
+    "answer": "4! = 24 ways."
+  },
+
+  {
+    "title": "How many ways can n distinct objects be arranged in a row?",
+    "answer": "n! ways."
+  },
+
+  {
+    "title": "How many ways can n distinct objects be arranged in a circle?",
+    "answer": "(n-1)! ways."
+  },
+
+  {
+    "title": "Why is circular permutation (n-1)!?",
+    "answer": "Because rotations of the same arrangement are considered identical."
+  },
+
+  {
+    "title": "How many ways can 4 people sit around a circular table?",
+    "answer": "(4-1)! = 6 ways."
+  },
+
+  {
+    "title": "How many ways can 5 people sit around a circular table?",
+    "answer": "(5-1)! = 24 ways."
+  },
+
+  {
+    "title": "How many ways can 6 people sit around a circular table?",
+    "answer": "(6-1)! = 120 ways."
+  },
+
+  {
+    "title": "What is permutation with repeated objects?",
+    "answer": "When some objects are identical, arrangements = n! / (p!q!r!...)."
+  },
+
+  {
+    "title": "How many arrangements can be made from the letters of LEVEL?",
+    "answer": "5! / (2!2!) = 30."
+  },
+
+  {
+    "title": "How many arrangements can be made from the letters of BANANA?",
+    "answer": "6! / (3!2!) = 60."
+  },
+
+  {
+    "title": "How many arrangements can be made from the letters of MISSISSIPPI?",
+    "answer": "11! / (4!4!2!) = 34650."
+  },
+
+  {
+    "title": "How do you arrange objects when two particular objects must stay together?",
+    "answer": "Treat the two objects as one block and arrange the block with the remaining objects."
+  },
+
+  {
+    "title": "How many ways can A and B stay together among 5 people in a row?",
+    "answer": "Treat AB as one block: 4! × 2! = 48 ways."
+  },
+
+  {
+    "title": "How do you arrange objects when two particular objects must not stay together?",
+    "answer": "Total arrangements - arrangements where they stay together."
+  },
+
+  {
+    "title": "How many ways can A and B not sit together among 5 people in a row?",
+    "answer": "5! - (4! × 2!) = 72 ways."
+  },
+
+  {
+    "title": "How do you solve arrangements where vowels must be together?",
+    "answer": "Treat all vowels as one block, then arrange the block and consonants."
+  },
+
+  {
+    "title": "How do you solve arrangements where vowels cannot be together?",
+    "answer": "Total arrangements - arrangements where vowels are together."
+  },
+
+  {
+    "title": "What is the probability formula?",
+    "answer": "Probability = Favorable outcomes / Total possible outcomes."
+  },
+
+  {
+    "title": "What is the probability of an impossible event?",
+    "answer": "0."
+  },
+
+  {
+    "title": "What is the probability of a certain event?",
+    "answer": "1."
+  },
+
+  {
+    "title": "What is the range of probability?",
+    "answer": "Probability always lies between 0 and 1."
+  },
+
+  {
+    "title": "Can probability be greater than 1?",
+    "answer": "No."
+  },
+
+  {
+    "title": "Can probability be negative?",
+    "answer": "No."
+  },
+
+  {
+    "title": "What is the probability of getting a head when tossing a fair coin?",
+    "answer": "1/2."
+  },
+
+  {
+    "title": "What is the probability of getting a tail when tossing a fair coin?",
+    "answer": "1/2."
+  },
+
+  {
+    "title": "What is the probability of getting a specific number on a fair die?",
+    "answer": "1/6."
+  },
+
+  {
+    "title": "What is the probability of getting an even number on a die?",
+    "answer": "3/6 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of getting an odd number on a die?",
+    "answer": "3/6 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of getting a number greater than 4 on a die?",
+    "answer": "2/6 = 1/3."
+  },
+
+  {
+    "title": "What is the probability of getting a number less than 3 on a die?",
+    "answer": "2/6 = 1/3."
+  },
+
+  {
+    "title": "What is the probability of getting a number at least 4 on a die?",
+    "answer": "3/6 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of getting a prime number on a die?",
+    "answer": "3/6 = 1/2, because 2, 3 and 5 are prime."
+  },
+
+  {
+    "title": "What is the probability of getting a multiple of 3 on a die?",
+    "answer": "2/6 = 1/3."
+  },
+
+  {
+    "title": "What is the probability of getting two heads when two coins are tossed?",
+    "answer": "1/4."
+  },
+
+  {
+    "title": "What is the probability of getting exactly one head when two coins are tossed?",
+    "answer": "2/4 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of getting at least one head when two coins are tossed?",
+    "answer": "3/4."
+  },
+
+  {
+    "title": "What is the probability of getting no heads when two coins are tossed?",
+    "answer": "1/4."
+  },
+
+  {
+    "title": "What are the possible outcomes when two coins are tossed?",
+    "answer": "HH, HT, TH, TT."
+  },
+
+  {
+    "title": "What is the probability of getting exactly two heads in three coin tosses?",
+    "answer": "3/8."
+  },
+
+  {
+    "title": "What is the probability of getting at least one head in three coin tosses?",
+    "answer": "1 - P(no head) = 1 - 1/8 = 7/8."
+  },
+
+  {
+    "title": "What is the probability of getting all heads in three coin tosses?",
+    "answer": "1/8."
+  },
+
+  {
+    "title": "What is the probability of getting all tails in three coin tosses?",
+    "answer": "1/8."
+  },
+
+  {
+    "title": "What is the probability of getting exactly three heads in five coin tosses?",
+    "answer": "5C3 / 2^5 = 10/32 = 5/16."
+  },
+
+  {
+    "title": "What is the probability of getting exactly r heads in n coin tosses?",
+    "answer": "nCr / 2^n."
+  },
+
+  {
+    "title": "What is the probability of getting at least one success?",
+    "answer": "1 - Probability of getting no success."
+  },
+
+  {
+    "title": "Why is complement useful in probability?",
+    "answer": "It is often easier to calculate the opposite event and subtract it from 1."
+  },
+
+  {
+    "title": "What is the probability of drawing an ace from a standard deck?",
+    "answer": "4/52 = 1/13."
+  },
+
+  {
+    "title": "How many cards are in a standard deck?",
+    "answer": "52 cards."
+  },
+
+  {
+    "title": "How many suits are in a standard deck?",
+    "answer": "4 suits."
+  },
+
+  {
+    "title": "What are the four suits in a deck?",
+    "answer": "Hearts, Diamonds, Clubs and Spades."
+  },
+
+  {
+    "title": "How many cards are there in each suit?",
+    "answer": "13 cards."
+  },
+
+  {
+    "title": "How many red cards are in a standard deck?",
+    "answer": "26."
+  },
+
+  {
+    "title": "How many black cards are in a standard deck?",
+    "answer": "26."
+  },
+
+  {
+    "title": "How many aces are in a standard deck?",
+    "answer": "4."
+  },
+
+  {
+    "title": "How many kings are in a standard deck?",
+    "answer": "4."
+  },
+
+  {
+    "title": "How many queens are in a standard deck?",
+    "answer": "4."
+  },
+
+  {
+    "title": "How many jacks are in a standard deck?",
+    "answer": "4."
+  },
+
+  {
+    "title": "How many face cards are in a standard deck?",
+    "answer": "12."
+  },
+
+  {
+    "title": "What are face cards?",
+    "answer": "Jack, Queen and King."
+  },
+
+  {
+    "title": "What is the probability of drawing a red card?",
+    "answer": "26/52 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of drawing a black card?",
+    "answer": "26/52 = 1/2."
+  },
+
+  {
+    "title": "What is the probability of drawing a king?",
+    "answer": "4/52 = 1/13."
+  },
+
+  {
+    "title": "What is the probability of drawing a face card?",
+    "answer": "12/52 = 3/13."
+  },
+
+  {
+    "title": "What is the probability of drawing a red king?",
+    "answer": "2/52 = 1/26."
+  },
+
+  {
+    "title": "What is the probability of drawing a heart?",
+    "answer": "13/52 = 1/4."
+  },
+
+  {
+    "title": "What is the probability of drawing an ace or a king?",
+    "answer": "8/52 = 2/13."
+  },
+
+  {
+    "title": "What is the probability of drawing a card that is neither ace nor king?",
+    "answer": "40/52 = 10/13."
+  },
+
+  {
+    "title": "What is the probability of drawing two aces in succession without replacement?",
+    "answer": "4/52 × 3/51 = 1/221."
+  },
+
+  {
+    "title": "What is the probability of drawing two aces in succession with replacement?",
+    "answer": "4/52 × 4/52 = 1/169."
+  },
+
+  {
+    "title": "What is the difference between with replacement and without replacement?",
+    "answer": "With replacement keeps the total unchanged; without replacement changes the total after each draw."
+  },
+
+  {
+    "title": "What is an independent event?",
+    "answer": "An event whose occurrence does not affect the probability of another event."
+  },
+
+  {
+    "title": "Example of independent events?",
+    "answer": "Two separate coin tosses are independent."
+  },
+
+  {
+    "title": "What is a dependent event?",
+    "answer": "An event whose probability is affected by a previous event."
+  },
+
+  {
+    "title": "Example of dependent events?",
+    "answer": "Drawing two cards without replacement."
+  },
+
+  {
+    "title": "What is the multiplication rule for independent events?",
+    "answer": "P(A and B) = P(A) × P(B)."
+  },
+
+  {
+    "title": "What is the addition rule for mutually exclusive events?",
+    "answer": "P(A or B) = P(A) + P(B)."
+  },
+
+  {
+    "title": "What are mutually exclusive events?",
+    "answer": "Events that cannot occur at the same time."
+  },
+
+  {
+    "title": "Example of mutually exclusive events?",
+    "answer": "Getting a head and tail on one coin toss."
+  },
+
+  {
+    "title": "What is the general addition rule?",
+    "answer": "P(A or B) = P(A) + P(B) - P(A and B)."
+  },
+
+  {
+    "title": "Why do we subtract P(A and B) in the addition rule?",
+    "answer": "Because the common outcomes are counted twice."
+  },
+
+  {
+    "title": "What is conditional probability?",
+    "answer": "Probability of an event occurring given that another event has already occurred."
+  },
+
+  {
+    "title": "What is the formula for conditional probability?",
+    "answer": "P(A|B) = P(A and B) / P(B)."
+  },
+
+  {
+    "title": "What does P(A|B) mean?",
+    "answer": "Probability of A given that B has occurred."
+  },
+
+  {
+    "title": "What is Bayes' theorem?",
+    "answer": "P(A|B) = [P(B|A) × P(A)] / P(B)."
+  },
+
+  {
+    "title": "When is Bayes' theorem useful?",
+    "answer": "When we need to reverse conditional probabilities using known prior probabilities."
+  },
+
+  {
+    "title": "What is a sample space?",
+    "answer": "The set of all possible outcomes of an experiment."
+  },
+
+  {
+    "title": "What is an event in probability?",
+    "answer": "A set of one or more outcomes from the sample space."
+  },
+
+  {
+    "title": "What is the complement of event A?",
+    "answer": "The event in which A does not occur."
+  },
+
+  {
+    "title": "What is the formula for complement probability?",
+    "answer": "P(A') = 1 - P(A)."
+  },
+
+  {
+    "title": "What is the probability of at least one occurrence in n independent trials?",
+    "answer": "1 - Probability of zero occurrences."
+  },
+
+  {
+    "title": "What is the probability of exactly one success in n trials?",
+    "answer": "n × p × (1-p)^(n-1)."
+  },
+
+  {
+    "title": "What is the probability of exactly r successes in n independent trials?",
+    "answer": "nCr × p^r × (1-p)^(n-r)."
+  },
+
+  {
+    "title": "What is binomial probability?",
+    "answer": "Probability involving a fixed number of independent trials with two possible outcomes."
+  },
+
+  {
+    "title": "What conditions are required for binomial probability?",
+    "answer": "Fixed trials, two outcomes, independent trials and constant probability of success."
+  },
+
+  {
+    "title": "What is expected value?",
+    "answer": "The weighted average of all possible outcomes."
+  },
+
+  {
+    "title": "What is the basic formula for expected value?",
+    "answer": "E(X) = Σ[x × P(x)]."
+  },
+
+  {
+    "title": "What is the probability of at least one six when a die is thrown twice?",
+    "answer": "1 - (5/6)^2 = 11/36."
+  },
+
+  {
+    "title": "What is the probability of getting at least one six when a die is thrown three times?",
+    "answer": "1 - (5/6)^3 = 91/216."
+  },
+
+  {
+    "title": "What is the probability of getting no sixes in three die throws?",
+    "answer": "(5/6)^3 = 125/216."
+  },
+
+  {
+    "title": "What is the probability that the sum of two dice is 7?",
+    "answer": "6/36 = 1/6."
+  },
+
+  {
+    "title": "What are the combinations that give sum 7 with two dice?",
+    "answer": "(1,6), (2,5), (3,4), (4,3), (5,2), (6,1)."
+  },
+
+  {
+    "title": "What is the probability that the sum of two dice is 2?",
+    "answer": "1/36."
+  },
+
+  {
+    "title": "What is the probability that the sum of two dice is 12?",
+    "answer": "1/36."
+  },
+
+  {
+    "title": "What is the probability that the sum of two dice is even?",
+    "answer": "1/2."
+  },
+
+  {
+    "title": "What is the probability that at least one die shows 6 when two dice are thrown?",
+    "answer": "11/36."
+  },
+
+  {
+    "title": "What is the probability that both dice show the same number?",
+    "answer": "6/36 = 1/6."
+  },
+
+  {
+    "title": "What is the probability of getting different numbers on two dice?",
+    "answer": "30/36 = 5/6."
+  },
+
+  {
+    "title": "What is the probability that the product of two dice is even?",
+    "answer": "3/4."
+  },
+
+  {
+    "title": "What is the probability that both dice show odd numbers?",
+    "answer": "9/36 = 1/4."
+  },
+
+  {
+    "title": "What is the probability that at least one die shows an odd number?",
+    "answer": "1 - 1/4 = 3/4."
+  },
+
+  {
+    "title": "What is the probability of selecting 2 red balls from a box containing 5 red and 3 blue balls?",
+    "answer": "5C2 / 8C2 = 10/28 = 5/14."
+  },
+
+  {
+    "title": "What is the probability of selecting one red and one blue ball from 5 red and 3 blue balls?",
+    "answer": "(5C1 × 3C1) / 8C2 = 15/28."
+  },
+
+  {
+    "title": "What is the probability of selecting two blue balls from 5 red and 3 blue balls?",
+    "answer": "3C2 / 8C2 = 3/28."
+  },
+
+  {
+    "title": "What is the probability of selecting at least one red ball?",
+    "answer": "1 - Probability of selecting no red balls."
+  },
+
+  {
+    "title": "What is the probability of selecting exactly two red balls from n objects?",
+    "answer": "Use favorable selections / total selections."
+  },
+
+  {
+    "title": "What is the probability of selecting all objects of a particular type?",
+    "answer": "Number of favorable selections divided by total selections."
+  },
+
+  {
+    "title": "How do you solve committee selection problems?",
+    "answer": "Use combinations because selecting members does not depend on order."
+  },
+
+  {
+    "title": "How many committees of 3 can be formed from 8 people?",
+    "answer": "8C3 = 56."
+  },
+
+  {
+    "title": "How many committees of 4 can be formed from 10 people?",
+    "answer": "10C4 = 210."
+  },
+
+  {
+    "title": "How many committees of 5 can be formed from 12 people?",
+    "answer": "12C5 = 792."
+  },
+
+  {
+    "title": "How do you solve committee problems requiring a particular person?",
+    "answer": "Fix that person first, then select the remaining members."
+  },
+
+  {
+    "title": "How many committees of 4 from 10 people must include A?",
+    "answer": "Choose the remaining 3 from 9: 9C3 = 84."
+  },
+
+  {
+    "title": "How do you solve committee problems where a particular person must not be selected?",
+    "answer": "Exclude that person and select all members from the remaining people."
+  },
+
+  {
+    "title": "How many committees of 4 from 10 people exclude A?",
+    "answer": "9C4 = 126."
+  },
+
+  {
+    "title": "How do you solve problems where at least one person from a group must be selected?",
+    "answer": "Total selections - selections containing none from that group."
+  },
+
+  {
+    "title": "How do you solve problems where exactly two people from a group must be selected?",
+    "answer": "Choose exactly two from that group and choose the remaining members from outside the group."
+  },
+
+  {
+    "title": "What is the pigeonhole principle?",
+    "answer": "If more than n objects are placed into n boxes, at least one box contains more than one object."
+  },
+
+  {
+    "title": "What is the minimum number of people needed to guarantee two have the same birthday?",
+    "answer": "367 people, assuming 365 possible birthdays."
+  },
+
+  {
+    "title": "What is the minimum number of people needed to guarantee two have the same birth month?",
+    "answer": "13 people."
+  },
+
+  {
+    "title": "What is the minimum number of socks needed to guarantee a matching pair if there are 3 colors?",
+    "answer": "4 socks."
+  },
+
+  {
+    "title": "What is the minimum number of socks needed to guarantee 2 pairs if there are 3 colors?",
+    "answer": "5 socks."
+  },
+
+  {
+    "title": "How do you count arrangements when repetition is allowed?",
+    "answer": "If there are n choices for each of r positions, total arrangements = n^r."
+  },
+
+  {
+    "title": "How many passwords of length 4 can be formed using 10 digits if repetition is allowed?",
+    "answer": "10^4 = 10000."
+  },
+
+  {
+    "title": "How many passwords of length 4 can be formed using 10 digits if repetition is not allowed?",
+    "answer": "10P4 = 5040."
+  },
+
+  {
+    "title": "How many 4-letter strings can be formed using 26 English letters with repetition allowed?",
+    "answer": "26^4."
+  },
+
+  {
+    "title": "How many 4-letter strings can be formed using 26 letters without repetition?",
+    "answer": "26P4."
+  },
+
+  {
+    "title": "How many ways can 5 boys and 4 girls sit in a row?",
+    "answer": "9! ways."
+  },
+
+  {
+    "title": "How many ways can 5 boys and 4 girls sit alternately?",
+    "answer": "5! × 4! ways, if boys occupy both end positions."
+  },
+
+  {
+    "title": "How do you solve people sitting alternately?",
+    "answer": "Arrange one group first, then place the other group in the available gaps."
+  },
+
+  {
+    "title": "How do you solve 'no two girls together' problems?",
+    "answer": "Arrange the boys first and place girls in the gaps between and around them."
+  },
+
+  {
+    "title": "How many ways can 4 boys and 3 girls sit so that no two girls sit together?",
+    "answer": "Arrange boys: 4!, choose 3 of 5 gaps and arrange girls: 3!, giving 4! × 5C3 × 3!."
+  },
+
+  {
+    "title": "How do you solve 'at least two people together' problems?",
+    "answer": "Usually use complementary counting or block method depending on the condition."
+  },
+
+  {
+    "title": "How do you solve arrangements where a particular person must occupy a specific position?",
+    "answer": "Fix that person in the required position and arrange the remaining people."
+  },
+
+  {
+    "title": "How many ways can 5 people sit in a row if A must sit at one end?",
+    "answer": "2 × 4! = 48 ways."
+  },
+
+  {
+    "title": "How many ways can 5 people sit in a row if A and B must occupy the two ends?",
+    "answer": "2 × 3! = 12 ways."
+  },
+
+  {
+    "title": "How many ways can 5 people sit in a row if A must sit in the middle?",
+    "answer": "4! = 24 ways."
+  },
+
+  {
+    "title": "What is the formula for arranging n distinct objects in a circle?",
+    "answer": "(n-1)!."
+  },
+
+  {
+    "title": "How do you solve circular seating when two people must sit together?",
+    "answer": "Treat them as one block and use circular permutation."
+  },
+
+  {
+    "title": "How do you solve circular seating when two people must not sit together?",
+    "answer": "Total circular arrangements - arrangements where they sit together."
+  },
+
+  {
+    "title": "What is the difference between arrangement in a row and circular arrangement?",
+    "answer": "Row: n! arrangements. Circle: (n-1)! arrangements."
+  },
+
+  {
+    "title": "How many diagonals does a polygon with n sides have?",
+    "answer": "n(n-3)/2."
+  },
+
+  {
+    "title": "How many handshakes occur if n people shake hands with every other person exactly once?",
+    "answer": "nC2 = n(n-1)/2."
+  },
+
+  {
+    "title": "How many handshakes occur among 10 people?",
+    "answer": "10C2 = 45."
+  },
+
+  {
+    "title": "How many matches are possible when n teams each play every other team once?",
+    "answer": "nC2 = n(n-1)/2."
+  },
+
+  {
+    "title": "How many ways can a pair be selected from n people?",
+    "answer": "nC2 = n(n-1)/2."
+  },
+
+  {
+    "title": "What is the number of ways to select at least one object from n distinct objects?",
+    "answer": "2^n - 1."
+  },
+
+  {
+    "title": "What is the number of subsets of a set containing n elements?",
+    "answer": "2^n."
+  },
+
+  {
+    "title": "What is the number of non-empty subsets of a set containing n elements?",
+    "answer": "2^n - 1."
+  },
+
+  {
+    "title": "How many subsets does a 5-element set have?",
+    "answer": "2^5 = 32."
+  },
+
+  {
+    "title": "How many non-empty subsets does a 5-element set have?",
+    "answer": "31."
+  },
+
+  {
+    "title": "What is the sum of all combinations nC0 + nC1 + ... + nCn?",
+    "answer": "2^n."
+  },
+
+  {
+    "title": "What is Pascal's identity?",
+    "answer": "nCr = (n-1)C(r-1) + (n-1)Cr."
+  },
+
+  {
+    "title": "What is the probability of an event and its complement together?",
+    "answer": "Their probabilities add up to 1."
+  },
+
+  {
+    "title": "What is the probability of exactly one of two mutually exclusive events?",
+    "answer": "P(A) + P(B)."
+  },
+
+  {
+    "title": "What is the probability of A or B when events are not mutually exclusive?",
+    "answer": "P(A) + P(B) - P(A and B)."
+  },
+
+  {
+    "title": "What is the probability of A and B for independent events?",
+    "answer": "P(A) × P(B)."
+  },
+
+  {
+    "title": "What is the probability of getting at least one success in n trials when success probability is p?",
+    "answer": "1 - (1-p)^n."
+  },
+
+  {
+    "title": "What is the probability of getting no success in n trials when success probability is p?",
+    "answer": "(1-p)^n."
+  },
+
+  {
+    "title": "What is the probability of exactly one success in n trials?",
+    "answer": "n × p × (1-p)^(n-1)."
+  },
+
+  {
+    "title": "What is the probability of exactly r successes in n trials?",
+    "answer": "nCr × p^r × (1-p)^(n-r)."
+  },
+
+  {
+    "title": "What is the probability that two randomly selected people have the same birthday?",
+    "answer": "1/365, assuming 365 equally likely birthdays."
+  },
+
+  {
+    "title": "How do you solve the birthday problem for n people?",
+    "answer": "Calculate 1 - probability that all n birthdays are different."
+  },
+
+  {
+    "title": "What is the probability that all n people have different birthdays?",
+    "answer": "365/365 × 364/365 × 363/365 × ... for n terms."
+  },
+
+  {
+    "title": "What is the probability of selecting a particular arrangement from n distinct arrangements?",
+    "answer": "1/n!."
+  },
+
+  {
+    "title": "What is odds in favor of an event?",
+    "answer": "Favorable outcomes : Unfavorable outcomes."
+  },
+
+  {
+    "title": "What is odds against an event?",
+    "answer": "Unfavorable outcomes : Favorable outcomes."
+  },
+
+  {
+    "title": "If probability of an event is p, what is probability of failure?",
+    "answer": "1-p."
+  },
+
+  {
+    "title": "If odds in favor of an event are 3:2, what is its probability?",
+    "answer": "3/(3+2) = 3/5."
+  },
+
+  {
+    "title": "If odds against an event are 4:1, what is its probability?",
+    "answer": "1/(4+1) = 1/5."
+  },
+
+  {
+    "title": "What is the probability of selecting at least one defective item?",
+    "answer": "1 - probability of selecting no defective item."
+  },
+
+  {
+    "title": "How do you solve defective item probability questions?",
+    "answer": "Use combinations for selections or multiplication for sequential draws, depending on the question."
+  },
+
+  {
+    "title": "How do you solve probability questions involving 'at least'?",
+    "answer": "Usually calculate 1 - probability of the complementary event."
+  },
+
+  {
+    "title": "How do you solve probability questions involving 'at most'?",
+    "answer": "Add probabilities for all allowed values up to the stated maximum."
+  },
+
+  {
+    "title": "What does 'at least 2' mean?",
+    "answer": "2 or more."
+  },
+
+  {
+    "title": "What does 'at most 2' mean?",
+    "answer": "2 or fewer."
+  },
+
+  {
+    "title": "What does 'exactly 2' mean?",
+    "answer": "Only 2."
+  },
+
+  {
+    "title": "What does 'more than 2' mean?",
+    "answer": "3 or more."
+  },
+
+  {
+    "title": "What does 'less than 2' mean?",
+    "answer": "0 or 1."
+  },
+
+  {
+    "title": "What does 'not more than 2' mean?",
+    "answer": "At most 2."
+  },
+
+  {
+    "title": "What does 'not less than 2' mean?",
+    "answer": "At least 2."
+  },
+
+  {
+    "title": "What is the basic strategy for aptitude P&C questions?",
+    "answer": "First identify whether it is selection, arrangement, repetition, grouping, or circular arrangement."
+  },
+
+  {
+    "title": "What is the basic strategy for aptitude probability questions?",
+    "answer": "Identify the sample space, favorable outcomes, and whether events are independent, dependent, mutually exclusive, or complementary."
+  },
+
+  {
+    "title": "How do you identify whether a question requires P&C or probability?",
+    "answer": "P&C counts possible arrangements or selections; probability compares favorable possibilities with total possibilities."
+  },
+
+  {
+    "title": "What is the most important trick for 'at least one' probability questions?",
+    "answer": "Use complement: P(at least one) = 1 - P(none)."
+  },
+
+  {
+    "title": "What is the most important trick for 'together' arrangement questions?",
+    "answer": "Treat the required objects as one block."
+  },
+
+  {
+    "title": "What is the most important trick for 'not together' arrangement questions?",
+    "answer": "Total arrangements - together arrangements."
+  },
+
+  {
+    "title": "What is the most important trick for repeated letters?",
+    "answer": "Divide n! by the factorial of the repetitions."
+  },
+
+  {
+    "title": "What is the most important trick for circular arrangements?",
+    "answer": "Fix one person/object and arrange the remaining objects."
+  },
+
+  {
+    "title": "What is the most important trick for committee questions?",
+    "answer": "Use combinations because order of selected members does not matter."
+  },
+
+  {
+    "title": "What is the most important trick for number formation questions?",
+    "answer": "Fill positions one by one and handle zero separately when necessary."
+  },
+
+  {
+    "title": "What is the most important trick for dice probability?",
+    "answer": "List the total outcomes as 36 for two dice and count favorable pairs."
+  },
+
+  {
+    "title": "What is the most important trick for card probability?",
+    "answer": "Use 52 as the total number of cards and count favorable cards."
+  },
+
+  {
+    "title": "What is the most important trick for repeated coin tosses?",
+    "answer": "Total outcomes for n tosses = 2^n."
+  },
+
+  {
+    "title": "What is the most important trick for repeated dice throws?",
+    "answer": "Total outcomes for n dice throws = 6^n."
+  }
+
+],
+
+
+"sql":[
+  {
+    title: `SQL 50 - Complete Questions & Solutions`,
+
+    answer: `
+
+==================================================
+1. Recyclable and Low Fat Products
+==================================================
+
+QUESTION:
+Find products that are both low fat and recyclable.
+
+SQL Answer:
+
+<pre><code>SELECT product_id
+FROM Products
+WHERE low_fats = 'Y'
+AND recyclable = 'Y';</code></pre>
+
+
+==================================================
+2. Find Customer Referee
+==================================================
+
+QUESTION:
+Find the names of customers who were not referred by customer 2.
+Include customers who have no referee.
+
+SQL Answer:
+
+<pre><code>SELECT name
+FROM Customer
+WHERE referee_id != 2
+   OR referee_id IS NULL;</code></pre>
+
+
+==================================================
+3. Big Countries
+==================================================
+
+QUESTION:
+Find countries that are big.
+A country is big if its area is at least 3 million km²
+OR its population is at least 25 million.
+
+SQL Answer:
+
+<pre><code>SELECT name, population, area
+FROM World
+WHERE area >= 3000000
+   OR population >= 25000000;</code></pre>
+
+
+==================================================
+4. Article Views I
+==================================================
+
+QUESTION:
+Find authors who viewed at least one of their own articles.
+Return each author only once.
+
+SQL Answer:
+
+<pre><code>SELECT DISTINCT author_id AS id
+FROM Views
+WHERE author_id = viewer_id
+ORDER BY id;</code></pre>
+
+
+==================================================
+5. Invalid Tweets
+==================================================
+
+QUESTION:
+Find tweets whose content length is greater than 15 characters.
+
+SQL Answer:
+
+<pre><code>SELECT tweet_id
+FROM Tweets
+WHERE LENGTH(content) > 15;</code></pre>
+
+
+==================================================
+6. Replace Employee ID With The Unique Identifier
+==================================================
+
+QUESTION:
+Show each employee's unique ID.
+If an employee does not have a unique ID, show NULL.
+
+SQL Answer:
+
+<pre><code>SELECT eu.unique_id, e.name
+FROM Employees e
+LEFT JOIN EmployeeUNI eu
+    ON e.id = eu.id;</code></pre>
+
+
+==================================================
+7. Product Sales Analysis I
+==================================================
+
+QUESTION:
+Report the product name, year, and price for every sale.
+
+SQL Answer:
+
+<pre><code>SELECT p.product_name, s.year, s.price
+FROM Sales s
+JOIN Product p
+    ON s.product_id = p.product_id;</code></pre>
+
+
+==================================================
+8. Customer Who Visited but Did Not Make Any Transactions
+==================================================
+
+QUESTION:
+Find customers who visited but did not make any transactions.
+
+SQL Answer:
+
+<pre><code>SELECT v.customer_id,
+       COUNT(*) AS count_no_trans
+FROM Visits v
+LEFT JOIN Transactions t
+    ON v.visit_id = t.visit_id
+WHERE t.transaction_id IS NULL
+GROUP BY v.customer_id;</code></pre>
+
+
+==================================================
+9. Rising Temperature
+==================================================
+
+QUESTION:
+Find the dates when the temperature was higher than the previous day.
+
+SQL Answer:
+
+<pre><code>SELECT w1.id
+FROM Weather w1
+JOIN Weather w2
+    ON DATEDIFF(w1.recordDate, w2.recordDate) = 1
+WHERE w1.temperature > w2.temperature;</code></pre>
+
+
+==================================================
+10. Average Time of Process per Machine
+==================================================
+
+QUESTION:
+Find the average time each machine takes to complete a process.
+
+SQL Answer:
+
+<pre><code>SELECT machine_id,
+       ROUND(AVG(end_time - start_time), 3) AS processing_time
+FROM Activity
+GROUP BY machine_id;</code></pre>
+
+
+==================================================
+11. Employee Bonus
+==================================================
+
+QUESTION:
+Find employees whose bonus is less than 1000
+or who have no bonus.
+
+SQL Answer:
+
+<pre><code>SELECT e.name, b.bonus
+FROM Employee e
+LEFT JOIN Bonus b
+    ON e.empId = b.empId
+WHERE b.bonus < 1000
+   OR b.bonus IS NULL;</code></pre>
+
+
+==================================================
+12. Students and Examinations
+==================================================
+
+QUESTION:
+For every student and subject, count how many exams
+the student attended for that subject.
+
+SQL Answer:
+
+<pre><code>SELECT s.student_id,
+       s.student_name,
+       sub.subject_name,
+       COUNT(e.subject_name) AS attended_exams
+FROM Students s
+CROSS JOIN Subjects sub
+LEFT JOIN Examinations e
+    ON s.student_id = e.student_id
+   AND sub.subject_name = e.subject_name
+GROUP BY s.student_id,
+         s.student_name,
+         sub.subject_name
+ORDER BY s.student_id,
+         sub.subject_name;</code></pre>
+
+
+==================================================
+13. Managers with at Least 5 Direct Reports
+==================================================
+
+QUESTION:
+Find managers who have at least 5 direct reports.
+
+SQL Answer:
+
+<pre><code>SELECT e.name
+FROM Employee e
+JOIN Employee r
+    ON e.id = r.managerId
+GROUP BY e.id, e.name
+HAVING COUNT(r.id) >= 5;</code></pre>
+
+
+==================================================
+14. Confirmation Rate
+==================================================
+
+QUESTION:
+Calculate the confirmation rate of each user.
+
+SQL Answer:
+
+<pre><code>SELECT s.user_id,
+       ROUND(AVG(c.action = 'confirmed'), 2) AS confirmation_rate
+FROM Signups s
+LEFT JOIN Confirmations c
+    ON s.user_id = c.user_id
+GROUP BY s.user_id;</code></pre>
+
+
+==================================================
+15. Not Boring Movies
+==================================================
+
+QUESTION:
+Find movies with an odd ID and a description that is not boring.
+Sort them by rating in descending order.
+
+SQL Answer:
+
+<pre><code>SELECT *
+FROM Cinema
+WHERE id % 2 = 1
+  AND description <> 'boring'
+ORDER BY rating DESC;</code></pre>
+
+
+==================================================
+16. Average Selling Price
+==================================================
+
+QUESTION:
+Find the average selling price of each product,
+considering the price and units sold during valid date ranges.
+
+SQL Answer:
+
+<pre><code>SELECT p.product_id,
+       ROUND(SUM(p.price * u.units) / SUM(u.units), 2)
+       AS average_price
+FROM Prices p
+JOIN UnitsSold u
+    ON p.product_id = u.product_id
+   AND u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY p.product_id;</code></pre>
+
+
+==================================================
+17. Project Employees I
+==================================================
+
+QUESTION:
+For each project, find the average experience years
+of all employees working on that project,
+rounded to 2 decimal places.
+
+SQL Answer:
+
+<pre><code>SELECT p.project_id,
+       ROUND(AVG(e.experience_years), 2) AS average_years
+FROM Project p
+JOIN Employee e
+    ON p.employee_id = e.employee_id
+GROUP BY p.project_id;</code></pre>
+
+
+==================================================
+18. Percentage of Users Attended a Contest
+==================================================
+
+QUESTION:
+Find the percentage of users who registered for each contest.
+Round the percentage to 2 decimal places.
+
+SQL Answer:
+
+<pre><code>SELECT r.contest_id,
+       ROUND(
+           COUNT(DISTINCT r.user_id) * 100.0 /
+           (SELECT COUNT(*) FROM Users),
+           2
+       ) AS percentage
+FROM Register r
+GROUP BY r.contest_id
+ORDER BY percentage DESC,
+         r.contest_id;</code></pre>
+
+
+==================================================
+19. Queries Quality and Percentage
+==================================================
+
+QUESTION:
+For each query name, find:
+1. Query quality = average of rating / position.
+2. Poor query percentage = percentage of queries with rating < 3.
+
+SQL Answer:
+
+<pre><code>SELECT query_name,
+       ROUND(AVG(rating * 1.0 / position), 2) AS quality,
+       ROUND(
+           AVG(CASE WHEN rating &lt; 3 THEN 1 ELSE 0 END) * 100,
+           2
+       ) AS poor_query_percentage
+FROM Queries
+GROUP BY query_name;</code></pre>
+
+
+==================================================
+20. Monthly Transactions I
+==================================================
+
+QUESTION:
+For each month and country, find:
+total transactions,
+approved transactions,
+total amount,
+and approved amount.
+
+SQL Answer:
+
+<pre><code>SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month,
+       country,
+       COUNT(*) AS trans_count,
+       SUM(state = 'approved') AS approved_count,
+       SUM(amount) AS trans_total_amount,
+       SUM(
+           CASE
+               WHEN state = 'approved'
+               THEN amount
+               ELSE 0
+           END
+       ) AS approved_total_amount
+FROM Transactions
+GROUP BY month, country;</code></pre>
+
+
+==================================================
+21. Immediate Food Delivery II
+==================================================
+
+QUESTION:
+Find the percentage of customers whose first order
+was delivered immediately on their preferred delivery date.
+
+SQL Answer:
+
+<pre><code>WITH first_orders AS (
+    SELECT *,
+           ROW_NUMBER() OVER (
+               PARTITION BY customer_id
+               ORDER BY order_date
+           ) AS rn
+    FROM Delivery
+)
+SELECT ROUND(
+           AVG(
+               order_date = customer_pref_delivery_date
+           ) * 100,
+           2
+       ) AS immediate_percentage
+FROM first_orders
+WHERE rn = 1;</code></pre>
+
+
+==================================================
+22. Game Play Analysis IV
+==================================================
+
+QUESTION:
+Find the fraction of players who logged in again
+exactly one day after their first login.
+
+SQL Answer:
+
+<pre><code>SELECT ROUND(
+           COUNT(DISTINCT a.player_id) * 1.0 /
+           (SELECT COUNT(DISTINCT player_id)
+            FROM Activity),
+           2
+       ) AS fraction
+FROM Activity a
+JOIN (
+    SELECT player_id,
+           MIN(event_date) AS first_date
+    FROM Activity
+    GROUP BY player_id
+) f
+    ON a.player_id = f.player_id
+   AND a.event_date =
+       DATE_ADD(f.first_date, INTERVAL 1 DAY);</code></pre>
+
+
+==================================================
+23. Number of Unique Subjects Taught by Each Teacher
+==================================================
+
+QUESTION:
+Find the number of unique subjects taught by each teacher.
+
+SQL Answer:
+
+<pre><code>SELECT teacher_id,
+       COUNT(DISTINCT subject_id) AS cnt
+FROM Teacher
+GROUP BY teacher_id;</code></pre>
+
+
+==================================================
+24. User Activity for the Past 30 Days I
+==================================================
+
+QUESTION:
+Find the number of active users for each day
+during the 30-day period ending on 2019-07-27.
+
+SQL Answer:
+
+<pre><code>SELECT activity_date AS day,
+       COUNT(DISTINCT user_id) AS active_users
+FROM Activity
+WHERE activity_date BETWEEN '2019-06-28'
+                        AND '2019-07-27'
+GROUP BY activity_date;</code></pre>
+
+
+==================================================
+25. Product Sales Analysis III
+==================================================
+
+QUESTION:
+Find the first year in which each product was sold.
+
+SQL Answer:
+
+<pre><code>SELECT product_id,
+       MIN(year) AS first_year,
+       quantity,
+       price
+FROM Sales
+GROUP BY product_id;</code></pre>
+
+
+==================================================
+26. Classes More Than 5 Students
+==================================================
+
+QUESTION:
+Find classes that have at least 5 students.
+
+SQL Answer:
+
+<pre><code>SELECT class
+FROM Courses
+GROUP BY class
+HAVING COUNT(DISTINCT student) >= 5;</code></pre>
+
+
+==================================================
+27. Find Followers Count
+==================================================
+
+QUESTION:
+Find the number of followers for each user.
+
+SQL Answer:
+
+<pre><code>SELECT user_id,
+       COUNT(*) AS followers_count
+FROM Followers
+GROUP BY user_id
+ORDER BY user_id;</code></pre>
+
+
+==================================================
+28. Biggest Single Number
+==================================================
+
+QUESTION:
+Find the largest number that appears exactly once
+in the table.
+
+SQL Answer:
+
+<pre><code>SELECT MAX(num) AS num
+FROM (
+    SELECT num
+    FROM MyNumbers
+    GROUP BY num
+    HAVING COUNT(*) = 1
+) t;</code></pre>
+
+
+==================================================
+29. Customers Who Bought All Products
+==================================================
+
+QUESTION:
+Find customers who bought every product
+in the Product table.
+
+SQL Answer:
+
+<pre><code>SELECT customer_id
+FROM Customer
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_key) =
+       (SELECT COUNT(*) FROM Product);</code></pre>
+
+
+==================================================
+30. Number of Employees Which Report to Each Employee
+==================================================
+
+QUESTION:
+For each employee who has direct reports,
+find the number of employees reporting to them
+and their average age.
+
+SQL Answer:
+
+<pre><code>SELECT e.employee_id,
+       e.name,
+       COUNT(r.employee_id) AS reports_count,
+       ROUND(AVG(r.age)) AS average_age
+FROM Employees e
+JOIN Employees r
+    ON e.employee_id = r.reports_to
+GROUP BY e.employee_id, e.name;</code></pre>
+
+
+==================================================
+31. Primary Department for Each Employee
+==================================================
+
+QUESTION:
+Find the primary department of each employee.
+If an employee belongs to only one department,
+that department is considered primary.
+
+SQL Answer:
+
+<pre><code>SELECT employee_id, department_id
+FROM Employee
+WHERE primary_flag = 'Y'
+
+UNION
+
+SELECT employee_id,
+       MIN(department_id)
+FROM Employee
+GROUP BY employee_id
+HAVING COUNT(*) = 1;</code></pre>
+
+
+==================================================
+32. Triangle Judgement
+==================================================
+
+QUESTION:
+Determine whether three side lengths can form a triangle.
+
+SQL Answer:
+
+<pre><code>SELECT x, y, z,
+       CASE
+           WHEN x + y &gt; z
+            AND x + z &gt; y
+            AND y + z &gt; x
+           THEN 'Yes'
+           ELSE 'No'
+       END AS triangle
+FROM Triangle;</code></pre>
+
+
+==================================================
+33. Consecutive Numbers
+==================================================
+
+QUESTION:
+Find numbers that appear at least three times consecutively.
+
+SQL Answer:
+
+<pre><code>SELECT DISTINCT l1.num AS ConsecutiveNums
+FROM Logs l1
+JOIN Logs l2
+    ON l2.id = l1.id + 1
+JOIN Logs l3
+    ON l3.id = l1.id + 2
+WHERE l1.num = l2.num
+  AND l2.num = l3.num;</code></pre>
+
+
+==================================================
+34. Product Price at a Given Date
+==================================================
+
+QUESTION:
+Find the price of every product on 2019-08-16.
+If a product had no price change before that date,
+its price should be 10.
+
+SQL Answer:
+
+<pre><code>SELECT p.product_id,
+       COALESCE(
+           MAX(
+               CASE
+                   WHEN p.change_date &lt;= '2019-08-16'
+                   THEN p.new_price
+               END
+           ),
+           10
+       ) AS price
+FROM Products p
+GROUP BY p.product_id;</code></pre>
+
+
+==================================================
+35. Last Person to Fit in the Bus
+==================================================
+
+QUESTION:
+Find the last person who can fit on the bus
+without making the total weight exceed 1000.
+
+SQL Answer:
+
+<pre><code>SELECT person_name
+FROM (
+    SELECT person_name,
+           turn,
+           SUM(weight) OVER (
+               ORDER BY turn
+           ) AS total_weight
+    FROM Queue
+) q
+WHERE total_weight &lt;= 1000
+ORDER BY turn DESC
+LIMIT 1;</code></pre>
+
+
+==================================================
+36. Count Salary Categories
+==================================================
+
+QUESTION:
+Count the number of accounts in each salary category:
+Low Salary, Average Salary, and High Salary.
+
+SQL Answer:
+
+<pre><code>SELECT 'Low Salary' AS category,
+       SUM(income &lt; 20000) AS accounts_count
+FROM Accounts
+
+UNION ALL
+
+SELECT 'Average Salary',
+       SUM(income BETWEEN 20000 AND 50000)
+FROM Accounts
+
+UNION ALL
+
+SELECT 'High Salary',
+       SUM(income &gt; 50000)
+FROM Accounts;</code></pre>
+
+
+==================================================
+37. Employees Whose Manager Left the Company
+==================================================
+
+QUESTION:
+Find employees whose salary is less than 30000
+and whose manager has left the company.
+
+SQL Answer:
+
+<pre><code>SELECT employee_id
+FROM Employees
+WHERE salary &lt; 30000
+  AND manager_id IS NOT NULL
+  AND manager_id NOT IN (
+      SELECT employee_id
+      FROM Employees
+  )
+ORDER BY employee_id;</code></pre>
+
+
+==================================================
+38. Exchange Seats
+==================================================
+
+QUESTION:
+Swap the seat IDs of every two consecutive students.
+If there is an odd number of students,
+keep the last student unchanged.
+
+SQL Answer:
+
+<pre><code>SELECT id,
+       CASE
+           WHEN id % 2 = 1
+            AND id = (SELECT MAX(id) FROM Seat)
+           THEN student
+
+           WHEN id % 2 = 1
+           THEN LEAD(student) OVER (ORDER BY id)
+
+           ELSE LAG(student) OVER (ORDER BY id)
+       END AS student
+FROM Seat;</code></pre>
+
+
+==================================================
+39. Movie Rating
+==================================================
+
+QUESTION:
+Find:
+1. The user who rated the most movies.
+2. The movie with the highest average rating in February 2020.
+
+SQL Answer:
+
+<pre><code>(
+    SELECT u.name AS results
+    FROM MovieRating mr
+    JOIN Users u
+        ON mr.user_id = u.user_id
+    GROUP BY mr.user_id, u.name
+    ORDER BY COUNT(*) DESC, u.name
+    LIMIT 1
+)
+
+UNION ALL
+
+(
+    SELECT m.title
+    FROM MovieRating mr
+    JOIN Movies m
+        ON mr.movie_id = m.movie_id
+    WHERE mr.created_at &gt;= '2020-02-01'
+      AND mr.created_at &lt; '2020-03-01'
+    GROUP BY mr.movie_id, m.title
+    ORDER BY AVG(mr.rating) DESC, m.title
+    LIMIT 1
+);</code></pre>
+
+
+==================================================
+40. Restaurant Growth
+==================================================
+
+QUESTION:
+For each date, calculate the total amount spent
+over the current day and previous 6 days,
+along with the 7-day average.
+
+SQL Answer:
+
+<pre><code>WITH daily AS (
+    SELECT visited_on,
+           SUM(amount) AS amount
+    FROM Customer
+    GROUP BY visited_on
+)
+SELECT visited_on,
+       SUM(amount) OVER (
+           ORDER BY visited_on
+           ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+       ) AS amount,
+       ROUND(
+           AVG(amount) OVER (
+               ORDER BY visited_on
+               ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+           ),
+           2
+       ) AS average_amount
+FROM daily;</code></pre>
+
+
+==================================================
+41. Friend Requests II: Who Has the Most Friends
+==================================================
+
+QUESTION:
+Find the person who has the most friends,
+considering both sent and received friend requests.
+
+SQL Answer:
+
+<pre><code>SELECT id,
+       COUNT(*) AS num
+FROM (
+    SELECT requester_id AS id
+    FROM RequestAccepted
+
+    UNION ALL
+
+    SELECT accepter_id AS id
+    FROM RequestAccepted
+) t
+GROUP BY id
+ORDER BY num DESC
+LIMIT 1;</code></pre>
+
+
+==================================================
+42. Investments in 2016
+==================================================
+
+QUESTION:
+Find the sum of tiv_2016 for policyholders who:
+1. Have the same tiv_2015 as another policyholder.
+2. Have a unique latitude and longitude.
+
+SQL Answer:
+
+<pre><code>SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM Insurance
+WHERE tiv_2015 IN (
+    SELECT tiv_2015
+    FROM Insurance
+    GROUP BY tiv_2015
+    HAVING COUNT(*) &gt; 1
+)
+AND (lat, lon) IN (
+    SELECT lat, lon
+    FROM Insurance
+    GROUP BY lat, lon
+    HAVING COUNT(*) = 1
+);</code></pre>
+
+
+==================================================
+43. Department Top Three Salaries
+==================================================
+
+QUESTION:
+Find employees who have one of the top three
+distinct salaries in each department.
+
+SQL Answer:
+
+<pre><code>SELECT d.name AS Department,
+       e.name AS Employee,
+       e.salary AS Salary
+FROM Employee e
+JOIN Department d
+    ON e.departmentId = d.id
+WHERE 3 &gt; (
+    SELECT COUNT(DISTINCT e2.salary)
+    FROM Employee e2
+    WHERE e2.departmentId = e.departmentId
+      AND e2.salary &gt; e.salary
+);</code></pre>
+
+
+==================================================
+44. Fix Names in a Table
+==================================================
+
+QUESTION:
+Fix each name so that the first letter is uppercase
+and all remaining letters are lowercase.
+
+SQL Answer:
+
+<pre><code>SELECT user_id,
+       CONCAT(
+           UPPER(LEFT(name, 1)),
+           LOWER(SUBSTRING(name, 2))
+       ) AS name
+FROM Users
+ORDER BY user_id;</code></pre>
+
+
+==================================================
+45. Patients With a Condition
+==================================================
+
+QUESTION:
+Find patients who have a condition code
+that starts with DIAB1.
+
+SQL Answer:
+
+<pre><code>SELECT patient_id,
+       patient_name,
+       conditions
+FROM Patients
+WHERE conditions LIKE 'DIAB1%'
+   OR conditions LIKE '% DIAB1%';</code></pre>
+
+
+==================================================
+46. Delete Duplicate Emails
+==================================================
+
+QUESTION:
+Delete duplicate email records while keeping
+the row with the smallest id for each email.
+
+SQL Answer:
+
+<pre><code>DELETE p1
+FROM Person p1
+JOIN Person p2
+    ON p1.email = p2.email
+   AND p1.id &gt; p2.id;</code></pre>
+
+
+==================================================
+47. Second Highest Salary
+==================================================
+
+QUESTION:
+Find the second highest distinct salary.
+Return NULL if there is no second highest salary.
+
+SQL Answer:
+
+<pre><code>SELECT MAX(salary) AS SecondHighestSalary
+FROM Employee
+WHERE salary &lt; (
+    SELECT MAX(salary)
+    FROM Employee
+);</code></pre>
+
+
+==================================================
+48. Group Sold Products By The Date
+==================================================
+
+QUESTION:
+For each date, find the number of different products sold
+and list the product names in alphabetical order.
+
+SQL Answer:
+
+<pre><code>SELECT sell_date,
+       COUNT(DISTINCT product) AS num_sold,
+       GROUP_CONCAT(
+           DISTINCT product
+           ORDER BY product
+       ) AS products
+FROM Activities
+GROUP BY sell_date
+ORDER BY sell_date;</code></pre>
+
+
+==================================================
+49. List Products Ordered in a Period
+==================================================
+
+QUESTION:
+Find products that had at least 100 units ordered
+during February 2020.
+
+SQL Answer:
+
+<pre><code>SELECT p.product_name,
+       SUM(o.unit) AS unit
+FROM Products p
+JOIN Orders o
+    ON p.product_id = o.product_id
+WHERE o.order_date &gt;= '2020-02-01'
+  AND o.order_date &lt; '2020-03-01'
+GROUP BY p.product_id, p.product_name
+HAVING SUM(o.unit) &gt;= 100;</code></pre>
+
+
+==================================================
+50. Find Users With Valid E-Mails
+==================================================
+
+QUESTION:
+Find users with valid email addresses.
+The email must have a valid local part
+and must end with @leetcode.com.
+
+SQL Answer:
+
+<pre><code>SELECT *
+FROM Users
+WHERE mail REGEXP
+'^[A-Za-z][A-Za-z0-9_.-]*@leetcode\\\\.com$';</code></pre>
+
+
+==================================================
+SQL 50 COMPLETE
+==================================================
+
+`
+}
+],
+
+"python":[
+  
+]
+
 
 };
 

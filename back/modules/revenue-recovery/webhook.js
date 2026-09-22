@@ -14,9 +14,7 @@ import { issueRecoveryOffer } from "./services/recoveryOfferService.js";
 
 const router = express.Router();
 
-router.post(
-  '/webhook/razorpay',
-  express.raw({ type: 'application/json' }),
+router.post('/webhook/razorpay',express.raw({ type: 'application/json' }),
   async (req, res) => {
     try {
       const signature = req.headers['x-razorpay-signature'];

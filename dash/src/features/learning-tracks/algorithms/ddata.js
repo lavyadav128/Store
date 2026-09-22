@@ -290,7 +290,26 @@ const questionsData = {
             }
             return new int[]{-1, -1};
         }
-    }`
+    }
+        
+    
+    
+    
+    
+    class Solution {
+    twoSum(nums, target) {
+        const map = new Map();
+        for (let i = 0; i < nums.length; i++) {
+            const complement = target - nums[i];
+            if (map.has(complement)) {
+                return [map.get(complement), i];
+            }
+            map.set(nums[i], i);
+        }
+
+        return [-1, -1];
+    }
+}`
     }, 
     {
       title: `QUESTION:
@@ -351,7 +370,31 @@ const questionsData = {
                 }
             }
         }
-    }`
+    }
+        
+    
+    class Solution {
+    sortColors(nums) {
+        let low = 0;
+        let mid = 0;
+        let high = nums.length - 1;
+        while (mid <= high) {
+            if (nums[mid] === 0) {
+                // Swap nums[low] and nums[mid]
+                [nums[low], nums[mid]] = [nums[mid], nums[low]];
+                low++;
+                mid++;
+            } else if (nums[mid] === 1) {
+                mid++;
+            } else {
+                // nums[mid] === 2
+                // Swap nums[mid] and nums[high]
+                [nums[mid], nums[high]] = [nums[high], nums[mid]];
+                high--;
+            }
+        }
+    }
+}`
     },
     
     {
@@ -419,7 +462,27 @@ const questionsData = {
 
                 return -1;
             }
-        }`
+        }
+            
+        
+class Solution {
+    majorityElement(nums) {
+        const map = new Map();
+        // Count frequencies
+        for (const num of nums) {
+            map.set(num, (map.get(num) || 0) + 1);
+        }
+        // Traverse keys
+        const n = nums.length;
+
+        for (const key of map.keys()) {
+            if (map.get(key) > n / 2) {
+                return key;
+            }
+        }
+        return -1;
+    }
+}`
     },
 
     {
@@ -469,7 +532,21 @@ const questionsData = {
             }
             return maxSum;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+    maxSubArray(nums) {
+        let maxSum = nums[0];
+        let currentSum = nums[0];
+        for (let i = 1; i < nums.length; i++) {
+            currentSum = Math.max(nums[i],currentSum + nums[i]);
+            maxSum = Math.max(maxSum, currentSum);
+        }
+        return maxSum;
+    }
+}`
     },
 
     {
@@ -525,7 +602,25 @@ const questionsData = {
             }
             return maxProfit;
         }
-    }`
+    }
+        
+    
+    class Solution {
+    maxProfit(prices) {
+        let minPrice = Infinity;
+        let maxProfit = 0;
+        for (const price of prices) {
+            if (price < minPrice) {
+                minPrice = price;
+            } else {
+                maxProfit = Math.max(maxProfit,price - minPrice
+                );
+            }
+        }
+
+        return maxProfit;
+    }
+}`
     },
 
     {
@@ -589,7 +684,26 @@ const questionsData = {
             }
             return result;
         }
-    }`
+    }
+        
+    
+    class Solution {
+    rearrangeArray(nums) {
+        const result = new Array(nums.length);
+        let posIndex = 0;
+        let negIndex = 1;
+        for (const num of nums) {
+            if (num > 0) {
+                result[posIndex] = num;
+                posIndex += 2;
+            } else {
+                result[negIndex] = num;
+                negIndex += 2;
+            }
+        }
+        return result;
+    }
+}`
     },
 
     {
@@ -652,7 +766,37 @@ const questionsData = {
                 end--;
             }
         }
-    }`
+    }
+        
+    
+    class Solution {
+    nextPermutation(nums) {
+        const n = nums.length;
+        // Step 1: Find the first decreasing element
+        let i = n - 2;
+        while (i >= 0 && nums[i] >= nums[i + 1]) {
+            i--;
+        }
+        // Step 2: Find element just greater than nums[i]
+        if (i >= 0) {
+            let j = n - 1;
+            while (nums[j] <= nums[i]) {
+                j--;
+            }
+            // Swap
+            [nums[i], nums[j]] = [nums[j], nums[i]];
+        }
+        // Step 3: Reverse the suffix
+        this.reverse(nums, i + 1, n - 1);
+    }
+    reverse(nums, start, end) {
+        while (start < end) {
+            [nums[start], nums[end]] =[nums[end], nums[start]];
+            start++;
+            end--;
+        }
+    }
+}`
     },
 
     {
@@ -713,7 +857,26 @@ const questionsData = {
             Collections.reverse(leaders);
             return leaders;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+    findLeaders(nums) {
+        const leaders = [];
+        let maxRight = -Infinity;
+        for (let i = nums.length - 1; i >= 0; i--) {
+            if (nums[i] > maxRight) {
+                leaders.push(nums[i]);
+                maxRight = nums[i];
+            }
+        }
+
+        // We found leaders from right to left
+        leaders.reverse();
+        return leaders;
+    }
+}`
     },
 
     {
@@ -780,7 +943,34 @@ const questionsData = {
             }
             return maxLen;
         }
-    }`
+    }
+        
+
+
+    class Solution {
+    longestConsecutive(nums) {
+        const set = new Set();
+        // Put all numbers into Set
+        for (const num of nums) {
+            set.add(num);
+        }
+        let maxLen = 0;
+        for (const num of nums) {
+            // Start only if num is the beginning
+            // of a sequence
+            if (!set.has(num - 1)) {
+                let current = num;
+                let len = 1;
+                while (set.has(current + 1)) {
+                    current++;
+                    len++;
+                }
+                maxLen = Math.max(maxLen, len);
+            }
+        }
+        return maxLen;
+    }
+}`
     },
 
     {
@@ -866,7 +1056,59 @@ const questionsData = {
                 for (int i = 0; i < m; i++) matrix[i][0] = 0;
             }
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+    setZeroes(matrix) {
+        const m = matrix.length;
+        const n = matrix[0].length;
+        let firstRow = false;
+        let firstCol = false;
+        // Check whether first row contains 0
+        for (let j = 0; j < n; j++) {
+            if (matrix[0][j] === 0) {
+                firstRow = true;
+            }
+        }
+        // Check whether first column contains 0
+        for (let i = 0; i < m; i++) {
+            if (matrix[i][0] === 0) {
+                firstCol = true;
+            }
+        }
+        // Use first row and first column as markers
+        for (let i = 1; i < m; i++) {
+            for (let j = 1; j < n; j++) {
+                if (matrix[i][j] === 0) {
+                    matrix[i][0] = 0;
+                    matrix[0][j] = 0;
+                }
+            }
+        }
+        // Set marked rows and columns to zero
+        for (let i = 1; i < m; i++) {
+            for (let j = 1; j < n; j++) {
+                if (matrix[i][0] === 0 ||matrix[0][j] === 0) {
+                    matrix[i][j] = 0;
+                }
+            }
+        }
+        // Zero first row
+        if (firstRow) {
+            for (let j = 0; j < n; j++) {
+                matrix[0][j] = 0;
+            }
+        }
+        // Zero first column
+        if (firstCol) {
+            for (let i = 0; i < m; i++) {
+                matrix[i][0] = 0;
+            }
+        }
+    }
+}`
     },
 
     {
@@ -933,7 +1175,28 @@ const questionsData = {
                 }
             }
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+    rotate(matrix) {
+        const n = matrix.length;
+        // Step 1: Transpose
+        for (let i = 0; i < n; i++) {
+            for (let j = i; j < n; j++) {
+                [matrix[i][j], matrix[j][i]] =[matrix[j][i], matrix[i][j]];
+            }
+        }
+
+        // Step 2: Reverse every row
+        for (let i = 0; i < n; i++) {
+            for (let j = 0; j < Math.floor(n / 2); j++) {
+                [matrix[i][j], matrix[i][n - 1 - j]] =[matrix[i][n - 1 - j], matrix[i][j]];
+            }
+        }
+    }
+}`
     },
 
     {
@@ -1022,7 +1285,65 @@ const questionsData = {
             }
             return result;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+
+    spiralOrder(matrix) {
+
+        const result = [];
+
+        if (matrix.length === 0) {
+            return result;
+        }
+
+        let top = 0;
+        let bottom = matrix.length - 1;
+        let left = 0;
+        let right = matrix[0].length - 1;
+
+        while (top <= bottom && left <= right) {
+
+            // Traverse right
+            for (let i = left; i <= right; i++) {
+                result.push(matrix[top][i]);
+            }
+
+            top++;
+
+            // Traverse down
+            for (let i = top; i <= bottom; i++) {
+                result.push(matrix[i][right]);
+            }
+
+            right--;
+
+            // Traverse left
+            if (top <= bottom) {
+
+                for (let i = right; i >= left; i--) {
+                    result.push(matrix[bottom][i]);
+                }
+
+                bottom--;
+            }
+
+            // Traverse up
+            if (left <= right) {
+
+                for (let i = bottom; i >= top; i--) {
+                    result.push(matrix[i][left]);
+                }
+
+                left++;
+            }
+        }
+
+        return result;
+    }
+}`
     },
 
     {
@@ -1079,7 +1400,44 @@ const questionsData = {
             }
             return count;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+
+    subarraySum(nums, k) {
+
+        const prefixSum = new Map();
+
+        // Important:
+        // sum = 0 has occurred once before array starts
+        prefixSum.set(0, 1);
+
+        let sum = 0;
+        let count = 0;
+
+        for (const num of nums) {
+
+            sum += num;
+
+            // If sum-k existed before,
+            // those subarrays have sum k
+            if (prefixSum.has(sum - k)) {
+
+                count += prefixSum.get(sum - k);
+            }
+
+            // Store/update frequency of current prefix sum
+            prefixSum.set(
+                sum,
+                (prefixSum.get(sum) || 0) + 1
+            );
+        }
+
+        return count;
+    }
+}`
     },
 
 
@@ -1134,7 +1492,42 @@ const questionsData = {
             }
             return triangle;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+
+    generate(numRows) {
+
+        const triangle = [];
+
+        for (let i = 0; i < numRows; i++) {
+
+            const row = [];
+
+            for (let j = 0; j <= i; j++) {
+
+                // First and last element are always 1
+                if (j === 0 || j === i) {
+
+                    row.push(1);
+
+                } else {
+
+                    row.push(
+                        triangle[i - 1][j - 1] +
+                        triangle[i - 1][j]
+                    );
+                }
+            }
+
+            triangle.push(row);
+        }
+
+        return triangle;
+    }
+}`
     },
 
     {
@@ -1204,7 +1597,72 @@ const questionsData = {
             
             return result;
         }
-    }`
+    }
+        
+    
+    class Solution {
+
+    majorityElement(nums) {
+
+        const result = [];
+
+        let candidate1 = 0;
+        let candidate2 = 0;
+
+        let count1 = 0;
+        let count2 = 0;
+
+        // First pass: find possible candidates
+        for (const num of nums) {
+
+            if (num === candidate1) {
+
+                count1++;
+
+            } else if (num === candidate2) {
+
+                count2++;
+
+            } else if (count1 === 0) {
+
+                candidate1 = num;
+                count1 = 1;
+
+            } else if (count2 === 0) {
+
+                candidate2 = num;
+                count2 = 1;
+
+            } else {
+
+                count1--;
+                count2--;
+            }
+        }
+
+        // Second pass: verify candidates
+        count1 = 0;
+        count2 = 0;
+        for (const num of nums) {
+            if (num === candidate1) {
+                count1++;
+            }
+            if (num === candidate2) {
+                count2++;
+            }
+        }
+        if (count1 > Math.floor(nums.length / 3)) {
+            result.push(candidate1);
+        }
+        if (
+            count2 > Math.floor(nums.length / 3) &&
+            candidate1 !== candidate2
+        ) {
+            result.push(candidate2);
+        }
+        return result;
+    }
+}`
     },
 
     {
@@ -1241,7 +1699,77 @@ const questionsData = {
             }
             return result;
         }
-    }`,
+    }
+        
+    
+    class Solution {
+
+    threeSum(nums) {
+
+        const result = [];
+
+        // Sort the array
+        nums.sort((a, b) => a - b);
+
+        const n = nums.length;
+
+        for (let i = 0; i < n - 2; i++) {
+
+            // Skip duplicate first elements
+            if (i > 0 && nums[i] === nums[i - 1]) {
+                continue;
+            }
+
+            let left = i + 1;
+            let right = n - 1;
+
+            while (left < right) {
+
+                const sum =
+                    nums[i] +
+                    nums[left] +
+                    nums[right];
+
+                if (sum === 0) {
+
+                    result.push([
+                        nums[i],
+                        nums[left],
+                        nums[right]
+                    ]);
+
+                    left++;
+                    right--;
+
+                    // Skip duplicates
+                    while (
+                        left < right &&
+                        nums[left] === nums[left - 1]
+                    ) {
+                        left++;
+                    }
+
+                    while (
+                        left < right &&
+                        nums[right] === nums[right + 1]
+                    ) {
+                        right--;
+                    }
+
+                } else if (sum < 0) {
+
+                    left++;
+
+                } else {
+
+                    right--;
+                }
+            }
+        }
+
+        return result;
+    }
+}`,
     
       optimalComplexity: `Time Complexity: O(N²)
     - Sort + Two Pointers.
@@ -1275,7 +1803,71 @@ const questionsData = {
             }
             return result;
         }
-    }`
+    }
+        
+    
+    class Solution {
+
+    fourSum(nums, target) {
+
+        const result = [];
+
+        nums.sort((a, b) => a - b);
+
+        const n = nums.length;
+
+        for (let i = 0; i < n - 3; i++) {
+
+            // Skip duplicate first element
+            if (i > 0 && nums[i] === nums[i - 1]) {
+                continue;
+            }
+
+            for (let j = i + 1; j < n - 2; j++) {
+
+                // Skip duplicate second element
+                if (
+                    j > i + 1 &&
+                    nums[j] === nums[j - 1]
+                ) {
+                    continue;
+                }
+
+                let left = j + 1;
+                let right = n - 1;
+
+                while (left < right) {
+
+                    const sum =
+                        nums[i] +
+                        nums[j] +
+                        nums[left] +
+                        nums[right];
+
+                    if (sum === target) {
+                    result.push([nums[i],nums[j],nums[left],nums[right]]);
+
+                        left++;
+                        right--;
+                        // Skip duplicate left values
+                        while (left < right && nums[left] === nums[left - 1]) {
+                            left++;
+                        }
+                        // Skip duplicate right values
+                        while (left < right && nums[right] === nums[right + 1]) {
+                            right--;
+                        }
+                    } else if (sum < target) {
+                        left++;
+                    } else {
+                        right--;
+                    }
+                }
+            }
+        }
+        return result;
+    }
+}`
     },
 
     {
@@ -1329,7 +1921,30 @@ const questionsData = {
             }
             return result;
         }
-    }`
+    }
+        
+    
+    class Solution {
+    maxLen(nums) {
+        const prefixSum = new Map();
+        // Prefix sum 0 exists before array starts
+        prefixSum.set(0, -1);
+        let sum = 0;
+        let maxLength = 0;
+        for (let i = 0; i < nums.length; i++) {
+            sum += nums[i];
+            if (prefixSum.has(sum)) {
+                // Same prefix sum means
+                // elements between them have sum 0
+                maxLength = Math.max(maxLength,i - prefixSum.get(sum));
+            } else {
+                // Store only first occurrence
+                prefixSum.set(sum, i);
+            }
+        }
+        return maxLength;
+    }
+}`
     },
 
 
@@ -1392,7 +2007,29 @@ const questionsData = {
             }
             return maxLength;
         }
-    }`
+    }
+        
+    
+    class Solution {
+    subarrayXor(nums, k) {
+        const prefixXor = new Map();
+        // XOR = 0 exists once before array starts
+        prefixXor.set(0, 1);
+        let xor = 0;
+        let count = 0;
+        for (const num of nums) {
+            xor ^= num;
+            // Required previous XOR:
+            // previousXor = currentXor ^ k
+            const required = xor ^ k;
+            if (prefixXor.has(required)) {
+                count += prefixXor.get(required);
+            }
+            prefixXor.set(xor,(prefixXor.get(xor) || 0) + 1);
+        }
+        return count;
+    }
+}`
     },
 
 
@@ -1450,7 +2087,33 @@ const questionsData = {
             }
             return count;
         }
-    }`
+    }
+        
+    
+    
+    class Solution {
+    merge(intervals) {
+        if (intervals.length <= 1) {
+            return intervals;
+        }
+        // Sort by starting point
+        intervals.sort((a, b) => a[0] - b[0]);
+        const result = [];
+        let current = intervals[0];
+        result.push(current);
+        for (const interval of intervals) {
+            // Overlapping intervals
+            if (interval[0] <= current[1]) {
+                current[1] = Math.max(current[1],interval[1]);
+            } else {
+                // Non-overlapping interval
+                current = interval;
+                result.push(current);
+            }
+        }
+        return result;
+    }
+}`
     },
 
 
@@ -1536,11 +2199,30 @@ const questionsData = {
                     break;
                 }
             }
-            
             Arrays.sort(arr1);
             Arrays.sort(arr2);
         }
-    }`
+    }
+        
+    
+    class Solution {
+    merge(arr1, arr2, n, m) {
+        let i = n - 1;
+        let j = 0;
+        while (i >= 0 && j < m) {
+            if (arr1[i] > arr2[j]) {// Swap
+                [arr1[i], arr2[j]] =[arr2[j], arr1[i]];
+                i--;
+                j++;
+            } else {
+                break;
+            }
+        }
+        // Sort both arrays
+        arr1.sort((a, b) => a - b);
+        arr2.sort((a, b) => a - b);
+    }
+}`
     },
 
     {
@@ -1603,7 +2285,31 @@ const questionsData = {
                 }
                 return new int[]{repeating, missing};
             }
-        }`
+        }
+            
+        
+        class Solution {
+    findRepeatingMissing(arr) {
+        const n = arr.length;
+        const freq = new Map();
+        // Count frequency
+        for (const num of arr) {
+            freq.set(num,(freq.get(num) || 0) + 1);
+        }
+        let repeating = -1;
+        let missing = -1;
+        // Check numbers from 1 to n
+        for (let i = 1; i <= n; i++) {
+            const count = freq.get(i) || 0;
+            if (count === 2) {
+                repeating = i;
+            } else if (count === 0) {
+                missing = i;
+            }
+        }
+        return [repeating, missing];
+    }
+}`
     },
 
 
@@ -1732,7 +2438,27 @@ const questionsData = {
             }
             return result;
         }
-    }`
+    }
+        
+    
+    class Solution {
+    maxProduct(nums) {
+        let maxProd = nums[0];
+        let minProd = nums[0];
+        let result = nums[0];
+        for (let i = 1; i < nums.length; i++) {
+            // Negative number swaps
+            // maximum and minimum
+            if (nums[i] < 0) {
+                [maxProd, minProd] =[minProd, maxProd];
+            }
+            maxProd = Math.max(nums[i],maxProd * nums[i]);
+            minProd = Math.min(nums[i],minProd * nums[i]);
+            result = Math.max(result,maxProd);
+        }
+        return result;
+    }
+}`
     }
     ],
 
@@ -2842,7 +3568,29 @@ Space Complexity: O(1)`,
             }
             return sb.toString();
         }
-    }`
+    }
+        
+    
+    var frequencySort = function(s) {
+    const freq = new Map();
+    for (const ch of s) {
+        freq.set(ch, (freq.get(ch) || 0) + 1);
+    }
+    const bucket = new Array(s.length + 1);
+    for (const [ch, count] of freq) {
+        if (!bucket[count]) bucket[count] = [];
+        bucket[count].push(ch);
+    }
+    let result = "";
+    for (let i = bucket.length - 1; i >= 1; i--) {
+        if (bucket[i]) {
+            for (const ch of bucket[i]) {
+                result += ch.repeat(i);
+            }
+        }
+    }
+    return result;
+};`
     },
 
 
@@ -2876,7 +3624,26 @@ Space Complexity: O(1)`,
             }
             return maxDepth;
         }
-    }`
+    }
+        
+    
+    
+    
+    var maxDepth = function(s) {
+    let depth = 0;
+    let maxDepth = 0;
+
+    for (const ch of s) {
+        if (ch === '(') {
+            depth++;
+            maxDepth = Math.max(maxDepth, depth);
+        } else if (ch === ')') {
+            depth--;
+        }
+    }
+
+    return maxDepth;
+};`
     },
 
 
@@ -2916,7 +3683,24 @@ Space Complexity: O(1)`,
             }
             return total;
         }
-    }`,
+    }
+        
+    
+    var maxDepth = function(s) {
+    let depth = 0;
+    let maxDepth = 0;
+
+    for (const ch of s) {
+        if (ch === '(') {
+            depth++;
+            maxDepth = Math.max(maxDepth, depth);
+        } else if (ch === ')') {
+            depth--;
+        }
+    }
+
+    return maxDepth;
+};`,
     
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -3011,7 +3795,25 @@ Space Complexity: O(1)`,
             }
             return count;
         }
-    }`
+    }
+        
+    
+    
+    var countSubstrings = function(s) {
+    let answer = 0;
+    let i = 0;
+    while (i < s.length) {
+        let j = i;
+        while (j < s.length && s[j] === s[i]) {
+            j++;
+        }
+        const len = j - i;
+        // Number of substrings = len * (len + 1) / 2
+        answer += len * (len + 1) / 2;
+        i = j;
+    }
+    return answer;
+};`
     },
 
 
@@ -3055,7 +3857,41 @@ Space Complexity: O(1)`,
             }
             return right - left - 1;
         }
-    }`
+    }
+        
+    
+    var longestPalindrome = function(s) {
+    if (s.length < 2) return s;
+
+    let start = 0;
+    let end = 0;
+
+    for (let i = 0; i < s.length; i++) {
+        const odd = expand(s, i, i);
+        const even = expand(s, i, i + 1);
+
+        const len = Math.max(odd, even);
+
+        if (len > end - start + 1) {
+            start = i - Math.floor((len - 1) / 2);
+            end = i + Math.floor(len / 2);
+        }
+    }
+
+    return s.substring(start, end + 1);
+};
+
+function expand(s, left, right) {
+    while (
+        left >= 0 &&
+        right < s.length &&
+        s[left] === s[right]
+    ) {
+        left--;
+        right++;
+    }
+    return right - left - 1;
+}`
     },
 
 
@@ -3096,7 +3932,28 @@ Space Complexity: O(1)`,
             }
             return total;
         }
-    }`
+    }
+        
+    
+    var beautySum = function(s) {
+    let total = 0;
+    for (let i = 0; i < s.length; i++) {
+        const freq = new Array(26).fill(0);
+        for (let j = i; j < s.length; j++) {
+            freq[s.charCodeAt(j) - 97]++;
+            let maxFreq = 0;
+            let minFreq = Infinity;
+            for (const f of freq) {
+                if (f > 0) {
+                    maxFreq = Math.max(maxFreq, f);
+                    minFreq = Math.min(minFreq, f);
+                }
+            }
+            total += maxFreq - minFreq;
+        }
+    }
+    return total;
+};`
     },
 
 
@@ -3121,7 +3978,16 @@ Space Complexity: O(1)`,
             }
             return sb.toString().trim();
         }
-    }`,
+    }
+        
+    
+    var reverseWords = function(s) {
+    const words = s.split(' ');
+    for (let i = 0; i < words.length; i++) {
+        words[i] = words[i].split('').reverse().join('');
+    }
+    return words.join(' ');
+};`,
     
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -3173,7 +4039,27 @@ Space Complexity: O(1)`,
             }
             return (open + 1) / 2 + (close + 1) / 2;
         }
-    }`
+    }
+        
+    
+    var countMinReversals = function(s) {
+    if (s.length % 2 !== 0) return -1;
+    let open = 0;
+    let close = 0;
+    for (const ch of s) {
+        if (ch === '{') {
+            open++;
+        } else {
+            if (open > 0) {
+                open--;
+            } else {
+                close++;
+            }
+        }
+    }
+    return Math.floor((open + 1) / 2) +
+           Math.floor((close + 1) / 2);
+};`
     },
 
 
@@ -3215,7 +4101,28 @@ Space Complexity: O(1)`,
             sb.append(count).append(s.charAt(s.length()-1));   //sb('11')
             return sb.toString();
         }
-    }`,
+    }
+        
+    
+    
+    var countAndSay = function(n) {
+    let s = "1";
+    for (let i = 1; i < n; i++) {
+        let next = "";
+        let count = 1;
+        for (let j = 1; j < s.length; j++) {
+            if (s[j] === s[j - 1]) {
+                count++;
+            } else {
+                next += count + s[j - 1];
+                count = 1;
+            }
+        }
+        next += count + s[s.length - 1];
+        s = next;
+    }
+    return s;
+};`,
     
       optimalComplexity: `Time Complexity: O(N * L)
     Space Complexity: O(L)`,

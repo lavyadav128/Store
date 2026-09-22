@@ -488,6 +488,25 @@ export async function publishContent(content) {
   }
 }
 
+export async function publishDueContent() {
+  const config = await getInstagramConfig();
+  if (!config.running) return;
+
+  const dueItems = await InstagramContent.find({
+    status: { $in: ['ready', 'scheduled'] },
+    scheduledFor: { $lte: new Date() },
+    assetUrl: { $ne: '' },
+  }).sort({ scheduledFor: 1 });
+
+  for (const item of dueItems) {
+    try {
+      await publishContent(item);
+    } catch (err) {
+      console.error(`[Scheduler] Failed to publish due content ${item._id}:`, err.message);
+    }
+  }
+}
+
 export async function getNextAvailableScheduleDate() {
   const config = await getInstagramConfig();
   const timeStr = config.dailyPostTime || '12:00';

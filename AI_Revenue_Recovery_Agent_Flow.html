@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Revenue Recovery Agent — End-to-End Architectural Flowchart & System Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fira+Code:wght@400;500;600&display=swap');
+
+  @page {
+    size: A4 portrait;
+    margin: 12mm 14mm 14mm 14mm;
+    @bottom-right {
+      content: counter(page);
+    }
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #0f172a;
+    background-color: #ffffff;
+    line-height: 1.45;
+    font-size: 9pt;
+  }
+
+  .page {
+    page-break-after: always;
+  }
+  .page:last-child {
+    page-break-after: auto;
+  }
+
+  /* Header */
+  .header {
+    border-bottom: 2px solid #0f172a;
+    padding-bottom: 10px;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .header h1 {
+    font-size: 16pt;
+    font-weight: 800;
+    color: #0f172a;
+    letter-spacing: -0.5px;
+  }
+  .header p {
+    font-size: 8.5pt;
+    color: #64748b;
+    margin-top: 2px;
+  }
+  .badge {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* Flowchart Container */
+  .flowchart-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .phase-box {
+    border: 1.5px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 8px 12px;
+    background: #f8fafc;
+    position: relative;
+  }
+  .phase-header {
+    font-size: 8.5pt;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .phase-1 { border-color: #3b82f6; background: #eff6ff; }
+  .phase-1 .phase-header { color: #1d4ed8; }
+  .phase-2 { border-color: #ef4444; background: #fef2f2; }
+  .phase-2 .phase-header { color: #b91c1c; }
+  .phase-3 { border-color: #8b5cf6; background: #f5f3ff; }
+  .phase-3 .phase-header { color: #6d28d9; }
+  .phase-4 { border-color: #f59e0b; background: #fffbeb; }
+  .phase-4 .phase-header { color: #b45309; }
+  .phase-5 { border-color: #10b981; background: #ecfdf5; }
+  .phase-5 .phase-header { color: #047857; }
+
+  .node-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 8px;
+  }
+  .node {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 6px 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  }
+  .node-title {
+    font-weight: 700;
+    font-size: 8pt;
+    color: #0f172a;
+    margin-bottom: 2px;
+  }
+  .node-file {
+    font-family: 'Fira Code', monospace;
+    font-size: 6.8pt;
+    color: #475569;
+    background: #f1f5f9;
+    padding: 2px 4px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 2px;
+  }
+  .node-desc {
+    font-size: 7.2pt;
+    color: #64748b;
+  }
+
+  .arrow-down {
+    text-align: center;
+    font-size: 11pt;
+    color: #64748b;
+    margin: -3px 0;
+    font-weight: 800;
+  }
+
+  /* Table */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 7.5pt;
+  }
+  th, td {
+    border: 1px solid #cbd5e1;
+    padding: 5px 7px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 7.5pt;
+  }
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  .code {
+    font-family: 'Fira Code', monospace;
+    font-size: 7pt;
+    color: #0f172a;
+    background: #e2e8f0;
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+  .method-post {
+    color: #b45309;
+    font-weight: 800;
+  }
+  .method-get {
+    color: #047857;
+    font-weight: 800;
+  }
+
+  /* Steps Section */
+  .step-card {
+    margin-bottom: 9px;
+    padding: 8px 10px;
+    border-left: 3px solid #0f172a;
+    background: #f8fafc;
+    border-radius: 0 6px 6px 0;
+  }
+  .step-card h3 {
+    font-size: 8.8pt;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: space-between;
+  }
+  .step-card p {
+    font-size: 8pt;
+    color: #334155;
+    margin-bottom: 3px;
+  }
+  .step-meta {
+    font-size: 7.2pt;
+    color: #64748b;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .step-meta span strong {
+    color: #0f172a;
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1: COMPLETE VISUAL FLOWCHART -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>AI Revenue Recovery Agent — Flowchart & System Map</h1>
+      <p>Autonomous Omni-Channel Financial Pipeline &middot; Razorpay Gateway &middot; Groq Llama-3.3-70b &middot; Express & MongoDB</p>
+    </div>
+    <div class="badge">Master Blueprint</div>
+  </div>
+
+  <div class="flowchart-container">
+    
+    <!-- PHASE 1 -->
+    <div class="phase-box phase-1">
+      <div class="phase-header">
+        <span>🟦 PHASE 1: Storefront Selection & Checkout Initiation</span>
+      </div>
+      <div class="node-grid">
+        <div class="node">
+          <div class="node-title">1. Course Browsing</div>
+          <div class="node-file">Courses.js / Batches.js</div>
+          <div class="node-desc">Student selects batch (e.g. JEE Mains 2026).</div>
+        </div>
+        <div class="node">
+          <div class="node-title">2A. Free Batch (Price = 0)</div>
+          <div class="node-file">POST /api/save-purchase</div>
+          <div class="node-desc">Direct enrollment & instant redirect to /class/:id.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">2B. Paid Batch (e.g. ₹4,999)</div>
+          <div class="node-file">POST /api/create-order</div>
+          <div class="node-desc">Razorpay Order created & PaymentAttempt logged.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">3. Razorpay Popup Modal</div>
+          <div class="node-file">new window.Razorpay(opts)</div>
+          <div class="node-desc">Opens secure payment gateway modal.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (If Payment Fails / OTP Timeout / Modal Dismissed)</div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-box phase-2">
+      <div class="phase-header">
+        <span>🟥 PHASE 2: Dual Ingestion & Real-Time Failure Capture</span>
+      </div>
+      <div class="node-grid">
+        <div class="node">
+          <div class="node-title">Browser Fast-Path Handler</div>
+          <div class="node-file">recoveryClient.js ➔ POST /api/recovery/payment-failed</div>
+          <div class="node-desc">Client reports failure instantaneously.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">Official Razorpay Webhook</div>
+          <div class="node-file">webhook.js ➔ POST /webhook/razorpay</div>
+          <div class="node-desc">HMAC-SHA256 verified payment.failed event.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">Signal Snapshot Created</div>
+          <div class="node-file">FailedPayment.model.js</div>
+          <div class="node-desc">Stored with status: "open", attempts: 0.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Signal sent to Cognitive Layer)</div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-box phase-3">
+      <div class="phase-header">
+        <span>🟪 PHASE 3: AI Reasoning & Policy Gate Governance</span>
+      </div>
+      <div class="node-grid">
+        <div class="node">
+          <div class="node-title">1. Orchestrator Controller</div>
+          <div class="node-file">orchestrator.js ➔ processSignal()</div>
+          <div class="node-desc">Coordinates reasoning & gate evaluation.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">2. AI Reasoning Engine</div>
+          <div class="node-file">reasoningService.js (Groq Llama-3.3-70b)</div>
+          <div class="node-desc">Diagnoses root cause & proposes 10% discount.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">3A. Auto-Approved (≤ ₹5,000)</div>
+          <div class="node-file">gateService.js ➔ decision: "approved"</div>
+          <div class="node-desc">Autonomous discount voucher creation.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">3B. Escalated (> ₹5,000)</div>
+          <div class="node-file">gateService.js ➔ decision: "pending"</div>
+          <div class="node-desc">Routed to Human-in-the-Loop Admin Queue.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (When Action Approved)</div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-box phase-4">
+      <div class="phase-header">
+        <span>🟨 PHASE 4: Voucher Minting & Multi-Channel Touchpoint Links</span>
+      </div>
+      <div class="node-grid">
+        <div class="node">
+          <div class="node-title">1. 24h Expiring Voucher</div>
+          <div class="node-file">RecoveryOffer.model.js</div>
+          <div class="node-desc">Locks ₹4,499 price with 24h TTL.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">2. In-App Notification</div>
+          <div class="node-file">Notification.model.js</div>
+          <div class="node-desc">Popup: "10% DISCOUNT approved!"</div>
+        </div>
+        <div class="node">
+          <div class="node-title">3. WhatsApp / SMS Nudge</div>
+          <div class="node-file">whatsappRecovery.js</div>
+          <div class="node-desc">Link: /pay-discount/:offerId.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">4. Instant Screen Modal</div>
+          <div class="node-file">DiscountRecoveryModal.js</div>
+          <div class="node-desc">Pops up immediately without refresh.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="arrow-down">⬇️ (Student Pays Discounted Amount)</div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-box phase-5">
+      <div class="phase-header">
+        <span>🟩 PHASE 5: Discount Checkout, Course Unlock & Financial Attribution</span>
+      </div>
+      <div class="node-grid">
+        <div class="node">
+          <div class="node-title">1. Discount Order Created</div>
+          <div class="node-file">POST /api/recovery-offers/public/:id/create-order</div>
+          <div class="node-desc">Razorpay order generated for ₹4,499.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">2. Verified Webhook</div>
+          <div class="node-file">webhook.js ➔ payment.captured</div>
+          <div class="node-desc">Signal marked "recovered", batch unlocked.</div>
+        </div>
+        <div class="node">
+          <div class="node-title">3. Financial ROI Ledger</div>
+          <div class="node-file">GET /api/agent/revenue-recovery/metrics</div>
+          <div class="node-desc">+₹4,999 Gross | ₹500 Cost | +₹4,499 Net Profit.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PAGE 2: IN-DEPTH TECHNICAL REFERENCE TABLE & STEP-BY-STEP DESCRIPTIONS -->
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>Technical Specifications & Route Mapping</h1>
+      <p>Every File, Route, Schema, and External API Call Explained in Execution Order</p>
+    </div>
+    <div class="badge">Technical Specs</div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 5%;">#</th>
+        <th style="width: 20%;">Action & Purpose</th>
+        <th style="width: 22%;">Frontend File & Trigger</th>
+        <th style="width: 25%;">API Request & Route</th>
+        <th style="width: 28%;">Backend File, Schema & API Used</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>1</strong></td>
+        <td>Browse & Select Batch</td>
+        <td><span class="code">Courses.js</span><br>Click "Enroll Now"</td>
+        <td><span class="method-post">POST</span> <span class="code">/api/create-order</span></td>
+        <td><span class="code">back/index.js</span> (Line 238)<br>Schema: <span class="code">PaymentAttempt.model.js</span><br>API: <strong>Razorpay Orders API</strong></td>
+      </tr>
+      <tr>
+        <td><strong>2</strong></td>
+        <td>Launch Payment Modal</td>
+        <td><span class="code">Courses.js</span><br><span class="code">new window.Razorpay(opts)</span></td>
+        <td>Internal SDK initialization</td>
+        <td>Client-side Razorpay Gateway Popup iframe rendering.</td>
+      </tr>
+      <tr>
+        <td><strong>3</strong></td>
+        <td>Report Payment Failure</td>
+        <td><span class="code">recoveryClient.js</span><br><span class="code">rzp.on('payment.failed')</span></td>
+        <td><span class="method-post">POST</span> <span class="code">/api/recovery/payment-failed</span></td>
+        <td><span class="code">recoveryClient.routes.js</span> (Line 17)<br>Schema: <span class="code">FailedPayment.model.js</span></td>
+      </tr>
+      <tr>
+        <td><strong>4</strong></td>
+        <td>HMAC Webhook Ingestion</td>
+        <td>Razorpay Cloud Server</td>
+        <td><span class="method-post">POST</span> <span class="code">/api/agent/revenue-recovery/webhook/razorpay</span></td>
+        <td><span class="code">webhook.js</span> (Line 18)<br>Schema: <span class="code">FailedPayment.model.js</span><br>Crypto: <span class="code">crypto.createHmac('sha256')</span></td>
+      </tr>
+      <tr>
+        <td><strong>5</strong></td>
+        <td>AI Root Cause Reasoning</td>
+        <td>Background Orchestrator</td>
+        <td>Internal <span class="code">processSignal(signalId)</span></td>
+        <td><span class="code">reasoningService.js</span> (Line 139)<br>Schema: <span class="code">AgentAction.model.js</span><br>API: <strong>Groq Llama-3.3-70b / OpenRouter</strong></td>
+      </tr>
+      <tr>
+        <td><strong>6</strong></td>
+        <td>Policy Gate Governance</td>
+        <td>Background Orchestrator</td>
+        <td>Internal <span class="code">evaluateGate()</span></td>
+        <td><span class="code">gateService.js</span> (Line 5)<br>Schema: <span class="code">AgentPolicy.model.js</span> (Cap: ₹5,000)</td>
+      </tr>
+      <tr>
+        <td><strong>7</strong></td>
+        <td>Voucher & Links Minting</td>
+        <td>Background Dispatcher</td>
+        <td>Internal <span class="code">issueRecoveryOffer()</span></td>
+        <td><span class="code">recoveryOfferService.js</span><br>Schemas: <span class="code">RecoveryOffer</span>, <span class="code">Notification</span></td>
+      </tr>
+      <tr>
+        <td><strong>8</strong></td>
+        <td>Instant Popup on Screen</td>
+        <td><span class="code">DiscountRecoveryModal.js</span><br>CustomEvent listener</td>
+        <td>Client-side DOM event: <span class="code">recovery-discount-offer</span></td>
+        <td>Displays 10% discount popup (~~₹4,999~~ ➔ <strong>₹4,499</strong>) with 24-hour countdown timer.</td>
+      </tr>
+      <tr>
+        <td><strong>9</strong></td>
+        <td>Create Discount Order</td>
+        <td><span class="code">DiscountRecoveryModal.js</span><br>Click "Pay ₹4,499"</td>
+        <td><span class="method-post">POST</span> <span class="code">/api/recovery-offers/public/:id/create-order</span></td>
+        <td><span class="code">recoveryOffer.routes.js</span> (Line 33)<br>API: <strong>Razorpay Orders API</strong></td>
+      </tr>
+      <tr>
+        <td><strong>10</strong></td>
+        <td>Verified Attribution & Unlock</td>
+        <td>Razorpay Cloud Server</td>
+        <td><span class="method-post">POST</span> <span class="code">/api/agent/revenue-recovery/webhook/razorpay</span></td>
+        <td><span class="code">webhook.js</span> (Line 103)<br>Marks <span class="code">status = "recovered"</span> & updates <span class="code">/metrics</span>.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Step Breakdown Cards -->
+  <div class="step-card">
+    <h3>1. Ingestion & Dual Fast-Path Reporting</h3>
+    <p>When an OTP fails or the student dismisses checkout, <span class="code">recoveryClient.js</span> posts to <span class="code">/api/recovery/payment-failed</span>, while Razorpay sends an HMAC-signed webhook. This dual capture ensures 0% signal loss.</p>
+    <div class="step-meta">
+      <span><strong>Files:</strong> recoveryClient.js, webhook.js</span>
+      <span><strong>Security:</strong> HMAC-SHA256</span>
+      <span><strong>Status:</strong> open</span>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h3>2. AI Diagnostic Cognition (Groq Llama-3.3-70b)</h3>
+    <p>Groq's Llama-3.3-70b processes the failure in ~250ms, diagnoses the cause (<span class="code">bank_otp_timeout</span>), calculates confidence (0.95), and writes a personalized Hinglish voice script offering a 10% discount.</p>
+    <div class="step-meta">
+      <span><strong>File:</strong> reasoningService.js</span>
+      <span><strong>Fallback:</strong> OpenRouter Nemotron / Deterministic Matrix</span>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h3>3. Policy Gate (Auto-Approve vs HITL Queue)</h3>
+    <p>Signals $\le ₹5,000$ are auto-approved. High-value transactions ($> ₹5,000$) are routed to the Human-in-the-Loop Admin Queue (<span class="code">/approval-queue</span>) for mandatory 1-click admin sign-off.</p>
+    <div class="step-meta">
+      <span><strong>File:</strong> gateService.js</span>
+      <span><strong>Rules:</strong> 10% max discount, 3 retries limit, 15m cooldown</span>
+    </div>
+  </div>
+
+  <div class="step-card">
+    <h3>4. Verified Recovery & Real-Time Financial ROI</h3>
+    <p>When the student pays via the 24-hour voucher, Razorpay confirms the transaction. The agent attributes the revenue, updates the Net Profit margin (<span class="code">Gross - Discount</span>), and unlocks course access instantly.</p>
+    <div class="step-meta">
+      <span><strong>File:</strong> webhook.js, routes.js (/metrics)</span>
+      <span><strong>Result:</strong> +₹4,999 Gross | ₹500 Discount | +₹4,499 Net Profit</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
