@@ -3966,12 +3966,203 @@ SQL 50 COMPLETE
 ==================================================
 
 `
-}
+},
+{
+  title: `SQL 50 - Complete Questions & Solutions`,
+
+  answer: `==================================================
+1. 7-Day Rolling Order GMV by City
+==================================================
+
+QUESTION:
+For each city and order date, calculate the total GMV for that day and the 7-day rolling average GMV, including the current day and previous 6 days.
+
+SQL Answer:
+
+<pre><code>WITH daily_city_gmv AS (
+SELECT
+    city_id,
+    CAST(order_time AS DATE) AS order_date,
+    SUM(order_value) AS daily_gmv
+FROM orders
+WHERE order_status = 'DELIVERED'
+GROUP BY city_id, CAST(order_time AS DATE)
+)
+SELECT
+    city_id,
+    order_date,
+    daily_gmv,
+    ROUND(
+        AVG(daily_gmv) OVER (
+            PARTITION BY city_id
+            ORDER BY order_date
+            ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
+        ),
+        2
+    ) AS rolling_7d_avg_gmv
+FROM daily_city_gmv
+ORDER BY city_id, order_date;</code></pre>
+
+KEY CONCEPT:
+ROWS BETWEEN 6 PRECEDING AND CURRENT ROW = current row + previous 6 rows = 7-row rolling window.
+
+
+==================================================
+2. Month-over-Month (MoM) Customer Retention Rate
+==================================================
+
+QUESTION:
+Calculate the percentage of active users in Month M who return and place at least one delivered order in Month M+1.
+
+SQL Answer:
+
+<pre><code>WITH monthly_active_users AS (
+SELECT DISTINCT
+    user_id,
+    DATE_TRUNC('month', order_time) AS order_month
+FROM orders
+WHERE order_status = 'DELIVERED'
+),
+retention_pairs AS (
+SELECT
+    m1.order_month AS initial_month,
+    COUNT(DISTINCT m1.user_id) AS total_users_month1,
+    COUNT(DISTINCT m2.user_id) AS retained_users
+FROM monthly_active_users m1
+LEFT JOIN monthly_active_users m2
+    ON m1.user_id = m2.user_id
+    AND m2.order_month = m1.order_month + INTERVAL '1 month'
+GROUP BY m1.order_month
+)
+SELECT
+    initial_month,
+    total_users_month1,
+    retained_users,
+    ROUND(
+        100.0 * retained_users / NULLIF(total_users_month1, 0),
+        2
+    ) AS retention_rate_pct
+FROM retention_pairs
+ORDER BY initial_month;</code></pre>
+
+KEY CONCEPT:
+Self-join on user_id and next month to identify users who returned.
+
+
+==================================================
+3. Detecting Consecutive Order Spikes (Surge Alert)
+==================================================
+
+QUESTION:
+Identify restaurants that received 3 consecutive orders where each order arrived within 5 minutes of the preceding order.
+
+SQL Answer:
+
+<pre><code>WITH order_lags AS (
+SELECT
+    restaurant_id,
+    order_id,
+    order_time,
+    LAG(order_time, 1) OVER (
+        PARTITION BY restaurant_id
+        ORDER BY order_time
+    ) AS prev_time_1,
+    LAG(order_time, 2) OVER (
+        PARTITION BY restaurant_id
+        ORDER BY order_time
+    ) AS prev_time_2
+FROM orders
+)
+SELECT DISTINCT
+    restaurant_id
+FROM order_lags
+WHERE prev_time_1 IS NOT NULL
+AND prev_time_2 IS NOT NULL
+AND EXTRACT(EPOCH FROM (order_time - prev_time_1)) <= 300
+AND EXTRACT(EPOCH FROM (prev_time_1 - prev_time_2)) <= 300;</code></pre>
+
+KEY CONCEPT:
+LAG() gets previous rows. Both time gaps must be ≤ 300 seconds (5 minutes).
+
+
+==================================================
+4. Top 3 Most Ordered Dishes per Restaurant (Handling Ties)
+==================================================
+
+QUESTION:
+Find the top 3 items by total quantity for each restaurant, including all ties for 3rd place.
+
+SQL Answer:
+
+<pre><code>WITH item_quantities AS (
+SELECT
+    restaurant_id,
+    item_id,
+    SUM(quantity) AS total_qty
+FROM order_items
+GROUP BY restaurant_id, item_id
+),
+ranked_items AS (
+SELECT
+    restaurant_id,
+    item_id,
+    total_qty,
+    DENSE_RANK() OVER (
+        PARTITION BY restaurant_id
+        ORDER BY total_qty DESC
+    ) AS item_rank
+FROM item_quantities
+)
+SELECT
+    restaurant_id,
+    item_id,
+    total_qty,
+    item_rank
+FROM ranked_items
+WHERE item_rank <= 3
+ORDER BY restaurant_id, item_rank;</code></pre>
+
+KEY CONCEPT:
+DENSE_RANK() includes ties. Example: 1, 2, 2, 3.
+
+
+==================================================
+5. Customer Churn Detection
+==================================================
+
+QUESTION:
+Find users who placed ≥3 orders in August 2026 but zero orders in September 2026.
+
+SQL Answer:
+
+<pre><code>SELECT
+    user_id
+FROM orders
+WHERE order_status = 'DELIVERED'
+GROUP BY user_id
+HAVING
+    COUNT(
+        CASE
+            WHEN order_time >= '2026-08-01'
+            AND order_time < '2026-09-01'
+            THEN 1
+        END
+    ) >= 3
+AND
+    COUNT(
+        CASE
+            WHEN order_time >= '2026-09-01'
+            AND order_time < '2026-10-01'
+            THEN 1
+        END
+    ) = 0;</code></pre>
+
+KEY CONCEPT:
+Conditional aggregation inside HAVING lets us check August and September order counts for each user.`
+},
+
 ],
 
-"python":[
-  
-]
 
 
 };
