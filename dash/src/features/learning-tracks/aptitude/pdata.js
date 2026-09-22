@@ -2941,1029 +2941,853 @@ const questionsData = {
     title: `SQL 50 - Complete Questions & Solutions`,
 
     answer: `
-
 ==================================================
-1. Recyclable and Low Fat Products
+1. Recyclable and Low Fat Products (Easy)
 ==================================================
-
 QUESTION:
-Find products that are both low fat and recyclable.
+Find the IDs of products that are both low fat and recyclable.
 
-SQL Answer:
-
-<pre><code>SELECT product_id
+SELECT product_id
 FROM Products
-WHERE low_fats = 'Y'
-AND recyclable = 'Y';</code></pre>
+WHERE low_fats = 'Y' AND recyclable = 'Y';
 
 
 ==================================================
-2. Find Customer Referee
+2. Find Customer Referee (Easy)
 ==================================================
-
 QUESTION:
 Find the names of customers who were not referred by customer 2.
 Include customers who have no referee.
 
-SQL Answer:
-
-<pre><code>SELECT name
+SELECT name
 FROM Customer
-WHERE referee_id != 2
-   OR referee_id IS NULL;</code></pre>
+WHERE referee_id != 2 OR referee_id IS NULL;
 
 
 ==================================================
-3. Big Countries
+3. Big Countries (Easy)
 ==================================================
-
 QUESTION:
-Find countries that are big.
-A country is big if its area is at least 3 million km²
-OR its population is at least 25 million.
+Find the name, population, and area of countries that have an area
+of at least 3,000,000 or a population of at least 25,000,000.
 
-SQL Answer:
 
-<pre><code>SELECT name, population, area
+SELECT name, population, area
 FROM World
-WHERE area >= 3000000
-   OR population >= 25000000;</code></pre>
+WHERE area >= 3000000 OR population >= 25000000;
 
 
 ==================================================
-4. Article Views I
+4. Article Views I (Easy)
 ==================================================
-
 QUESTION:
-Find authors who viewed at least one of their own articles.
-Return each author only once.
+Find all distinct authors who viewed at least one of their own articles.
+Sort the result by id in ascending order.
 
-SQL Answer:
 
-<pre><code>SELECT DISTINCT author_id AS id
+SELECT DISTINCT author_id AS id
 FROM Views
 WHERE author_id = viewer_id
-ORDER BY id;</code></pre>
+ORDER BY id ASC;
 
 
 ==================================================
-5. Invalid Tweets
+5. Invalid Tweets (Easy)
 ==================================================
-
 QUESTION:
-Find tweets whose content length is greater than 15 characters.
+Find the IDs of tweets whose content length is strictly greater than
+15 characters.
 
-SQL Answer:
 
-<pre><code>SELECT tweet_id
+SELECT tweet_id
 FROM Tweets
-WHERE LENGTH(content) > 15;</code></pre>
+WHERE LENGTH(content) > 15;
+
 
 
 ==================================================
-6. Replace Employee ID With The Unique Identifier
+6. Replace Employee ID With The Unique Identifier (Easy)
 ==================================================
-
 QUESTION:
-Show each employee's unique ID.
-If an employee does not have a unique ID, show NULL.
+Show the unique ID of each employee. If an employee does not have a
+unique ID, show null.
 
-SQL Answer:
 
-<pre><code>SELECT eu.unique_id, e.name
+SELECT eu.unique_id, e.name
 FROM Employees e
-LEFT JOIN EmployeeUNI eu
-    ON e.id = eu.id;</code></pre>
+LEFT JOIN EmployeeUNI eu ON e.id = eu.id;
+
 
 
 ==================================================
-7. Product Sales Analysis I
+7. Product Sales Analysis I (Easy)
 ==================================================
-
 QUESTION:
-Report the product name, year, and price for every sale.
+Report the product_name, year, and price for each sale_id in the
+Sales table.
 
-SQL Answer:
 
-<pre><code>SELECT p.product_name, s.year, s.price
+SELECT p.product_name, s.year, s.price
 FROM Sales s
-JOIN Product p
-    ON s.product_id = p.product_id;</code></pre>
+JOIN Product p ON s.product_id = p.product_id;
+
 
 
 ==================================================
-8. Customer Who Visited but Did Not Make Any Transactions
+8. Customer Who Visited but Did Not Make Any Transactions (Easy)
 ==================================================
-
 QUESTION:
-Find customers who visited but did not make any transactions.
+Find the IDs of users who visited without making any transactions
+and the number of times they made these types of visits.
 
-SQL Answer:
 
-<pre><code>SELECT v.customer_id,
-       COUNT(*) AS count_no_trans
+SELECT v.customer_id, COUNT(v.visit_id) AS count_no_trans
 FROM Visits v
-LEFT JOIN Transactions t
-    ON v.visit_id = t.visit_id
+LEFT JOIN Transactions t ON v.visit_id = t.visit_id
 WHERE t.transaction_id IS NULL
-GROUP BY v.customer_id;</code></pre>
+GROUP BY v.customer_id;
+
 
 
 ==================================================
-9. Rising Temperature
+9. Rising Temperature (Easy)
 ==================================================
-
 QUESTION:
-Find the dates when the temperature was higher than the previous day.
+Find all dates' id with higher temperatures compared to their
+previous date (yesterday).
 
-SQL Answer:
 
-<pre><code>SELECT w1.id
+SELECT w1.id
 FROM Weather w1
-JOIN Weather w2
-    ON DATEDIFF(w1.recordDate, w2.recordDate) = 1
-WHERE w1.temperature > w2.temperature;</code></pre>
+JOIN Weather w2 ON DATEDIFF(w1.recordDate, w2.recordDate) = 1
+WHERE w1.temperature > w2.temperature;
+
 
 
 ==================================================
-10. Average Time of Process per Machine
+10. Average Time of Process per Machine (Easy)
 ==================================================
-
 QUESTION:
-Find the average time each machine takes to complete a process.
+Calculate the average time each machine takes to complete a process
+(end timestamp minus start timestamp), rounded to 3 decimal places.
 
-SQL Answer:
 
-<pre><code>SELECT machine_id,
-       ROUND(AVG(end_time - start_time), 3) AS processing_time
-FROM Activity
-GROUP BY machine_id;</code></pre>
+SELECT a1.machine_id,
+       ROUND(AVG(a2.timestamp - a1.timestamp), 3) AS processing_time
+FROM Activity a1
+JOIN Activity a2
+  ON a1.machine_id = a2.machine_id
+ AND a1.process_id = a2.process_id
+ AND a1.activity_type = 'start'
+ AND a2.activity_type = 'end'
+GROUP BY a1.machine_id;
+
 
 
 ==================================================
-11. Employee Bonus
+11. Employee Bonus (Easy)
 ==================================================
-
 QUESTION:
-Find employees whose bonus is less than 1000
-or who have no bonus.
+Report the name and bonus amount of each employee with a bonus less
+than 1000. Include employees who don't have a bonus.
 
-SQL Answer:
 
-<pre><code>SELECT e.name, b.bonus
+SELECT e.name, b.bonus
 FROM Employee e
-LEFT JOIN Bonus b
-    ON e.empId = b.empId
-WHERE b.bonus < 1000
-   OR b.bonus IS NULL;</code></pre>
+LEFT JOIN Bonus b ON e.empId = b.empId
+WHERE b.bonus < 1000 OR b.bonus IS NULL;
+
 
 
 ==================================================
-12. Students and Examinations
+12. Students and Examinations (Easy)
 ==================================================
-
 QUESTION:
-For every student and subject, count how many exams
-the student attended for that subject.
+For each student and each subject, report how many times that
+student attended that exam.
 
-SQL Answer:
 
-<pre><code>SELECT s.student_id,
-       s.student_name,
-       sub.subject_name,
+SELECT s.student_id, s.student_name, sub.subject_name,
        COUNT(e.subject_name) AS attended_exams
 FROM Students s
 CROSS JOIN Subjects sub
 LEFT JOIN Examinations e
-    ON s.student_id = e.student_id
-   AND sub.subject_name = e.subject_name
-GROUP BY s.student_id,
-         s.student_name,
-         sub.subject_name
-ORDER BY s.student_id,
-         sub.subject_name;</code></pre>
+  ON s.student_id = e.student_id AND sub.subject_name = e.subject_name
+GROUP BY s.student_id, s.student_name, sub.subject_name
+ORDER BY s.student_id, sub.subject_name;
+
 
 
 ==================================================
-13. Managers with at Least 5 Direct Reports
+13. Managers with at Least 5 Direct Reports (Medium)
 ==================================================
-
 QUESTION:
-Find managers who have at least 5 direct reports.
+Find managers with at least five direct reports.
 
-SQL Answer:
 
-<pre><code>SELECT e.name
-FROM Employee e
-JOIN Employee r
-    ON e.id = r.managerId
-GROUP BY e.id, e.name
-HAVING COUNT(r.id) >= 5;</code></pre>
+SELECT e1.name
+FROM Employee e1
+JOIN Employee e2 ON e1.id = e2.managerId
+GROUP BY e1.id, e1.name
+HAVING COUNT(e2.id) >= 5;
+
 
 
 ==================================================
-14. Confirmation Rate
+14. Confirmation Rate (Medium)
 ==================================================
-
 QUESTION:
-Calculate the confirmation rate of each user.
+Find the confirmation rate of each user, rounded to 2 decimals.
 
-SQL Answer:
 
-<pre><code>SELECT s.user_id,
-       ROUND(AVG(c.action = 'confirmed'), 2) AS confirmation_rate
+SELECT s.user_id,
+       ROUND(
+         IFNULL(SUM(c.action = 'confirmed') / COUNT(c.action), 0), 2
+       ) AS confirmation_rate
 FROM Signups s
-LEFT JOIN Confirmations c
-    ON s.user_id = c.user_id
-GROUP BY s.user_id;</code></pre>
+LEFT JOIN Confirmations c ON s.user_id = c.user_id
+GROUP BY s.user_id;
+
 
 
 ==================================================
-15. Not Boring Movies
+15. Not Boring Movies (Easy)
 ==================================================
-
 QUESTION:
-Find movies with an odd ID and a description that is not boring.
-Sort them by rating in descending order.
+Report movies with an odd-numbered ID and a description that is not
+"boring". Sort by rating descending.
 
-SQL Answer:
 
-<pre><code>SELECT *
+SELECT id, movie, description, rating
 FROM Cinema
-WHERE id % 2 = 1
-  AND description <> 'boring'
-ORDER BY rating DESC;</code></pre>
+WHERE id % 2 = 1 AND description != 'boring'
+ORDER BY rating DESC;
+
 
 
 ==================================================
-16. Average Selling Price
+16. Average Selling Price (Easy)
 ==================================================
-
 QUESTION:
-Find the average selling price of each product,
-considering the price and units sold during valid date ranges.
+Find the average selling price for each product, rounded to 2
+decimal places. Products with no sales get 0.
 
-SQL Answer:
 
-<pre><code>SELECT p.product_id,
-       ROUND(SUM(p.price * u.units) / SUM(u.units), 2)
-       AS average_price
+SELECT p.product_id,
+       ROUND(IFNULL(SUM(p.price * u.units) / SUM(u.units), 0), 2) AS average_price
 FROM Prices p
-JOIN UnitsSold u
-    ON p.product_id = u.product_id
-   AND u.purchase_date BETWEEN p.start_date AND p.end_date
-GROUP BY p.product_id;</code></pre>
+LEFT JOIN UnitsSold u
+  ON p.product_id = u.product_id
+ AND u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY p.product_id;
+
 
 
 ==================================================
-17. Project Employees I
+17. Project Employees I (Easy)
 ==================================================
-
 QUESTION:
-For each project, find the average experience years
-of all employees working on that project,
-rounded to 2 decimal places.
+Report the average experience years of all employees for each
+project, rounded to 2 decimal places.
 
-SQL Answer:
 
-<pre><code>SELECT p.project_id,
-       ROUND(AVG(e.experience_years), 2) AS average_years
+SELECT p.project_id, ROUND(AVG(e.experience_years), 2) AS average_years
 FROM Project p
-JOIN Employee e
-    ON p.employee_id = e.employee_id
-GROUP BY p.project_id;</code></pre>
+JOIN Employee e ON p.employee_id = e.employee_id
+GROUP BY p.project_id;
+
 
 
 ==================================================
-18. Percentage of Users Attended a Contest
+18. Percentage of Users Attended a Contest (Easy)
 ==================================================
-
 QUESTION:
-Find the percentage of users who registered for each contest.
-Round the percentage to 2 decimal places.
+Find the percentage of users registered in each contest, rounded to
+2 decimals, sorted by percentage descending (then contest_id asc).
 
-SQL Answer:
 
-<pre><code>SELECT r.contest_id,
-       ROUND(
-           COUNT(DISTINCT r.user_id) * 100.0 /
-           (SELECT COUNT(*) FROM Users),
-           2
-       ) AS percentage
-FROM Register r
-GROUP BY r.contest_id
-ORDER BY percentage DESC,
-         r.contest_id;</code></pre>
+SELECT contest_id,
+       ROUND(COUNT(user_id) * 100.0 / (SELECT COUNT(*) FROM Users), 2) AS percentage
+FROM Register
+GROUP BY contest_id
+ORDER BY percentage DESC, contest_id ASC;
+
 
 
 ==================================================
-19. Queries Quality and Percentage
+19. Queries Quality and Percentage (Easy)
 ==================================================
-
 QUESTION:
-For each query name, find:
-1. Query quality = average of rating / position.
-2. Poor query percentage = percentage of queries with rating < 3.
+Find each query_name, its quality (avg of rating/position) and its
+poor_query_percentage (rating < 3), rounded to 2 decimals.
 
-SQL Answer:
 
-<pre><code>SELECT query_name,
-       ROUND(AVG(rating * 1.0 / position), 2) AS quality,
-       ROUND(
-           AVG(CASE WHEN rating &lt; 3 THEN 1 ELSE 0 END) * 100,
-           2
-       ) AS poor_query_percentage
+SELECT query_name,
+       ROUND(AVG(rating / position), 2) AS quality,
+       ROUND(SUM(rating < 3) * 100.0 / COUNT(*), 2) AS poor_query_percentage
 FROM Queries
-GROUP BY query_name;</code></pre>
+GROUP BY query_name;
+
 
 
 ==================================================
-20. Monthly Transactions I
+20. Monthly Transactions I (Medium)
 ==================================================
-
 QUESTION:
-For each month and country, find:
-total transactions,
-approved transactions,
-total amount,
-and approved amount.
+Find, for every month and country, the number of transactions and
+their total amount, the number of approved transactions and their
+total amount.
 
-SQL Answer:
 
-<pre><code>SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month,
+SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month,
        country,
        COUNT(*) AS trans_count,
        SUM(state = 'approved') AS approved_count,
        SUM(amount) AS trans_total_amount,
-       SUM(
-           CASE
-               WHEN state = 'approved'
-               THEN amount
-               ELSE 0
-           END
-       ) AS approved_total_amount
+       SUM(CASE WHEN state = 'approved' THEN amount ELSE 0 END) AS approved_total_amount
 FROM Transactions
-GROUP BY month, country;</code></pre>
+GROUP BY month, country;
+
 
 
 ==================================================
-21. Immediate Food Delivery II
+21. Immediate Food Delivery II (Medium)
 ==================================================
-
 QUESTION:
-Find the percentage of customers whose first order
-was delivered immediately on their preferred delivery date.
+Find the percentage of immediate orders (order_date = preferred
+date) among the first orders of all customers, rounded to 2 decimals.
 
-SQL Answer:
 
-<pre><code>WITH first_orders AS (
-    SELECT *,
-           ROW_NUMBER() OVER (
-               PARTITION BY customer_id
-               ORDER BY order_date
-           ) AS rn
-    FROM Delivery
-)
 SELECT ROUND(
-           AVG(
-               order_date = customer_pref_delivery_date
-           ) * 100,
-           2
-       ) AS immediate_percentage
-FROM first_orders
-WHERE rn = 1;</code></pre>
+  SUM(order_date = customer_pref_delivery_date) * 100.0 / COUNT(*), 2
+) AS immediate_percentage
+FROM Delivery
+WHERE (customer_id, order_date) IN (
+  SELECT customer_id, MIN(order_date)
+  FROM Delivery
+  GROUP BY customer_id
+);
+
 
 
 ==================================================
-22. Game Play Analysis IV
+22. Game Play Analysis IV (Medium)
 ==================================================
-
 QUESTION:
-Find the fraction of players who logged in again
-exactly one day after their first login.
+Report the fraction of players who logged in again on the day right
+after their first login, rounded to 2 decimals.
 
-SQL Answer:
 
-<pre><code>SELECT ROUND(
-           COUNT(DISTINCT a.player_id) * 1.0 /
-           (SELECT COUNT(DISTINCT player_id)
-            FROM Activity),
-           2
-       ) AS fraction
+SELECT ROUND(
+  COUNT(DISTINCT a.player_id) / (SELECT COUNT(DISTINCT player_id) FROM Activity), 2
+) AS fraction
 FROM Activity a
 JOIN (
-    SELECT player_id,
-           MIN(event_date) AS first_date
-    FROM Activity
-    GROUP BY player_id
-) f
-    ON a.player_id = f.player_id
-   AND a.event_date =
-       DATE_ADD(f.first_date, INTERVAL 1 DAY);</code></pre>
+  SELECT player_id, MIN(event_date) AS first_date
+  FROM Activity
+  GROUP BY player_id
+) f ON a.player_id = f.player_id
+   AND a.event_date = DATE_ADD(f.first_date, INTERVAL 1 DAY);
+
 
 
 ==================================================
-23. Number of Unique Subjects Taught by Each Teacher
+23. Number of Unique Subjects Taught by Each Teacher (Easy)
 ==================================================
-
 QUESTION:
-Find the number of unique subjects taught by each teacher.
+Find the number of unique subjects each teacher teaches.
 
-SQL Answer:
 
-<pre><code>SELECT teacher_id,
-       COUNT(DISTINCT subject_id) AS cnt
+SELECT teacher_id, COUNT(DISTINCT subject_id) AS cnt
 FROM Teacher
-GROUP BY teacher_id;</code></pre>
+GROUP BY teacher_id;
+
 
 
 ==================================================
-24. User Activity for the Past 30 Days I
+24. User Activity for the Past 30 Days I (Easy)
 ==================================================
-
 QUESTION:
-Find the number of active users for each day
-during the 30-day period ending on 2019-07-27.
+Find the daily active user count for the past 30 days (ending
+2019-07-27, inclusive).
 
-SQL Answer:
 
-<pre><code>SELECT activity_date AS day,
-       COUNT(DISTINCT user_id) AS active_users
+SELECT activity_date AS day, COUNT(DISTINCT user_id) AS active_users
 FROM Activity
-WHERE activity_date BETWEEN '2019-06-28'
-                        AND '2019-07-27'
-GROUP BY activity_date;</code></pre>
+WHERE activity_date BETWEEN DATE_SUB('2019-07-27', INTERVAL 29 DAY) AND '2019-07-27'
+GROUP BY activity_date;
+
 
 
 ==================================================
-25. Product Sales Analysis III
+25. Product Sales Analysis III (Medium)
 ==================================================
-
 QUESTION:
-Find the first year in which each product was sold.
+For each product, find the selling year, quantity and price for
+its first year of sales.
 
-SQL Answer:
 
-<pre><code>SELECT product_id,
-       MIN(year) AS first_year,
-       quantity,
-       price
-FROM Sales
-GROUP BY product_id;</code></pre>
+SELECT s.product_id, s.year AS first_year, s.quantity, s.price
+FROM Sales s
+WHERE (s.product_id, s.year) IN (
+  SELECT product_id, MIN(year)
+  FROM Sales
+  GROUP BY product_id
+);
+
 
 
 ==================================================
-26. Classes More Than 5 Students
+26. Classes With at Least 5 Students (Easy)
 ==================================================
-
 QUESTION:
-Find classes that have at least 5 students.
+Find all classes with at least 5 students.
 
-SQL Answer:
 
-<pre><code>SELECT class
+SELECT class
 FROM Courses
 GROUP BY class
-HAVING COUNT(DISTINCT student) >= 5;</code></pre>
+HAVING COUNT(DISTINCT student) >= 5;
+
 
 
 ==================================================
-27. Find Followers Count
+27. Find Followers Count (Easy)
 ==================================================
-
 QUESTION:
-Find the number of followers for each user.
+Report the number of followers for each user, ordered by user_id.
 
-SQL Answer:
 
-<pre><code>SELECT user_id,
-       COUNT(*) AS followers_count
+SELECT user_id, COUNT(follower_id) AS followers_count
 FROM Followers
 GROUP BY user_id
-ORDER BY user_id;</code></pre>
+ORDER BY user_id;
+
 
 
 ==================================================
-28. Biggest Single Number
+28. Biggest Single Number (Easy)
 ==================================================
-
 QUESTION:
-Find the largest number that appears exactly once
-in the table.
+Find the largest number that occurs exactly once. Return null if
+none exists.
 
-SQL Answer:
 
-<pre><code>SELECT MAX(num) AS num
+SELECT MAX(num) AS num
 FROM (
-    SELECT num
-    FROM MyNumbers
-    GROUP BY num
-    HAVING COUNT(*) = 1
-) t;</code></pre>
+  SELECT num
+  FROM MyNumbers
+  GROUP BY num
+  HAVING COUNT(*) = 1
+) t;
+
 
 
 ==================================================
-29. Customers Who Bought All Products
+29. Customers Who Bought All Products (Medium)
 ==================================================
-
 QUESTION:
-Find customers who bought every product
-in the Product table.
+Find customers who bought every product in the Product table.
 
-SQL Answer:
 
-<pre><code>SELECT customer_id
+SELECT customer_id
 FROM Customer
 GROUP BY customer_id
-HAVING COUNT(DISTINCT product_key) =
-       (SELECT COUNT(*) FROM Product);</code></pre>
+HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product);
+
 
 
 ==================================================
-30. Number of Employees Which Report to Each Employee
+30. The Number of Employees Which Report to Each Employee (Easy)
 ==================================================
-
 QUESTION:
-For each employee who has direct reports,
-find the number of employees reporting to them
-and their average age.
+For each manager, report the number of direct reports and their
+average age, rounded to the nearest integer.
 
-SQL Answer:
 
-<pre><code>SELECT e.employee_id,
-       e.name,
-       COUNT(r.employee_id) AS reports_count,
-       ROUND(AVG(r.age)) AS average_age
-FROM Employees e
-JOIN Employees r
-    ON e.employee_id = r.reports_to
-GROUP BY e.employee_id, e.name;</code></pre>
+SELECT e1.employee_id, e1.name,
+       COUNT(e2.employee_id) AS reports_count,
+       ROUND(AVG(e2.age), 0) AS average_age
+FROM Employees e1
+JOIN Employees e2 ON e1.employee_id = e2.reports_to
+GROUP BY e1.employee_id, e1.name
+ORDER BY e1.employee_id;
+
 
 
 ==================================================
-31. Primary Department for Each Employee
+31. Primary Department for Each Employee (Easy)
 ==================================================
-
 QUESTION:
-Find the primary department of each employee.
-If an employee belongs to only one department,
-that department is considered primary.
+Report all employees with their primary department. If an employee
+belongs to only one department, that is their primary department
+even if not flagged.
 
-SQL Answer:
 
-<pre><code>SELECT employee_id, department_id
+SELECT employee_id, department_id
 FROM Employee
 WHERE primary_flag = 'Y'
-
 UNION
-
-SELECT employee_id,
-       MIN(department_id)
+SELECT employee_id, department_id
 FROM Employee
 GROUP BY employee_id
-HAVING COUNT(*) = 1;</code></pre>
+HAVING COUNT(*) = 1;
+
 
 
 ==================================================
-32. Triangle Judgement
+32. Triangle Judgement (Easy)
 ==================================================
-
 QUESTION:
-Determine whether three side lengths can form a triangle.
+Report for every triangle row whether the three side lengths x, y, z
+can form a triangle.
 
-SQL Answer:
 
-<pre><code>SELECT x, y, z,
-       CASE
-           WHEN x + y &gt; z
-            AND x + z &gt; y
-            AND y + z &gt; x
-           THEN 'Yes'
-           ELSE 'No'
-       END AS triangle
-FROM Triangle;</code></pre>
+SELECT x, y, z,
+       CASE WHEN x + y > z AND x + z > y AND y + z > x THEN 'Yes' ELSE 'No' END AS triangle
+FROM Triangle;
+
 
 
 ==================================================
-33. Consecutive Numbers
+33. Consecutive Numbers (Medium)
 ==================================================
-
 QUESTION:
-Find numbers that appear at least three times consecutively.
+Find all numbers that appear at least three times consecutively.
 
-SQL Answer:
 
-<pre><code>SELECT DISTINCT l1.num AS ConsecutiveNums
+SELECT DISTINCT l1.num AS ConsecutiveNums
 FROM Logs l1
-JOIN Logs l2
-    ON l2.id = l1.id + 1
-JOIN Logs l3
-    ON l3.id = l1.id + 2
-WHERE l1.num = l2.num
-  AND l2.num = l3.num;</code></pre>
+JOIN Logs l2 ON l1.id = l2.id - 1
+JOIN Logs l3 ON l1.id = l3.id - 2
+WHERE l1.num = l2.num AND l2.num = l3.num;
+
 
 
 ==================================================
-34. Product Price at a Given Date
+34. Product Price at a Given Date (Medium)
 ==================================================
-
 QUESTION:
-Find the price of every product on 2019-08-16.
-If a product had no price change before that date,
-its price should be 10.
+Find the price of every product on 2019-08-16. Assume price 10 for
+products with no price change before or on that date.
 
-SQL Answer:
 
-<pre><code>SELECT p.product_id,
-       COALESCE(
-           MAX(
-               CASE
-                   WHEN p.change_date &lt;= '2019-08-16'
-                   THEN p.new_price
-               END
-           ),
-           10
-       ) AS price
-FROM Products p
-GROUP BY p.product_id;</code></pre>
+SELECT p.product_id, IFNULL(c.new_price, 10) AS price
+FROM (SELECT DISTINCT product_id FROM Products) p
+LEFT JOIN (
+  SELECT product_id, new_price
+  FROM Products
+  WHERE (product_id, change_date) IN (
+    SELECT product_id, MAX(change_date)
+    FROM Products
+    WHERE change_date <= '2019-08-16'
+    GROUP BY product_id
+  )
+) c ON p.product_id = c.product_id;
+
 
 
 ==================================================
-35. Last Person to Fit in the Bus
+35. Last Person to Fit in the Bus (Medium)
 ==================================================
-
 QUESTION:
-Find the last person who can fit on the bus
-without making the total weight exceed 1000.
+Find the person_name of the last person that can fit on the bus
+without exceeding a total weight of 1000.
 
-SQL Answer:
 
-<pre><code>SELECT person_name
+SELECT person_name
 FROM (
-    SELECT person_name,
-           turn,
-           SUM(weight) OVER (
-               ORDER BY turn
-           ) AS total_weight
-    FROM Queue
-) q
-WHERE total_weight &lt;= 1000
-ORDER BY turn DESC
-LIMIT 1;</code></pre>
+  SELECT person_name,
+         SUM(weight) OVER (ORDER BY turn) AS running_weight
+  FROM Queue
+) t
+WHERE running_weight <= 1000
+ORDER BY running_weight DESC
+LIMIT 1;
+
 
 
 ==================================================
-36. Count Salary Categories
+36. Count Salary Categories (Medium)
 ==================================================
-
 QUESTION:
 Count the number of accounts in each salary category:
-Low Salary, Average Salary, and High Salary.
+Low Salary (< 20000), Average Salary ([20000, 50000]),
+High Salary (> 50000).
 
-SQL Answer:
 
-<pre><code>SELECT 'Low Salary' AS category,
-       SUM(income &lt; 20000) AS accounts_count
+SELECT 'Low Salary' AS category,
+       SUM(income < 20000) AS accounts_count
 FROM Accounts
-
-UNION ALL
-
-SELECT 'Average Salary',
-       SUM(income BETWEEN 20000 AND 50000)
+UNION
+SELECT 'Average Salary' AS category,
+       SUM(income BETWEEN 20000 AND 50000) AS accounts_count
 FROM Accounts
+UNION
+SELECT 'High Salary' AS category,
+       SUM(income > 50000) AS accounts_count
+FROM Accounts;
 
-UNION ALL
-
-SELECT 'High Salary',
-       SUM(income &gt; 50000)
-FROM Accounts;</code></pre>
 
 
 ==================================================
-37. Employees Whose Manager Left the Company
+37. Employees Whose Manager Left the Company (Easy)
 ==================================================
-
 QUESTION:
-Find employees whose salary is less than 30000
-and whose manager has left the company.
+Find employees with salary strictly less than 30000 whose manager
+left the company (manager_id not present in the table).
 
-SQL Answer:
 
-<pre><code>SELECT employee_id
+SELECT employee_id
 FROM Employees
-WHERE salary &lt; 30000
+WHERE salary < 30000
   AND manager_id IS NOT NULL
-  AND manager_id NOT IN (
-      SELECT employee_id
-      FROM Employees
-  )
-ORDER BY employee_id;</code></pre>
+  AND manager_id NOT IN (SELECT employee_id FROM Employees)
+ORDER BY employee_id;
+
 
 
 ==================================================
-38. Exchange Seats
+38. Exchange Seats (Medium)
 ==================================================
-
 QUESTION:
-Swap the seat IDs of every two consecutive students.
-If there is an odd number of students,
-keep the last student unchanged.
+Swap seat id for every two consecutive students. If the number of
+students is odd, the last student's id remains unchanged.
 
-SQL Answer:
 
-<pre><code>SELECT id,
-       CASE
-           WHEN id % 2 = 1
-            AND id = (SELECT MAX(id) FROM Seat)
-           THEN student
+SELECT
+  CASE
+    WHEN id % 2 = 1 AND id = (SELECT MAX(id) FROM Seat) THEN id
+    WHEN id % 2 = 1 THEN id + 1
+    ELSE id - 1
+  END AS id,
+  student
+FROM Seat
+ORDER BY id;
 
-           WHEN id % 2 = 1
-           THEN LEAD(student) OVER (ORDER BY id)
-
-           ELSE LAG(student) OVER (ORDER BY id)
-       END AS student
-FROM Seat;</code></pre>
 
 
 ==================================================
-39. Movie Rating
+39. Movie Rating (Medium)
 ==================================================
-
 QUESTION:
-Find:
-1. The user who rated the most movies.
-2. The movie with the highest average rating in February 2020.
+Find the name of the user who rated the greatest number of movies
+(ties broken alphabetically), and the movie with the highest average
+rating in February 2020 (ties broken alphabetically).
 
-SQL Answer:
 
-<pre><code>(
-    SELECT u.name AS results
-    FROM MovieRating mr
-    JOIN Users u
-        ON mr.user_id = u.user_id
-    GROUP BY mr.user_id, u.name
-    ORDER BY COUNT(*) DESC, u.name
-    LIMIT 1
-)
-
+(SELECT u.name AS results
+ FROM MovieRating mr
+ JOIN Users u ON mr.user_id = u.user_id
+ GROUP BY mr.user_id
+ ORDER BY COUNT(*) DESC, u.name ASC
+ LIMIT 1)
 UNION ALL
+(SELECT m.title AS results
+ FROM MovieRating mr
+ JOIN Movies m ON mr.movie_id = m.movie_id
+ WHERE MONTH(mr.created_at) = 2 AND YEAR(mr.created_at) = 2020
+ GROUP BY mr.movie_id
+ ORDER BY AVG(mr.rating) DESC, m.title ASC
+ LIMIT 1);
 
-(
-    SELECT m.title
-    FROM MovieRating mr
-    JOIN Movies m
-        ON mr.movie_id = m.movie_id
-    WHERE mr.created_at &gt;= '2020-02-01'
-      AND mr.created_at &lt; '2020-03-01'
-    GROUP BY mr.movie_id, m.title
-    ORDER BY AVG(mr.rating) DESC, m.title
-    LIMIT 1
-);</code></pre>
 
 
 ==================================================
-40. Restaurant Growth
+40. Restaurant Growth (Medium)
 ==================================================
-
 QUESTION:
-For each date, calculate the total amount spent
-over the current day and previous 6 days,
-along with the 7-day average.
+Compute a moving average of the amount spent over the previous
+7 days (including the current day) for each visited_on date, only
+for dates that have at least 6 prior days of data. Sort by
+visited_on.
 
-SQL Answer:
 
-<pre><code>WITH daily AS (
-    SELECT visited_on,
-           SUM(amount) AS amount
+SELECT visited_on, amount, average_amount
+FROM (
+  SELECT visited_on,
+         SUM(amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount,
+         ROUND(AVG(amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) AS average_amount,
+         ROW_NUMBER() OVER (ORDER BY visited_on) AS rn
+  FROM (
+    SELECT visited_on, SUM(amount) AS amount
     FROM Customer
     GROUP BY visited_on
-)
-SELECT visited_on,
-       SUM(amount) OVER (
-           ORDER BY visited_on
-           ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-       ) AS amount,
-       ROUND(
-           AVG(amount) OVER (
-               ORDER BY visited_on
-               ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-           ),
-           2
-       ) AS average_amount
-FROM daily;</code></pre>
+  ) daily
+) t
+WHERE rn >= 7
+ORDER BY visited_on;
+
 
 
 ==================================================
-41. Friend Requests II: Who Has the Most Friends
+41. Friend Requests II: Who Has the Most Friends (Medium)
 ==================================================
-
 QUESTION:
-Find the person who has the most friends,
-considering both sent and received friend requests.
+Find the person with the most friends (assume everyone has at most
+one "most friends" answer).
 
-SQL Answer:
 
-<pre><code>SELECT id,
-       COUNT(*) AS num
+SELECT id, COUNT(*) AS num
 FROM (
-    SELECT requester_id AS id
-    FROM RequestAccepted
-
-    UNION ALL
-
-    SELECT accepter_id AS id
-    FROM RequestAccepted
+  SELECT requester_id AS id FROM RequestAccepted
+  UNION ALL
+  SELECT accepter_id AS id FROM RequestAccepted
 ) t
 GROUP BY id
 ORDER BY num DESC
-LIMIT 1;</code></pre>
+LIMIT 1;
+
 
 
 ==================================================
-42. Investments in 2016
+42. Investments in 2016 (Medium)
 ==================================================
-
 QUESTION:
-Find the sum of tiv_2016 for policyholders who:
-1. Have the same tiv_2015 as another policyholder.
-2. Have a unique latitude and longitude.
+Find the sum of tiv_2016 for policyholders who: (1) have the same
+tiv_2015 value as at least one other policyholder, and (2) are not
+located in the same city as any other policyholder (unique lat/lon).
 
-SQL Answer:
 
-<pre><code>SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
 FROM Insurance
 WHERE tiv_2015 IN (
-    SELECT tiv_2015
-    FROM Insurance
-    GROUP BY tiv_2015
-    HAVING COUNT(*) &gt; 1
+  SELECT tiv_2015
+  FROM Insurance
+  GROUP BY tiv_2015
+  HAVING COUNT(*) > 1
 )
 AND (lat, lon) IN (
-    SELECT lat, lon
-    FROM Insurance
-    GROUP BY lat, lon
-    HAVING COUNT(*) = 1
-);</code></pre>
+  SELECT lat, lon
+  FROM Insurance
+  GROUP BY lat, lon
+  HAVING COUNT(*) = 1
+);
+
 
 
 ==================================================
-43. Department Top Three Salaries
+43. Department Top Three Salaries (Hard)
 ==================================================
-
 QUESTION:
-Find employees who have one of the top three
-distinct salaries in each department.
+Find employees who are within the top three unique salaries for
+each department.
 
-SQL Answer:
 
-<pre><code>SELECT d.name AS Department,
-       e.name AS Employee,
-       e.salary AS Salary
+SELECT d.name AS Department, e.name AS Employee, e.salary AS Salary
 FROM Employee e
-JOIN Department d
-    ON e.departmentId = d.id
-WHERE 3 &gt; (
-    SELECT COUNT(DISTINCT e2.salary)
-    FROM Employee e2
-    WHERE e2.departmentId = e.departmentId
-      AND e2.salary &gt; e.salary
-);</code></pre>
+JOIN Department d ON e.departmentId = d.id
+WHERE (
+  SELECT COUNT(DISTINCT e2.salary)
+  FROM Employee e2
+  WHERE e2.departmentId = e.departmentId AND e2.salary > e.salary
+) < 3;
+
 
 
 ==================================================
-44. Fix Names in a Table
+44. Fix Names in a Table (Easy)
 ==================================================
-
 QUESTION:
-Fix each name so that the first letter is uppercase
-and all remaining letters are lowercase.
+Fix names so only the first character is uppercase and the rest are
+lowercase. Order by user_id.
 
-SQL Answer:
 
-<pre><code>SELECT user_id,
-       CONCAT(
-           UPPER(LEFT(name, 1)),
-           LOWER(SUBSTRING(name, 2))
-       ) AS name
+SELECT user_id,
+       CONCAT(UPPER(LEFT(name, 1)), LOWER(SUBSTRING(name, 2))) AS name
 FROM Users
-ORDER BY user_id;</code></pre>
+ORDER BY user_id;
+
 
 
 ==================================================
-45. Patients With a Condition
+45. Patients With a Condition (Easy)
 ==================================================
-
 QUESTION:
-Find patients who have a condition code
-that starts with DIAB1.
+Find patients whose conditions include a Type I Diabetes code
+(a code starting with "DIAB1", as a standalone word).
 
-SQL Answer:
 
-<pre><code>SELECT patient_id,
-       patient_name,
-       conditions
+SELECT patient_id, patient_name, conditions
 FROM Patients
-WHERE conditions LIKE 'DIAB1%'
-   OR conditions LIKE '% DIAB1%';</code></pre>
+WHERE conditions LIKE 'DIAB1%' OR conditions LIKE '% DIAB1%';
+
 
 
 ==================================================
-46. Delete Duplicate Emails
+46. Delete Duplicate Emails (Easy)
 ==================================================
-
 QUESTION:
-Delete duplicate email records while keeping
-the row with the smallest id for each email.
+Delete duplicate rows by email, keeping only the row with the
+smallest id.
 
-SQL Answer:
 
-<pre><code>DELETE p1
+DELETE p1
 FROM Person p1
 JOIN Person p2
-    ON p1.email = p2.email
-   AND p1.id &gt; p2.id;</code></pre>
+  ON p1.email = p2.email AND p1.id > p2.id;
+
 
 
 ==================================================
-47. Second Highest Salary
+47. Second Highest Salary (Medium)
 ==================================================
-
 QUESTION:
-Find the second highest distinct salary.
-Return NULL if there is no second highest salary.
+Find the second highest distinct salary. Return null if it does not
+exist.
 
-SQL Answer:
 
-<pre><code>SELECT MAX(salary) AS SecondHighestSalary
+SELECT MAX(salary) AS SecondHighestSalary
 FROM Employee
-WHERE salary &lt; (
-    SELECT MAX(salary)
-    FROM Employee
-);</code></pre>
+WHERE salary < (SELECT MAX(salary) FROM Employee);
+
 
 
 ==================================================
-48. Group Sold Products By The Date
+48. Group Sold Products By The Date (Easy)
 ==================================================
-
 QUESTION:
-For each date, find the number of different products sold
-and list the product names in alphabetical order.
+Find for each date the number of distinct products sold and their
+names, sorted by product name, ordered by sell_date.
 
-SQL Answer:
 
-<pre><code>SELECT sell_date,
+SELECT sell_date,
        COUNT(DISTINCT product) AS num_sold,
-       GROUP_CONCAT(
-           DISTINCT product
-           ORDER BY product
-       ) AS products
+       GROUP_CONCAT(DISTINCT product ORDER BY product SEPARATOR ',') AS products
 FROM Activities
 GROUP BY sell_date
-ORDER BY sell_date;</code></pre>
+ORDER BY sell_date;
+
 
 
 ==================================================
-49. List Products Ordered in a Period
+49. List the Products Ordered in a Period (Easy)
 ==================================================
-
 QUESTION:
-Find products that had at least 100 units ordered
-during February 2020.
+Find the names of products with total ordered units >= 100 in
+February 2020.
 
-SQL Answer:
 
-<pre><code>SELECT p.product_name,
-       SUM(o.unit) AS unit
+SELECT p.product_name, SUM(o.unit) AS unit
 FROM Products p
-JOIN Orders o
-    ON p.product_id = o.product_id
-WHERE o.order_date &gt;= '2020-02-01'
-  AND o.order_date &lt; '2020-03-01'
-GROUP BY p.product_id, p.product_name
-HAVING SUM(o.unit) &gt;= 100;</code></pre>
+JOIN Orders o ON p.product_id = o.product_id
+WHERE o.order_date BETWEEN '2020-02-01' AND '2020-02-29'
+GROUP BY p.product_name
+HAVING SUM(o.unit) >= 100;
+
 
 
 ==================================================
-50. Find Users With Valid E-Mails
+50. Find Users With Valid E-Mails (Easy)
 ==================================================
-
 QUESTION:
-Find users with valid email addresses.
-The email must have a valid local part
-and must end with @leetcode.com.
+Find users with a valid email: starts with a letter, followed by
+letters/digits/underscore/period/dash, then "@leetcode.com" exactly.
 
-SQL Answer:
 
-<pre><code>SELECT *
+SELECT *
 FROM Users
-WHERE mail REGEXP
-'^[A-Za-z][A-Za-z0-9_.-]*@leetcode\\\\.com$';</code></pre>
-
-
-==================================================
-SQL 50 COMPLETE
-==================================================
+WHERE mail REGEXP '^[A-Za-z][A-Za-z0-9_.-]*@leetcode\\.com$';
 
 `
 },
@@ -3979,29 +3803,28 @@ For each city and order date, calculate the total GMV for that day and the 7-day
 
 SQL Answer:
 
-<pre><code>WITH daily_city_gmv AS (
-SELECT
-    city_id,
-    CAST(order_time AS DATE) AS order_date,
-    SUM(order_value) AS daily_gmv
-FROM orders
-WHERE order_status = 'DELIVERED'
-GROUP BY city_id, CAST(order_time AS DATE)
+WITH daily_city_gmv AS (
+    SELECT 
+        city_id,
+        CAST(order_time AS DATE) AS order_date,
+        SUM(order_value) AS daily_gmv
+    FROM orders
+    WHERE order_status = 'DELIVERED'
+    GROUP BY city_id, CAST(order_time AS DATE)
 )
-SELECT
+SELECT 
     city_id,
     order_date,
     daily_gmv,
     ROUND(
         AVG(daily_gmv) OVER (
-            PARTITION BY city_id
-            ORDER BY order_date
+            PARTITION BY city_id 
+            ORDER BY order_date 
             ROWS BETWEEN 6 PRECEDING AND CURRENT ROW
-        ),
-        2
+        ), 2
     ) AS rolling_7d_avg_gmv
 FROM daily_city_gmv
-ORDER BY city_id, order_date;</code></pre>
+ORDER BY city_id, order_date;
 
 KEY CONCEPT:
 ROWS BETWEEN 6 PRECEDING AND CURRENT ROW = current row + previous 6 rows = 7-row rolling window.
