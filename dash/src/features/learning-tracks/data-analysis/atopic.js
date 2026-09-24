@@ -13,6 +13,8 @@ import { useNavigate } from "react-router-dom";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 const topics = [
+    { id: "python", name: "Python" },
+    { id: "complete", name: "Complete" },
     { id: "analytics", name: "Analytics" },
     { id: "analyses-python", name: "Analyses-python" },
     { id: "finance", name: "Finance" },

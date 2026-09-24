@@ -19448,1135 +19448,1573 @@ class Solution {
     },
   ],
 
-  "segment-tree": [
+  "python": [
 
         {
             title: `QUESTION:
-    Given an integer array nums, build a Segment Tree that supports finding the sum of elements in any given range [left, right].
+            Python Questions `,
 
-    EXAMPLE:
-    Input: nums = [1, 3, 5, 7, 9, 11]
-    Query: sum(1, 3)
-
-    Output: 15
-
-    Explanation:
-    nums[1] + nums[2] + nums[3]
-    = 3 + 5 + 7
-    = 15
-
-    A Segment Tree stores information about different ranges of the array so that range queries can be answered efficiently.`,
-
-            bruteForceComplexity: `Time Complexity: O(N) per query
-    - Traverse every element from left to right and calculate the sum.
-
-    Space Complexity: O(1)`,
-
-            bruteForceCode: `
-    class Solution {
-        public int rangeSum(int[] nums, int left, int right) {
-            int sum = 0;
-            for (int i = left; i <= right; i++) {
-                sum += nums[i];
-            }
-            return sum;
-        }
-    }`,
-
-            optimalComplexity: `Build:
-    Time Complexity: O(N)
-
-    Range Sum Query:
-    Time Complexity: O(log N)
-
-    Point Update:
-    Time Complexity: O(log N)
-
-    Space Complexity: O(N)
-    - Segment Tree generally uses approximately 4*N space.`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return 0;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            int leftSum = query(2 * node + 1, start, mid, left, right);
-            int rightSum = query(2 * node + 2, mid + 1, end, left, right);
-
-            return leftSum + rightSum;
-        }
-
-        void update(int index, int value) {
-            update(0, 0, n - 1, index, value);
-        }
-
-        void update(int node, int start, int end, int index, int value) {
-            if (start == end) {
-                tree[node] = value;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-
-            if (index <= mid)
-                update(2 * node + 1, start, mid, index, value);
-            else
-                update(2 * node + 2, mid + 1, end, index, value);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Understand the basic structure of a Segment Tree.
-
-    EXAMPLE:
-    nums = [1, 3, 5, 7]
-
-    Segment Tree:
-
-                        [0,3] = 16
-                    /          \\
-                [0,1] = 4       [2,3] = 12
-                /    \\          /      \\
-            [0,0]=1 [1,1]=3 [2,2]=5 [3,3]=7
-
-    Each node represents a range.
-
-    Root represents [0,3].
-    Left child represents [0,1].
-    Right child represents [2,3].
-
-    The array is repeatedly divided into two halves until every leaf represents one element.
-
-    For a sum Segment Tree:
-    parent = left child + right child.`,
-
-            bruteForceComplexity: `Without a Segment Tree, a range query may require checking every element.
-
-    Range Query:
-    O(N)`,
+            bruteForceComplexity: ``,
 
             bruteForceCode: ``,
 
-            optimalComplexity: `Build:
-    O(N)
+            optimalComplexity: ``,
 
-    Range Query:
-    O(log N)
-
-    Point Update:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-
-        SegmentTree(int[] nums) {
-            tree = new int[4 * nums.length];
-            build(nums, 0, 0, nums.length - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-    }` 
+            optimalCode: `==================================================
+        1. First Repeated Character (Exact OA Question)
+        ==================================================
+        QUESTION:
+        Given a string s, find the first repeated character. As you read the
+        string from left to right, return the first character that you encounter
+        which has already appeared earlier. If no character repeats, return None (or "-1").
+        Example:
+        Input: "abbccd"
+        Output: "b" (since 'b' is the first character seen a second time)
+        SOLUTION:
+        def first_repeated_char(s: str):
+            seen = set()
+            for ch in s:
+                if ch in seen:
+                    return ch
+                seen.add(ch)
+            return "-1"
+        # Standard IO wrapper for buggy compilers:
+        if __name__ == "__main__":
+            import sys
+            data = sys.stdin.read().strip()
+            if data:
+                print(first_repeated_char(data.splitlines()[0].strip()))
+        ==================================================
+        2. First Non-Repeating (Unique) Character
+        ==================================================
+        QUESTION:
+        Given a string s, find the first non-repeating character and return it.
+        If all characters repeat or the string is empty, return "-1".
+        Example:
+        Input: "loveleetcode"
+        Output: "v"
+        SOLUTION:
+        def first_unique_char(s: str) -> str:
+            counts = {}
+            for ch in s:
+                counts[ch] = counts.get(ch, 0) + 1
+            for ch in s:
+                if counts[ch] == 1:
+                    return ch
+            return "-1"
+        ==================================================
+        3. First Character to Appear Twice
+        ==================================================
+        QUESTION:
+        Given a string s consisting of lowercase English letters, return the
+        first character that appears twice.
+        Example:
+        Input: "abccbaacz"
+        Output: "c"
+        SOLUTION:
+        def repeated_character(s: str) -> str:
+            seen = set()
+            for ch in s:
+                if ch in seen:
+                    return ch
+                seen.add(ch)
+            return ""
+        ==================================================
+        4. Valid Anagram
+        ==================================================
+        QUESTION:
+        Given two strings s and t, return True if t is an anagram of s, and False otherwise.
+        Example 1: s = "anagram", t = "nagaram" -> True
+        Example 2: s = "rat", t = "car" -> False
+        SOLUTION:
+        def is_anagram(s: str, t: str) -> bool:
+            if len(s) != len(t):
+                return False
+            counts = {}
+            for ch in s:
+                counts[ch] = counts.get(ch, 0) + 1
+            for ch in t:
+                if ch not in counts or counts[ch] == 0:
+                    return False
+                counts[ch] -= 1
+            return True
+        ==================================================
+        5. Valid Palindrome (Ignoring Punctuation & Case)
+        ==================================================
+        QUESTION:
+        Given a string s, return True if it is a palindrome, considering only
+        alphanumeric characters and ignoring cases.
+        Example:
+        Input: "A man, a plan, a canal: Panama"
+        Output: True
+        SOLUTION:
+        def is_palindrome(s: str) -> bool:
+            left, right = 0, len(s) - 1
+            while left < right:
+                while left < right and not s[left].isalnum():
+                    left += 1
+                while left < right and not s[right].isalnum():
+                    right -= 1
+                if s[left].lower() != s[right].lower():
+                    return False
+                left += 1
+                right -= 1
+            return True
+        ==================================================
+        6. String Compression / Run-Length Encoding
+        ==================================================
+        QUESTION:
+        Given a string s, compress consecutive identical characters into the
+        character followed by its run count.
+        Example:
+        Input: "aaabbc"
+        Output: "a3b2c1"
+        SOLUTION:
+        def compress_string(s: str) -> str:
+            if not s:
+                return ""
+            res = []
+            count = 1
+            for i in range(1, len(s)):
+                if s[i] == s[i - 1]:
+                    count += 1
+                else:
+                    res.append(s[i - 1] + str(count))
+                    count = 1
+            res.append(s[-1] + str(count))
+            return "".join(res)
+        ==================================================
+        7. Reverse Words in a String
+        ==================================================
+        QUESTION:
+        Given an input string s, reverse the order of the words. A word is defined
+        as a sequence of non-space characters. Return a single space-separated string.
+        Example:
+        Input: "  the sky   is blue  "
+        Output: "blue is sky the"
+        SOLUTION:
+        def reverse_words(s: str) -> str:
+            words = s.strip().split()
+            return " ".join(words[::-1])
+        ==================================================
+        8. Remove Duplicate Characters Preserving First Order
+        ==================================================
+        QUESTION:
+        Given a string s, remove all duplicate characters, keeping only their first occurrence.
+        Example:
+        Input: "banana"
+        Output: "ban"
+        SOLUTION:
+        def remove_duplicates_string(s: str) -> str:
+            seen = set()
+            result = []
+            for ch in s:
+                if ch not in seen:
+                    seen.add(ch)
+                    result.append(ch)
+            return "".join(result)
+        ==================================================
+        9. Count Vowels, Consonants, and Digits
+        ==================================================
+        QUESTION:
+        Given a string s, return a tuple or dict containing the counts of vowels,
+        consonants, and digits.
+        Example:
+        Input: "Hello World 123!"
+        Output: {'vowels': 3, 'consonants': 7, 'digits': 3}
+        SOLUTION:
+        def count_types(s: str) -> dict:
+            vowels = set("aeiouAEIOU")
+            res = {'vowels': 0, 'consonants': 0, 'digits': 0}
+            for ch in s:
+                if ch.isdigit():
+                    res['digits'] += 1
+                elif ch.isalpha():
+                    if ch in vowels:
+                        res['vowels'] += 1
+                    else:
+                        res['consonants'] += 1
+            return res
+        ==================================================
+        10. Longest Common Prefix
+        ==================================================
+        QUESTION:
+        Write a function to find the longest common prefix string amongst an array of strings.
+        If there is no common prefix, return "".
+        Example:
+        Input: ["flower", "flow", "flight"]
+        Output: "fl"
+        SOLUTION:
+        def longest_common_prefix(strs: list) -> str:
+            if not strs:
+                return ""
+            prefix = strs[0]
+            for s in strs[1:]:
+                while not s.startswith(prefix):
+                    prefix = prefix[:-1]
+                    if not prefix:
+                        return ""
+            return prefix
+        ==================================================
+        11. Two Sum (Find Indices with Target Sum)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer target, return indices of the two
+        numbers such that they add up to target.
+        Example:
+        Input: nums = [2, 7, 11, 15], target = 9
+        Output: [0, 1]
+        SOLUTION:
+        def two_sum(nums: list, target: int) -> list:
+            lookup = {}
+            for i, n in enumerate(nums):
+                diff = target - n
+                if diff in lookup:
+                    return [lookup[diff], i]
+                lookup[n] = i
+            return []
+        ==================================================
+        12. Second Largest Element in a List (Without sort)
+        ==================================================
+        QUESTION:
+        Given a list of numbers, find the second distinct largest element without sorting.
+        If no second largest exists, return -1.
+        Example 1: [10, 20, 20, 8] -> 10
+        Example 2: [10, 10, 10] -> -1
+        SOLUTION:
+        def second_largest(nums: list) -> int:
+            first = second = float('-inf')
+            for n in nums:
+                if n > first:
+                    second = first
+                    first = n
+                elif n > second and n != first:
+                    second = n
+            return second if second != float('-inf') else -1
+        ==================================================
+        13. Move Zeroes to End Preserving Relative Order
+        ==================================================
+        QUESTION:
+        Given an integer array nums, move all 0's to the end of it while maintaining
+        the relative order of the non-zero elements.
+        Example:
+        Input: [0, 1, 0, 3, 12]
+        Output: [1, 3, 12, 0, 0]
+        SOLUTION:
+        def move_zeroes(nums: list) -> list:
+            insert_pos = 0
+            for i in range(len(nums)):
+                if nums[i] != 0:
+                    nums[insert_pos], nums[i] = nums[i], nums[insert_pos]
+                    insert_pos += 1
+            return nums
+        ==================================================
+        14. Find the Missing Number in 1 to N
+        ==================================================
+        QUESTION:
+        An array contains n distinct numbers taken from 0, 1, 2, ..., n. Find the one
+        number that is missing from the array.
+        Example:
+        Input: [3, 0, 1] (n=3)
+        Output: 2
+        SOLUTION:
+        def missing_number(nums: list) -> int:
+            n = len(nums)
+            expected_sum = n * (n + 1) // 2
+            return expected_sum - sum(nums)
+        ==================================================
+        15. Merge Two Sorted Lists
+        ==================================================
+        QUESTION:
+        Given two sorted integer lists list1 and list2, merge them into one sorted list
+        without using sort().
+        Example:
+        Input: list1 = [1, 2, 4], list2 = [1, 3, 4]
+        Output: [1, 1, 2, 3, 4, 4]
+        SOLUTION:
+        def merge_sorted_lists(l1: list, l2: list) -> list:
+            i, j = 0, 0
+            merged = []
+            while i < len(l1) and j < len(l2):
+                if l1[i] <= l2[j]:
+                    merged.append(l1[i])
+                    i += 1
+                else:
+                    merged.append(l2[j])
+                    j += 1
+            merged.extend(l1[i:])
+            merged.extend(l2[j:])
+            return merged
+        ==================================================
+        16. Maximum Subarray Sum (Kadane's Algorithm)
+        ==================================================
+        QUESTION:
+        Given an integer array nums, find the contiguous subarray which has the largest
+        sum and return its sum.
+        Example:
+        Input: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+        Output: 6 (Subarray: [4, -1, 2, 1])
+        SOLUTION:
+        def max_sub_array(nums: list) -> int:
+            max_so_far = nums[0]
+            curr_max = nums[0]
+            for n in nums[1:]:
+                curr_max = max(n, curr_max + n)
+                max_so_far = max(max_so_far, curr_max)
+            return max_so_far
+        ==================================================
+        17. Majority Element (> N/2 Occurrences)
+        ==================================================
+        QUESTION:
+        Given an array nums of size n, return the majority element (element that appears
+        more than n / 2 times).
+        Example:
+        Input: [2, 2, 1, 1, 1, 2, 2]
+        Output: 2
+        SOLUTION:
+        # Boyer-Moore Voting Algorithm O(N) time, O(1) space
+        def majority_element(nums: list) -> int:
+            candidate = None
+            count = 0
+            for num in nums:
+                if count == 0:
+                    candidate = num
+                count += (1 if num == candidate else -1)
+            return candidate
+        ==================================================
+        18. Intersection of Two Lists (Unique Elements)
+        ==================================================
+        QUESTION:
+        Given two integer arrays nums1 and nums2, return an array of their intersection.
+        Each element in the result must be unique.
+        Example:
+        Input: nums1 = [4, 9, 5], nums2 = [9, 4, 9, 8, 4]
+        Output: [4, 9]
+        SOLUTION:
+        def intersection(nums1: list, nums2: list) -> list:
+            set1 = set(nums1)
+            res = []
+            for n in set(nums2):
+                if n in set1:
+                    res.append(n)
+            return res
+        ==================================================
+        19. Moving Average of Data Stream (Window K)
+        ==================================================
+        QUESTION:
+        Given a list of stream values (e.g. hourly energy readings) and a window size k,
+        compute the simple moving average for each window.
+        Example:
+        Input: readings = [10, 20, 30, 40, 50], k = 3
+        Output: [20.0, 30.0, 40.0]
+        SOLUTION:
+        def moving_average(readings: list, k: int) -> list:
+            if len(readings) < k or k <= 0:
+                return []
+            window_sum = sum(readings[:k])
+            result = [window_sum / k]
+            for i in range(k, len(readings)):
+                window_sum += readings[i] - readings[i - k]
+                result.append(window_sum / k)
+            return result
+        ==================================================
+        20. Best Time to Buy and Sell Stock / Energy Spot Price
+        ==================================================
+        QUESTION:
+        You are given an array prices where prices[i] is the price on the ith day.
+        Maximize your profit by choosing a single day to buy and a single future day to sell.
+        Example:
+        Input: [7, 1, 5, 3, 6, 4]
+        Output: 5 (Buy at 1, sell at 6)
+        SOLUTION:
+        def max_profit(prices: list) -> int:
+            min_price = float('inf')
+            max_prof = 0
+            for price in prices:
+                if price < min_price:
+                    min_price = price
+                elif price - min_price > max_prof:
+                    max_prof = price - min_price
+            return max_prof
+        ==================================================
+        21. Parse and Clean Delimited Energy Log String
+        ==================================================
+        QUESTION:
+        Given raw sensor log strings formatted as "ID:TIMESTAMP:VOLTAGE:CURRENT", parse the
+        records, filter out rows where VOLTAGE or CURRENT is negative or non-numeric, and
+        return the total Power (Power = Voltage * Current).
+        Example:
+        Input: ["M1:1001:230.5:10.0", "M2:1002:INVALID:5.0", "M3:1003:220.0:5.0"]
+        Output: 3405.0  # (230.5 * 10.0) + (220.0 * 5.0) = 2305.0 + 1100.0
+        SOLUTION:
+        def compute_total_power(records: list) -> float:
+            total_power = 0.0
+            for row in records:
+                parts = row.strip().split(":")
+                if len(parts) != 4:
+                    continue
+                try:
+                    voltage = float(parts[2])
+                    current = float(parts[3])
+                    if voltage >= 0 and current >= 0:
+                        total_power += voltage * current
+                except ValueError:
+                    continue
+            return round(total_power, 2)
+        ==================================================
+        22. Check Prime & Prime Factorization (Math Module)
+        ==================================================
+        QUESTION:
+        Given an integer n, return True if it is prime. Also provide a helper to
+        return all prime factors of n.
+        Example:
+        n = 28 -> IsPrime: False, Prime Factors: [2, 2, 7]
+        SOLUTION:
+        import math
+        def is_prime(n: int) -> bool:
+            if n <= 1:
+                return False
+            if n in (2, 3):
+                return True
+            if n % 2 == 0 or n % 3 == 0:
+                return False
+            for i in range(5, int(math.isqrt(n)) + 1, 6):
+                if n % i == 0 or n % (i + 2) == 0:
+                    return False
+            return True
+        def prime_factors(n: int) -> list:
+            factors = []
+            while n % 2 == 0:
+                factors.append(2)
+                n //= 2
+            for i in range(3, int(math.isqrt(n)) + 1, 2):
+                while n % i == 0:
+                    factors.append(i)
+                    n //= i
+            if n > 2:
+                factors.append(n)
+            return factors
+        ==================================================
+        23. Greatest Common Divisor (GCD) & LCM
+        ==================================================
+        QUESTION:
+        Calculate the GCD and LCM of two integers a and b without external packages.
+        Example:
+        a = 12, b = 18 -> GCD: 6, LCM: 36
+        SOLUTION:
+        def gcd(a: int, b: int) -> int:
+            while b:
+                a, b = b, a % b
+            return abs(a)
+        def lcm(a: int, b: int) -> int:
+            if a == 0 or b == 0:
+                return 0
+            return abs(a * b) // gcd(a, b)
+        ==================================================
+        24. Count Trailing Zeroes in N Factorial
+        ==================================================
+        QUESTION:
+        Given an integer n, return the number of trailing zeroes in n!. Do not compute
+        n! directly to avoid overflow/timeout.
+        Example:
+        n = 10 -> 2 (10! = 3628800)
+        SOLUTION:
+        def trailing_zeroes(n: int) -> int:
+            count = 0
+            while n >= 5:
+                count += n // 5
+                n //= 5
+            return count
+        ==================================================
+        25. Valid Parentheses / Bracket Matching
+        ==================================================
+        QUESTION:
+        Given a string s containing '(', ')', '{', '}', '[' and ']', determine if
+        the input string is valid.
+        Example 1: "()[]{}" -> True
+        Example 2: "([)]" -> False
+        SOLUTION:
+        def is_valid_brackets(s: str) -> bool:
+            stack = []
+            mapping = {')': '(', '}': '{', ']': '['}
+            for ch in s:
+                if ch in mapping:
+                    top = stack.pop() if stack else '#'
+                    if mapping[ch] != top:
+                        return False
+                else:
+                    stack.append(ch)
+            return len(stack) == 0
+        ==================================================
+        26. Group Anagrams
+        ==================================================
+        QUESTION:
+        Given an array of strings strs, group the anagrams together. Return the groups
+        in any order.
+        Example:
+        Input: ["eat", "tea", "tan", "ate", "nat", "bat"]
+        Output: [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]
+        SOLUTION:
+        def group_anagrams(strs: list) -> list:
+            groups = {}
+            for word in strs:
+                key = "".join(sorted(word))
+                if key not in groups:
+                    groups[key] = []
+                groups[key].append(word)
+            return list(groups.values())
+        ==================================================
+        27. Subarray Sum Equals K (Frequency Map)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer k, return the total number
+        of continuous subarrays whose sum equals to k.
+        Example:
+        Input: nums = [1, 1, 1], k = 2
+        Output: 2
+        SOLUTION:
+        def subarray_sum(nums: list, k: int) -> int:
+            prefix_counts = {0: 1}
+            curr_sum = 0
+            total = 0
+            for num in nums:
+                curr_sum += num
+                if curr_sum - k in prefix_counts:
+                    total += prefix_counts[curr_sum - k]
+                prefix_counts[curr_sum] = prefix_counts.get(curr_sum, 0) + 1
+            return total
+        ==================================================
+        28. Buggy Compiler IO Template (Emergency Fallback)
+        ==================================================
+        QUESTION:
+        Template to handle any broken/buggy online compiler that either expects
+        sys.stdin.read(), input(), or line-by-line parsing with trailing whitespace.
+        SOLUTION:
+        import sys
+        def solve():
+            # Reads entire input from stdin regardless of how the platform passes it
+            raw_input = sys.stdin.read().strip()
+            if not raw_input:
+                return
+            
+            lines = [line.strip() for line in raw_input.splitlines() if line.strip()]
+            if not lines:
+                return
+            # Scenario A: First line is a single string (e.g., "abbccd")
+            first_line = lines[0]
+            
+            # Scenario B: First line is numbers separated by space/comma
+            # nums = list(map(int, first_line.replace(",", " ").split()))
+            
+            # Process problem logic safely:
+            seen = set()
+            res = "-1"
+            for ch in first_line:
+                if ch in seen:
+                    res = ch
+                    break
+                seen.add(ch)
+            
+            # Always print output cleanly without trailing spaces
+            print(res)
+        if __name__ == "__main__":
+            solve()
+        `
         },
-
         {
             title: `QUESTION:
-    Perform a range sum query using a Segment Tree.
-
-    Input:
-    nums = [1, 3, 5, 7, 9, 11]
-
-    Query:
-    sum(1, 4)
-
-    Output:
-    24
-
-    Explanation:
-    3 + 5 + 7 + 9 = 24
-
-    During a query, every segment falls into one of three cases:
-
-    1. Completely outside → return 0.
-    2. Completely inside → return tree[node].
-    3. Partially overlapping → go to both children.`,
-
-            bruteForceComplexity: `Time Complexity: O(N)
-    - Traverse all elements in the requested range.
-
-    Space Complexity: O(1)`,
-
-            bruteForceCode: `
-    int sum = 0;
-    for (int i = left; i <= right; i++) {
-        sum += nums[i];
-    }
-    return sum;`,
-
-            optimalComplexity: `Time Complexity: O(log N)
-    - The Segment Tree allows us to skip complete segments.
-
-    Space Complexity:
-    O(log N) recursion stack.`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return 0;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            int leftSum = query(2 * node + 1, start, mid, left, right);
-            int rightSum = query(2 * node + 2, mid + 1, end, left, right);
-
-            return leftSum + rightSum;
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Perform a point update in a Segment Tree.
-
-    Input:
-    nums = [1, 3, 5, 7, 9]
-
-    Update:
-    nums[2] = 10
-
-    New array:
-    [1, 3, 10, 7, 9]
-
-    Only the nodes containing index 2 need to be changed.
-
-    We travel from the root to the required leaf and then recalculate all its ancestors.`,
-
-            bruteForceComplexity: `If the whole Segment Tree is rebuilt after every update:
-
-    Time Complexity:
-    O(N)
-
-    This becomes inefficient when there are many updates.`,
-
-            bruteForceCode: `
-    nums[index] = value;`,
-
-            optimalComplexity: `Time Complexity: O(log N)
-    - Only one path from root to leaf is updated.
-
-    Space Complexity:
-    O(log N) recursion stack.`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        void update(int index, int value) {
-            update(0, 0, n - 1, index, value);
-        }
-
-        void update(int node, int start, int end, int index, int value) {
-            if (start == end) {
-                tree[node] = value;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-
-            if (index <= mid)
-                update(2 * node + 1, start, mid, index, value);
-            else
-                update(2 * node + 2, mid + 1, end, index, value);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Find the minimum value in a given range using a Segment Tree.
-
-    Input:
-    nums = [5, 2, 7, 1, 6, 3]
-
-    Query:
-    minimum(1, 4)
-
-    Output:
-    1
-
-    For a minimum Segment Tree:
-    tree[node] = min(leftChild, rightChild)
-
-    For a completely outside range, return Integer.MAX_VALUE because it does not affect the minimum.`,
-
-            bruteForceComplexity: `Time Complexity: O(N) per query
-
-    Space Complexity: O(1)`,
-
-            bruteForceCode: `
-    int answer = Integer.MAX_VALUE;
-    for (int i = left; i <= right; i++) {
-        answer = Math.min(answer, nums[i]);
-    }
-    return answer;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Minimum Query:
-    O(log N)
-
-    Point Update:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return Integer.MAX_VALUE;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            int leftMin = query(2 * node + 1, start, mid, left, right);
-            int rightMin = query(2 * node + 2, mid + 1, end, left, right);
-
-            return Math.min(leftMin, rightMin);
-        }
-
-        void update(int index, int value) {
-            update(0, 0, n - 1, index, value);
-        }
-
-        void update(int node, int start, int end, int index, int value) {
-            if (start == end) {
-                tree[node] = value;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-
-            if (index <= mid)
-                update(2 * node + 1, start, mid, index, value);
-            else
-                update(2 * node + 2, mid + 1, end, index, value);
-
-            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Find the maximum value in a range using a Segment Tree.
-
-    Input:
-    nums = [2, 8, 1, 6, 4, 9]
-
-    Query:
-    maximum(1, 4)
-
-    Output:
-    8
-
-    For a maximum Segment Tree:
-    tree[node] = max(leftChild, rightChild)
-
-    For a completely outside range, return Integer.MIN_VALUE.`,
-
-            bruteForceComplexity: `Time Complexity: O(N) per query
-
-    Space Complexity: O(1)`,
-
-            bruteForceCode: `
-    int answer = Integer.MIN_VALUE;
-    for (int i = left; i <= right; i++) {
-        answer = Math.max(answer, nums[i]);
-    }
-    return answer;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Maximum Query:
-    O(log N)
-
-    Point Update:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class SegmentTree {
-        int[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = Math.max(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return Integer.MIN_VALUE;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            int leftMax = query(2 * node + 1, start, mid, left, right);
-            int rightMax = query(2 * node + 2, mid + 1, end, left, right);
-
-            return Math.max(leftMax, rightMax);
-        }
-
-        void update(int index, int value) {
-            update(0, 0, n - 1, index, value);
-        }
-
-        void update(int node, int start, int end, int index, int value) {
-            if (start == end) {
-                tree[node] = value;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-
-            if (index <= mid)
-                update(2 * node + 1, start, mid, index, value);
-            else
-                update(2 * node + 2, mid + 1, end, index, value);
-
-            tree[node] = Math.max(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Implement a Segment Tree with Lazy Propagation.
-
-    Operations:
-    1. Add value to every element in a range [left, right].
-    2. Find the sum of elements in a range [left, right].
-
-    EXAMPLE:
-    nums = [1, 2, 3, 4, 5]
-
-    Update:
-    add 2 to [1, 3]
-
-    Array becomes:
-    [1, 4, 5, 6, 5]
-
-    Query:
-    sum(1, 3)
-
-    Output:
-    15
-
-    Lazy propagation avoids updating every element individually.
-
-    We store pending updates in lazy[node].
-    When a segment is needed, we push the pending update to its children.`,
-
-            bruteForceComplexity: `Range Update:
-    O(N)
-
-    Range Query:
-    O(N)
-
-    With many operations, this becomes slow.`,
-
-            bruteForceCode: `
-    for (int i = left; i <= right; i++) {
-        nums[i] += value;
-    }`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Update:
-    O(log N)
-
-    Range Sum Query:
-    O(log N)
-
-    Space:
-    O(N)
-
-    Lazy propagation makes range updates efficient.`,
-
-            optimalCode: `
-    class LazySegmentTree {
-        long[] tree;
-        long[] lazy;
-        int n;
-
-        LazySegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new long[4 * n];
-            lazy = new long[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        void push(int node, int start, int end) {
-            if (lazy[node] == 0) return;
-
-            long value = lazy[node];
-            tree[node] += (end - start + 1) * value;
-
-            if (start != end) {
-                lazy[2 * node + 1] += value;
-                lazy[2 * node + 2] += value;
-            }
-
-            lazy[node] = 0;
-        }
-
-        void update(int left, int right, int value) {
-            update(0, 0, n - 1, left, right, value);
-        }
-
-        void update(int node, int start, int end, int left, int right, int value) {
-            push(node, start, end);
-
-            if (right < start || end < left) return;
-
-            if (left <= start && end <= right) {
-                lazy[node] += value;
-                push(node, start, end);
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            update(2 * node + 1, start, mid, left, right, value);
-            update(2 * node + 2, mid + 1, end, left, right, value);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        long query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        long query(int node, int start, int end, int left, int right) {
-            push(node, start, end);
-
-            if (right < start || end < left) return 0;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            long leftSum = query(2 * node + 1, start, mid, left, right);
-            long rightSum = query(2 * node + 2, mid + 1, end, left, right);
-
-            return leftSum + rightSum;
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Implement a Segment Tree for Range Add Update and Range Minimum Query using Lazy Propagation.
-
-    Input:
-    nums = [1, 3, 5, 7, 9]
-
-    Operation:
-    Add 4 to range [1, 3]
-
-    Array becomes:
-    [1, 7, 9, 11, 9]
-
-    Query:
-    minimum(1, 3)
-
-    Output:
-    7
-
-    The tree stores minimum values.
-
-    For a range update, instead of changing every element immediately, we store the pending addition in lazy[node].`,
-
-            bruteForceComplexity: `Range Update:
-    O(N)
-
-    Range Minimum Query:
-    O(N)`,
-
-            bruteForceCode: `
-    for (int i = left; i <= right; i++) {
-        nums[i] += value;
-    }
-
-    int answer = Integer.MAX_VALUE;
-    for (int i = left; i <= right; i++) {
-        answer = Math.min(answer, nums[i]);
-    }
-    return answer;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Add:
-    O(log N)
-
-    Range Minimum Query:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class LazyMinSegmentTree {
-        long[] tree;
-        long[] lazy;
-        int n;
-
-        LazyMinSegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new long[4 * n];
-            lazy = new long[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        void push(int node) {
-            if (lazy[node] == 0) return;
-
-            long value = lazy[node];
-            tree[2 * node + 1] += value;
-            tree[2 * node + 2] += value;
-            lazy[2 * node + 1] += value;
-            lazy[2 * node + 2] += value;
-
-            lazy[node] = 0;
-        }
-
-        void update(int left, int right, int value) {
-            update(0, 0, n - 1, left, right, value);
-        }
-
-        void update(int node, int start, int end, int left, int right, int value) {
-            if (right < start || end < left) return;
-
-            if (left <= start && end <= right) {
-                tree[node] += value;
-                lazy[node] += value;
-                return;
-            }
-
-            push(node);
-
-            int mid = start + (end - start) / 2;
-            update(2 * node + 1, start, mid, left, right, value);
-            update(2 * node + 2, mid + 1, end, left, right, value);
-
-            tree[node] = Math.min(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        long query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        long query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return Long.MAX_VALUE;
-            if (left <= start && end <= right) return tree[node];
-
-            push(node);
-
-            int mid = start + (end - start) / 2;
-            long leftMin = query(2 * node + 1, start, mid, left, right);
-            long rightMin = query(2 * node + 2, mid + 1, end, left, right);
-
-            return Math.min(leftMin, rightMin);
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Implement a Segment Tree for GCD queries.
-
-    Input:
-    nums = [12, 18, 6, 24, 30]
-
-    Query:
-    GCD(1, 4)
-
-    Output:
-    6
-
-    A Segment Tree can store GCD instead of sum.
-
-    For every parent:
-    tree[node] = gcd(leftChild, rightChild)
-
-    For a completely outside range, return 0 because gcd(x, 0) = x.`,
-
-            bruteForceComplexity: `Time Complexity:
-    O(N) per query
-
-    Space Complexity:
-    O(1)`,
-
-            bruteForceCode: `
-    int answer = nums[left];
-    for (int i = left + 1; i <= right; i++) {
-        answer = gcd(answer, nums[i]);
-    }
-    return answer;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    GCD Query:
-    O(log N * log V)
-
-    Point Update:
-    O(log N * log V)
-
-    V = maximum value in the array.`,
-
-            optimalCode: `
-    class GCDSegmentTree {
-        int[] tree;
-        int n;
-
-        GCDSegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        int gcd(int a, int b) {
-            while (b != 0) {
-                int temp = a % b;
-                a = b;
-                b = temp;
-            }
-            return Math.abs(a);
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = nums[start];
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = gcd(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return 0;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            int leftGcd = query(2 * node + 1, start, mid, left, right);
-            int rightGcd = query(2 * node + 2, mid + 1, end, left, right);
-
-            return gcd(leftGcd, rightGcd);
-        }
-
-        void update(int index, int value) {
-            update(0, 0, n - 1, index, value);
-        }
-
-        void update(int node, int start, int end, int index, int value) {
-            if (start == end) {
-                tree[node] = value;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-
-            if (index <= mid)
-                update(2 * node + 1, start, mid, index, value);
-            else
-                update(2 * node + 2, mid + 1, end, index, value);
-
-            tree[node] = gcd(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Find the number of elements in a range using a Segment Tree.
-
-    Input:
-    nums = [1, 2, 3, 4, 5]
-
-    Query:
-    count(1, 3)
-
-    Output:
-    3
-
-    A Segment Tree can store count/frequency information.
-
-    Each leaf stores 1 because every position contains one element.
-
-    Each parent stores:
-    leftCount + rightCount.`,
-
-            bruteForceComplexity: `Time Complexity:
-    O(N)
-
-    Space Complexity:
-    O(1)`,
-
-            bruteForceCode: `
-    int count = 0;
-    for (int i = left; i <= right; i++) {
-        count++;
-    }
-    return count;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Count Query:
-    O(log N)
-
-    Point Update:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class CountSegmentTree {
-        int[] tree;
-        int n;
-
-        CountSegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new int[4 * n];
-            build(0, 0, n - 1);
-        }
-
-        void build(int node, int start, int end) {
-            if (start == end) {
-                tree[node] = 1;
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(2 * node + 1, start, mid);
-            build(2 * node + 2, mid + 1, end);
-
-            tree[node] = tree[2 * node + 1] + tree[2 * node + 2];
-        }
-
-        int query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        int query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return 0;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            return query(2 * node + 1, start, mid, left, right)
-                + query(2 * node + 2, mid + 1, end, left, right);
-        }
-    }` 
-        },
-
-        {
-            title: `QUESTION:
-    Find the maximum subarray sum in a range using a Segment Tree.
-
-    Input:
-    nums = [-2, 3, -1, 5, -6, 4]
-
-    Query:
-    maximumSubarraySum(0, 3)
-
-    Output:
-    7
-
-    Explanation:
-    The best subarray is [3, -1, 5]
-    Sum = 7
-
-    For this problem each Segment Tree node stores four values:
-
-    sum = total sum of the segment
-    prefix = maximum prefix sum
-    suffix = maximum suffix sum
-    answer = maximum subarray sum
-
-    When combining two nodes, we calculate these four values from the left and right children.`,
-
-            bruteForceComplexity: `For every query, check all possible subarrays.
-
-    Time Complexity:
-    O(N²) per query.
-
-    Space Complexity:
-    O(1)`,
-
-            bruteForceCode: `
-    int answer = Integer.MIN_VALUE;
-
-    for (int i = left; i <= right; i++) {
-        int sum = 0;
-        for (int j = i; j <= right; j++) {
-            sum += nums[j];
-            answer = Math.max(answer, sum);
-        }
-    }
-
-    return answer;`,
-
-            optimalComplexity: `Build:
-    O(N)
-
-    Range Maximum Subarray Query:
-    O(log N)
-
-    Point Update:
-    O(log N)
-
-    Space:
-    O(N)`,
-
-            optimalCode: `
-    class SegmentTree {
-        class Node {
-            int sum, prefix, suffix, answer;
-
-            Node(int value) {
-                sum = prefix = suffix = answer = value;
-            }
-        }
-
-        Node[] tree;
-        int n;
-
-        SegmentTree(int[] nums) {
-            n = nums.length;
-            tree = new Node[4 * n];
-            build(nums, 0, 0, n - 1);
-        }
-
-        Node merge(Node left, Node right) {
-            Node result = new Node(0);
-
-            result.sum = left.sum + right.sum;
-            result.prefix = Math.max(left.prefix, left.sum + right.prefix);
-            result.suffix = Math.max(right.suffix, right.sum + left.suffix);
-            result.answer = Math.max(Math.max(left.answer, right.answer), left.suffix + right.prefix);
-
-            return result;
-        }
-
-        void build(int[] nums, int node, int start, int end) {
-            if (start == end) {
-                tree[node] = new Node(nums[start]);
-                return;
-            }
-
-            int mid = start + (end - start) / 2;
-            build(nums, 2 * node + 1, start, mid);
-            build(nums, 2 * node + 2, mid + 1, end);
-
-            tree[node] = merge(tree[2 * node + 1], tree[2 * node + 2]);
-        }
-
-        Node query(int left, int right) {
-            return query(0, 0, n - 1, left, right);
-        }
-
-        Node query(int node, int start, int end, int left, int right) {
-            if (right < start || end < left) return null;
-            if (left <= start && end <= right) return tree[node];
-
-            int mid = start + (end - start) / 2;
-            Node leftNode = query(2 * node + 1, start, mid, left, right);
-            Node rightNode = query(2 * node + 2, mid + 1, end, left, right);
-
-            if (leftNode == null) return rightNode;
-            if (rightNode == null) return leftNode;
-
-            return merge(leftNode, rightNode);
-        }
-    }` 
+            Python Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `==================================================
+PYTHON A-TO-Z COMPLETE MASTERCLASS (ZERO TO HERO)
+==================================================
+Yeh guide Python ka complete encyclopaedia hai. Agar aapne pehle kabhi programming nahi bhi ki hai, toh bhi is guide ko step-by-step padhne ke baad aap Python ke core syntax, data structures, algorithms, built-in functions, OOPs, aur tricky exam questions ko 100% samajh kar solve kar loge.
+--------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------
+1. Python Architecture & Fundamentals (Variables, Memory, Datatypes, Operators)
+2. Input / Output & String Formatting
+3. Control Flow (If-Else, Loops, Break/Continue, Pass, Enumerate, Zip)
+4. String Mastery & Built-in String Functions (Heavy OA Focus)
+5. Core Data Structures Deep Dive (List, Tuple, Set, Dictionary)
+6. Comprehensions (List, Set, Dict Comprehensions)
+7. Functions, Parameters, *args, **kwargs, Scope & Lambda
+8. High-Yield Built-in Modules (math, collections, itertools, sys)
+9. Exception Handling & File I/O
+10. Object-Oriented Programming (OOPs: 4 Pillars & Magic Methods)
+11. Advanced Concepts (Generators, Decorators, Shallow vs Deep Copy)
+12. Top 15 Tricky OA / MCQ Traps & Time Complexities
+==================================================
+MODULE 1: PYTHON ARCHITECTURE & FUNDAMENTALS
+==================================================
+1. Python Kya Hai?
+- Python ek High-Level, Interpreted, Dynamically Typed language hai.
+  * "Interpreted": Code line-by-line execute hota hai (C++/Java ki tarah pehle pura compile nahi hota).
+  * "Dynamically Typed": Aapko variable ka type declare nahi karna padta (e.g., int a = 10 nahi likhna, direct a = 10 likho, Python apne aap samajh lega).
+2. Memory Model & Variables:
+Python me variables boxes nahi hote, balki "pointers/labels" hote hain jo memory me objects ko point karte hain.
+Code:
+x = 10
+y = 10
+print(id(x) == id(y))   # Output: True (Small Integer Caching: -5 to 256 memory share karte hain)
+print(x is y)           # Output: True ('is' checks memory address / identity)
+print(x == y)           # Output: True ('==' checks value equality)
+3. Core Built-in Data Types:
+- int: Integer numbers (e.g., 5, -100, 999999999999999 - Python me integer overflow nahi hota!)
+- float: Decimal numbers (e.g., 3.14, -0.001)
+- str: Text strings (e.g., "Hello", 'Python')
+- bool: Boolean values (True, False - Capital T aur F zaruri hai!)
+- NoneType: Represents absence of value (None - jaise SQL me NULL hota hai)
+4. Type Casting (Conversion):
+Code:
+a = "100"
+b = int(a)       # String to Integer -> 100
+c = float(b)     # Integer to Float   -> 100.0
+d = str(c)       # Float to String   -> "100.0"
+e = bool(0)      # 0 becomes False, non-zero becomes True
+5. Operators:
+A) Arithmetic:
+   - + (Addition), - (Subtraction), * (Multiplication)
+   - / (Normal Division): Hamesha float return karta hai (e.g., 4 / 2 -> 2.0)
+   - // (Floor Division): Round down karke integer part deta hai (e.g., 7 // 2 -> 3, -7 // 2 -> -4)
+   - % (Modulo): Remainder deta hai (e.g., 7 % 3 -> 1)
+   - ** (Power / Exponent): (e.g., 2 ** 3 -> 8)
+B) Comparison:
+   - == (Equal), != (Not equal), > (Greater), < (Lesser), >=, <=
+C) Logical:
+   - and: Dono True hone chahiye.
+   - or: Koi ek bhi True ho toh chalega.
+   - not: Reverse kar deta hai (not True -> False).
+D) Membership & Identity:
+   - in / not in: Check karta hai element andar present hai ya nahi (e.g., 'a' in "apple" -> True).
+   - is / is not: Check karta hai dono variables same memory location ko point kar rahe hain ya nahi.
+==================================================
+MODULE 2: INPUT / OUTPUT & FORMATTING
+==================================================
+1. User Input Lena:
+input() function hamesha string return karta hai! Agar number chahiye toh convert karna padta hai:
+Code:
+# Single integer input:
+num = int(input())
+# Ek hi line me space-separated multiple numbers lena (OA Favourite!):
+# Input: "10 20 30 40"
+nums = list(map(int, input().split()))
+print(nums)  # Output: [10, 20, 30, 40]
+2. Print Formatting (f-strings & parameters):
+Code:
+name = "Madhav"
+score = 98.4567
+# f-strings (Fastest & Best):
+print(f"Candidate: {name}, Score: {score:.2f}")  # Score: 98.46 (2 decimal places)
+# sep aur end parameters:
+print("Apple", "Banana", "Cherry", sep=" | ")    # Output: Apple | Banana | Cherry
+print("Hello", end=" ")
+print("World")                                   # Output: Hello World (same line me)
+==================================================
+MODULE 3: CONTROL FLOW & LOOPS
+==================================================
+1. If-Elif-Else & Indentation:
+Python me curly brackets {} nahi hote, sirf 4-spaces ki indentation hoti hai.
+Code:
+marks = 85
+if marks >= 90:
+    grade = "A"
+elif marks >= 75:
+    grade = "B"
+else:
+    grade = "C"
+# Ternary Operator (One-line If-Else):
+status = "Pass" if marks >= 40 else "Fail"
+2. Truthy & Falsy Values in Python:
+Python me yeh sab values automatically False maani jaati hain:
+- False, None, 0, 0.0, "" (empty string), [] (empty list), {} (empty dict), () (empty tuple), set()
+Baaki sab kuch True maana jaata hai!
+Example:
+arr = []
+if not arr:
+    print("List is empty!")  # Runs because empty list is Falsy
+3. For Loops & range():
+range(start, stop, step): 'stop' hamesha excluded hota hai!
+Code:
+for i in range(1, 6, 2):     # 1 se start, 6 se pehle stop, step=2
+    print(i)                 # Prints: 1, 3, 5
+# Reverse Loop:
+for i in range(5, 0, -1):
+    print(i)                 # Prints: 5, 4, 3, 2, 1
+4. While Loop & Loop Control (break, continue, pass):
+- break: Loop ko turant band kar ke bahar nikal deta hai.
+- continue: Current iteration ko skip karke next round par chala jata hai.
+- pass: Empty placeholder hota hai (kuch nahi karta, syntax error se bachata hai).
+- for-else construct: Agar loop poora bina break ke chala, toh 'else' block execute hota hai (Prime number check karne me bahut use hota hai).
+5. enumerate() & zip():
+Code:
+# enumerate: Index aur Value dono ek saath deta hai
+fruits = ["apple", "banana", "cherry"]
+for idx, fruit in enumerate(fruits):
+    print(f"Index {idx} has {fruit}")
+# zip: Do lists ko parallelly jodata hai
+names = ["Amit", "Pooja", "Rahul"]
+scores = [85, 92, 78]
+for name, score in zip(names, scores):
+    print(f"{name}: {score}")
+==================================================
+MODULE 4: STRING MASTERY & METHODS (OA HEAVY)
+==================================================
+Strings immutable hoti hain (yani ek baar string ban gayi toh uske individual index ko change nahi kar sakte, e.g., s[0] = 'X' error dega).
+1. Slicing Syntax: string[start : stop : step]
+Code:
+s = "Antigravity"
+print(s[0:4])      # "Anti" (index 0, 1, 2, 3)
+print(s[4:])       # "gravity" (index 4 se end tak)
+print(s[:])        # "Antigravity" (full copy)
+print(s[::-1])     # "ytivargitnA" (REVERSE STRING - OA MOST ASKED!)
+print(s[::2])      # "Atgaiy" (Alternate characters)
+2. Top 15 Must-Know String Methods:
+Code:
+s = "  hello, world! 123  "
+# Trimming:
+s.strip()           # "hello, world! 123" (removes spaces from both sides)
+s.lstrip()          # Left spaces hatao
+s.rstrip()          # Right spaces hatao
+# Splitting & Joining:
+text = "apple,banana,grape"
+lst = text.split(",")              # ['apple', 'banana', 'grape']
+joined_str = "-".join(lst)         # "apple-banana-grape"
+# Case Changes:
+"python".upper()                   # "PYTHON"
+"PYTHON".lower()                   # "python"
+"hello world".title()              # "Hello World"
+"hello world".capitalize()         # "Hello world"
+# Search & Count:
+msg = "banana"
+msg.count("a")                     # 3
+msg.find("na")                     # 2 (First index return karta hai, na mile toh -1)
+msg.index("na")                    # 2 (Agar na mile toh ValueError throw karta hai)
+msg.startswith("ba")               # True
+msg.endswith("na")                 # True
+msg.replace("a", "o")              # "bonono"
+# Character Checking (returns True/False):
+"123".isdigit()                    # True
+"abc".isalpha()                    # True
+"abc12".isalnum()                  # True (Alphabet OR Number)
+"   ".isspace()                    # True
+==================================================
+MODULE 5: CORE DATA STRUCTURES DEEP DIVE
+==================================================
+--------------------------------------------------
+A) LISTS (Ordered, Mutable, Allows Duplicates)
+--------------------------------------------------
+Code:
+lst = [10, 20, 30]
+# Modification Methods:
+lst.append(40)          # [10, 20, 30, 40] -> Adds element at the end: O(1)
+lst.insert(1, 15)       # [10, 15, 20, 30, 40] -> Inserts at index: O(N)
+lst.extend([50, 60])    # [10, 15, 20, 30, 40, 50, 60] -> Joins another list
+lst.pop()               # Removes & returns last element (60): O(1)
+lst.pop(1)              # Removes element at index 1: O(N)
+lst.remove(30)          # First occurrence of value 30 ko remove karta hai
+lst.reverse()           # Reverses in-place
+lst.sort()              # Sorts in-place (Timsort: O(N log N))
+# Built-in helpers:
+len(lst), min(lst), max(lst), sum(lst)
+--------------------------------------------------
+B) TUPLES (Ordered, Immutable, Faster than Lists)
+--------------------------------------------------
+Tuples change nahi ho sakte. Database records ya coordinates ke liye best hain.
+Code:
+tup = (1, 2, 3)
+# tup[0] = 10  -> ERROR! TypeError: 'tuple' object does not support item assignment
+# Single element tuple trap:
+x = (5)   # Yeh integer hai!
+y = (5,)  # Comma lagane par hi Tuple banta hai!
+# Tuple Unpacking:
+point = (10, 20)
+x_coord, y_coord = point  # x_coord = 10, y_coord = 20
+--------------------------------------------------
+C) SETS (Unordered, Mutable, NO Duplicates, O(1) Lookup)
+--------------------------------------------------
+Sets hash table use karte hain. Isliye 'in' search operation instant O(1) hota hai!
+Code:
+s = {1, 2, 3, 3, 2}
+print(s)                # {1, 2, 3} (Duplicates automatically removed)
+s.add(4)                # Adds element
+s.remove(2)             # Removes 2 (Errors if not present)
+s.discard(99)           # Removes if present, NO ERROR if missing! (Safe)
+# Set Mathematical Operations:
+A = {1, 2, 3}
+B = {3, 4, 5}
+print(A | B)            # Union: {1, 2, 3, 4, 5}
+print(A & B)            # Intersection: {3}
+print(A - B)            # Difference: {1, 2}
+print(A ^ B)            # Symmetric Difference (A me ho ya B me, par dono me nahi): {1, 2, 4, 5}
+--------------------------------------------------
+D) DICTIONARIES (Key-Value Pairs, Keys must be Immutable & Unique)
+--------------------------------------------------
+Hash Map data structure hai. Keys integer, float, string, tuple ho sakti hain (List ya Set key nahi ban sakte kyunki wo mutable hote hain).
+Code:
+student = {"name": "Madhav", "age": 22, "city": "Delhi"}
+# Safe Access using .get():
+# student["marks"] -> Agar key nahi mili toh KeyError dega!
+print(student.get("marks", 0))   # Agar key nahi hai toh default 0 return karega (No Crash!)
+# Iterating:
+for key, val in student.items():
+    print(f"{key} -> {val}")
+# Counting Frequencies without collections (OA Classic):
+text = "apple"
+freq = {}
+for ch in text:
+    freq[ch] = freq.get(ch, 0) + 1
+# Output: {'a': 1, 'p': 2, 'l': 1, 'e': 1}
+==================================================
+MODULE 6: COMPREHENSIONS (ONE-LINE SPEED CODING)
+==================================================
+1. List Comprehension:
+Syntax: [expression for item in iterable if condition]
+Code:
+# Even numbers ka square:
+squares = [x**2 for x in range(10) if x % 2 == 0]
+# Output: [0, 4, 16, 36, 64]
+2. Dict Comprehension:
+Code:
+# Word length mapping:
+words = ["apple", "cat", "banana"]
+lengths = {word: len(word) for word in words}
+# Output: {'apple': 5, 'cat': 3, 'banana': 6}
+3. Set Comprehension:
+Code:
+unique_lengths = {len(w) for w in words}
+==================================================
+MODULE 7: FUNCTIONS, *ARGS, **KWARGS & LAMBDA
+==================================================
+1. Function Definition & Default Arguments:
+Code:
+def greet(name, greeting="Hello"):
+    return f"{greeting}, {name}!"
+print(greet("Ravi"))           # "Hello, Ravi!"
+print(greet("Ravi", "Welcome")) # "Welcome, Ravi!"
+2. *args and **kwargs:
+- *args: Kitne bhi positional arguments tuple ke roop me accept karta hai.
+- **kwargs: Kitne bhi keyword arguments dictionary ke roop me accept karta hai.
+Code:
+def flexible_func(*args, **kwargs):
+    print("Args (Tuple):", args)
+    print("Kwargs (Dict):", kwargs)
+flexible_func(1, 2, 3, mode="fast", debug=True)
+# Output:
+# Args: (1, 2, 3)
+# Kwargs: {'mode': 'fast', 'debug': True}
+3. Variable Scope (Local vs Global):
+Code:
+counter = 0
+def increment():
+    global counter     # Bahar wale counter ko modify karne ke liye 'global' likhna padta hai
+    counter += 1
+4. Lambda Functions (Anonymous / One-liner Functions):
+Syntax: lambda arguments : expression
+Code:
+add = lambda x, y: x + y
+print(add(5, 3))       # 8
+# Custom Sorting with Lambda (OA Heavy):
+# Sort tuples based on the second element (marks):
+students = [("Rahul", 75), ("Priya", 92), ("Amit", 88)]
+students.sort(key=lambda x: x[1], reverse=True)
+print(students)        # [('Priya', 92), ('Amit', 88), ('Rahul', 75)]
+5. Map and Filter:
+Code:
+nums = [1, 2, 3, 4, 5]
+evens = list(filter(lambda x: x % 2 == 0, nums))       # [2, 4]
+doubled = list(map(lambda x: x * 2, nums))              # [2, 4, 6, 8, 10]
+==================================================
+MODULE 8: HIGH-YIELD BUILT-IN MODULES FOR OA
+==================================================
+--------------------------------------------------
+A) math MODULE
+--------------------------------------------------
+Code:
+import math
+math.isqrt(25)         # 5 (Exact integer square root)
+math.gcd(12, 18)       # 6 (Greatest Common Divisor)
+math.lcm(12, 18)       # 36 (Python 3.9+)
+math.factorial(5)      # 120
+math.ceil(4.2)         # 5 (Upward rounding)
+math.floor(4.9)        # 4 (Downward rounding)
+float('inf')           # Positive Infinity (Useful in min-finding)
+float('-inf')          # Negative Infinity (Useful in max-finding)
+--------------------------------------------------
+B) collections MODULE (MUST-KNOW)
+--------------------------------------------------
+1. Counter:
+Code:
+from collections import Counter
+counts = Counter("abbccd")
+print(counts)          # Counter({'b': 2, 'c': 2, 'a': 1, 'd': 1})
+print(counts.most_common(1)) # [('b', 2)] -> Top 1 frequent element
+2. defaultdict:
+Key na hone par KeyError nahi deta, default value assign kar deta hai:
+from collections import defaultdict
+graph = defaultdict(list)
+graph["node1"].append("node2") # Direct append kar sakte hain bina check kiye!
+3. deque (Double-Ended Queue):
+List me start se pop karna O(N) hota hai, par deque me O(1) hota hai:
+from collections import deque
+dq = deque([1, 2, 3])
+dq.appendleft(0)       # [0, 1, 2, 3]
+dq.popleft()           # Removes 0: O(1)
+--------------------------------------------------
+C) itertools MODULE
+--------------------------------------------------
+Code:
+import itertools
+# Permutations (Arrangements: order matters):
+list(itertools.permutations([1, 2], 2))   # [(1, 2), (2, 1)]
+# Combinations (Selections: order does not matter):
+list(itertools.combinations([1, 2, 3], 2)) # [(1, 2), (1, 3), (2, 3)]
+==================================================
+MODULE 9: EXCEPTION HANDLING & FILE I/O
+==================================================
+1. Try-Except-Else-Finally:
+Code:
+try:
+    x = int("abc")  # Raises ValueError
+    ans = 10 / 0
+except ValueError as e:
+    print("Invalid number conversion:", e)
+except ZeroDivisionError:
+    print("Cannot divide by zero!")
+except Exception as e:
+    print("Any other unexpected error:", e)
+else:
+    print("No errors occurred!")  # Runs ONLY if try had no errors
+finally:
+    print("Always runs no matter what!") # Runs always (cleanup tasks)
+2. File Handling (Context Manager 'with'):
+'with' block file ko automatically close kar deta hai chahe beech me code crash hi kyu na ho jaye.
+Code:
+# Writing to file:
+with open("sample.txt", "w") as f:
+    f.write("Line 1\nLine 2")
+# Reading from file:
+with open("sample.txt", "r") as f:
+    for line in f:
+        print(line.strip())
+==================================================
+MODULE 10: OBJECT-ORIENTED PROGRAMMING (OOPS)
+==================================================
+1. Class & Object Definition:
+Code:
+class Employee:
+    # Class attribute (Shared by all employees)
+    company_name = "Rasted Energy"
+    # Constructor (__init__)
+    def __init__(self, emp_id, name, salary):
+        self.emp_id = emp_id          # Instance attribute
+        self.name = name
+        self.salary = salary
+    # Instance method
+    def get_annual_salary(self):
+        return self.salary * 12
+    # String representation (dunder method)
+    def __str__(self):
+        return f"Employee({self.name}, {self.salary})"
+emp1 = Employee(101, "Rahul", 50000)
+print(emp1.get_annual_salary())       # 600000
+print(emp1)                           # Employee(Rahul, 50000)
+2. The 4 Pillars of OOPs:
+A) Encapsulation (Data Hiding):
+- Public: self.name
+- Protected: self._dept (Internal convention)
+- Private: self.__salary (Cannot be accessed directly outside class: Name Mangling)
+B) Inheritance & super():
+Code:
+class Manager(Employee):
+    def __init__(self, emp_id, name, salary, team_size):
+        super().__init__(emp_id, name, salary) # Parent class constructor call
+        self.team_size = team_size
+C) Polymorphism (Method Overriding):
+Child class parent ke method ko apne tarike se redefine karti hai:
+class Animal:
+    def speak(self): return "Generic sound"
+class Dog(Animal):
+    def speak(self): return "Woof!"
+D) Abstraction:
+Hiding implementation details using 'abc' module:
+from abc import ABC, abstractmethod
+class Shape(ABC):
+    @abstractmethod
+    def area(self): pass
+==================================================
+MODULE 11: ADVANCED CONCEPTS (INTERVIEW GEMS)
+==================================================
+1. Generators & yield (Infinite / Memory Efficient Streams):
+Normal function ek saath poori list return karta hai (high RAM usage). Generator ek-ek value on-demand deta hai
+def count_up_to(n):
+    count = 1
+    while count <= n:
+        yield count
+        count += 1
+gen = count_up_to(3)
+print(next(gen))  # 1
+print(next(gen))  # 2
+print(next(gen))  # 3
+# next(gen) -> StopIteration Error
+2. Decorators:
+Function ke code ko modify kiye bina usme extra functionality add karna:
+Code:
+def my_timer_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("Execution Started...")
+        res = func(*args, **kwargs)
+        print("Execution Finished!")
+        return res
+    return wrapper
+@my_timer_decorator
+def say_hi(name):
+    print(f"Hi, {name}")
+say_hi("Madhav")
+# Output:
+# Execution Started...
+# Hi, Madhav
+# Execution Finished!
+3. Shallow Copy vs Deep Copy:
+Code:
+import copy
+original = [[1, 2, 3], [4, 5, 6]]
+shallow = copy.copy(original)
+deep = copy.deepcopy(original)
+original[0][0] = 999
+print(shallow[0][0])  # 999 (Affected! Shallow copy references nested objects)
+print(deep[0][0])     # 1 (Unaffected! Deep copy copies everything recursively)
+==================================================
+MODULE 12: TOP 15 OA & MCQ TRAPS (MUST MEMORIZE)
+==================================================
+1. The Mutable Default Argument Trap:
+Code:
+def add_item(item, lst=[]):
+    lst.append(item)
+    return lst
+print(add_item(1))  # [1]
+print(add_item(2))  # [1, 2]  <- NOT [2]! Because default list is created ONCE at definition!
+# Correct fix: def add_item(item, lst=None): if lst is None: lst = []
+2. Integer Interning / Memory Cache:
+a = 256; b = 256; print(a is b)  # True (-5 to 256 are cached)
+c = 300; d = 300; print(c is d)  # False (Different objects in REPL)
+3. Slicing Out of Bounds Never Throws an Error:
+s = "abc"
+# print(s[10])   -> IndexError!
+print(s[10:20])  # "" (Returns empty string safely)
+4. Modifying a List While Iterating Over It:
+# WRONG:
+# for x in lst: if x == 2: lst.remove(x) (Skips elements because indices shift!)
+# RIGHT:
+lst = [x for x in lst if x != 2]
+5. Division Always Produces Float:
+4 / 2 -> 2.0 (Even if perfectly divisible)
+4 // 2 -> 2 (Floor division produces int)
+6. Dictionary Keys Must Be Immutable:
+d = {[1, 2]: "val"}  # TypeError: unhashable type: 'list'
+d = {(1, 2): "val"}  # VALID! Tuples are immutable and hashable.
+7. Time Complexities Cheat Sheet:
+- List: append O(1), pop() O(1), insert(0, x) O(N), remove O(N), in search O(N), sort O(N log N)
+- Dict: get O(1), set O(1), delete O(1), in search O(1)
+- Set: add O(1), in search O(1), remove O(1)
+- Deque: appendleft O(1), popleft O(1)
+`
         }
 
     ],
+
+    "analyses": [
+
+        {
+            title: `QUESTION:
+            Python Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `
+==================================================
+CHURN ANALYSIS & CUSTOMER INTELLIGENCE (COMPLETE MASTER GUIDE)
+==================================================
+Yeh complete project "churn_analysis.ipynb" file ka line-by-line, step-by-step breakdown hai.
+Agar aap bilkul beginner ho aur aapko coding ya data analytics ka basic bhi nahi pata, toh bhi yeh guide padh kar aap project ke har ek function, formula, aur business concept ko asaani se samajh loge aur Online Assessment (OA) / Technical Interview mein aane wale kisi bhi question ka answer confidently de paoge!
+--------------------------------------------------
+WHAT IS CUSTOMER CHURN? (Sabse Pehle Samajhte Hain)
+--------------------------------------------------
+- "Churn" ka simple matlab hota hai: "Customer ka service chhod kar chale jaana" (cancellation / unsubscribe karna).
+  * Example: Netflix ka subscription cancel kar dena ya Jio SIM use karna band kar dena.
+- "Churn Analysis" ka goal hota hai:
+  1. Pata lagana ki kitne percent log service chhod rahe hain (Churn Rate).
+  2. Log kyu chhod rahe hain (reasons: plan mehenga hai, customer support ghatiya hai, service kharab hai).
+  3. Kon se customers ke chhodne ka sabse zyada khatra hai (Churn Risk: High, Med, Low).
+  4. Churn hone se company ka kitna revenue doob raha hai (Revenue at Risk).
+==================================================
+PROJECT KA HIGH-LEVEL WORKFLOW
+==================================================
+1. Importing Libraries (NumPy, Pandas, Matplotlib, Seaborn, SQLite3)
+2. Database / Data Import (Connecting SQLite database and reading tables)
+3. Data Cleaning (Handling Missing Values, Data Types, Standardizing values)
+4. Feature Engineering & Smart Merging (Fixing duplicate support complaints, LEFT JOIN)
+5. Calculating Core Business Analytics KPIs (Churn Rate, Retention Rate, ARPU, Tenure, Revenue at Risk, Escalation Rate)
+6. Data Visualizations (Matplotlib line/bar plots, Time-series trend)
+7. Advanced Analysis & Seaborn (Correct Ordinal Encoding, Correlation Heatmap, Catplot, Pairplot)
+8. Pivot Tables (Multi-aggregation analysis)
+9. SQL inside Python (Creating tables, inserting records, querying)
+==================================================
+STEP 1: IMPORTING PYTHON LIBRARIES
+==================================================
+Code:
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import sqlite3
+Har Library Ka Kaam Aur Meaning:
+1. numpy (Numerical Python):
+   - Numerical calculations, array operations, aur fast conditional logic (jaise np.where aur np.select) ke liye use hota hai.
+2. pandas:
+   - Data ko tabular format (rows aur columns) me manipulate karne ka sabse powerful tool hai. Dataframe create karna, filter karna, merge karna sab pandas se hota hai.
+3. matplotlib.pyplot:
+   - Data ke basic graphs (line plots, bar charts) draw karne ke liye.
+4. seaborn:
+   - Matplotlib ke upar bana high-level library hai jo beautiful statistical charts (jaise Heatmap, Catplot, Pairplot) draw karta hai.
+5. sqlite3:
+   - Python ka built-in lightweight SQL database engine hai jisse hum direct SQL queries Python ke andar chala sakte hain bina kisi external server ke.
+==================================================
+STEP 2: DATABASE IMPORT & INSPECTION (SQL + PANDAS)
+==================================================
+Dataset SQLite database file ('customer_churn.db') me stored hai jisme 3 alag-alag tables hain:
+1. customer table (User ki basic details: customerid, name, gender, dob, state, country)
+2. subscription table (User ki plans: subscription_start_date, renewal_date, cancellation_date, monthly_charges, plan_type)
+3. support table (User ki customer service complaints: complaint_date, escalations, comments)
+--------------------------------------------------
+A) SQLITE DATABASE SE TABLE NAMES NIKALNA
+--------------------------------------------------
+Code:
+conn = sqlite3.connect('customer_churn.db')
+sql_query = """
+    SELECT name 
+    FROM sqlite_master 
+    WHERE type='table';
+"""
+tables = pd.read_sql(sql_query, conn)
+Explanation:
+- sqlite3.connect('customer_churn.db'): Database file se connection banata hai.
+- sqlite_master: SQLite ka internal system table hota hai jo database me bane har table aur index ki list store karta hai.
+- pd.read_sql(query, conn): SQL query ko direct run karke result ko ek Pandas DataFrame me convert kar deta hai.
+--------------------------------------------------
+B) HAR TABLE KO ALAG DATAFRAME ME STORE KARNA
+--------------------------------------------------
+Code:
+for table_name in tables['name']:
+    df = pd.read_sql(f"SELECT * FROM {table_name}", conn)
+Notebook me 3 dataframes load huye:
+- df_db_customer
+- df_db_subscription
+- df_db_support
+--------------------------------------------------
+C) PRAGMA COMMAND SE TABLE SCHEMA / METADATA CHECK KARNA
+--------------------------------------------------
+Code:
+columns_query = f"PRAGMA table_info({table_name});"
+columns = pd.read_sql(columns_query, conn)
+print(columns['name'].tolist())
+conn.close()
+Explanation:
+- PRAGMA SQLite ka ek special administrative command hai.
+- PRAGMA table_info(table_name) table ke columns ka naam, data type, aur primary key constraints return karta hai.
+- conn.close(): Hamesha connection close karna chahiye taaki memory leak na ho.
+==================================================
+STEP 3: DATA CLEANING (STEP-BY-STEP)
+==================================================
+Data cleaning sabse important step hota hai kyunki raw data hamesha dirty, inconsistent aur missing values wala hota hai.
+--------------------------------------------------
+A) CUSTOMER TABLE CLEANING
+--------------------------------------------------
+1. Rename Column:
+Code:
+df_db_customer.rename(columns={'name': 'customer_name'}, inplace=True)
+- Meaning: 'name' column ka naam badal kar 'customer_name' kar diya taaki confusion na ho.
+- inplace=True: Iska matlab original dataframe me hi direct update karo, naya dataframe mat banao.
+2. Drop Unwanted Columns:
+Code:
+df_db_customer.drop(columns=['interests', 'pincode'], inplace=True)
+- Meaning: 'interests' aur 'pincode' analysis ke liye zaruri nahi the, isliye memory bachane ke liye inhe hata diya.
+3. Change Data Type to Datetime:
+Code:
+df_db_customer['dob'] = pd.to_datetime(df_db_customer['dob'])
+- Meaning: Date of Birth text (string) format me thi. pd.to_datetime() se ise official date format me convert kiya taaki customer ki age calculate ki ja sake.
+4. Data Standardization (Inconsistent Values Fix Karna):
+Code:
+# Problem: gender column me kuch jagah 'Men' likha tha aur kuch jagah 'Male'
+df_db_customer['gender'] = df_db_customer['gender'].replace({'Men': 'Male', 'Women': 'Female'})
+- Meaning: Values ko uniform banaya ('Men' ko 'Male' aur 'Women' ko 'Female'). Warna group by karne par Male aur Men do alag categories ban jaati!
+5. Smart Missing Value Imputation (Country Missing Values Fix Karna):
+Code:
+# Step 1: Ek dictionary banao non-null rows se jo state ko uski country se map kare
+state_country_mapping = df_db_customer.dropna(subset=['country']).set_index('state')['country'].to_dict()
+# Step 2: Missing country ko state ke hisaab se fill karo
+df_db_customer['country'] = df_db_customer['country'].fillna(df_db_customer['state'].map(state_country_mapping))
+Explanation (OA Favourite Question):
+- Agar kisi row me state 'California' hai par country NULL hai, toh random country fill karne ki jagah humne pehle check kiya ki baaki rows me California ki country kya hai ('USA'), aur wahi value null jagah fill kar di!
+- dropna(subset=['country']): Jis row me country null nahi hai, sirf unko filter kiya.
+- .to_dict(): {'California': 'USA', 'Maharashtra': 'India', ...} jaisi mapping dictionary banayi.
+- .map(): Har row ke state ko dekhkar corresponding country uthai.
+- .fillna(): Sirf wahi bhara jaha null tha.
+--------------------------------------------------
+B) SUBSCRIPTION TABLE CLEANING
+--------------------------------------------------
+Code:
+date_cols = ['subscription_start_date', 'renewal_date', 'cancellation_date']
+df_db_subscription[date_cols] = df_db_subscription[date_cols].apply(pd.to_datetime)
+Explanation:
+- Teen columns ek saath date format me convert kiye.
+- Cancellation date agar NULL hai, iska matlab customer ne abhi tak service cancel nahi ki hai (Active customer hai).
+--------------------------------------------------
+C) SUPPORT TABLE CLEANING
+--------------------------------------------------
+Code:
+df_db_support.drop(columns=['col_1', 'comment'], inplace=True)
+df_db_support['complaint_date'] = pd.to_datetime(df_db_support['complaint_date'])
+==================================================
+STEP 4: FEATURE ENGINEERING & SMART MERGING
+==================================================
+Feature Engineering ka matlab hota hai existing columns ko use karke naye meaningful columns create karna jo model ya analysis me kaam aayein.
+--------------------------------------------------
+A) CREATE TARGET COLUMN: 'churn_flag'
+--------------------------------------------------
+Code:
+df_db_subscription['churn_flag'] = np.where(df_db_subscription['cancellation_date'].notna(), 1, 0)
+Explanation:
+- np.where(condition, value_if_true, value_if_false):
+  * Agar 'cancellation_date' not null hai (matlab user ne cancel kiya) -> churn_flag = 1 (Churned customer).
+  * Agar 'cancellation_date' null hai (matlab abhi bhi active hai) -> churn_flag = 0 (Retained customer).
+--------------------------------------------------
+B) DUPLICATE HANDLING BEFORE MERGING (MOST CRITICAL STEP!)
+--------------------------------------------------
+Interview / OA Concept (Cartesian Product / Data Multiplication Trap):
+- Ek customer multiple baar support team ko call karke complaint darj kara sakta hai (1-to-many relationship).
+- Agar hum direct merge kar denge, toh subscription table ki ek row support table ki multiple rows se jud kar duplicate ho jayegi aur humara total revenue galat multiply ho jayega!
+- Solution: Support table ko pehle 1 customer = 1 row me aggregate ya deduplicate karo.
+Notebook Code:
+# Step 1: Har customer ne total kitni complaints ki, wo count calculate karo
+df_db_support['complaint_count'] = df_db_support.groupby('customerid')['customerid'].transform('count')
+# Step 2: Latest complaint rakh kar purani duplicate rows hata do
+df_db_support = df_db_support.sort_values('complaint_date').drop_duplicates('customerid', keep='last')
+Explanation:
+- .transform('count'): Bina group by ke aggregation value ko har row ke samne broadcast kar deta hai.
+- drop_duplicates('customerid', keep='last'): Jo latest complaint date wali entry hai sirf use retain karta hai, baaki duplicate rows drop kar deta hai.
+--------------------------------------------------
+C) MERGING ALL TABLES (LEFT JOIN)
+--------------------------------------------------
+Code:
+df = (df_db_subscription
+      .merge(df_db_customer, on='customerid', how='left')
+      .merge(df_db_support, on='customerid', how='left'))
+Explanation:
+- how='left' kyu use kiya?
+  Kyunki subscription table humara main base hai (sabhi 21 customers). Agar kisi customer ne support ko kabhi call nahi kiya, tab bhi wo record drop nahi hona chahiye, waha support columns me NULL / 0 aa jayega.
+--------------------------------------------------
+D) EXPORT CLEAN MERGED DATA TO CSV
+--------------------------------------------------
+Code:
+df.to_csv('exported_churn_data.csv', index=False)
+- index=False ensures ki Pandas ka unneeded serial index column CSV me na likha jaye.
+==================================================
+STEP 5: CORE BUSINESS METRICS & DATA ANALYSIS (KPIS)
+==================================================
+Yeh woh 11 key business metrics hain jo direct OA MCQs aur interviews me pooche jaate hain:
+--------------------------------------------------
+1. CHURN RATE
+--------------------------------------------------
+Definition: Total customers me se kitne percent customers ne service cancel kar di.
+Formula: (Churned Customers / Total Customers) * 100
+Code:
+churn_rate = df['churn_flag'].mean() * 100
+print("Churn Rate = ", round(churn_rate, 2), "%")
+Output: 28.57%
+Why .mean() works?
+churn_flag sirf 0 aur 1 hai. Sum of 1s divided by total rows is equal to the mean! Mean ko 100 se multiply karne par direct percentage mil jati hai.
+--------------------------------------------------
+2. RETENTION RATE
+--------------------------------------------------
+Definition: Kitne percent customer service ke sath bane rahe.
+Formula: 100 - Churn Rate
+Code:
+retention_rate = 100 - churn_rate
+print("Retention Rate = ", round(retention_rate, 2), "%")
+Output: 71.43%
+--------------------------------------------------
+3. CHURN RATE BY PLAN TYPE
+--------------------------------------------------
+Code:
+churn_by_plan = (df.groupby('plan_type')['churn_flag']
+                   .mean().mul(100).round(2)
+                   .reset_index(name='churn_rate_pct'))
+print(churn_by_plan)
+Results Found:
+- Basic Plan: 60.00% Churn (Sabse high churn!)
+- Standard Plan: 22.22% Churn
+- Premium Plan: 14.29% Churn (Sabse loyal customers)
+Business Insight:
+Basic plan ke users sabse zyada chhod rahe hain. Iska reason ho sakta hai ki Basic plan me features kam hain ya pricing onboarding experience weak hai.
+--------------------------------------------------
+4. CHURN BY STATE + TOTAL REVENUE & USER COUNT
+--------------------------------------------------
+Code:
+state_metrics = df.groupby('state').agg(
+    total_users=('customerid', 'count'),
+    churned_users=('churn_flag', 'sum'),
+    churn_rate=('churn_flag', lambda x: round(x.mean() * 100, 2)),
+    total_revenue=('monthly_charges', 'sum')
+).reset_index()
+--------------------------------------------------
+5. ARPU (AVERAGE REVENUE PER USER)
+--------------------------------------------------
+Definition: Average har ek customer company ko har mahine kitna paisa deta hai.
+Code:
+arpu = df['monthly_charges'].mean()
+print("ARPU = ", round(arpu, 2))
+Output: 18.85
+--------------------------------------------------
+6. CUSTOMER AGE & AVERAGE TENURE (IN DAYS)
+--------------------------------------------------
+Customer Age Calculation:
+today = pd.Timestamp.today()
+df['customer_age'] = (today - df['dob']).dt.days // 365
+Customer Tenure Calculation:
+Tenure ka matlab: User kitne din tak service par raha.
+- Agar customer churn ho chuka hai: (cancellation_date - subscription_start_date)
+- Agar customer abhi bhi active hai: (today - subscription_start_date)
+Code:
+df['tenure_days'] = np.where(
+    df['cancellation_date'].notna(),
+    (df['cancellation_date'] - df['subscription_start_date']).dt.days,
+    (today - df['subscription_start_date']).dt.days
+)
+avg_tenure = df['tenure_days'].mean()
+print("Avg Tenure (Days) = ", round(avg_tenure))
+Output: 1452 Days (~4 Years)
+--------------------------------------------------
+7. REVENUE AT RISK (LOST REVENUE FROM CHURNED USERS)
+--------------------------------------------------
+Definition: Churned customers ki wajah se company har mahine kitna revenue gawa rahi hai.
+Code:
+revenue_at_risk = df.loc[df['churn_flag'] == 1, 'monthly_charges'].sum()
+print("Revenue at Risk = ", revenue_at_risk)
+Output: 73.94
+--------------------------------------------------
+8. ESCALATION RATE
+--------------------------------------------------
+Definition: Kitni complaints simple solve nahi hui aur higher management ko escalate karni padi.
+Code:
+escalation_rate = (df['escalations'] == 'Y').mean() * 100
+print("Escalation Rate = ", round(escalation_rate, 2), "%")
+Output: 19.05%
+--------------------------------------------------
+9. AVERAGE COMPLAINTS PER USER
+--------------------------------------------------
+Code:
+avg_complaints = df['complaint_count'].sum() / df['customerid'].nunique()
+print("Avg Complaints Per User = ", round(avg_complaints, 2))
+Output: 0.43
+--------------------------------------------------
+10. CORRELATION: ESCALATION VS CHURN (GOLDEN METRIC)
+--------------------------------------------------
+Code:
+df['escalations_num'] = np.where(df['escalations'] == 'Y', 1, 0)
+correlation = df['escalations_num'].corr(df['churn_flag'])
+print("Correlation between escalation vs churn = ", round(correlation, 2))
+Output: 0.77 (Very High Positive Correlation!)
+Critical Business Finding:
+Correlation 0.77 yeh prove karta hai ki jin customers ki support call escalate hoti hai, unke service chhodne ke chances almost guaranteed ho jaate hain! Yani customer support team ko sudharna company ki number 1 priority honi chahiye.
+--------------------------------------------------
+11. CHURN RISK CLASSIFICATION (FEATURE ENGINEERING)
+--------------------------------------------------
+Problem: Customer ke churn_score ke basis par unko risk category me daalo.
+- churn_score < 50 -> 'low'
+- 50 <= churn_score < 70 -> 'med'
+- churn_score >= 70 -> 'high'
+Code:
+conditions = [
+    (df['churn_score'] < 50),
+    (df['churn_score'] >= 50) & (df['churn_score'] < 70),
+    (df['churn_score'] >= 70)
+]
+choices = ['low', 'med', 'high']
+df['churn_risk'] = np.select(conditions, choices, default='unknown')
+Why np.select?
+np.select multiple conditions aur multiple choices ko clean aur vectorized tareeqe se apply karta hai (nested if-else se 10x fast).
+==================================================
+STEP 6: VISUALIZATIONS USING MATPLOTLIB
+==================================================
+--------------------------------------------------
+A) MONTHLY CHURN TREND (TIME SERIES KPI)
+--------------------------------------------------
+Goal: Mahine ke hisaab se churn ka trend dekhna.
+Code:
+df['cancellation_month'] = df['cancellation_date'].dt.to_period('M')
+churn_trend = df[df['churn_flag'] == 1].groupby('cancellation_month').size()
+plt.figure(figsize=(8, 3))
+plt.plot(churn_trend.index.astype(str), churn_trend.values, 
+         color='green', marker='o', linestyle='dashed', linewidth=2, markersize=12)
+plt.title('Monthly Churn Trend')
+plt.xlabel('Month')
+plt.ylabel('Churned Customers')
+plt.show()
+Key Points:
+- .dt.to_period('M'): Full timestamp (e.g. 2022-05-18) ko month level period ('2022-05') me round off kar deta hai.
+- marker='o': Data points par circle dots banata hai.
+--------------------------------------------------
+B) CHURN RATE BY PLAN TYPE (BAR CHART WITH COLORMAP)
+--------------------------------------------------
+Code:
+churn_plan = df.groupby('plan_type')['churn_flag'].mean()
+colors = plt.cm.Set2(np.linspace(0, 1, len(churn_plan)))
+plt.figure(figsize=(7, 4))
+plt.bar(churn_plan.index, churn_plan.values, color=colors)
+plt.title('Churn Rate by Plan Type')
+plt.xlabel('Plan Type')
+plt.ylabel('Churn Rate (%)')
+plt.show()
+--------------------------------------------------
+C) CHURN BY STATE (ROTATING LABELS)
+--------------------------------------------------
+Code:
+churn_state = df.groupby('state')['churn_flag'].mean()
+plt.figure(figsize=(12, 4))
+plt.bar(churn_state.index, churn_state.values)
+plt.xticks(rotation=45) # 45 degree tilt taaki lambe state names aapas me takraye na
+plt.show()
+==================================================
+STEP 7: ADVANCED ANALYSIS & SEABORN
+==================================================
+--------------------------------------------------
+A) CATEGORICAL ENCODING (INCORRECT VS CORRECT METHOD)
+--------------------------------------------------
+Interview / OA Favourite Concept:
+Correlation matrix banane ke liye string text ko numbers me convert karna padta hai.
+Incorrect Method (.cat.codes random alphabetical assignment):
+df['plan_type'] = df['plan_type'].astype('category').cat.codes
+- Problem: Yeh alphabetically Basic=0, Premium=1, Standard=2 assign kar dega. Lekin hierarchy me Standard chhota hai aur Premium bada!
+Correct Method (Priority-based Ordinal Categorical Encoding):
+order_mappings = {
+    'plan_type': ['Basic', 'Standard', 'Premium'],
+    'contract_type': ['Monthly', 'Annual'],
+    'churn_risk': ['low', 'med', 'high']
+}
+for col, order in order_mappings.items():
+    df[col] = pd.Categorical(df[col], categories=order, ordered=True).codes
+- Why: Isse model aur correlation ko pata chalega ki Basic(0) < Standard(1) < Premium(2), and low(0) < med(1) < high(2).
+--------------------------------------------------
+B) CORRELATION HEATMAP
+--------------------------------------------------
+Code:
+plt.figure(figsize=(8, 6))
+sns.heatmap(df_encoded.corr(), annot=True, cmap='coolwarm', fmt=".2f")
+plt.title("Correlation Matrix Heatmap")
+plt.show()
+Key Points:
+- annot=True: Cells ke andar actual correlation values print karta hai.
+- cmap='coolwarm': Red colour strong positive correlation (+1) dikhata hai, Blue colour negative correlation (-1) dikhata hai.
+--------------------------------------------------
+C) PAIRPLOT & MULTI-DIMENSIONAL CATPLOT
+--------------------------------------------------
+Pairplot:
+sns.pairplot(df_encoded)
+- Dataset ke har numerical column ka baaki sabhi columns ke sath scatter plot aur distribution histogram ek hi grid me bana deta hai.
+Catplot (Multi-dimensional FacetGrid):
+sns.catplot(
+    data=df,
+    x='plan_type',
+    y='monthly_charges',
+    hue='gender',
+    col='churn_risk'
+)
+- Yeh 3 alag-alag graphs banata hai (low risk, med risk, high risk ke liye side-by-side) aur har graph me Male vs Female ka plan type aur monthly charges compare karta hai.
+==================================================
+STEP 8: PIVOT TABLES IN PANDAS
+==================================================
+Excel ke Pivot Table ki tarah Pandas me multi-dimensional summary banane ke liye pivot_table use hota hai.
+Example 1: Plan type ke hisaab se average churn
+pd.pivot_table(
+    df,
+    index='plan_type',
+    values='churn_flag',
+    aggfunc='mean'
+)
+Example 2: Multiple Columns Aur Multiple Aggregations
+pd.pivot_table(
+    df,
+    index='plan_type',
+    values=['monthly_charges', 'customerid', 'churn_flag'],
+    aggfunc={
+        'monthly_charges': 'sum',      # Total revenue by plan
+        'customerid': 'nunique',       # Unique users count
+        'churn_flag': 'mean'           # Average churn rate
+    }
+)
+==================================================
+STEP 9: WORKING WITH SQL DIRECTLY IN PYTHON (SQLITE3)
+==================================================
+Notebook ke end me dikhaya gaya hai ki bina MySQL/PostgreSQL ke seedha Python script me database table kaise banate hain:
+1. Create Database & Table:
+conn = sqlite3.connect('test_database.sqlite')
+conn.execute("CREATE TABLE users (first_name TEXT, country TEXT, budget INTEGER)")
+conn.commit()
+2. Insert Records:
+cursor = conn.cursor()
+cursor.execute("""
+    INSERT INTO users VALUES
+        ('Madhav', 'India', 5000),
+        ('Rishabh', 'Germany', 2500),
+        ('Vishakha', 'India', 3500)
+""")
+conn.commit()
+3. Read Query Directly with Pandas:
+query = """
+    SELECT country, SUM(budget) as total_budget
+    FROM users
+    GROUP BY country
+"""
+df_agg = pd.read_sql(query, conn)
+print(df_agg)
+conn.close()
+==================================================
+STEP 10: TOP 10 QUESTIONS ASKED FROM THIS PROJECT
+==================================================
+Q1. Churn Rate calculation me mean() kyu use kiya?
+Ans: Churn flag ek binary variable hai (1 for churned, 0 for retained). 1s ka sum / total rows mathematically mean ke barabar hota hai, isliye df['churn_flag'].mean() * 100 direct churn percentage deta hai.
+Q2. Support table ko merge karne se pehle deduplicate kyu kiya?
+Ans: Support table me ek hi customer ki multiple complaints ho sakti hain. Agar directly left join karte toh subscription table ki rows multiply (duplicate) ho jaati aur overall revenue and customer count inflate ho jaata.
+Q3. Missing Country values ko mean/median ki jagah state mapping se kyu fill kiya?
+Ans: Country ek categorical variable hai (mean/median possible nahi). Har state kisi specific country ka part hota hai, isliye valid state-country pair banakar mapping se fill karna 100% accurate imputation deta hai.
+Q4. Ordinal encoding me .cat.codes direct use karna kyu galat tha?
+Ans: .cat.codes categories ko alphabetically sort karta hai (e.g. Basic=0, Premium=1, Standard=2), jabki actual business logic me Basic < Standard < Premium hona chahiye. pd.Categorical me ordered=True karke custom order define karna sahi method hai.
+Q5. Escalation aur Churn ke beech kya relationship nikli?
+Ans: Correlation +0.77 aaya, jo yeh prove karta hai ki jin customers ki complaint escalate hoti hai, unke churn hone ka chance bahut high hota hai.
+Q6. Sabse high churn rate kis plan me tha?
+Ans: Basic plan me (60.00% churn rate).
+Q7. Revenue at Risk kya represent karta hai?
+Ans: Yeh woh monthly revenue hai jo company lose kar chuki hai churn hone wale customers ki wajah se (df.loc[df['churn_flag']==1, 'monthly_charges'].sum()).
+Q8. np.where aur np.select me kya difference hai?
+Ans: np.where single if-else condition ke liye hota hai (2 outcomes). np.select multiple if-elif-else conditions ke liye use hota hai (multiple outcomes, jaise low, med, high risk tiers).
+Q9. Tenure calculate karte waqt actively subscribed users ke liye konsi date use hui?
+Ans: Actively subscribed users ke liye current date (pd.Timestamp.today()) use hui, jabki churned users ke liye unki cancellation_date use hui.
+Q10. Pandas me PRAGMA table_info kya karta hai?
+Ans: SQLite database ke table ki schema details (column name, data types, primary keys) return karta hai.
+`
+        }
+    ]
   
   };
   
