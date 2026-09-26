@@ -30,6 +30,8 @@ const topics = [
   { id: "dynamic-programming", name: "Dynamic Programming" },
   { id: "python", name: "Python" },
   { id: "analyses", name: "Analyses" },
+  { id: "aptitude", name: "Aptitude" },
+  { id: "cs", name: "CS" },
 
 
 ];

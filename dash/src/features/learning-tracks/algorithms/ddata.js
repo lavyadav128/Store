@@ -21014,6 +21014,1066 @@ Q10. Pandas me PRAGMA table_info kya karta hai?
 Ans: SQLite database ke table ki schema details (column name, data types, primary keys) return karta hai.
 `
         }
+    ],
+
+
+    "aptitude": [
+
+        {
+            title: `QUESTION:
+            Python Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `
+==================================================
+APTITUDE & REASONING ZERO-TO-HERO MASTERCLASS
+==================================================
+
+Yeh guide company Online Assessments (OA) aur Campus Placements ke Quantitative Aptitude aur Logical Reasoning ke har ek topic ko 100% cover karti hai. Isme aapke provided content ke saath-saath exams me aane wale high-yield short tricks, formulas, mental math techniques, aur step-by-step examples simple Hinglish me samjhaye gaye hain.
+
+--------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------
+1. Speed Math: Base Method Multiplications (Base 10, 50, 100, 1000)
+2. Fast Squaring Tricks (Near Bases, Ending in 5)
+3. Instant Square Root Trick (Unit Digit & Range Method)
+4. Percentages & The Golden a-b Theorem (Successive Changes)
+5. Pass-Fail Exam Problems (Difference Matching Trick)
+6. Price, Consumption & Expenditure (Inversely Proportional Rule)
+7. Simple Interest (Linear Growth & Doubling/Tripling Shortcuts)
+8. Compound Interest (2-Year & 3-Year Shortcuts, Half-Yearly)
+9. Profit, Loss & Marked Price / Discount (Successive Discounts)
+10. Ratio, Proportion & Mixtures (Mean, 3rd & 4th Proportional)
+11. Averages & Group Replacement Tricks (Sum Deviation)
+12. Cyclicity & Unit Digit Calculation in Exponents
+13. Number Series & Letter Series Patterns
+14. Coding-Decoding (Alphabet Positions, Opposite Letters, Cyclic)
+15. Direction Sense Test (Clockwise, Anti-clockwise, Angles)
+16. Syllogism & Venn Diagrams (Universal vs Particular, No, Some)
+17. Calendar Aptitude (Odd Days Concept, Leap Years, Century Rules)
+18. Cubes & Dice (Standard Dice, Opposite Face Rules)
+19. Games & Tournaments (Knockout vs Round-Robin, Byes)
+20. Permutations & Combinations (Arrangement vs Selection, Gap & Block Method)
+21. Probability Masterclass (Coins, Dice, Playing Cards, Balls, At Least One)
+22. Bonus OA Essentials: Time & Work (LCM Method) & Speed-Time-Distance
+
+
+==================================================
+MODULE 1: SPEED MATH — BASE METHOD MULTIPLICATION
+==================================================
+
+Base Method tab use hota hai jab numbers kisi round number (jaise 10, 50, 100, 1000) ke pass hote hain. Long multiplication karne ki bilkul zarurat nahi hoti!
+
+Rule of Base Zeros:
+- Base 10   -> Right side me exactly 1 digit hogi.
+- Base 100  -> Right side me exactly 2 digits hongi.
+- Base 1000 -> Right side me exactly 3 digits hongi.
+
+--------------------------------------------------
+CASE 1: DONO NUMBERS BASE SE BADE HAIN (+)
+--------------------------------------------------
+Example: 103 × 107 (Base = 100)
+- Step 1: Base se difference check karo: 103 (+3), 107 (+7).
+- Step 2: Cross Add karo: 103 + 7 = 110 (ya 107 + 3 = 110). Yeh Left Part bana.
+- Step 3: Differences ko multiply karo: 3 × 7 = 21. Yeh Right Part bana.
+- Step 4: Base 100 me 2 zeros hain, 21 already 2-digit number hai.
+=> Final Answer: 11021 (Solved in 3 seconds!)
+
+--------------------------------------------------
+CASE 2: DONO NUMBERS BASE SE CHHOTE HAIN (-)
+--------------------------------------------------
+Example: 91 × 87 (Base = 100)
+- Step 1: Difference: 91 (-9), 87 (-13).
+- Step 2: Cross Subtract: 91 - 13 = 78 (ya 87 - 9 = 78).
+- Step 3: Differences multiply: (-9) × (-13) = +117.
+- Step 4: Carry Over Rule: Base 100 me sirf 2 digits allow hain! 117 ka '17' rakho aur '1' ko left side (78) me add kar do:
+  Left = 78 + 1 = 79. Right = 17.
+=> Final Answer: 7917
+
+--------------------------------------------------
+CASE 3: EK NUMBER BADA (+), EK CHHOTA (-)
+--------------------------------------------------
+Example: 103 × 97 (Base = 100)
+- Step 1: Difference: 103 (+3), 97 (-3).
+- Step 2: Cross Add/Subtract: 103 - 3 = 100.
+- Step 3: Multiply: (+3) × (-3) = -9 (Negative Right Part).
+- Step 4: Borrow Trick: Left part (100) se 1 borrow karo.
+  Left = 100 - 1 = 99.
+  Borrow kiya hua 1 right side me base value (100) ban jayega: 100 - 9 = 91.
+=> Final Answer: 9991
+
+--------------------------------------------------
+CASE 4: SUB-BASE METHOD (BASE = 50)
+--------------------------------------------------
+Example: 48 × 44 (Base = 50)
+- Step 1: Difference: 48 (-2), 44 (-6).
+- Step 2: Cross Subtract: 48 - 6 = 42.
+- Step 3: Adjustment: Kyunki 50 = 100 / 2, left part ko 2 se divide karo (ya 50 se multiply karo):
+  42 / 2 = 21.
+- Step 4: Multiply differences: (-2) × (-6) = 12.
+=> Final Answer: 2112
+
+
+==================================================
+MODULE 2: FAST SQUARING TRICKS
+==================================================
+
+1. Base Method for Squaring:
+- Left Part = Number ± Difference
+- Right Part = (Difference)²
+
+Example 1: 98² (Base = 100, Diff = -2)
+- Left Part: 98 - 2 = 96
+- Right Part: (-2)² = 4 -> Base 100 ke liye 2 digits chahiye, so write 04.
+=> 98² = 9604
+
+Example 2: 112² (Base = 100, Diff = +12)
+- Left Part: 112 + 12 = 124
+- Right Part: 12² = 144 (Carry 1 to left) -> Left = 124 + 1 = 125, Right = 44.
+=> 112² = 12544
+
+Example 3: 1004² (Base = 1000, 3 zeros)
+- Left: 1004 + 4 = 1008
+- Right: 4² = 16 -> 3 digits chahiye, so write 016.
+=> 1004² = 1008016
+
+2. Trick for Numbers Ending in 5:
+Rule: Akhiri me hamesha 25 aayega. Baaki bache number ko uske agle number se multiply karo: N × (N + 1).
+- 35²: 3 × 4 = 12, saath me 25 -> 1225
+- 75²: 7 × 8 = 56, saath me 25 -> 5625
+- 115²: 11 × 12 = 132, saath me 25 -> 13225
+
+
+==================================================
+MODULE 3: INSTANT SQUARE ROOT TRICK
+==================================================
+
+Perfect Square ka square root 5 second me kaise nikalein:
+
+1. Perfect Square Last Digit Rule:
+- Agar square ka last digit 1 hai -> Root ka last digit 1 ya 9 hoga.
+- Agar last digit 4 hai -> Root ka last digit 2 ya 8 hoga.
+- Agar last digit 5 hai -> Root ka last digit hamesha 5 hoga.
+- Agar last digit 6 hai -> Root ka last digit 4 ya 6 hoga.
+- Agar last digit 9 hai -> Root ka last digit 3 ya 7 hoga.
+- Agar last digit 0 hai -> Root ka last digit 0 hoga.
+* Note: Kisi bhi perfect square ka last digit kabhi bhi 2, 3, 7, ya 8 NAHI ho sakta! (Options eliminate karne ki golden trick).
+
+2. Two-Step Range Elimination Method:
+Example 1: √2401
+- Step 1: Last digit 1 hai, toh root ka unit digit 1 ya 9 hoga.
+- Step 2: 2401 kin do round squares ke beech aata hai?
+  40² = 1600 aur 50² = 2500.
+  Yani root 40 se 50 ke beech me hai.
+- Step 3: 40 aur 50 ke beech number jo 1 ya 9 pe end ho: 41 ya 49.
+  2401 clearly 2500 (50²) ke behad kareeb hai!
+=> Answer = 49
+
+Example 2: √3136
+- Last digit 6 hai -> Unit digit 4 ya 6 hoga.
+- Range: 50² = 2500 aur 60² = 3600. Toh number 54 ya 56 hoga.
+- Check 55² (Middle benchmark): 5 × 6 = 3025.
+  3136 value 3025 se BADI hai! Iska matlab root bhi 55 se bada hoga.
+=> Answer = 56
+
+
+==================================================
+MODULE 4: PERCENTAGES & THE a-b THEOREM
+==================================================
+
+1. The Golden a-b Theorem for Successive Percentage Changes:
+Jab kisi value ko pehle a% badhaya/ghataya jaye aur fir dobara b% badhaya/ghataya jaye:
+$$\text{Net Percentage Change} = a + b + \frac{a \times b}{100}$$
+
+Signs Rule:
+- Increase (+) lo.
+- Decrease (-) lo.
+
+Example 1: Salary pehle 10% badhi, fir dubara 10% badhi.
+Net Change = 10 + 10 + (10 × 10) / 100 = 20 + 1 = +21% (20% nahi, 21% gain!).
+
+Example 2: Price 20% badhi, fir 10% kam hui.
+a = +20, b = -10
+Net Change = 20 - 10 + (20 × -10) / 100 = 10 - 2 = +8% increase.
+
+Example 3: Do discounts mile 20% aur 10% ke:
+a = -20, b = -10
+Net Change = -20 - 10 + (-20 × -10) / 100 = -30 + 2 = -28% (Overall 28% discount).
+
+
+==================================================
+MODULE 5: PASS-FAIL EXAM PROBLEMS (SHORTCUT TRICK)
+==================================================
+
+Golden Concept:
+"Percentages ka difference hamesha Marks ke actual difference ke barabar hota hai."
+
+Shortcut Formula:
+$$\text{Total Marks} = \frac{\text{Actual Marks Ka Difference} \times 100}{\text{Percentage Ka Difference}}$$
+
+Example 1: Ek student ko pass hone ke liye 35% chahiye the. Usne 25% marks score kiye aur 40 marks se fail ho gaya. Find Total Marks.
+- Percentage Difference = 35% - 25% = 10%
+- Marks Difference = 40 marks
+- 10% = 40 marks
+=> 100% (Total Marks) = (40 × 100) / 10 = 400 marks!
+- Passing Marks = 35% of 400 = 140 marks.
+
+Example 2: Passing marks 45% the. Ek student ko 55% mile aur wo passing marks se 50 marks zyada le aaya.
+- Percentage Diff = 55% - 45% = 10%
+- Marks Diff = 50 marks
+=> Total Marks = (50 × 100) / 10 = 500 marks!
+
+
+==================================================
+MODULE 6: PRICE, CONSUMPTION & EXPENDITURE
+==================================================
+
+Rule:
+$$\text{Expenditure} = \text{Price} \times \text{Consumption}$$
+Agar kharcha (expenditure) constant rakhna hai, toh price aur consumption ek dusre ke Inversely Proportional hote hain!
+
+Fastest Shortcut Formulas:
+1. Agar Price x% BADH jaati hai, toh consumption kitni kam karni padegi:
+$$\text{Reduction in Consumption} = \left(\frac{100 \times x}{100 + x}\right)\%$$
+
+2. Agar Price x% KAM ho jaati hai, toh consumption kitni badh sakti hai:
+$$\text{Increase in Consumption} = \left(\frac{100 \times x}{100 - x}\right)\%$$
+
+Example 1: Cheeni (sugar) ka price 25% badh gaya. Kharcha same rakhne ke liye consumption kitne percent kam karein?
+- x = 25%
+- Reduction = (100 × 25) / (100 + 25) = 2500 / 125 = 20%!
+
+Example 2: Petrol ka price 20% gir gaya. Same budget me kitna petrol zyada khareed sakte hain?
+- x = 20%
+- Increase = (100 × 20) / (100 - 20) = 2000 / 80 = 25%!
+
+Example 3: Price 50% kam hui.
+- Increase = (100 × 50) / (100 - 50) = 5000 / 50 = 100% (Consumption double ho jayegi!).
+
+
+==================================================
+MODULE 7: SIMPLE INTEREST (SI) SHORTCUTS
+==================================================
+
+Core Idea:
+SI hamesha original Principal par calculate hota hai. Har saal barabar interest milta hai (Linear Growth).
+$$\text{SI} = \frac{P \times R \times T}{100}, \quad \text{Amount} = P + \text{SI}$$
+
+Shortcut 1: Doubling Problem
+Agar koi paisa T saal me Double (2 guna) ho jata hai:
+Amount = 2P, so SI = P (100% of P).
+$$\text{Rate} (R) = \frac{100}{T}$$
+Question: A sum doubles in 20 years. Find Rate.
+Answer: R = 100 / 20 = 5% per annum!
+
+Shortcut 2: Money becomes N times in T years
+Agar paisa N times ho jaye, toh interest (N - 1) × 100% milta hai:
+$$\text{Rate} (R) = \frac{(N - 1) \times 100}{T}$$
+Question: Ek rashi 20 saal me 3 guna (3 times) ho gayi. Find rate.
+Answer: R = (3 - 1) × 100 / 20 = 200 / 20 = 10%!
+
+Question: Ek rashi 30 saal me 4 guna ho gayi. Find rate.
+Answer: R = (4 - 1) × 100 / 30 = 300 / 30 = 10%!
+
+
+==================================================
+MODULE 8: COMPOUND INTEREST (CI) TRICKS
+==================================================
+
+Core Idea:
+CI me interest par bhi interest milta hai (Exponential Growth).
+$$\text{Amount} = P \left(1 + \frac{R}{100}\right)^n, \quad \text{CI} = \text{Amount} - P$$
+
+2-Year CI Net Percentage Shortcut:
+$$\text{Net Rate for 2 Years} = 2R + \frac{R^2}{100}$$
+- Rate = 10% -> 2(10) + (100/100) = 20 + 1 = 21%
+  P = 1000 par 2 saal ka CI = 21% of 1000 = ₹210!
+- Rate = 20% -> 2(20) + (400/100) = 40 + 4 = 44%
+  P = 5000 par 2 saal ka CI = 44% of 5000 = ₹2200!
+
+3-Year Multiplier Trick (10% per year):
+- Year 1: × 1.1
+- Year 2: × 1.21
+- Year 3: × 1.331 (Total 33.1% interest)
+Example: ₹2000 at 10% for 3 years:
+Amount = 2000 × 1.331 = ₹2662. CI = 2662 - 2000 = ₹662!
+
+Half-Yearly Compounding:
+- Rate ko aadha karo: R_new = R / 2
+- Time (years) ko double karo: T_new = 2T
+
+
+==================================================
+MODULE 9: PROFIT, LOSS & DISCOUNT
+==================================================
+
+1. Fundamental Formulas:
+- Profit = SP - CP (when SP > CP)
+- Loss = CP - SP (when CP > SP)
+- Profit% = (Profit / CP) × 100   [Denominator is ALWAYS CP!]
+- Loss% = (Loss / CP) × 100
+
+2. Direct Multipliers:
+- 25% Profit: SP = 1.25 × CP  (or CP = SP / 1.25)
+- 20% Loss: SP = 0.80 × CP    (or CP = SP / 0.80)
+Example: Kisi item ko 20% loss par ₹800 me becha. CP batao.
+CP = 800 / 0.80 = ₹1000!
+
+3. Marked Price (MP) & Discount:
+- Discount = MP - SP
+- Discount% = (Discount / MP) × 100  [Calculated on Marked Price]
+- Successive Discounts Trick:
+$$\text{Net Discount} = a + b - \frac{a \times b}{100}$$
+Question: 20% aur 10% ke do successive discounts ka single equivalent discount kya hoga?
+Net Discount = 20 + 10 - (20 × 10) / 100 = 30 - 2 = 28%!
+Question: 30% aur 20% ka equivalent discount:
+Net Discount = 30 + 20 - (30 × 20) / 100 = 50 - 6 = 44%!
+
+
+==================================================
+MODULE 10: RATIO, PROPORTION & SHORTCUTS
+==================================================
+
+1. Ratios Jodna (Combining Ratios):
+Question: Agar a:b = 3:5 aur b:c = 10:7, find a:b:c.
+Trick: Common variable 'b' ko equal banao.
+Pehle ratio me b = 5 hai, dusre me b = 10 hai.
+Pehle ratio ko 2 se multiply karo: 3:5 -> 6:10.
+Ab dono match ho gaye: a:b:c = 6:10:7!
+
+2. Proportions & Proportional Rules:
+Rule: Product of Extremes = Product of Means (a : b = c : d => a × d = b × c)
+
+A) Fourth Proportional:
+Find fourth proportional of 2, 4, 8:
+2 : 4 = 8 : x => 2x = 32 => x = 16.
+
+B) Third Proportional:
+Third proportional of a and b is x such that a : b = b : x.
+$$x = \frac{b^2}{a}$$
+Find third proportional to 4 and 8:
+x = 8² / 4 = 64 / 4 = 16.
+
+C) Mean Proportional:
+Mean proportional between a and c is b such that:
+$$b = \sqrt{a \times c}$$
+Find mean proportional between 9 and 16:
+b = √(9 × 16) = √144 = 12.
+
+
+==================================================
+MODULE 11: AVERAGES & REPLACEMENT TRICK
+==================================================
+
+Formula:
+$$\text{Average} = \frac{\text{Sum of Observations}}{\text{Number of Observations}}$$
+
+1. Average of Consecutive / AP Numbers:
+$$\text{Average} = \frac{\text{First Term} + \text{Last Term}}{2}$$
+Example: 1 to 9 ka average = (1 + 9) / 2 = 5.
+Example: First 20 natural numbers ka average = (1 + 20) / 2 = 10.5.
+
+2. Group Replacement / Inclusion Shortcut:
+Question: 8 students ka average age 42 years hai. Agar teacher join kar le, toh average 44 years ho jata hai. Teacher ki age batao?
+Normal Method: Old Sum = 8 × 42 = 336. New Sum = 9 × 44 = 396. Teacher = 396 - 336 = 60 years.
+Short Trick:
+Teacher ki entry se total 9 logon ka average 2-2 badh gaya (+18).
+Teacher Age = New Average + (Old members × Increase) = 44 + (8 × 2) = 44 + 16 = 60 years!
+
+
+==================================================
+MODULE 12: CYCLICITY & UNIT DIGIT OF POWERS
+==================================================
+
+Unit digit ka pattern powers me repeat hota hai:
+
+Cyclicity Table:
+- 0, 1, 5, 6 -> Cyclicity = 1 (Always ends in same digit: 5^888 ends in 5, 6^999 ends in 6).
+- 4, 9       -> Cyclicity = 2
+  * 4^odd = 4, 4^even = 6 (e.g., 4^9 -> odd power -> 4)
+  * 9^odd = 9, 9^even = 1 (e.g., 9^12 -> even power -> 1)
+- 2, 3, 7, 8 -> Cyclicity = 4
+  * 2: [2, 4, 8, 6]
+  * 3: [3, 9, 7, 1]
+  * 7: [7, 9, 3, 1]
+  * 8: [8, 4, 2, 6]
+
+Trick to Solve:
+Power ko 4 se divide karo aur remainder (rem) lo:
+- If rem = 1 -> 1st number in cycle
+- If rem = 2 -> 2nd number in cycle
+- If rem = 3 -> 3rd number in cycle
+- If rem = 0 -> 4th (LAST) number in cycle!
+
+Examples:
+1. 2^78: 78 % 4 = 2. Second number in [2, 4, 8, 6] is 4.
+2. 3^123: 123 % 4 = 3. Third number in [3, 9, 7, 1] is 7.
+3. 7^45: 45 % 4 = 1. First number in [7, 9, 3, 1] is 7.
+4. 8^32: 32 % 4 = 0 (Completely divisible). Take last number in [8, 4, 2, 6] which is 6.
+
+
+==================================================
+MODULE 13: NUMBER SERIES & PATTERNS
+==================================================
+
+Approach in OA:
+Pehle Step Differences dekho. 90% questions difference nikaalte hi solve ho jaate hain!
+
+1. Difference Series:
+Example: 15, 16, 18, 21, ?
+Diff: +1, +2, +3 -> Next diff = +4. Next term = 21 + 4 = 25.
+
+2. Difference of Squares/Multiples:
+Example: 5, 10, 17, 26, ?
+Diff: +5, +7, +9 (odd numbers) -> Next diff = +11. Next term = 26 + 11 = 37 (Notice: n² + 1 pattern: 2²+1, 3²+1, 4²+1, 5²+1, 6²+1=37).
+
+3. Multiplication + Addition:
+Example: 3, 7, 15, 31, ?
+Pattern: (3×2)+1=7, (7×2)+1=15, (15×2)+1=31 -> Next = (31×2)+1 = 63.
+
+4. Fibonacci Series:
+1, 1, 2, 3, 5, 8, ? -> Har agla number pichle do ka sum hai: 5 + 8 = 13.
+
+
+==================================================
+MODULE 14: LETTER SERIES & CODING-DECODING
+==================================================
+
+1. Memorize Alphabet Positions (EJOTY Trick):
+E = 5, J = 10, O = 15, T = 20, Y = 25
+A = 1, M = 13, Z = 26.
+
+2. Opposite Letters (Sum = 27):
+Trick to remember:
+- A - Z (AZad)
+- B - Y (BoY)
+- C - X (CruX / Coca-cola)
+- D - W (Dew)
+- E - V (EVening)
+- F - U (FUll)
+- G - T (GT Road)
+- H - S (High School)
+- I - R (Indian Railway)
+- J - Q (Jungle Queen)
+- K - P (KanPur / PK movie)
+- L - O (LOve)
+- M - N (MaN)
+
+3. Coding Patterns:
+- If CAT = 24 -> C(3) + A(1) + T(20) = 24.
+- If COME is coded as DPNF -> +1 shift on every letter.
+- Cyclic Coding: Z shifts to A.
+
+
+==================================================
+MODULE 15: DIRECTION SENSE TEST
+==================================================
+
+Core Compass:
+       North (0° / 360°)
+             ^
+             |
+West <-------+-------> East (90° clockwise)
+             |
+             v
+       South (180°)
+
+Turns Rules:
+- Right Turn = 90° Clockwise
+- Left Turn = 90° Anti-clockwise
+- Half Turn = 180° (Directly Opposite direction)
+- Full Turn = 360° (Same direction)
+
+Pythagoras Shortcut in OA:
+Agar person North me 3 km gaya, fir East mudkar 4 km gaya:
+Shortest Distance from starting point = √(3² + 4²) = √(9 + 16) = √25 = 5 km North-East!
+Standard Triplets to memorize: (3, 4, 5), (5, 12, 13), (6, 8, 10), (8, 15, 17).
+
+
+==================================================
+MODULE 16: SYLLOGISM & LOGICAL VENN DIAGRAMS
+==================================================
+
+Statements 4 types ki hoti hain:
+1. All A are B (Universal Positive): A ka pura circle B ke andar hai.
+   - Conclusion: Some A are B (True), Some B are A (True).
+2. No A is B (Universal Negative): A aur B ke circles alag-alag hain, koi touch nahi.
+3. Some A are B (Particular Positive): Circles overlap karte hain.
+4. Some A are not B (Particular Negative).
+
+Golden Syllogism Rules:
+1. Dono statements Positive hain -> Conclusion kabhi Negative nahi ho sakta.
+2. Dono statements Negative hain ("No A is B" and "No B is C") -> A aur C ke beech NO DEFINITE CONCLUSION.
+3. "Some A are B" aur "Some B are C" -> A aur C ke beech koi definite relation nahi nikalta.
+
+
+==================================================
+MODULE 17: CALENDAR APTITUDE (ODD DAYS METHOD)
+==================================================
+
+Calendar ka pura concept "Odd Days" par tika hai (Days remaining after dividing by 7).
+
+1. Basics:
+- Ordinary Year (365 days) = 52 weeks + 1 day -> 1 Odd Day.
+- Leap Year (366 days) = 52 weeks + 2 days -> 2 Odd Days.
+- Leap Year Rule: Divisible by 4. Century year (like 1600, 2000) must be divisible by 400! (Hence 1900 is NOT a leap year).
+
+2. Century Odd Days:
+- 100 Years = 5 Odd Days
+- 200 Years = 3 Odd Days
+- 300 Years = 1 Odd Day
+- 400 Years = 0 Odd Days (Isliye har 400 saal baad calendar exact repeat hota hai!).
+
+3. Weekday Number Mapping:
+0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday.
+
+Example: If today is Friday, what day will it be after 100 days?
+100 % 7 = 2 (remainder = 2 odd days).
+Friday + 2 days = Sunday!
+
+Example: 1 Jan 2023 was Sunday. What day on 1 Jan 2024?
+2023 is ordinary year (1 odd day) -> Sunday + 1 = Monday.
+1 Jan 2025: 2024 was leap year (2 odd days) -> Monday + 2 = Wednesday!
+
+
+==================================================
+MODULE 18: CUBES AND DICE
+==================================================
+
+1. Standard Dice Rule:
+Standard dice me opposite faces ka sum hamesha 7 hota hai!
+- 1 is opposite to 6 (1 + 6 = 7)
+- 2 is opposite to 5 (2 + 5 = 7)
+- 3 is opposite to 4 (3 + 4 = 7)
+
+2. Adjacent Faces Rule:
+Ek face ke 4 adjacent faces hote hain aur sirf 1 opposite face hota hai.
+Do opposite faces kabhi ek saath dikhai nahi de sakte!
+
+
+==================================================
+MODULE 19: GAMES & TOURNAMENTS
+==================================================
+
+1. Knockout Tournament (Single Elimination):
+Har match me haarne wali team bahar ho jaati hai. Winner chhodkar bache sabhi n - 1 teams ko haarna padta hai:
+$$\text{Total Matches} = n - 1$$
+- 8 teams -> 7 matches
+- 16 teams -> 15 matches
+- 32 teams -> 31 matches
+
+2. Round-Robin Tournament (League):
+Har team baaki sabhi teams ke saath match khelti hai:
+$$\text{Total Matches} = \frac{n(n - 1)}{2} = {}^n\text{C}_2$$
+- 5 teams -> 5 × 4 / 2 = 10 matches
+- 10 teams -> 10 × 9 / 2 = 45 matches
+- 6 teams -> 6 × 5 / 2 = 15 matches
+
+
+==================================================
+MODULE 20: PERMUTATIONS & COMBINATIONS (P&C)
+==================================================
+
+Difference:
+- Permutation (P) = Arrangement (Order matters, e.g., words, seatings, passwords).
+  $$^n\text{P}_r = \frac{n!}{(n-r)!}$$
+- Combination (C) = Selection (Order does not matter, e.g., teams, committees, handshakes).
+  $$^n\text{C}_r = \frac{n!}{r!(n-r)!}$$
+
+1. Factorials to Memorize:
+0! = 1, 1! = 1, 2! = 2, 3! = 6, 4! = 24, 5! = 120, 6! = 720, 7! = 5040.
+
+2. Handshake / Match Formula:
+n logon ke beech aapas me handshakes = $^n\text{C}_2 = \frac{n(n-1)}{2}$.
+10 log kitne handshakes karenge = 10 × 9 / 2 = 45.
+
+3. "Together" Trick (Block Method):
+Question: 5 logon me se A aur B ko hamesha ek saath baithana hai. Total arrangements?
+Trick: A aur B ko ek block (AB) maan lo. Ab total units = (AB) + 3 log = 4 units.
+- 4 units arrange ho sakti hain: 4! tarike se.
+- A aur B aapas me arrange ho sakte hain: 2! tarike se.
+Total Ways = 4! × 2! = 24 × 2 = 48 ways!
+
+4. "Not Together" Trick:
+$$\text{Not Together} = \text{Total Arrangements} - \text{Together Arrangements}$$
+5 log total arrange ho sakte hain: 5! = 120 ways.
+A and B together = 48 ways.
+Not together = 120 - 48 = 72 ways!
+
+5. Permutation with Repetition of Letters:
+Formula: $\frac{n!}{p! \cdot q! \cdot r!}$
+- BANANA (Total 6 letters: 3 A's, 2 N's, 1 B):
+  Ways = 6! / (3! × 2!) = 720 / (6 × 2) = 60 ways!
+
+6. Circular Permutation:
+n distinct logon ko round table par baithane ke tarike = $(n - 1)!$.
+- 4 people around circle = (4 - 1)! = 3! = 6 ways.
+- 5 people around circle = (5 - 1)! = 4! = 24 ways.
+
+
+==================================================
+MODULE 21: PROBABILITY MASTERCLASS
+==================================================
+
+Formula:
+$$\text{Probability} = \frac{\text{Favorable Outcomes}}{\text{Total Possible Outcomes}}$$
+- Range: Hamesha 0 se 1 ke beech ($0 \le P \le 1$).
+
+1. "At Least One" Golden Complementary Rule:
+$$\text{P(At least one)} = 1 - \text{P(None)}$$
+Example: 3 coins toss kiye gaye. Kam se kam ek Head aane ki probability?
+- Total outcomes = 2³ = 8.
+- P(No Head, i.e., all Tails TTT) = 1/8.
+- P(At least one Head) = 1 - 1/8 = 7/8!
+
+2. Two Dice Problems (Total Outcomes = 36):
+- Sum = 7 aane ke favorable pairs: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1) -> 6 pairs.
+  P(Sum is 7) = 6/36 = 1/6.
+- Both dice show same number (Doublets): (1,1), (2,2), (3,3), (4,4), (5,5), (6,6) -> 6/36 = 1/6.
+
+3. Standard Pack of 52 Cards:
+- Total Cards = 52 (26 Red: Hearts, Diamonds | 26 Black: Spades, Clubs)
+- 4 Suits (13 cards each)
+- 4 Aces, 4 Kings, 4 Queens, 4 Jacks
+- Face Cards = 12 (Jack, Queen, King of all 4 suits)
+  * P(Face Card) = 12/52 = 3/13.
+  * P(Ace) = 4/52 = 1/13.
+  * P(Red King) = 2/52 = 1/26.
+
+4. Ball Selection (Using Combination $^n\text{C}_r$):
+Question: Ek box me 5 Red aur 3 Blue balls hain. 2 balls randomly nikali gayi. Dono Red hone ki probability?
+- Favorable: 5 Red me se 2 select karo = $^5\text{C}_2 = 10$.
+- Total: Total 8 balls me se 2 select karo = $^8\text{C}_2 = 28$.
+- Probability = 10 / 28 = 5/14!
+
+
+==================================================
+MODULE 22: BONUS OA ESSENTIALS (TIME & WORK)
+==================================================
+
+LCM Method for Time and Work (No Fractions needed!):
+Question: A kisi kaam ko 10 din me karta hai, B usi kaam ko 15 din me karta hai. Dono milkar kitne din me karenge?
+- Step 1: 10 aur 15 ka LCM lo = 30 units (Yeh total work hai).
+- Step 2: Efficiency (Daily Work) nikalo:
+  * A ki efficiency = 30 / 10 = 3 units/day.
+  * B ki efficiency = 30 / 15 = 2 units/day.
+- Step 3: Dono ka combined work = 3 + 2 = 5 units/day.
+- Step 4: Total Days = Total Work / Combined Efficiency = 30 / 5 = 6 Days!
+
+Shortcut Formula for Two Persons:
+$$\text{Days} = \frac{A \times B}{A + B} = \frac{10 \times 15}{10 + 15} = \frac{150}{25} = 6 \text{ Days!}$$
+            `
+        }
+    ],
+
+
+    "cs": [
+
+        {
+            title: `QUESTION:
+            Python Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `==================================================
+CORE CS SUBJECTS MASTERCLASS: CN + OOPS + OS
+==================================================
+Yeh guide Campus Placements, Off-campus Drives, aur Company Online Assessments (OA) / Technical Interviews ke 3 sabse important core subjects — Computer Networks (CN), Object-Oriented Programming (OOPs), aur Operating Systems (OS) — ka complete, exhaustive master resource hai. 
+Har ek topic ko bilkul beginner-friendly Hinglish language me, real-world analogies (ATM, Bank, Restaurant), diagrams, formulas, aur memory tricks ke sath explain kiya gaya hai taaki aap direct answers de sakein aur koi bhi MCQ ya technical question na chhoote.
+--------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------
+PART 1: COMPUTER NETWORKS (CN)
+  1. Networks, Nodes, Links & Topologies (Star, Ring, Bus, Mesh, Tree, Hybrid)
+  2. Types of Networks by Area (PAN, LAN, HAN, CAN, MAN, WAN, GAN)
+  3. VPN Deep Dive (Access VPN, Site-to-Site, Intranet vs Extranet)
+  4. IP Addressing (IPv4 Classes, Subnetting, Public vs Private IPs)
+  5. The 7-Layer OSI Model vs 4-Layer TCP/IP Model (Functions, Protocols, PDUs)
+  6. TCP vs UDP (3-Way Handshake, Reliability vs Speed)
+  7. Application Layer Protocols (HTTP/HTTPS, DNS, SMTP, POP3, DHCP, FTP, ICMP, ARP, RIP)
+  8. Hardware Devices (Hub, Switch, Router, Gateway, NIC) & Transmission Types (Unicast, Multicast, Broadcast, Anycast)
+  9. The Ultimate Interview Question: "What Happens When You Type google.com?"
+PART 2: OBJECT-ORIENTED PROGRAMMING (OOPS)
+  10. Core OOP Paradigm (Classes, Objects, Attributes, Methods)
+  11. The 4 Pillars of OOP:
+      - Encapsulation (Data Hiding, Getters/Setters, ATM Analogy)
+      - Abstraction (Complexity Hiding, Abstract Classes vs Interfaces)
+      - Inheritance (Types, Diamond Problem, 'super' Keyword)
+      - Polymorphism (Compile-time Overloading vs Runtime Overriding)
+  12. Constructors, Destructors & Garbage Collection
+  13. 'this' Keyword & Object Relationships (IS-A vs HAS-A: Aggregation vs Composition)
+  14. Access Modifiers (private, default, protected, public)
+  15. Memory References & Copying (Assignment vs Shallow Copy vs Deep Copy)
+PART 3: OPERATING SYSTEMS (OS)
+  16. OS Architecture, Types (Batch, Multiprogramming, Multitasking, Time-Sharing, RTOS) & Kernels (Monolithic vs Microkernel)
+  17. Processes, PCB, Program Counter & fork() System Call ($2^n - 1$)
+  18. Threads (Lightweight Process, User vs Kernel Threads, What is Shared vs Independent)
+  19. CPU Scheduling Algorithms (FCFS, SJF, SRTF, Round Robin, Priority, HRRN, MLQ, MLFQ) & Formulas (TAT, WT)
+  20. Process Synchronization & Critical Section (Race Condition, Mutex vs Semaphores)
+  21. Deadlocks: 4 Coffman Conditions, Prevention, Detection, Recovery & Banker's Algorithm
+  22. Memory Management (Paging, Segmentation, Page Fault, Virtual Memory & Demand Paging)
+  23. Page Replacement Algorithms (FIFO & Belady's Anomaly, Optimal, LRU) & Thrashing
+  24. Disk Scheduling (Seek Time, Rotational Latency, FCFS, SSTF, SCAN, C-SCAN, LOOK, C-LOOK)
+================================================================================
+PART 1: COMPUTER NETWORKS (CN)
+================================================================================
+--------------------------------------------------
+1. NETWORKS, NODES, LINKS & TOPOLOGIES
+--------------------------------------------------
+Network: Jab do ya do se zyada devices (Computers, Mobile, Printers, Servers) aapas me connect hote hain data aur resources share karne ke liye, use Network kehte hain.
+- Node: Network se juda koi bhi physical device (PC, Router, Printer).
+- Link: Do nodes ke beech ka physical ya wireless communication path (Cable, Wi-Fi).
+Network Topology: Devices network me physically ya logically kis structure/layout me connected hain.
+A) Star Topology (Most Popular):
+- Har computer ek single Central Device (Switch ya Hub) se connected hota hai.
+- Advantage: Agar ek PC ka wire toot jaye, toh sirf wahi PC disconnect hoga, baaki pura network chalta rahega (Fault Tolerant).
+- Disadvantage: Agar Central Switch hi kharab ho gaya, toh poora network thapp pad jayega (Single Point of Failure).
+B) Bus Topology:
+- Sabhi devices ek hi common single cable (Bus/Backbone) se jude hote hain. Dono ends par terminators hote hain.
+- Advantage: Setup bohot sasta aur simple hota hai.
+- Disadvantage: Agar main cable beech se toot gayi, toh pura network crash ho jayega. Collision bohot high hota hai.
+C) Ring Topology:
+- Har device apne do bagal wale (neighbouring) devices se judkar ek closed circle/ring banata hai.
+- Token Ring ya SONET/SDH me use hota hai. Ek direction me data travel karta hai.
+- Disadvantage: Ek bhi cable ya node fail hui, toh ring toot jayegi aur network band ho jayega.
+D) Mesh Topology (Most Reliable & Expensive):
+- Fully Connected Mesh me har node baaki sabhi nodes se direct dedicated link se judi hoti hai.
+  $$\text{Total Links Required} = \frac{n(n - 1)}{2}$$
+  Example: Agar 6 computers hain, toh 6(5)/2 = 15 cables lagengi!
+- Advantage: Ek cable toote toh koi fark nahi padta, alternative paths hamesha available hote hain (Robust & Secure).
+- Disadvantage: Bohot zyada expensive aur complex cabling.
+E) Tree Topology:
+- Star + Bus ka combination hota hai (Expanded Star). Ek main bus cable se multiple star networks connected hote hain.
+F) Hybrid Topology:
+- Do alag-alag topologies ka mix (jaise Star + Ring, ya Star + Bus). Provides maximum flexibility.
+--------------------------------------------------
+2. TYPES OF NETWORKS (BY GEOGRAPHIC RANGE)
+--------------------------------------------------
+Order by size: PAN < HAN < LAN < CAN < MAN < WAN < GAN
+1. PAN (Personal Area Network): Range ~10 meters. Personal devices ke liye (Bluetooth earphones, smartwatches, phone-to-laptop hotspot).
+2. HAN (Home Area Network): Ek ghar ke andar ka network (Wi-Fi router jisse TV, mobile, laptop jude hain).
+3. LAN (Local Area Network): Ek building, office, ya college computer lab ka network. High speed, low error rate (Ethernet cables, Wi-Fi).
+4. CAN (Campus Area Network): Ek poore university campus ya military base ke alag-alag departments ko connect karta hai (LAN se bada, MAN se chhota).
+5. MAN (Metropolitan Area Network): Ek poore city ko cover karta hai (Example: Cable TV network).
+6. WAN (Wide Area Network): Multiple cities, states, ya countries ko jodta hai. Sabse bada example: THE INTERNET!
+7. GAN (Global Area Network): Worldwide coverage using satellite communication.
+--------------------------------------------------
+3. VPN (VIRTUAL PRIVATE NETWORK) DEEP DIVE
+--------------------------------------------------
+VPN public internet ke upar ek encrypted, secure tunnel create karta hai jisse aapka data koi teesra banda intercept nahi kar sakta.
+Types of VPN:
+1. Access VPN (Remote Access VPN): Individual remote employees apne laptop se company ke internal server se connect hone ke liye use karte hain.
+2. Site-to-Site VPN: Do fixed geographic offices ko connect karta hai (e.g., Delhi Office aur Mumbai Office ke beech secure connection).
+   - Intranet VPN: Ek hi company ke alag-alag branches ko connect karta hai.
+   - Extranet VPN: Company apne external vendors, partners, ya suppliers ke sath secure link banati hai.
+--------------------------------------------------
+4. IP ADDRESSING & SUBNETTING
+--------------------------------------------------
+IPv4 Address: 32 bits ka hota hai. Isme 4 octets hote hain (har octet = 8 bits), separated by dots.
+Example: 192.168.1.10 (Har number 0 se 255 tak ho sakta hai).
+IPv4 Classes (Identified by First Octet):
+- Class A: 1 to 126 (Huge organizations. Default Mask: 255.0.0.0. 127 is reserved for Loopback testing 127.0.0.1).
+- Class B: 128 to 191 (Medium networks. Default Mask: 255.255.0.0).
+- Class C: 192 to 223 (Small LANs. Default Mask: 255.255.255.0).
+- Class D: 224 to 239 (Reserved for Multicasting).
+- Class E: 240 to 255 (Experimental / Research).
+Private IP vs Public IP:
+- Public IP: Globally unique, internet par direct routable. ISP provide karta hai.
+- Private IP: Local network ke andar free use ke liye reserved. Internet par directly nahi chal sakta (NAT router ise public IP me convert karta hai).
+  * Class A Private: 10.0.0.0 to 10.255.255.255
+  * Class B Private: 172.16.0.0 to 172.31.255.255
+  * Class C Private: 192.168.0.0 to 192.168.255.255
+Subnetting: Ek bade network ko chhote-chhote logical sub-networks me divide karna taaki network traffic manage ho sake aur security badhe.
+--------------------------------------------------
+5. THE 7-LAYER OSI MODEL VS TCP/IP MODEL
+--------------------------------------------------
+OSI = Open Systems Interconnection (ISO Standard, Theoretical Model).
+Mnemonic (Top to Bottom): "All People Seem To Need Data Processing"
+Layer 7: Application -> Data
+Layer 6: Presentation -> Data
+Layer 5: Session -> Data
+Layer 4: Transport -> Segments
+Layer 3: Network -> Packets
+Layer 2: Data Link -> Frames
+Layer 1: Physical -> Bits
+Layer-by-Layer Responsibilities:
+1. Physical Layer: Raw 0s aur 1s (electrical, optical, radio signals) ko cable ya wireless medium se bhejna. Hub aur Repeater yaha kaam karte hain.
+2. Data Link Layer (DLL): Direct physically connected nodes ke beech communication.
+   - Data ko "Frames" me pack karta hai.
+   - Physical Addressing (MAC Address) use karta hai.
+   - Framing, Flow Control, Error Detection (CRC/Checksum). Switch aur Bridge yaha kaam karte hain.
+3. Network Layer: Source se Destination tak best route dhundhna (Routing) aur Logical Addressing (IP Address). Data unit = "Packets". Router yaha kaam karta hai.
+4. Transport Layer: End-to-End delivery aur process-to-process communication. Port numbers use karta hai. Data unit = "Segments". Protocols: TCP aur UDP.
+5. Session Layer: Two devices ke beech session create, maintain, aur terminate karta hai. Synchronization checkpoints set karta hai.
+6. Presentation Layer: Translation layer! Syntax aur semantics handle karta hai. Data Compression, Data Encryption/Decryption (SSL/TLS), aur Character Translation (ASCII to Unicode).
+7. Application Layer: User aur applications ke sath directly interact karta hai (Web browsers, Email clients). Protocols: HTTP, HTTPS, FTP, SMTP, DNS.
+TCP/IP Model (DoD Model - 4 Layers Practical):
+1. Application Layer (Combines Application + Presentation + Session)
+2. Transport Layer (Host-to-Host)
+3. Internet Layer (Equivalent to Network Layer)
+4. Link / Network Access Layer (Combines Data Link + Physical)
+--------------------------------------------------
+6. TCP VS UDP (THE MOST ASKED INTERVIEW TOPIC)
+--------------------------------------------------
+| Feature | TCP (Transmission Control Protocol) | UDP (User Datagram Protocol) |
+| :--- | :--- | :--- |
+| **Connection Type** | **Connection-Oriented** (3-Way Handshake) | **Connectionless** (Fire & Forget) |
+| **Reliability** | 100% Guaranteed delivery (Acknowledgements) | Unreliable (No guaranteed delivery) |
+| **Speed** | Slow (Heavy header, ACK overhead) | **Extremely Fast** (Lightweight header) |
+| **Error Handling** | Detects & Retransmits lost packets | Detects error (checksum) but drops without retransmission |
+| **Flow & Congestion**| Built-in Flow Control & Congestion Control | No flow/congestion control |
+| **Use Cases** | Web browsing (HTTP/HTTPS), Email (SMTP), File transfer (FTP) | Live video streaming, Online Gaming, VoIP, DNS queries |
+TCP 3-Way Handshake:
+1. Client -> Server: SYN (Synchronize Sequence Number - "Kya mai connect kar sakta hu?")
+2. Server -> Client: SYN + ACK ("Ha connect ho jao, mai ready hu!")
+3. Client -> Server: ACK ("Okay, sending data now!")
+--------------------------------------------------
+7. MUST-KNOW PROTOCOLS & DEFAULT PORTS
+--------------------------------------------------
+- HTTP (Port 80): HyperText Transfer Protocol. Stateless, unencrypted text.
+- HTTPS (Port 443): HTTP + TLS/SSL. Encrypted web traffic.
+- DNS (Port 53): Domain Name System. Converts Human-readable names (google.com) to IP address (142.250.190.46). Uses UDP for queries.
+- SMTP (Port 25): Simple Mail Transfer Protocol. Used to SEND emails between servers.
+- POP3 (Port 110): Post Office Protocol v3. Used to DOWNLOAD/RECEIVE emails (Delete mode vs Keep mode).
+- IMAP (Port 143): Modern email retrieval; emails server par sync rehti hain.
+- DHCP (Port 67 Server, Port 68 Client): Dynamic Host Configuration Protocol. Devices ko automatically IP, Subnet Mask, Gateway assign karta hai (DORA Process: Discover, Offer, Request, Acknowledge).
+- FTP (Port 20 Data, Port 21 Control): File Transfer Protocol.
+- ARP (Address Resolution Protocol): Network Layer protocol. IP address se corresponding local MAC address pata lagata hai (IP -> MAC).
+- ICMP: Internet Control Message Protocol. Error reporting aur diagnostics ke liye (Ping command ICMP Echo Request/Reply use karti hai. Uses NO TCP/UDP ports).
+- RIP: Routing Information Protocol. Bellman-Ford algorithm based routing protocol. Hop count metric use karta hai (Max limit = 15 hops, 16 means unreachable).
+--------------------------------------------------
+8. HARDWARE DEVICES & DATA TRANSMISSION
+--------------------------------------------------
+Devices:
+- Hub (Layer 1 - Physical): Dumb device. Kisi ek port par data aane par sabhi ports par blind broadcast kar deta hai. Heavy collision.
+- Switch (Layer 2 - Data Link): Intelligent device. MAC address table maintain karta hai. Unicast frames directly destination port par bhejta hai. Har port ka apna alag collision domain hota hai.
+- Router (Layer 3 - Network): Do alag-alag networks/subnets ko connect karta hai aur packets ko unke destination IP tak route karta hai.
+- Gateway: Do completely different network architectures aur incompatible protocols ke beech translation karta hai.
+- NIC (Network Interface Card): Hardware chip jo computer ko network se connect karti hai. Isme 48-bit unique hardware MAC address burned hota hai.
+Transmission Modes:
+- Unicast: One-to-One (Single sender -> Single receiver).
+- Broadcast: One-to-All (Single sender -> Network ke sabhi devices).
+- Multicast: One-to-Many Selected (Single sender -> Ek specific subscriber group).
+- Anycast: One-to-Nearest (Single sender -> Group me se jo sabse paas/available server ho, e.g., CDN).
+--------------------------------------------------
+9. "WHAT HAPPENS WHEN YOU TYPE GOOGLE.COM IN BROWSER?"
+--------------------------------------------------
+Step-by-Step Flow:
+1. Browser Cache Check: Browser check karta hai ki google.com ka webpage ya IP pehle se cache me hai ya nahi.
+2. OS Cache & Hosts File: Agar browser me nahi mila, toh OS cache aur local hosts file check hoti hai.
+3. DNS Lookup: Agar IP nahi mili, toh DNS Resolver ko request jaati hai (Root server -> .com TLD server -> google.com authoritative nameserver) aur Google ka IP address return hota hai.
+4. TCP 3-Way Handshake: Client aur Google server ke beech Port 443 par SYN -> SYN-ACK -> ACK establish hota hai.
+5. TLS Handshake (HTTPS Security): Asymmetric encryption se session keys exchange hoti hain aur secure encrypted channel banta hai.
+6. HTTP GET Request: Browser Google ke web server ko request bhejta hai: "GET / HTTP/1.1".
+7. Server Response: Google server HTML, CSS, JavaScript files code status 200 OK ke sath response me bhejta hai.
+8. Browser Rendering: Browser HTML DOM tree banata hai, CSS parse karke visual page render karta hai!
+================================================================================
+PART 2: OBJECT-ORIENTED PROGRAMMING (OOPS)
+================================================================================
+OOP ek programming paradigm hai jaha hum procedural functions ki jagah Real-World Entities (Objects) ke terms me sochte hain.
+Real-World Bank Example:
+Object = BankAccount.
+- Attributes (HAS - Data): accountNumber, accountHolderName, balance.
+- Methods (DOES - Behavior): deposit(), withdraw(), checkBalance().
+Class vs Object:
+- Class: Blueprint / Naksha (Design template). Memory occupy nahi karta jab tak object na bane.
+- Object: Class ka actual instance jo memory allocate karta hai (e.g., rahulAccount).
+--------------------------------------------------
+THE 4 PILLARS OF OOPS (MOST IMPORTANT)
+--------------------------------------------------
+1. ENCAPSULATION (DATA HIDING 🔒):
+- Wrapping of data (attributes) and methods into a single unit (class) and protecting data from direct outside unauthorized access.
+- Implementation: Variables ko 'private' banao, aur unhe access/modify karne ke liye 'public' Getters aur Setters methods provide karo.
+- Analogy: ATM machine. Customer direct bank ke cash vault me haath nahi daal sakta; use withdraw() button ke controlled interface se hi jana padega.
+Code:
+class BankAccount {
+    private double balance; // Data hidden!
+    public void deposit(double amount) {
+        if (amount > 0) balance += amount; // Controlled validation
+    }
+    public double getBalance() {
+        return balance;
+    }
+}
+2. ABSTRACTION (COMPLEXITY HIDING 🎭):
+- Hiding internal complex implementation details and showing only the essential feature to the user.
+- Difference from Encapsulation:
+  * Encapsulation = DATA hiding (Security)
+  * Abstraction = IMPLEMENTATION COMPLEXITY hiding (Simplicity)
+- Analogy: Jab aap car me break dabate ho, aapko internal hydraulic pressure ya friction plates ka logic nahi sochna padta; aapko sirf pedal press karna hota hai.
+- Implementation: Abstract Classes aur Interfaces se.
+3. INHERITANCE (CODE REUSABILITY 👨👦):
+- Ek child class (subclass) parent class (superclass) ke properties aur methods ko inherit karti hai (extends keyword).
+- IS-A Relationship: SavingsAccount IS-A BankAccount.
+- Types:
+  * Single: Parent -> Child
+  * Multilevel: Grandparent -> Parent -> Child
+  * Hierarchical: 1 Parent -> Multiple Children (SavingsAccount, CurrentAccount)
+  * Multiple Inheritance: Java classes multiple inheritance support NAHI karti (Diamond Problem - ambiguity ki kis parent ka method call karein). Lekin Interfaces ke through achieve kiya ja sakta hai.
+4. POLYMORPHISM (MANY FORMS 🔥):
+- Ability of a message/method to be processed in more than one form.
+- Two Major Types:
+  A) Compile-Time Polymorphism (Method Overloading / Static Binding):
+     - Same class me same method name, lekin DIFFERENT parameters (count, type, ya sequence).
+     - Example: searchAccount(int accNo) vs searchAccount(String name). Compiler compile time par hi decide kar leta hai.
+  B) Runtime Polymorphism (Method Overriding / Dynamic Method Dispatch):
+     - Child class parent class ke existing method ko apne specific logic ke sath redefine karti hai (Override).
+     - Example: Parent calculateInterest() ko SavingsAccount 5% calculate karega, aur CurrentAccount 0%.
+     - Decision runtime par actual object ke basis par hota hai.
+--------------------------------------------------
+CONSTRUCTORS, 'this' & MEMORY MANAGEMENT
+--------------------------------------------------
+Constructor: Special method jo object create hote hi automatically execute hota hai initial state setup karne ke liye.
+- Rules: Class ke name jaisa same naam hota hai. Iska koi return type nahi hota (void bhi nahi).
+- 'this' Keyword: Current object ke instance variable ko point karta hai taaki parameter name aur variable name collide na karein (this.balance = balance).
+Destructors vs Garbage Collector (GC):
+- C++ me memory manually delete karni padti hai destructor (~ClassName()) se.
+- Java/Python me automatic Garbage Collector (GC) hota hai jo unreferenced/unreachable objects ki memory automatically reclaim kar leta hai.
+--------------------------------------------------
+OBJECT RELATIONSHIPS: IS-A VS HAS-A
+--------------------------------------------------
+- IS-A (Inheritance): Dog IS-A Animal.
+- HAS-A (Aggregation / Composition): Customer HAS-A BankAccount.
+  * Aggregation: Weak connection. Dono objects independently exist kar sakte hain (Customer delete ho jaye toh bhi BankAccount record database me alag reh sakta hai).
+  * Composition: Strong connection. Agar parent delete hua toh child bhi destroy ho jayega (Car HAS-A Engine. Engine car ke bina exist nahi karta).
+--------------------------------------------------
+ACCESS SPECIFIERS (JAVA / OOP)
+--------------------------------------------------
+1. private: Sirf usi class ke andar accessible.
+2. default (no modifier): Sirf usi package ke andar accessible.
+3. protected: Same package + dusre package ki subclasses (child classes) me accessible.
+4. public: Har jagah accessible.
+--------------------------------------------------
+SHALLOW COPY VS DEEP COPY (CRITICAL INTERVIEW TRAP)
+--------------------------------------------------
+- Normal Reference Assignment (b = a): Naya object nahi banta! Dono pointers ek hi object ko point karte hain. Ek me change karoge dusre me reflect hoga.
+- Shallow Copy: Naya outer object banta hai, lekin agar uske andar koi nested object (e.g. Customer) hai, toh uska reference share hota hai.
+- Deep Copy: Outer object ke sath-sath andar ke sabhi nested objects ki independent brand new copy banti hai. Completely independent!
+================================================================================
+PART 3: OPERATING SYSTEMS (OS)
+================================================================================
+OS user aur hardware ke beech ka bridge/interface hai jo hardware resources (CPU, Memory, Disks, I/O) ko efficiently manage karta hai.
+--------------------------------------------------
+1. TYPES OF OPERATING SYSTEMS
+--------------------------------------------------
+- Batch OS: Similar jobs ko batch banakar sequence me run karta hai. CPU idle time bohot zyada hota hai.
+- Multiprogramming OS: RAM me multiple programs rehte hain. Jab ek program I/O wait kar raha hota hai, OS CPU dusre program ko de deta hai (Keeps CPU 100% busy).
+- Multitasking / Time-Sharing: CPU bohot chhote time slices (quantum) me processes ke beech itni tezi se switch karta hai ki user ko lagta hai sabhi programs ek sath chal rahe hain.
+- Real-Time OS (RTOS): Strict deadlines! Time constraint galat hua toh system fail maana jayega (Airbag system, Missiles, Medical ventilators). Hard RTOS (zero delay allowed) vs Soft RTOS.
+Monolithic vs Microkernel:
+- Monolithic: Sabhi major OS services (File management, IPC, Device Drivers, Virtual memory) kernel space me run hoti hain (Fast, but ek driver crash hone par pura OS crash ho sakta hai - e.g., Linux).
+- Microkernel: Kernel me sirf minimum functions rehte hain (IPC, basic scheduling). Baaki services user space me run hoti hain (Highly secure & stable, e.g., QNX).
+--------------------------------------------------
+2. PROCESS VS THREAD & PCB
+--------------------------------------------------
+- Process: Program under execution (Heavyweight). Iska apna isolated memory space hota hai.
+- Process Control Block (PCB): Process ka ID Card. Isme Process ID (PID), Program Counter (PC), CPU Registers, Process State, aur Priority store hoti hai.
+- Program Counter (PC): Next execute hone wale instruction ka memory address hold karta hai.
+- fork() System Call: Naya child process create karta hai.
+  $$\text{Total Processes Created by } n \text{ fork() calls} = 2^n$$
+  $$\text{Total Child Processes} = 2^n - 1$$
+Threads (Lightweight Process):
+Ek process ke andar multiple execution flows.
+- Thread ka apna kya hota hai (Independent): Program Counter (PC), Register Set, aur Stack.
+- Threads aapas me kya share karte hain: Code Section, Data Section (Global variables), aur Open Files/Resources.
+--------------------------------------------------
+3. CPU SCHEDULING FORMULAS & ALGORITHMS
+--------------------------------------------------
+Core Metrics:
+- Arrival Time (AT): Process ready queue me kab aayi.
+- Burst Time (BT): CPU par kitna execution time chahiye.
+- Completion Time (CT): Kaam kab khatam hua.
+- Turnaround Time (TAT) = CT - AT  (Total time system me bitaya)
+- Waiting Time (WT) = TAT - BT      (CPU ke liye kitna intezaar kiya)
+Algorithms:
+1. FCFS (First Come First Serve): Non-preemptive. Jo pehle aaya wo pehle execute hoga. Convoy Effect ka shikaar hota hai (Chhoti process ko badi process ke peeche lamba wait karna padta hai).
+2. SJF (Shortest Job First): Non-preemptive. Sabse chhota BT pehle execute hota hai. Gives minimum average waiting time.
+3. SRTF (Shortest Remaining Time First): SJF ka Preemptive version! Nayi process agar chhote remaining time ke sath aayi, toh current process interrupt ho jayegi.
+4. Round Robin (RR): Preemptive. Har process ko fixed Time Quantum milta hai. Best for time-sharing systems. Starvation nahi hota.
+5. Priority Scheduling: Highest priority pehle execute hoti hai. Problem: Low priority processes starving ho sakti hain. Solution = "Aging" (Jaise-jaise wait time badhe, process ki priority badha do).
+6. HRRN (Highest Response Ratio Next): Non-preemptive. Formula:
+   $$\text{Response Ratio} = \frac{\text{WT} + \text{BT}}{\text{BT}}$$
+   Long waiting time ensures ki badi process ko bhi chance mile (Prevents starvation).
+7. Multilevel Queue (MLQ) vs MLFQ: MLQ me queues fixed hoti hain; MLFQ (Feedback) me process apne CPU burst behavior ke hisaab se queues ke beech move kar sakti hai.
+--------------------------------------------------
+4. SYNCHRONIZATION & CRITICAL SECTION
+--------------------------------------------------
+- Critical Section: Code ka wo hissa jaha shared resources/variables access ya modify hote hain.
+- Race Condition: Jab multiple threads ek hi shared variable ko simultaneously change karne ki koshish karein aur final output is baat par depend kare ki kaunsa thread pehle execute hua (Inconsistent data!).
+3 Must Conditions for Critical Section Solution:
+1. Mutual Exclusion: Agar Process P1 critical section me hai, toh koi dusri process enter nahi kar sakti.
+2. Progress: Agar critical section khali hai, toh sirf wahi processes jo enter hona chahti hain decide karengi ki kaun enter karega.
+3. Bounded Waiting: Kisi process ke request karne ke baad doosri processes kitni baar enter kar sakti hain uski ek limit honi chahiye (No infinite waiting/starvation).
+Synchronization Primitives:
+- Mutex (Mutual Exclusion Lock): Locking mechanism. Ek time par sirf 1 thread lock le sakta hai. Jo lock karega wahi unlock karega (Ownership concept).
+- Semaphore: Signaling mechanism.
+  * Binary Semaphore: Value sirf 0 ya 1 ho sakti hai (Mutual exclusion).
+  * Counting Semaphore: Value integer ho sakti hai ($N$). Available resources ke count ko track karta hai.
+--------------------------------------------------
+5. DEADLOCK & BANKER'S ALGORITHM
+--------------------------------------------------
+Deadlock: Aisi situation jaha processes ek dusre ke resources hold karke ek dusre ka intezaar kar rahi hoti hain aur koi bhi aage nahi badh pata.
+4 Coffman Conditions (Deadlock aane ke liye 4ro ek sath hona zaruri hain):
+1. Mutual Exclusion (Resource non-shareable hai).
+2. Hold and Wait (Process ne ek resource pakda hua hai aur doosre ke liye wait kar rahi hai).
+3. No Preemption (Resource forcibly cheena nahi ja sakta).
+4. Circular Wait (P1 waits for P2, P2 waits for P3, P3 waits for P1).
+Handling Deadlocks:
+- Deadlock Prevention: 4 conditions me se kisi ek ko tod do.
+- Deadlock Avoidance: Banker's Algorithm! Har resource allocation se pehle check karta hai ki system "Safe State" me rahega ya nahi. Agar Unsafe state banti hai toh process ko wait karate hain.
+- Deadlock Detection & Recovery: Deadlock aane do, fir detect karke process terminate karo ya resource preempt karo.
+- Ostrich Algorithm: Ignore the problem! (Windows aur UNIX practical systems yahi karte hain kyunki deadlock bohot rare hota hai).
+--------------------------------------------------
+6. MEMORY MANAGEMENT: PAGING & SEGMENTATION
+--------------------------------------------------
+- Logical Address: CPU generate karta hai (Virtual address).
+- Physical Address: Actual RAM ka physical hardware address.
+- Fragmentation:
+  * Internal Fragmentation: Allocated memory block process ki requirement se bada hai (Wasted space inside the block). Fixed partition me hota hai.
+  * External Fragmentation: Memory me total free space available hai, lekin contiguous (lagatar) na hone ki wajah se nayi process load nahi ho pa rahi.
+Paging (Solves External Fragmentation):
+- Logical memory ko equal-sized blocks me toda jata hai jise Pages kehte hain.
+- Physical memory (RAM) ko barabar size ke blocks me toda jata hai jise Frames kehte hain.
+- Rule: Page Size = Frame Size!
+- Page Table logical page number ko physical frame number se map karta hai.
+Page Fault:
+- Jab CPU kisi page ko access karna chahta hai aur wo page physical RAM me maujood nahi hota (Disk par hota hai).
+- Hardware interrupt generate hota hai, OS disk se page ko RAM frame me load karta hai.
+--------------------------------------------------
+7. PAGE REPLACEMENT ALGORITHMS & THRASHING
+--------------------------------------------------
+Jab RAM full ho aur naya page lana ho, toh puraana page hatana padta hai:
+1. FIFO (First In First Out): Jo page sabse pehle aaya use sabse pehle hatao.
+   * Belady's Anomaly (Exam Favourite!): Normally RAM frames badhane se page faults kam hone chahiye. Lekin FIFO me frames badhane par PAGE FAULTS BADH JAATE HAIN!
+2. Optimal Page Replacement: Us page ko hatao jo future me sabse lambe time tak use nahi hone wala.
+   * Theoretical Benchmark (Lowest page faults deta hai, lekin practical nahi kyunki future access pehle se predict nahi kar sakte).
+3. LRU (Least Recently Used): Us page ko hatao jo past me sabse lambe time se use nahi hua. Most practical and widely used algorithm.
+Thrashing:
+- Jab system useful execution karne ki jagah apna 90% time sirf pages ko Disk aur RAM ke beech swap-in/swap-out karne me barbaad karne lage. CPU utilization drastically drop ho kar almost 0% ho jata hai.
+--------------------------------------------------
+8. DISK SCHEDULING (I/O)
+--------------------------------------------------
+Disk Access Time:
+$$\text{Disk Access Time} = \text{Seek Time} + \text{Rotational Latency} + \text{Transfer Time}$$
+- Seek Time: Read/Write head ko correct track tak pahuchne me laga time (Highest component!).
+- Rotational Latency: Correct sector ko head ke neeche ghoom kar aane me laga time.
+Disk Scheduling Algorithms:
+1. FCFS: Requests arrival sequence me service hoti hain.
+2. SSTF (Shortest Seek Time First): Current head position se sabse paas wali request pehle process hoti hai.
+3. SCAN (Elevator Algorithm): Head ek direction me end tak jata hai raste ki sabhi requests service karte hue, fir waha se reverse hota hai.
+4. C-SCAN (Circular SCAN): Head ek direction me service karte hue jata hai, end par pahuch kar seedha start par bina kisi request ko service kiye return hota hai, aur fir scan shuru karta hai (Uniform wait time).
+5. LOOK & C-LOOK: SCAN aur C-SCAN ki tarah physical disk ke absolute end tak nahi jaate; us direction ki LAST PENDING REQUEST par pahuch kar hi reverse/jump kar jaate hain (Saves unnecessary travel).
+`
+        }
     ]
   
   };
