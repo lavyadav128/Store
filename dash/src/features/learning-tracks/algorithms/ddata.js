@@ -20021,6 +20021,1418 @@ class Solution {
             solve()
         `
         },
+
+
+
+        {
+            title: `QUESTION:
+            Java Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `// NOTE: Put this import at the top of your Java file
+        import java.util.*;
+        import java.io.*;
+
+        ==================================================
+        1. First Repeated Character (Exact OA Question)
+        ==================================================
+        QUESTION:
+        Given a string s, find the first repeated character. As you read the
+        string from left to right, return the first character that you encounter
+        which has already appeared earlier. If no character repeats, return "-1".
+        Example:
+        Input: "abbccd"
+        Output: "b" (since 'b' is the first character seen a second time)
+        SOLUTION:
+        public static String firstRepeatedChar(String s) {
+            Set<Character> seen = new HashSet<>();
+            for (char ch : s.toCharArray()) {
+                if (seen.contains(ch)) {
+                    return String.valueOf(ch);
+                }
+                seen.add(ch);
+            }
+            return "-1";
+        }
+        // Standard IO wrapper for buggy compilers:
+        public static void main(String[] args) throws IOException {
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            String line = br.readLine();
+            if (line != null && !line.trim().isEmpty()) {
+                System.out.println(firstRepeatedChar(line.trim()));
+            }
+        }
+        ==================================================
+        2. First Non-Repeating (Unique) Character
+        ==================================================
+        QUESTION:
+        Given a string s, find the first non-repeating character and return it.
+        If all characters repeat or the string is empty, return "-1".
+        Example:
+        Input: "loveleetcode"
+        Output: "v"
+        SOLUTION:
+        public static String firstUniqueChar(String s) {
+            Map<Character, Integer> counts = new HashMap<>();
+            for (char ch : s.toCharArray()) {
+                counts.put(ch, counts.getOrDefault(ch, 0) + 1);
+            }
+            for (char ch : s.toCharArray()) {
+                if (counts.get(ch) == 1) {
+                    return String.valueOf(ch);
+                }
+            }
+            return "-1";
+        }
+        ==================================================
+        3. First Character to Appear Twice
+        ==================================================
+        QUESTION:
+        Given a string s consisting of lowercase English letters, return the
+        first character that appears twice.
+        Example:
+        Input: "abccbaacz"
+        Output: "c"
+        SOLUTION:
+        public static String repeatedCharacter(String s) {
+            Set<Character> seen = new HashSet<>();
+            for (char ch : s.toCharArray()) {
+                if (seen.contains(ch)) {
+                    return String.valueOf(ch);
+                }
+                seen.add(ch);
+            }
+            return "";
+        }
+        ==================================================
+        4. Valid Anagram
+        ==================================================
+        QUESTION:
+        Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+        Example 1: s = "anagram", t = "nagaram" -> true
+        Example 2: s = "rat", t = "car" -> false
+        SOLUTION:
+        public static boolean isAnagram(String s, String t) {
+            if (s.length() != t.length()) {
+                return false;
+            }
+            Map<Character, Integer> counts = new HashMap<>();
+            for (char ch : s.toCharArray()) {
+                counts.put(ch, counts.getOrDefault(ch, 0) + 1);
+            }
+            for (char ch : t.toCharArray()) {
+                if (!counts.containsKey(ch) || counts.get(ch) == 0) {
+                    return false;
+                }
+                counts.put(ch, counts.get(ch) - 1);
+            }
+            return true;
+        }
+        ==================================================
+        5. Valid Palindrome (Ignoring Punctuation & Case)
+        ==================================================
+        QUESTION:
+        Given a string s, return true if it is a palindrome, considering only
+        alphanumeric characters and ignoring cases.
+        Example:
+        Input: "A man, a plan, a canal: Panama"
+        Output: true
+        SOLUTION:
+        public static boolean isPalindrome(String s) {
+            int left = 0, right = s.length() - 1;
+            while (left < right) {
+                while (left < right && !Character.isLetterOrDigit(s.charAt(left))) {
+                    left++;
+                }
+                while (left < right && !Character.isLetterOrDigit(s.charAt(right))) {
+                    right--;
+                }
+                if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) {
+                    return false;
+                }
+                left++;
+                right--;
+            }
+            return true;
+        }
+        ==================================================
+        6. String Compression / Run-Length Encoding
+        ==================================================
+        QUESTION:
+        Given a string s, compress consecutive identical characters into the
+        character followed by its run count.
+        Example:
+        Input: "aaabbc"
+        Output: "a3b2c1"
+        SOLUTION:
+        public static String compressString(String s) {
+            if (s == null || s.isEmpty()) {
+                return "";
+            }
+            StringBuilder res = new StringBuilder();
+            int count = 1;
+            for (int i = 1; i < s.length(); i++) {
+                if (s.charAt(i) == s.charAt(i - 1)) {
+                    count++;
+                } else {
+                    res.append(s.charAt(i - 1)).append(count);
+                    count = 1;
+                }
+            }
+            res.append(s.charAt(s.length() - 1)).append(count);
+            return res.toString();
+        }
+        ==================================================
+        7. Reverse Words in a String
+        ==================================================
+        QUESTION:
+        Given an input string s, reverse the order of the words. A word is defined
+        as a sequence of non-space characters. Return a single space-separated string.
+        Example:
+        Input: "  the sky   is blue  "
+        Output: "blue is sky the"
+        SOLUTION:
+        public static String reverseWords(String s) {
+            String trimmed = s.trim();
+            if (trimmed.isEmpty()) {
+                return "";
+            }
+            String[] words = trimmed.split(" +");
+            StringBuilder sb = new StringBuilder();
+            for (int i = words.length - 1; i >= 0; i--) {
+                sb.append(words[i]);
+                if (i != 0) {
+                    sb.append(" ");
+                }
+            }
+            return sb.toString();
+        }
+        ==================================================
+        8. Remove Duplicate Characters Preserving First Order
+        ==================================================
+        QUESTION:
+        Given a string s, remove all duplicate characters, keeping only their first occurrence.
+        Example:
+        Input: "banana"
+        Output: "ban"
+        SOLUTION:
+        public static String removeDuplicatesString(String s) {
+            Set<Character> seen = new HashSet<>();
+            StringBuilder result = new StringBuilder();
+            for (char ch : s.toCharArray()) {
+                if (!seen.contains(ch)) {
+                    seen.add(ch);
+                    result.append(ch);
+                }
+            }
+            return result.toString();
+        }
+        ==================================================
+        9. Count Vowels, Consonants, and Digits
+        ==================================================
+        QUESTION:
+        Given a string s, return a map containing the counts of vowels,
+        consonants, and digits.
+        Example:
+        Input: "Hello World 123!"
+        Output: {vowels=3, consonants=7, digits=3}
+        SOLUTION:
+        public static Map<String, Integer> countTypes(String s) {
+            String vowels = "aeiouAEIOU";
+            Map<String, Integer> res = new LinkedHashMap<>();
+            res.put("vowels", 0);
+            res.put("consonants", 0);
+            res.put("digits", 0);
+            for (char ch : s.toCharArray()) {
+                if (Character.isDigit(ch)) {
+                    res.put("digits", res.get("digits") + 1);
+                } else if (Character.isLetter(ch)) {
+                    if (vowels.indexOf(ch) != -1) {
+                        res.put("vowels", res.get("vowels") + 1);
+                    } else {
+                        res.put("consonants", res.get("consonants") + 1);
+                    }
+                }
+            }
+            return res;
+        }
+        ==================================================
+        10. Longest Common Prefix
+        ==================================================
+        QUESTION:
+        Write a function to find the longest common prefix string amongst an array of strings.
+        If there is no common prefix, return "".
+        Example:
+        Input: ["flower", "flow", "flight"]
+        Output: "fl"
+        SOLUTION:
+        public static String longestCommonPrefix(String[] strs) {
+            if (strs == null || strs.length == 0) {
+                return "";
+            }
+            String prefix = strs[0];
+            for (int i = 1; i < strs.length; i++) {
+                while (!strs[i].startsWith(prefix)) {
+                    prefix = prefix.substring(0, prefix.length() - 1);
+                    if (prefix.isEmpty()) {
+                        return "";
+                    }
+                }
+            }
+            return prefix;
+        }
+        ==================================================
+        11. Two Sum (Find Indices with Target Sum)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer target, return indices of the two
+        numbers such that they add up to target.
+        Example:
+        Input: nums = [2, 7, 11, 15], target = 9
+        Output: [0, 1]
+        SOLUTION:
+        public static int[] twoSum(int[] nums, int target) {
+            Map<Integer, Integer> lookup = new HashMap<>();
+            for (int i = 0; i < nums.length; i++) {
+                int diff = target - nums[i];
+                if (lookup.containsKey(diff)) {
+                    return new int[]{lookup.get(diff), i};
+                }
+                lookup.put(nums[i], i);
+            }
+            return new int[]{};
+        }
+        ==================================================
+        12. Second Largest Element in a List (Without sort)
+        ==================================================
+        QUESTION:
+        Given a list of numbers, find the second distinct largest element without sorting.
+        If no second largest exists, return -1.
+        Example 1: [10, 20, 20, 8] -> 10
+        Example 2: [10, 10, 10] -> -1
+        SOLUTION:
+        public static long secondLargest(int[] nums) {
+            long first = Long.MIN_VALUE, second = Long.MIN_VALUE;
+            for (int n : nums) {
+                if (n > first) {
+                    second = first;
+                    first = n;
+                } else if (n > second && n != first) {
+                    second = n;
+                }
+            }
+            return second != Long.MIN_VALUE ? second : -1;
+        }
+        ==================================================
+        13. Move Zeroes to End Preserving Relative Order
+        ==================================================
+        QUESTION:
+        Given an integer array nums, move all 0's to the end of it while maintaining
+        the relative order of the non-zero elements.
+        Example:
+        Input: [0, 1, 0, 3, 12]
+        Output: [1, 3, 12, 0, 0]
+        SOLUTION:
+        public static int[] moveZeroes(int[] nums) {
+            int insertPos = 0;
+            for (int i = 0; i < nums.length; i++) {
+                if (nums[i] != 0) {
+                    int temp = nums[insertPos];
+                    nums[insertPos] = nums[i];
+                    nums[i] = temp;
+                    insertPos++;
+                }
+            }
+            return nums;
+        }
+        ==================================================
+        14. Find the Missing Number in 1 to N
+        ==================================================
+        QUESTION:
+        An array contains n distinct numbers taken from 0, 1, 2, ..., n. Find the one
+        number that is missing from the array.
+        Example:
+        Input: [3, 0, 1] (n=3)
+        Output: 2
+        SOLUTION:
+        public static int missingNumber(int[] nums) {
+            int n = nums.length;
+            long expectedSum = (long) n * (n + 1) / 2;
+            long actualSum = 0;
+            for (int x : nums) {
+                actualSum += x;
+            }
+            return (int) (expectedSum - actualSum);
+        }
+        ==================================================
+        15. Merge Two Sorted Lists
+        ==================================================
+        QUESTION:
+        Given two sorted integer lists list1 and list2, merge them into one sorted list
+        without using sort().
+        Example:
+        Input: list1 = [1, 2, 4], list2 = [1, 3, 4]
+        Output: [1, 1, 2, 3, 4, 4]
+        SOLUTION:
+        public static int[] mergeSortedLists(int[] l1, int[] l2) {
+            int i = 0, j = 0, k = 0;
+            int[] merged = new int[l1.length + l2.length];
+            while (i < l1.length && j < l2.length) {
+                if (l1[i] <= l2[j]) {
+                    merged[k++] = l1[i++];
+                } else {
+                    merged[k++] = l2[j++];
+                }
+            }
+            while (i < l1.length) {
+                merged[k++] = l1[i++];
+            }
+            while (j < l2.length) {
+                merged[k++] = l2[j++];
+            }
+            return merged;
+        }
+        ==================================================
+        16. Maximum Subarray Sum (Kadane's Algorithm)
+        ==================================================
+        QUESTION:
+        Given an integer array nums, find the contiguous subarray which has the largest
+        sum and return its sum.
+        Example:
+        Input: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+        Output: 6 (Subarray: [4, -1, 2, 1])
+        SOLUTION:
+        public static int maxSubArray(int[] nums) {
+            int maxSoFar = nums[0];
+            int currMax = nums[0];
+            for (int i = 1; i < nums.length; i++) {
+                currMax = Math.max(nums[i], currMax + nums[i]);
+                maxSoFar = Math.max(maxSoFar, currMax);
+            }
+            return maxSoFar;
+        }
+        ==================================================
+        17. Majority Element (> N/2 Occurrences)
+        ==================================================
+        QUESTION:
+        Given an array nums of size n, return the majority element (element that appears
+        more than n / 2 times).
+        Example:
+        Input: [2, 2, 1, 1, 1, 2, 2]
+        Output: 2
+        SOLUTION:
+        // Boyer-Moore Voting Algorithm O(N) time, O(1) space
+        public static int majorityElement(int[] nums) {
+            int candidate = 0;
+            int count = 0;
+            for (int num : nums) {
+                if (count == 0) {
+                    candidate = num;
+                }
+                count += (num == candidate) ? 1 : -1;
+            }
+            return candidate;
+        }
+        ==================================================
+        18. Intersection of Two Lists (Unique Elements)
+        ==================================================
+        QUESTION:
+        Given two integer arrays nums1 and nums2, return an array of their intersection.
+        Each element in the result must be unique.
+        Example:
+        Input: nums1 = [4, 9, 5], nums2 = [9, 4, 9, 8, 4]
+        Output: [4, 9]
+        SOLUTION:
+        public static List<Integer> intersection(int[] nums1, int[] nums2) {
+            Set<Integer> set1 = new HashSet<>();
+            for (int n : nums1) {
+                set1.add(n);
+            }
+            Set<Integer> resSet = new HashSet<>();
+            for (int n : nums2) {
+                if (set1.contains(n)) {
+                    resSet.add(n);
+                }
+            }
+            return new ArrayList<>(resSet);
+        }
+        ==================================================
+        19. Moving Average of Data Stream (Window K)
+        ==================================================
+        QUESTION:
+        Given a list of stream values (e.g. hourly energy readings) and a window size k,
+        compute the simple moving average for each window.
+        Example:
+        Input: readings = [10, 20, 30, 40, 50], k = 3
+        Output: [20.0, 30.0, 40.0]
+        SOLUTION:
+        public static List<Double> movingAverage(int[] readings, int k) {
+            List<Double> result = new ArrayList<>();
+            if (readings.length < k || k <= 0) {
+                return result;
+            }
+            double windowSum = 0;
+            for (int i = 0; i < k; i++) {
+                windowSum += readings[i];
+            }
+            result.add(windowSum / k);
+            for (int i = k; i < readings.length; i++) {
+                windowSum += readings[i] - readings[i - k];
+                result.add(windowSum / k);
+            }
+            return result;
+        }
+        ==================================================
+        20. Best Time to Buy and Sell Stock / Energy Spot Price
+        ==================================================
+        QUESTION:
+        You are given an array prices where prices[i] is the price on the ith day.
+        Maximize your profit by choosing a single day to buy and a single future day to sell.
+        Example:
+        Input: [7, 1, 5, 3, 6, 4]
+        Output: 5 (Buy at 1, sell at 6)
+        SOLUTION:
+        public static int maxProfit(int[] prices) {
+            int minPrice = Integer.MAX_VALUE;
+            int maxProf = 0;
+            for (int price : prices) {
+                if (price < minPrice) {
+                    minPrice = price;
+                } else if (price - minPrice > maxProf) {
+                    maxProf = price - minPrice;
+                }
+            }
+            return maxProf;
+        }
+        ==================================================
+        21. Parse and Clean Delimited Energy Log String
+        ==================================================
+        QUESTION:
+        Given raw sensor log strings formatted as "ID:TIMESTAMP:VOLTAGE:CURRENT", parse the
+        records, filter out rows where VOLTAGE or CURRENT is negative or non-numeric, and
+        return the total Power (Power = Voltage * Current).
+        Example:
+        Input: ["M1:1001:230.5:10.0", "M2:1002:INVALID:5.0", "M3:1003:220.0:5.0"]
+        Output: 3405.0  // (230.5 * 10.0) + (220.0 * 5.0) = 2305.0 + 1100.0
+        SOLUTION:
+        public static double computeTotalPower(List<String> records) {
+            double totalPower = 0.0;
+            for (String row : records) {
+                String[] parts = row.trim().split(":");
+                if (parts.length != 4) {
+                    continue;
+                }
+                try {
+                    double voltage = Double.parseDouble(parts[2].trim());
+                    double current = Double.parseDouble(parts[3].trim());
+                    if (Double.isNaN(voltage) || Double.isNaN(current)) {
+                        continue;
+                    }
+                    if (voltage >= 0 && current >= 0) {
+                        totalPower += voltage * current;
+                    }
+                } catch (NumberFormatException e) {
+                    continue;
+                }
+            }
+            return Math.round(totalPower * 100.0) / 100.0;
+        }
+        ==================================================
+        22. Check Prime & Prime Factorization (Math Module)
+        ==================================================
+        QUESTION:
+        Given an integer n, return true if it is prime. Also provide a helper to
+        return all prime factors of n.
+        Example:
+        n = 28 -> IsPrime: false, Prime Factors: [2, 2, 7]
+        SOLUTION:
+        public static boolean isPrime(int n) {
+            if (n <= 1) {
+                return false;
+            }
+            if (n == 2 || n == 3) {
+                return true;
+            }
+            if (n % 2 == 0 || n % 3 == 0) {
+                return false;
+            }
+            for (long i = 5; i * i <= n; i += 6) {
+                if (n % i == 0 || n % (i + 2) == 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        public static List<Integer> primeFactors(int n) {
+            List<Integer> factors = new ArrayList<>();
+            while (n % 2 == 0) {
+                factors.add(2);
+                n /= 2;
+            }
+            for (int i = 3; (long) i * i <= n; i += 2) {
+                while (n % i == 0) {
+                    factors.add(i);
+                    n /= i;
+                }
+            }
+            if (n > 2) {
+                factors.add(n);
+            }
+            return factors;
+        }
+        ==================================================
+        23. Greatest Common Divisor (GCD) & LCM
+        ==================================================
+        QUESTION:
+        Calculate the GCD and LCM of two integers a and b without external packages.
+        Example:
+        a = 12, b = 18 -> GCD: 6, LCM: 36
+        SOLUTION:
+        public static long gcd(long a, long b) {
+            while (b != 0) {
+                long temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return Math.abs(a);
+        }
+        public static long lcm(long a, long b) {
+            if (a == 0 || b == 0) {
+                return 0;
+            }
+            return Math.abs(a / gcd(a, b) * b);
+        }
+        ==================================================
+        24. Count Trailing Zeroes in N Factorial
+        ==================================================
+        QUESTION:
+        Given an integer n, return the number of trailing zeroes in n!. Do not compute
+        n! directly to avoid overflow/timeout.
+        Example:
+        n = 10 -> 2 (10! = 3628800)
+        SOLUTION:
+        public static int trailingZeroes(int n) {
+            int count = 0;
+            while (n >= 5) {
+                count += n / 5;
+                n /= 5;
+            }
+            return count;
+        }
+        ==================================================
+        25. Valid Parentheses / Bracket Matching
+        ==================================================
+        QUESTION:
+        Given a string s containing '(', ')', '{', '}', '[' and ']', determine if
+        the input string is valid.
+        Example 1: "()[]{}" -> true
+        Example 2: "([)]" -> false
+        SOLUTION:
+        public static boolean isValidBrackets(String s) {
+            Deque<Character> stack = new ArrayDeque<>();
+            Map<Character, Character> mapping = new HashMap<>();
+            mapping.put(')', '(');
+            mapping.put('}', '{');
+            mapping.put(']', '[');
+            for (char ch : s.toCharArray()) {
+                if (mapping.containsKey(ch)) {
+                    char top = stack.isEmpty() ? '#' : stack.pop();
+                    if (mapping.get(ch) != top) {
+                        return false;
+                    }
+                } else {
+                    stack.push(ch);
+                }
+            }
+            return stack.isEmpty();
+        }
+        ==================================================
+        26. Group Anagrams
+        ==================================================
+        QUESTION:
+        Given an array of strings strs, group the anagrams together. Return the groups
+        in any order.
+        Example:
+        Input: ["eat", "tea", "tan", "ate", "nat", "bat"]
+        Output: [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]
+        SOLUTION:
+        public static List<List<String>> groupAnagrams(String[] strs) {
+            Map<String, List<String>> groups = new HashMap<>();
+            for (String word : strs) {
+                char[] chars = word.toCharArray();
+                Arrays.sort(chars);
+                String key = new String(chars);
+                if (!groups.containsKey(key)) {
+                    groups.put(key, new ArrayList<>());
+                }
+                groups.get(key).add(word);
+            }
+            return new ArrayList<>(groups.values());
+        }
+        ==================================================
+        27. Subarray Sum Equals K (Frequency Map)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer k, return the total number
+        of continuous subarrays whose sum equals to k.
+        Example:
+        Input: nums = [1, 1, 1], k = 2
+        Output: 2
+        SOLUTION:
+        public static int subarraySum(int[] nums, int k) {
+            Map<Integer, Integer> prefixCounts = new HashMap<>();
+            prefixCounts.put(0, 1);
+            int currSum = 0;
+            int total = 0;
+            for (int num : nums) {
+                currSum += num;
+                if (prefixCounts.containsKey(currSum - k)) {
+                    total += prefixCounts.get(currSum - k);
+                }
+                prefixCounts.put(currSum, prefixCounts.getOrDefault(currSum, 0) + 1);
+            }
+            return total;
+        }
+        ==================================================
+        28. Buggy Compiler IO Template (Emergency Fallback)
+        ==================================================
+        QUESTION:
+        Template to handle any broken/buggy online compiler that either expects
+        Scanner, BufferedReader, or line-by-line parsing with trailing whitespace.
+        SOLUTION:
+        import java.util.*;
+        import java.io.*;
+
+        public class Main {
+            public static void main(String[] args) throws IOException {
+                // Reads entire input from stdin regardless of how the platform passes it
+                BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+                List<String> lines = new ArrayList<>();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    line = line.trim();
+                    if (!line.isEmpty()) {
+                        lines.add(line);
+                    }
+                }
+                if (lines.isEmpty()) {
+                    return;
+                }
+                // Scenario A: First line is a single string (e.g., "abbccd")
+                String firstLine = lines.get(0);
+
+                // Scenario B: First line is numbers separated by space/comma
+                // String[] tokens = firstLine.replace(",", " ").split(" +");
+                // int[] nums = new int[tokens.length];
+                // for (int i = 0; i < tokens.length; i++) nums[i] = Integer.parseInt(tokens[i]);
+
+                // Process problem logic safely:
+                Set<Character> seen = new HashSet<>();
+                String res = "-1";
+                for (char ch : firstLine.toCharArray()) {
+                    if (seen.contains(ch)) {
+                        res = String.valueOf(ch);
+                        break;
+                    }
+                    seen.add(ch);
+                }
+
+                // Always print output cleanly without trailing spaces
+                System.out.println(res);
+            }
+        }
+        `
+        },
+
+        {
+            title: `QUESTION:
+            JavaScript Questions `,
+
+            bruteForceComplexity: ``,
+
+            bruteForceCode: ``,
+
+            optimalComplexity: ``,
+
+            optimalCode: `==================================================
+        1. First Repeated Character (Exact OA Question)
+        ==================================================
+        QUESTION:
+        Given a string s, find the first repeated character. As you read the
+        string from left to right, return the first character that you encounter
+        which has already appeared earlier. If no character repeats, return "-1".
+        Example:
+        Input: "abbccd"
+        Output: "b" (since 'b' is the first character seen a second time)
+        SOLUTION:
+        function firstRepeatedChar(s) {
+            const seen = new Set();
+            for (const ch of s) {
+                if (seen.has(ch)) {
+                    return ch;
+                }
+                seen.add(ch);
+            }
+            return "-1";
+        }
+        // Standard IO wrapper for buggy compilers:
+        const data = require("fs").readFileSync(0, "utf8").trim();
+        if (data) {
+            console.log(firstRepeatedChar(data.split("\\n")[0].trim()));
+        }
+        ==================================================
+        2. First Non-Repeating (Unique) Character
+        ==================================================
+        QUESTION:
+        Given a string s, find the first non-repeating character and return it.
+        If all characters repeat or the string is empty, return "-1".
+        Example:
+        Input: "loveleetcode"
+        Output: "v"
+        SOLUTION:
+        function firstUniqueChar(s) {
+            const counts = new Map();
+            for (const ch of s) {
+                counts.set(ch, (counts.get(ch) || 0) + 1);
+            }
+            for (const ch of s) {
+                if (counts.get(ch) === 1) {
+                    return ch;
+                }
+            }
+            return "-1";
+        }
+        ==================================================
+        3. First Character to Appear Twice
+        ==================================================
+        QUESTION:
+        Given a string s consisting of lowercase English letters, return the
+        first character that appears twice.
+        Example:
+        Input: "abccbaacz"
+        Output: "c"
+        SOLUTION:
+        function repeatedCharacter(s) {
+            const seen = new Set();
+            for (const ch of s) {
+                if (seen.has(ch)) {
+                    return ch;
+                }
+                seen.add(ch);
+            }
+            return "";
+        }
+        ==================================================
+        4. Valid Anagram
+        ==================================================
+        QUESTION:
+        Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+        Example 1: s = "anagram", t = "nagaram" -> true
+        Example 2: s = "rat", t = "car" -> false
+        SOLUTION:
+        function isAnagram(s, t) {
+            if (s.length !== t.length) {
+                return false;
+            }
+            const counts = new Map();
+            for (const ch of s) {
+                counts.set(ch, (counts.get(ch) || 0) + 1);
+            }
+            for (const ch of t) {
+                if (!counts.has(ch) || counts.get(ch) === 0) {
+                    return false;
+                }
+                counts.set(ch, counts.get(ch) - 1);
+            }
+            return true;
+        }
+        ==================================================
+        5. Valid Palindrome (Ignoring Punctuation & Case)
+        ==================================================
+        QUESTION:
+        Given a string s, return true if it is a palindrome, considering only
+        alphanumeric characters and ignoring cases.
+        Example:
+        Input: "A man, a plan, a canal: Panama"
+        Output: true
+        SOLUTION:
+        function isAlnum(c) {
+            return (c >= "a" && c <= "z") || (c >= "A" && c <= "Z") || (c >= "0" && c <= "9");
+        }
+        function isPalindrome(s) {
+            let left = 0, right = s.length - 1;
+            while (left < right) {
+                while (left < right && !isAlnum(s[left])) {
+                    left++;
+                }
+                while (left < right && !isAlnum(s[right])) {
+                    right--;
+                }
+                if (s[left].toLowerCase() !== s[right].toLowerCase()) {
+                    return false;
+                }
+                left++;
+                right--;
+            }
+            return true;
+        }
+        ==================================================
+        6. String Compression / Run-Length Encoding
+        ==================================================
+        QUESTION:
+        Given a string s, compress consecutive identical characters into the
+        character followed by its run count.
+        Example:
+        Input: "aaabbc"
+        Output: "a3b2c1"
+        SOLUTION:
+        function compressString(s) {
+            if (!s) {
+                return "";
+            }
+            const res = [];
+            let count = 1;
+            for (let i = 1; i < s.length; i++) {
+                if (s[i] === s[i - 1]) {
+                    count++;
+                } else {
+                    res.push(s[i - 1] + count);
+                    count = 1;
+                }
+            }
+            res.push(s[s.length - 1] + count);
+            return res.join("");
+        }
+        ==================================================
+        7. Reverse Words in a String
+        ==================================================
+        QUESTION:
+        Given an input string s, reverse the order of the words. A word is defined
+        as a sequence of non-space characters. Return a single space-separated string.
+        Example:
+        Input: "  the sky   is blue  "
+        Output: "blue is sky the"
+        SOLUTION:
+        function reverseWords(s) {
+            const words = s.split(" ").filter(w => w.length > 0);
+            return words.reverse().join(" ");
+        }
+        ==================================================
+        8. Remove Duplicate Characters Preserving First Order
+        ==================================================
+        QUESTION:
+        Given a string s, remove all duplicate characters, keeping only their first occurrence.
+        Example:
+        Input: "banana"
+        Output: "ban"
+        SOLUTION:
+        function removeDuplicatesString(s) {
+            const seen = new Set();
+            const result = [];
+            for (const ch of s) {
+                if (!seen.has(ch)) {
+                    seen.add(ch);
+                    result.push(ch);
+                }
+            }
+            return result.join("");
+        }
+        ==================================================
+        9. Count Vowels, Consonants, and Digits
+        ==================================================
+        QUESTION:
+        Given a string s, return an object containing the counts of vowels,
+        consonants, and digits.
+        Example:
+        Input: "Hello World 123!"
+        Output: { vowels: 3, consonants: 7, digits: 3 }
+        SOLUTION:
+        function countTypes(s) {
+            const vowels = new Set("aeiouAEIOU");
+            const res = { vowels: 0, consonants: 0, digits: 0 };
+            for (const ch of s) {
+                if (ch >= "0" && ch <= "9") {
+                    res.digits++;
+                } else if ((ch >= "a" && ch <= "z") || (ch >= "A" && ch <= "Z")) {
+                    if (vowels.has(ch)) {
+                        res.vowels++;
+                    } else {
+                        res.consonants++;
+                    }
+                }
+            }
+            return res;
+        }
+        ==================================================
+        10. Longest Common Prefix
+        ==================================================
+        QUESTION:
+        Write a function to find the longest common prefix string amongst an array of strings.
+        If there is no common prefix, return "".
+        Example:
+        Input: ["flower", "flow", "flight"]
+        Output: "fl"
+        SOLUTION:
+        function longestCommonPrefix(strs) {
+            if (!strs || strs.length === 0) {
+                return "";
+            }
+            let prefix = strs[0];
+            for (let i = 1; i < strs.length; i++) {
+                while (!strs[i].startsWith(prefix)) {
+                    prefix = prefix.slice(0, -1);
+                    if (prefix === "") {
+                        return "";
+                    }
+                }
+            }
+            return prefix;
+        }
+        ==================================================
+        11. Two Sum (Find Indices with Target Sum)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer target, return indices of the two
+        numbers such that they add up to target.
+        Example:
+        Input: nums = [2, 7, 11, 15], target = 9
+        Output: [0, 1]
+        SOLUTION:
+        function twoSum(nums, target) {
+            const lookup = new Map();
+            for (let i = 0; i < nums.length; i++) {
+                const diff = target - nums[i];
+                if (lookup.has(diff)) {
+                    return [lookup.get(diff), i];
+                }
+                lookup.set(nums[i], i);
+            }
+            return [];
+        }
+        ==================================================
+        12. Second Largest Element in a List (Without sort)
+        ==================================================
+        QUESTION:
+        Given a list of numbers, find the second distinct largest element without sorting.
+        If no second largest exists, return -1.
+        Example 1: [10, 20, 20, 8] -> 10
+        Example 2: [10, 10, 10] -> -1
+        SOLUTION:
+        function secondLargest(nums) {
+            let first = -Infinity, second = -Infinity;
+            for (const n of nums) {
+                if (n > first) {
+                    second = first;
+                    first = n;
+                } else if (n > second && n !== first) {
+                    second = n;
+                }
+            }
+            return second !== -Infinity ? second : -1;
+        }
+        ==================================================
+        13. Move Zeroes to End Preserving Relative Order
+        ==================================================
+        QUESTION:
+        Given an integer array nums, move all 0's to the end of it while maintaining
+        the relative order of the non-zero elements.
+        Example:
+        Input: [0, 1, 0, 3, 12]
+        Output: [1, 3, 12, 0, 0]
+        SOLUTION:
+        function moveZeroes(nums) {
+            let insertPos = 0;
+            for (let i = 0; i < nums.length; i++) {
+                if (nums[i] !== 0) {
+                    [nums[insertPos], nums[i]] = [nums[i], nums[insertPos]];
+                    insertPos++;
+                }
+            }
+            return nums;
+        }
+        ==================================================
+        14. Find the Missing Number in 1 to N
+        ==================================================
+        QUESTION:
+        An array contains n distinct numbers taken from 0, 1, 2, ..., n. Find the one
+        number that is missing from the array.
+        Example:
+        Input: [3, 0, 1] (n=3)
+        Output: 2
+        SOLUTION:
+        function missingNumber(nums) {
+            const n = nums.length;
+            const expectedSum = (n * (n + 1)) / 2;
+            const actualSum = nums.reduce((a, b) => a + b, 0);
+            return expectedSum - actualSum;
+        }
+        ==================================================
+        15. Merge Two Sorted Lists
+        ==================================================
+        QUESTION:
+        Given two sorted integer lists list1 and list2, merge them into one sorted list
+        without using sort().
+        Example:
+        Input: list1 = [1, 2, 4], list2 = [1, 3, 4]
+        Output: [1, 1, 2, 3, 4, 4]
+        SOLUTION:
+        function mergeSortedLists(l1, l2) {
+            let i = 0, j = 0;
+            const merged = [];
+            while (i < l1.length && j < l2.length) {
+                if (l1[i] <= l2[j]) {
+                    merged.push(l1[i++]);
+                } else {
+                    merged.push(l2[j++]);
+                }
+            }
+            while (i < l1.length) {
+                merged.push(l1[i++]);
+            }
+            while (j < l2.length) {
+                merged.push(l2[j++]);
+            }
+            return merged;
+        }
+        ==================================================
+        16. Maximum Subarray Sum (Kadane's Algorithm)
+        ==================================================
+        QUESTION:
+        Given an integer array nums, find the contiguous subarray which has the largest
+        sum and return its sum.
+        Example:
+        Input: [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+        Output: 6 (Subarray: [4, -1, 2, 1])
+        SOLUTION:
+        function maxSubArray(nums) {
+            let maxSoFar = nums[0];
+            let currMax = nums[0];
+            for (let i = 1; i < nums.length; i++) {
+                currMax = Math.max(nums[i], currMax + nums[i]);
+                maxSoFar = Math.max(maxSoFar, currMax);
+            }
+            return maxSoFar;
+        }
+        ==================================================
+        17. Majority Element (> N/2 Occurrences)
+        ==================================================
+        QUESTION:
+        Given an array nums of size n, return the majority element (element that appears
+        more than n / 2 times).
+        Example:
+        Input: [2, 2, 1, 1, 1, 2, 2]
+        Output: 2
+        SOLUTION:
+        // Boyer-Moore Voting Algorithm O(N) time, O(1) space
+        function majorityElement(nums) {
+            let candidate = null;
+            let count = 0;
+            for (const num of nums) {
+                if (count === 0) {
+                    candidate = num;
+                }
+                count += (num === candidate) ? 1 : -1;
+            }
+            return candidate;
+        }
+        ==================================================
+        18. Intersection of Two Lists (Unique Elements)
+        ==================================================
+        QUESTION:
+        Given two integer arrays nums1 and nums2, return an array of their intersection.
+        Each element in the result must be unique.
+        Example:
+        Input: nums1 = [4, 9, 5], nums2 = [9, 4, 9, 8, 4]
+        Output: [4, 9]
+        SOLUTION:
+        function intersection(nums1, nums2) {
+            const set1 = new Set(nums1);
+            const res = [];
+            for (const n of new Set(nums2)) {
+                if (set1.has(n)) {
+                    res.push(n);
+                }
+            }
+            return res;
+        }
+        ==================================================
+        19. Moving Average of Data Stream (Window K)
+        ==================================================
+        QUESTION:
+        Given a list of stream values (e.g. hourly energy readings) and a window size k,
+        compute the simple moving average for each window.
+        Example:
+        Input: readings = [10, 20, 30, 40, 50], k = 3
+        Output: [20, 30, 40]
+        SOLUTION:
+        function movingAverage(readings, k) {
+            if (readings.length < k || k <= 0) {
+                return [];
+            }
+            let windowSum = 0;
+            for (let i = 0; i < k; i++) {
+                windowSum += readings[i];
+            }
+            const result = [windowSum / k];
+            for (let i = k; i < readings.length; i++) {
+                windowSum += readings[i] - readings[i - k];
+                result.push(windowSum / k);
+            }
+            return result;
+        }
+        ==================================================
+        20. Best Time to Buy and Sell Stock / Energy Spot Price
+        ==================================================
+        QUESTION:
+        You are given an array prices where prices[i] is the price on the ith day.
+        Maximize your profit by choosing a single day to buy and a single future day to sell.
+        Example:
+        Input: [7, 1, 5, 3, 6, 4]
+        Output: 5 (Buy at 1, sell at 6)
+        SOLUTION:
+        function maxProfit(prices) {
+            let minPrice = Infinity;
+            let maxProf = 0;
+            for (const price of prices) {
+                if (price < minPrice) {
+                    minPrice = price;
+                } else if (price - minPrice > maxProf) {
+                    maxProf = price - minPrice;
+                }
+            }
+            return maxProf;
+        }
+        ==================================================
+        21. Parse and Clean Delimited Energy Log String
+        ==================================================
+        QUESTION:
+        Given raw sensor log strings formatted as "ID:TIMESTAMP:VOLTAGE:CURRENT", parse the
+        records, filter out rows where VOLTAGE or CURRENT is negative or non-numeric, and
+        return the total Power (Power = Voltage * Current).
+        Example:
+        Input: ["M1:1001:230.5:10.0", "M2:1002:INVALID:5.0", "M3:1003:220.0:5.0"]
+        Output: 3405  // (230.5 * 10.0) + (220.0 * 5.0) = 2305.0 + 1100.0
+        SOLUTION:
+        function computeTotalPower(records) {
+            let totalPower = 0;
+            for (const row of records) {
+                const parts = row.trim().split(":");
+                if (parts.length !== 4) {
+                    continue;
+                }
+                const vStr = parts[2].trim();
+                const cStr = parts[3].trim();
+                if (vStr === "" || cStr === "") {
+                    continue;
+                }
+                const voltage = Number(vStr);
+                const current = Number(cStr);
+                if (isNaN(voltage) || isNaN(current)) {
+                    continue;
+                }
+                if (voltage >= 0 && current >= 0) {
+                    totalPower += voltage * current;
+                }
+            }
+            return Math.round(totalPower * 100) / 100;
+        }
+        ==================================================
+        22. Check Prime & Prime Factorization (Math Module)
+        ==================================================
+        QUESTION:
+        Given an integer n, return true if it is prime. Also provide a helper to
+        return all prime factors of n.
+        Example:
+        n = 28 -> IsPrime: false, Prime Factors: [2, 2, 7]
+        SOLUTION:
+        function isPrime(n) {
+            if (n <= 1) {
+                return false;
+            }
+            if (n === 2 || n === 3) {
+                return true;
+            }
+            if (n % 2 === 0 || n % 3 === 0) {
+                return false;
+            }
+            const limit = Math.floor(Math.sqrt(n));
+            for (let i = 5; i <= limit; i += 6) {
+                if (n % i === 0 || n % (i + 2) === 0) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        function primeFactors(n) {
+            const factors = [];
+            while (n % 2 === 0) {
+                factors.push(2);
+                n = n / 2;
+            }
+            for (let i = 3; i * i <= n; i += 2) {
+                while (n % i === 0) {
+                    factors.push(i);
+                    n = n / i;
+                }
+            }
+            if (n > 2) {
+                factors.push(n);
+            }
+            return factors;
+        }
+        ==================================================
+        23. Greatest Common Divisor (GCD) & LCM
+        ==================================================
+        QUESTION:
+        Calculate the GCD and LCM of two integers a and b without external packages.
+        Example:
+        a = 12, b = 18 -> GCD: 6, LCM: 36
+        SOLUTION:
+        function gcd(a, b) {
+            while (b !== 0) {
+                [a, b] = [b, a % b];
+            }
+            return Math.abs(a);
+        }
+        function lcm(a, b) {
+            if (a === 0 || b === 0) {
+                return 0;
+            }
+            return Math.abs((a / gcd(a, b)) * b);
+        }
+        ==================================================
+        24. Count Trailing Zeroes in N Factorial
+        ==================================================
+        QUESTION:
+        Given an integer n, return the number of trailing zeroes in n!. Do not compute
+        n! directly to avoid overflow/timeout.
+        Example:
+        n = 10 -> 2 (10! = 3628800)
+        SOLUTION:
+        function trailingZeroes(n) {
+            let count = 0;
+            while (n >= 5) {
+                count += Math.floor(n / 5);
+                n = Math.floor(n / 5);
+            }
+            return count;
+        }
+        ==================================================
+        25. Valid Parentheses / Bracket Matching
+        ==================================================
+        QUESTION:
+        Given a string s containing '(', ')', '{', '}', '[' and ']', determine if
+        the input string is valid.
+        Example 1: "()[]{}" -> true
+        Example 2: "([)]" -> false
+        SOLUTION:
+        function isValidBrackets(s) {
+            const stack = [];
+            const mapping = { ")": "(", "}": "{", "]": "[" };
+            for (const ch of s) {
+                if (ch in mapping) {
+                    const top = stack.length ? stack.pop() : "#";
+                    if (mapping[ch] !== top) {
+                        return false;
+                    }
+                } else {
+                    stack.push(ch);
+                }
+            }
+            return stack.length === 0;
+        }
+        ==================================================
+        26. Group Anagrams
+        ==================================================
+        QUESTION:
+        Given an array of strings strs, group the anagrams together. Return the groups
+        in any order.
+        Example:
+        Input: ["eat", "tea", "tan", "ate", "nat", "bat"]
+        Output: [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]
+        SOLUTION:
+        function groupAnagrams(strs) {
+            const groups = new Map();
+            for (const word of strs) {
+                const key = word.split("").sort().join("");
+                if (!groups.has(key)) {
+                    groups.set(key, []);
+                }
+                groups.get(key).push(word);
+            }
+            return Array.from(groups.values());
+        }
+        ==================================================
+        27. Subarray Sum Equals K (Frequency Map)
+        ==================================================
+        QUESTION:
+        Given an array of integers nums and an integer k, return the total number
+        of continuous subarrays whose sum equals to k.
+        Example:
+        Input: nums = [1, 1, 1], k = 2
+        Output: 2
+        SOLUTION:
+        function subarraySum(nums, k) {
+            const prefixCounts = new Map();
+            prefixCounts.set(0, 1);
+            let currSum = 0;
+            let total = 0;
+            for (const num of nums) {
+                currSum += num;
+                if (prefixCounts.has(currSum - k)) {
+                    total += prefixCounts.get(currSum - k);
+                }
+                prefixCounts.set(currSum, (prefixCounts.get(currSum) || 0) + 1);
+            }
+            return total;
+        }
+        ==================================================
+        28. Buggy Compiler IO Template (Emergency Fallback)
+        ==================================================
+        QUESTION:
+        Template to handle any broken/buggy online compiler that either expects
+        readFileSync, readline, or line-by-line parsing with trailing whitespace.
+        SOLUTION:
+        function solve() {
+            // Reads entire input from stdin regardless of how the platform passes it
+            const rawInput = require("fs").readFileSync(0, "utf8").trim();
+            if (!rawInput) {
+                return;
+            }
+            const lines = rawInput.split("\\n").map(l => l.trim()).filter(l => l.length > 0);
+            if (lines.length === 0) {
+                return;
+            }
+            // Scenario A: First line is a single string (e.g., "abbccd")
+            const firstLine = lines[0];
+
+            // Scenario B: First line is numbers separated by space/comma
+            // const nums = firstLine.replace(/,/g, " ").split(" ").filter(x => x).map(Number);
+
+            // Process problem logic safely:
+            const seen = new Set();
+            let res = "-1";
+            for (const ch of firstLine) {
+                if (seen.has(ch)) {
+                    res = ch;
+                    break;
+                }
+                seen.add(ch);
+            }
+
+            // Always print output cleanly without trailing spaces
+            console.log(res);
+        }
+        solve();
+        `
+        },
+
+        
         {
             title: `QUESTION:
             Python Questions `,
