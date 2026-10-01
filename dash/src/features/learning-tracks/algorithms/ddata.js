@@ -237,6 +237,206 @@ const questionsData = {
 
   "arrays":[
     {
+        title: `QUESTION:
+    Given an array of numbers, find the second distinct largest element without sorting.
+    If no second largest exists, return -1.
+ 
+    EXAMPLE:
+    Input:  nums = [10, 20, 20, 8]
+    Output: 10
+ 
+    Input:  nums = [10, 10, 10]
+    Output: -1`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the array once.
+ 
+    Space Complexity: O(1)
+    - Only two variables are used.`,
+ 
+        optimalCode: `Here basically we maintain first and second. If a number is greater than first, then second becomes first and first becomes the number.
+       Else if it is greater than second and not equal to first, it becomes second. We use long so Integer.MIN_VALUE in the input is not confused with the empty marker.
+ 
+ 
+    class Solution {
+        public long secondLargest(int[] nums) {
+            long first = Long.MIN_VALUE, second = Long.MIN_VALUE;
+            for (int n : nums) {
+                if (n > first) {
+                    second = first;
+                    first = n;
+                } else if (n > second && n != first) {
+                    second = n;
+                }
+            }
+            return second != Long.MIN_VALUE ? second : -1;
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given an integer array nums, move all 0's to the end of it while maintaining the relative order of the non-zero elements.
+ 
+    EXAMPLE:
+    Input:  nums = [0, 1, 0, 3, 12]
+    Output: [1, 3, 12, 0, 0]
+    Explanation: Non-zero elements keep their order, zeroes go to the end.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the array once.
+ 
+    Space Complexity: O(1)
+    - The array is modified in place.`,
+ 
+        optimalCode: `Here basically we keep an insertPos pointer where the next non-zero element should go.
+       Whenever we see a non-zero element at index i, we swap it with the element at insertPos and move insertPos forward.
+ 
+ 
+    class Solution {
+        public int[] moveZeroes(int[] nums) {
+            int insertPos = 0;
+            for (int i = 0; i < nums.length; i++) {
+                if (nums[i] != 0) {
+                    int temp = nums[insertPos];
+                    nums[insertPos] = nums[i];
+                    nums[i] = temp;
+                    insertPos++;
+                }
+            }
+            return nums;
+        }
+    }`
+    },    
+    {
+        title: `QUESTION:
+    Given an array of stream values (e.g. hourly energy readings) and a window size k,
+    compute the simple moving average for each window.
+ 
+    EXAMPLE:
+    Input:  readings = [10, 20, 30, 40, 50], k = 3
+    Output: [20.0, 30.0, 40.0]
+    Explanation: (10+20+30)/3 = 20, (20+30+40)/3 = 30, (30+40+50)/3 = 40.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - The window sum is updated in O(1) for every step.
+ 
+    Space Complexity: O(N)
+    - The result list stores N - k + 1 averages.`,
+ 
+        optimalCode: `Here basically we compute the sum of the first k elements. For every next index we add the new element
+       and subtract the element that left the window, so we never recompute the full sum.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public List<Double> movingAverage(int[] readings, int k) {
+            List<Double> result = new ArrayList<>();
+            if (readings.length < k || k <= 0) {
+                return result;
+            }
+            double windowSum = 0;
+            for (int i = 0; i < k; i++) {
+                windowSum += readings[i];
+            }
+            result.add(windowSum / k);
+            for (int i = k; i < readings.length; i++) {
+                windowSum += readings[i] - readings[i - k];
+                result.add(windowSum / k);
+            }
+            return result;
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Calculate the GCD and LCM of two integers a and b without external packages.
+ 
+    EXAMPLE:
+    Input:  a = 12, b = 18
+    Output: GCD = 6, LCM = 36
+    Explanation: 6 is the largest number dividing both, and 12 * 18 / 6 = 36.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(log(min(a, b)))
+    - Euclid's algorithm shrinks the numbers quickly.
+ 
+    Space Complexity: O(1)
+    - Only a few variables are used.`,
+ 
+        optimalCode: `Here basically we use Euclid's algorithm: gcd(a, b) = gcd(b, a % b) until b becomes 0.
+       Then lcm(a, b) = (a / gcd) * b. We divide first to reduce the chance of overflow.
+ 
+ 
+    class Solution {
+        public long gcd(long a, long b) {
+            while (b != 0) {
+                long temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return Math.abs(a);
+        }
+ 
+        public long lcm(long a, long b) {
+            if (a == 0 || b == 0) {
+                return 0;
+            }
+            return Math.abs(a / gcd(a, b) * b);
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given an integer n, return the number of trailing zeroes in n!. Do not compute n! directly to avoid overflow or timeout.
+ 
+    EXAMPLE:
+    Input:  n = 10
+    Output: 2
+    Explanation: 10! = 3628800, which has 2 trailing zeroes.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(log N)
+    - n is divided by 5 in every iteration.
+ 
+    Space Complexity: O(1)
+    - Only a counter is used.`,
+ 
+        optimalCode: `Here basically each trailing zero comes from a pair of factors 2 and 5, and 2s are always more than 5s.
+       So we count the 5s in n!: n/5 + n/25 + n/125 + ... which we get by repeatedly dividing n by 5 and adding the quotient.
+ 
+ 
+    class Solution {
+        public int trailingZeroes(int n) {
+            int count = 0;
+            while (n >= 5) {
+                count += n / 5;
+                n /= 5;
+            }
+            return count;
+        }
+    }`
+    },
+
+    {
       title: `QUESTION:
     Given an array of integers nums and an integer target.
     Return the indices (0-indexed) of two elements in nums such that they add up to target.
@@ -3513,6 +3713,388 @@ Space Complexity: O(1)`,
 
 
   "strings":[
+    {
+    title: `QUESTION:
+    Given an array of strings strs, group the anagrams together. Return the groups in any order.
+ 
+    EXAMPLE:
+    Input:  strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
+    Output: [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N * K log K)
+    - N words, each of length up to K is sorted to build its key.
+ 
+    Space Complexity: O(N * K)
+    - The map stores all words.`,
+ 
+        optimalCode: `Here basically anagrams become identical when their letters are sorted. So we sort the characters of each word to make a key
+       and group all words with the same key in a HashMap of key to list.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public List<List<String>> groupAnagrams(String[] strs) {
+            Map<String, List<String>> groups = new HashMap<>();
+            for (String word : strs) {
+                char[] chars = word.toCharArray();
+                Arrays.sort(chars);
+                String key = new String(chars);
+                if (!groups.containsKey(key)) {
+                    groups.put(key, new ArrayList<>());
+                }
+                groups.get(key).add(word);
+            }
+            return new ArrayList<>(groups.values());
+        }
+    }`
+    },
+
+    {
+        title: `QUESTION:
+    Given a string s, find the first repeated character. As you read the string from left to right,
+    return the first character that you encounter which has already appeared earlier.
+    If no character repeats, return "-1".
+ 
+    EXAMPLE:
+    Input:  s = "abbccd"
+    Output: "b"
+    Explanation: 'b' is the first character that is seen a second time.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the string once.
+ 
+    Space Complexity: O(K)
+    - K is the size of the character set stored in the HashSet.`,
+ 
+        optimalCode: `Here basically we keep a HashSet of characters seen so far. While scanning left to right,
+       if the current character is already in the set, it is the first repeated one, so return it.
+       Otherwise add it to the set.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public String firstRepeatedChar(String s) {
+            Set<Character> seen = new HashSet<>();
+            for (char ch : s.toCharArray()) {
+                if (seen.contains(ch)) {
+                    return String.valueOf(ch);
+                }
+                seen.add(ch);
+            }
+            return "-1";
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s, find the first non-repeating character and return it.
+    If all characters repeat or the string is empty, return "-1".
+ 
+    EXAMPLE:
+    Input:  s = "loveleetcode"
+    Output: "v"
+    Explanation: 'l' and 'o' repeat, 'v' is the first character that appears only once.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - One pass to count, one pass to find the first character with count 1.
+ 
+    Space Complexity: O(K)
+    - K is the size of the character set stored in the HashMap.`,
+ 
+        optimalCode: `Here basically we do two passes. In the first pass we count the frequency of every character.
+       In the second pass we go left to right and return the first character whose count is 1.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public String firstUniqueChar(String s) {
+            Map<Character, Integer> counts = new HashMap<>();
+            for (char ch : s.toCharArray()) {
+                counts.put(ch, counts.getOrDefault(ch, 0) + 1);
+            }
+            for (char ch : s.toCharArray()) {
+                if (counts.get(ch) == 1) {
+                    return String.valueOf(ch);
+                }
+            }
+            return "-1";
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s consisting of lowercase English letters, return the first character that appears twice.
+ 
+    EXAMPLE:
+    Input:  s = "abccbaacz"
+    Output: "c"
+    Explanation: 'a' appears twice at index 5, but 'c' becomes a repeat first at index 3.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the string once.
+ 
+    Space Complexity: O(1)
+    - At most 26 lowercase letters are stored in the set.`,
+ 
+        optimalCode: `Here basically we scan the string and store each character in a HashSet.
+       The moment we see a character that is already in the set, that is the first character to appear twice.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public String repeatedCharacter(String s) {
+            Set<Character> seen = new HashSet<>();
+            for (char ch : s.toCharArray()) {
+                if (seen.contains(ch)) {
+                    return String.valueOf(ch);
+                }
+                seen.add(ch);
+            }
+            return "";
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given two strings s and t, return true if t is an anagram of s, and false otherwise.
+ 
+    EXAMPLE:
+    Input:  s = "anagram", t = "nagaram"
+    Output: true
+ 
+    Input:  s = "rat", t = "car"
+    Output: false`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - One pass over s and one pass over t.
+ 
+    Space Complexity: O(K)
+    - K is the size of the character set stored in the HashMap.`,
+ 
+        optimalCode: `Here basically if the lengths differ we return false. Otherwise we count characters of s in a HashMap,
+       then for every character of t we decrement its count. If a character is missing or its count is already 0, return false.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public boolean isAnagram(String s, String t) {
+            if (s.length() != t.length()) {
+                return false;
+            }
+            Map<Character, Integer> counts = new HashMap<>();
+            for (char ch : s.toCharArray()) {
+                counts.put(ch, counts.getOrDefault(ch, 0) + 1);
+            }
+            for (char ch : t.toCharArray()) {
+                if (!counts.containsKey(ch) || counts.get(ch) == 0) {
+                    return false;
+                }
+                counts.put(ch, counts.get(ch) - 1);
+            }
+            return true;
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s, return true if it is a palindrome, considering only alphanumeric characters and ignoring cases.
+ 
+    EXAMPLE:
+    Input:  s = "A man, a plan, a canal: Panama"
+    Output: true
+    Explanation: "amanaplanacanalpanama" reads the same forwards and backwards.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - Each character is visited at most once by the two pointers.
+ 
+    Space Complexity: O(1)
+    - Only two pointers are used.`,
+ 
+        optimalCode: `Here basically we use two pointers, left at the start and right at the end.
+       We skip non-alphanumeric characters on both sides, then compare the lowercase characters.
+       If they differ return false, otherwise move both pointers inward.
+ 
+ 
+    class Solution {
+        public boolean isPalindrome(String s) {
+            int left = 0, right = s.length() - 1;
+            while (left < right) {
+                while (left < right && !Character.isLetterOrDigit(s.charAt(left))) {
+                    left++;
+                }
+                while (left < right && !Character.isLetterOrDigit(s.charAt(right))) {
+                    right--;
+                }
+                if (Character.toLowerCase(s.charAt(left)) != Character.toLowerCase(s.charAt(right))) {
+                    return false;
+                }
+                left++;
+                right--;
+            }
+            return true;
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s, compress consecutive identical characters into the character followed by its run count.
+ 
+    EXAMPLE:
+    Input:  s = "aaabbc"
+    Output: "a3b2c1"
+    Explanation: 'a' repeats 3 times, 'b' 2 times, 'c' once.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the string once.
+ 
+    Space Complexity: O(N)
+    - The output string can be as long as 2N.`,
+ 
+        optimalCode: `Here basically we keep a count of the current run. When the current character equals the previous one we increase the count.
+       When it differs we append the previous character and its count to a StringBuilder and reset the count to 1.
+       After the loop we append the last run.
+ 
+ 
+    class Solution {
+        public String compressString(String s) {
+            if (s == null || s.isEmpty()) {
+                return "";
+            }
+            StringBuilder res = new StringBuilder();
+            int count = 1;
+            for (int i = 1; i < s.length(); i++) {
+                if (s.charAt(i) == s.charAt(i - 1)) {
+                    count++;
+                } else {
+                    res.append(s.charAt(i - 1)).append(count);
+                    count = 1;
+                }
+            }
+            res.append(s.charAt(s.length() - 1)).append(count);
+            return res.toString();
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s, remove all duplicate characters, keeping only their first occurrence.
+ 
+    EXAMPLE:
+    Input:  s = "banana"
+    Output: "ban"
+    Explanation: Only the first 'b', 'a' and 'n' are kept.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the string once.
+ 
+    Space Complexity: O(K)
+    - K is the size of the character set stored in the HashSet.`,
+ 
+        optimalCode: `Here basically we keep a HashSet of characters already added. For each character, if it is not in the set
+       we add it to the set and append it to the result, otherwise we skip it.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public String removeDuplicatesString(String s) {
+            Set<Character> seen = new HashSet<>();
+            StringBuilder result = new StringBuilder();
+            for (char ch : s.toCharArray()) {
+                if (!seen.contains(ch)) {
+                    seen.add(ch);
+                    result.append(ch);
+                }
+            }
+            return result.toString();
+        }
+    }`
+    },
+    {
+        title: `QUESTION:
+    Given a string s, return a map containing the counts of vowels, consonants, and digits.
+ 
+    EXAMPLE:
+    Input:  s = "Hello World 123!"
+    Output: {vowels=3, consonants=7, digits=3}
+    Explanation: Vowels are e, o, o. Spaces and punctuation are ignored.`,
+ 
+        bruteForceComplexity: ``,
+ 
+        bruteForceCode: ``,
+ 
+        optimalComplexity: `Time Complexity: O(N)
+    - We scan the string once.
+ 
+    Space Complexity: O(1)
+    - The map has only three keys.`,
+ 
+        optimalCode: `Here basically for every character we check: if it is a digit increase digits, else if it is a letter
+       we check whether it is in the vowel string (increase vowels) or not (increase consonants). Everything else is ignored.
+ 
+ 
+    import java.util.*;
+ 
+    class Solution {
+        public Map<String, Integer> countTypes(String s) {
+            String vowels = "aeiouAEIOU";
+            Map<String, Integer> res = new LinkedHashMap<>();
+            res.put("vowels", 0);
+            res.put("consonants", 0);
+            res.put("digits", 0);
+            for (char ch : s.toCharArray()) {
+                if (Character.isDigit(ch)) {
+                    res.put("digits", res.get("digits") + 1);
+                } else if (Character.isLetter(ch)) {
+                    if (vowels.indexOf(ch) != -1) {
+                        res.put("vowels", res.get("vowels") + 1);
+                    } else {
+                        res.put("consonants", res.get("consonants") + 1);
+                    }
+                }
+            }
+            return res;
+        }
+    }`
+    },
+
     {
       title: `QUESTION:
     Given a string s, sort it in decreasing order based on the frequency of the characters. If two characters have the same frequency, their relative order does not matter.
