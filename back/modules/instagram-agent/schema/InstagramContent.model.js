@@ -21,6 +21,7 @@ const instagramContentSchema = new mongoose.Schema({
   creativeBrief: { type: String, default: "" },
   aspectRatio: { type: String, enum: ["16:9", "9:16", "1:1"], default: "9:16" },
   assetUrl: { type: String, default: "" },
+  originalImageUrl: { type: String, default: "" },
   assetSource: {
     type: String,
     enum: ["", "admin", "ai_reel", "ai_post", "ai_video"],

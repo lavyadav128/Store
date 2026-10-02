@@ -473,7 +473,13 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     );
 
     // Execute FFmpeg using ffmpeg-static or system ffmpeg
-    const ffmpegBin = (typeof ffmpegStatic === 'string' && fs.existsSync(ffmpegStatic)) ? ffmpegStatic : 'ffmpeg';
+    let ffmpegBin = 'ffmpeg';
+    if (ffmpegStatic && typeof ffmpegStatic === 'string' && fs.existsSync(ffmpegStatic)) {
+      try {
+        fs.chmodSync(ffmpegStatic, 0o755);
+      } catch (_) {}
+      ffmpegBin = ffmpegStatic;
+    }
 
     await new Promise((resolve, reject) => {
       const proc = spawn(ffmpegBin, args);
@@ -605,6 +611,7 @@ export async function createViratKohliDraft({
     creativeBrief: `Virat Kohli 9:16 Video Reel with song: ${soundscape}`,
     aspectRatio: "9:16",
     assetUrl: secureReelUrl,
+    originalImageUrl: imageUrl,
     assetSource: isVideoReel ? "ai_video" : "ai_post",
     soundscape: soundscape,
     audioTrack: {

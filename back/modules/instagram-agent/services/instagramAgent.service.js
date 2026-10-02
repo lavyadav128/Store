@@ -491,7 +491,29 @@ export async function publishContent(content) {
           break;
         }
       } catch (err) {
-        if (cAttempt >= maxContainerAttempts) throw err;
+        if (cAttempt >= maxContainerAttempts) {
+          // If video container failed after all attempts, try graceful fallback to image
+          const fallbackImage = content.originalImageUrl || (!content.assetUrl.includes('/video/upload/') ? content.assetUrl : '');
+          if (fallbackImage) {
+            console.warn(`[Meta Video 2207082 Recovery]: Video processing failed on Meta, falling back to direct image post...`);
+            try {
+              const imgContainer = await graph(`/${accountId}/media`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  image_url: fallbackImage,
+                  caption,
+                }),
+              });
+              if (imgContainer?.id) {
+                container = imgContainer;
+                isReady = true;
+                break;
+              }
+            } catch (_) {}
+          }
+          throw err;
+        }
         await new Promise((r) => setTimeout(r, 3000));
       }
     }
