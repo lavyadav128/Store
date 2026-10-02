@@ -31,8 +31,10 @@ import {
   searchGoogleKohliImages,
   createViratKohliDraft,
   autoRunViratKohliAgent,
+  getNextLoopedSong,
   VIRAT_KOHLI_QUOTES,
 } from "../services/viratKohliSearch.service.js";
+import { createDailyDrafts } from "../services/instagramScheduler.service.js";
 import { DEFAULT_SONGS } from "../schema/InstagramAgentConfig.model.js";
 
 // Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
@@ -352,6 +354,110 @@ router.post("/auto-run-virat-kohli", async (req, res) => {
   }
 });
 
+// Autonomous Status Summary: live running state, loop index, scheduled times
+router.get("/status-summary", async (_req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false);
+    const pastCount = await InstagramContent.countDocuments({ createdBy: "agent" });
+    const currentSongIndex = activeSongs.length > 0 ? (pastCount % activeSongs.length) : 0;
+    const nextSongIndex = activeSongs.length > 0 ? ((pastCount + 1) % activeSongs.length) : 0;
+
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    const publishedToday = await InstagramContent.countDocuments({
+      status: "published",
+      publishedAt: { $gte: todayStart, $lte: todayEnd },
+    });
+
+    const scheduledNext = await InstagramContent.findOne({
+      status: { $in: ["ready", "scheduled"] },
+    }).sort({ scheduledFor: 1 }).lean();
+
+    res.json({
+      success: true,
+      running: Boolean(config.running),
+      dailyPostTime: config.dailyPostTime || "12:00",
+      postsPerDay: config.postsPerDay || 1,
+      totalSongs: activeSongs.length,
+      currentSong: activeSongs[currentSongIndex] || null,
+      nextSong: activeSongs[nextSongIndex] || null,
+      publishedToday,
+      scheduledNext,
+      lastStartedAt: config.lastStartedAt,
+      lastStoppedAt: config.lastStoppedAt,
+      agentPersona: config.agentPersona || "virat_kohli_inspiration",
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Start Autonomous Agent
+router.post("/start", async (_req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    if (!config.niche) {
+      config.niche = "Virat Kohli Motivation & Cricket Inspiration";
+    }
+    if (!accountConfigured()) {
+      return res.status(400).json({
+        error: "Connect the Instagram professional account through environment credentials before starting.",
+      });
+    }
+    config.running = true;
+    config.lastStartedAt = new Date();
+    config.lastError = "";
+    await config.save();
+
+    // Trigger daily content generation immediately upon start
+    createDailyDrafts().catch((err) => console.error("[Agent Start Draft Error]:", err.message));
+
+    await logInstagramActivity("agent_started", "Instagram Autonomous Growth Agent started by admin. Daily automated posting is now ACTIVE.");
+    res.json({ success: true, running: true, config, message: "Autonomous Agent started! Daily automatic posting is now ACTIVE. 👑🚀" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Stop Autonomous Agent
+router.post("/stop", async (_req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    config.running = false;
+    config.lastStoppedAt = new Date();
+    await config.save();
+    await logInstagramActivity(
+      "agent_stopped",
+      "Instagram Autonomous Growth Agent stopped by admin. Automated daily publishing paused."
+    );
+    res.json({ success: true, running: false, config, message: "Autonomous Agent stopped. Automated daily posting is paused." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Update Agent Config (post time, frequency, persona)
+router.put("/config", async (req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    const updates = req.body || {};
+    if (updates.dailyPostTime) config.dailyPostTime = updates.dailyPostTime;
+    if (updates.postsPerDay) config.postsPerDay = updates.postsPerDay;
+    if (updates.agentPersona) config.agentPersona = updates.agentPersona;
+    if (updates.searchTopic) config.searchTopic = updates.searchTopic;
+    if (updates.running !== undefined) config.running = Boolean(updates.running);
+    await config.save();
+    await logInstagramActivity("config_updated", "Instagram agent configuration updated.");
+    res.json({ success: true, config });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.use(auth, requireAdmin);
 
 router.get("/overview", async (_req, res) => {
@@ -566,41 +672,6 @@ router.put("/config", async (req, res) => {
   Object.assign(config, updates);
   await config.save();
   await logInstagramActivity("config_updated", "Instagram agent configuration updated.");
-  res.json(config);
-});
-
-router.post("/start", async (_req, res) => {
-  const config = await getInstagramConfig();
-  if (!config.niche) return res.status(400).json({ error: "Set the niche before starting the agent." });
-  if (!accountConfigured())
-    return res.status(400).json({
-      error: "Connect the Instagram professional account through environment credentials before starting.",
-    });
-  config.running = true;
-  config.lastStartedAt = new Date();
-  config.lastError = "";
-  await config.save();
-  const firstType = config.contentMode === "reel" ? "reel" : "post";
-  try {
-    await generateContentDraft({ topic: `${config.niche} launch plan`, type: firstType });
-  } catch (error) {
-    config.lastError = `Agent started, but its first draft could not be created: ${error.message}`;
-    await config.save();
-    await logInstagramActivity("initial_draft_failed", config.lastError);
-  }
-  await logInstagramActivity("agent_started", "Instagram Growth Agent started by admin.");
-  res.json(config);
-});
-
-router.post("/stop", async (_req, res) => {
-  const config = await getInstagramConfig();
-  config.running = false;
-  config.lastStoppedAt = new Date();
-  await config.save();
-  await logInstagramActivity(
-    "agent_stopped",
-    "Instagram Growth Agent stopped by admin. No scheduled publishing will run."
-  );
   res.json(config);
 });
 

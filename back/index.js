@@ -160,6 +160,11 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 //  All routes inside that router file will start with that prefix
 // ═════════════════════════════════════════════════════════════
 
+// Specific module routes
+app.use('/api/instagram-agent', instagramAgentRoutes);
+app.use('/api/client-agent/public', clientAgentPublicRouter);
+app.use('/api/client-agent', clientAgentRoutes);
+
 // Doubt routes — e.g. POST /api/doubt, GET /api/doubts
 app.use("/api", doubtRoutes);
 
@@ -188,10 +193,6 @@ app.use('/api/recovery', recoveryClientRoutes);
 
 // Chatbot routes — e.g. POST /api/chat
 app.use('/api', chatbotRoutes);
-
-app.use('/api/instagram-agent', instagramAgentRoutes);
-app.use('/api/client-agent/public', clientAgentPublicRouter);
-app.use('/api/client-agent', clientAgentRoutes);
 
 app.use('/api/batches', batchRoutes);
 

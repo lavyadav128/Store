@@ -45,6 +45,9 @@ import VolumeUpIcon from "@mui/icons-material/VolumeUp";
 import VolumeOffIcon from "@mui/icons-material/VolumeOff";
 import GraphicEqIcon from "@mui/icons-material/GraphicEq";
 import HeadsetIcon from "@mui/icons-material/Headset";
+import ScheduleIcon from "@mui/icons-material/Schedule";
+import LoopIcon from "@mui/icons-material/Loop";
+import SecurityIcon from "@mui/icons-material/Security";
 import server from "../../shared/environment";
 
 const authHeaders = () => {
@@ -393,6 +396,91 @@ export default function InstagramGrowthAgent() {
   const [collabNote, setCollabNote] = useState("");
   const [reviewingCollab, setReviewingCollab] = useState(false);
 
+  // Autonomous Agent Running & Telemetry State
+  const [statusSummary, setStatusSummary] = useState(null);
+  const [togglingAgent, setTogglingAgent] = useState(false);
+  const [savingPostTime, setSavingPostTime] = useState(false);
+
+  const fetchStatusSummary = useCallback(async () => {
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/status-summary`, { headers: authHeaders() });
+      if (res.ok) {
+        const payload = await res.json();
+        if (payload.success) {
+          setStatusSummary(payload);
+          if (payload.running !== undefined) {
+            setConfig((prev) => ({ ...prev, running: payload.running, dailyPostTime: payload.dailyPostTime }));
+          }
+        }
+      }
+    } catch (_) {}
+  }, []);
+
+  const handleStartAgent = async () => {
+    setTogglingAgent(true);
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/start`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        notify("🟢 Autonomous Agent STARTED! It will now automatically post 1 unique 9:16 Reel every day at your scheduled time with your looped songs.", "success");
+        load();
+        fetchStatusSummary();
+      } else {
+        notify(data.error || "Failed to start agent.", "error");
+      }
+    } catch (err) {
+      notify(`Failed to start agent: ${err.message}`, "error");
+    } finally {
+      setTogglingAgent(false);
+    }
+  };
+
+  const handleStopAgent = async () => {
+    setTogglingAgent(true);
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/stop`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        notify("⏹ Autonomous Agent STOPPED. Automated daily posting is paused.", "info");
+        load();
+        fetchStatusSummary();
+      } else {
+        notify(data.error || "Failed to stop agent.", "error");
+      }
+    } catch (err) {
+      notify(`Failed to stop agent: ${err.message}`, "error");
+    } finally {
+      setTogglingAgent(false);
+    }
+  };
+
+  const handleSavePostTime = async (newTime) => {
+    setSavingPostTime(true);
+    try {
+      const res = await fetch(`${server}/api/instagram-agent/config`, {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ dailyPostTime: newTime }),
+      });
+      const data = await res.json();
+      if (data.success || res.ok) {
+        notify(`⏱️ Daily post time updated to ${newTime} IST!`, "success");
+        load();
+        fetchStatusSummary();
+      }
+    } catch (err) {
+      notify(`Failed to update time: ${err.message}`, "error");
+    } finally {
+      setSavingPostTime(false);
+    }
+  };
+
   const fetchLiveFollowers = useCallback(async () => {
     try {
       const res = await fetch(`${server}/api/instagram-agent/live-followers`, {
@@ -469,9 +557,11 @@ export default function InstagramGrowthAgent() {
     load();
     fetchLiveFollowers();
     loadListedSongs();
+    fetchStatusSummary();
     handleSearchGoogle("Virat Kohli quotes images");
     const timer = setInterval(() => {
       fetchLiveFollowers();
+      fetchStatusSummary();
     }, 10000);
     return () => clearInterval(timer);
   }, []);
@@ -910,6 +1000,209 @@ export default function InstagramGrowthAgent() {
           </Typography>
         </Paper>
       </Box>
+
+      {/* ── AUTONOMOUS DAILY POSTING MASTER CONTROLLER CARD ── */}
+      <Paper
+        sx={{
+          ...whiteCard,
+          p: { xs: 2.5, sm: 3 },
+          mb: 3.5,
+          background: config.running
+            ? "linear-gradient(135deg, #09090b 0%, #18181b 100%)"
+            : "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
+          color: config.running ? "#ffffff" : "#09090b",
+          border: config.running ? "1px solid #27272a" : "1px solid #e4e4e7",
+          boxShadow: config.running ? "0 10px 30px rgba(0,0,0,0.25)" : "0 2px 10px rgba(0,0,0,0.04)",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 2, mb: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box
+              sx={{
+                width: 14,
+                height: 14,
+                borderRadius: "50%",
+                bgcolor: config.running ? "#22c55e" : "#eab308",
+                boxShadow: config.running ? "0 0 12px #22c55e" : "0 0 8px #eab308",
+                animation: config.running ? "pulseGlow 2s infinite" : "none",
+                "@keyframes pulseGlow": {
+                  "0%": { boxShadow: "0 0 4px #22c55e" },
+                  "50%": { boxShadow: "0 0 16px #22c55e, 0 0 24px rgba(34,197,94,0.4)" },
+                  "100%": { boxShadow: "0 0 4px #22c55e" },
+                },
+              }}
+            />
+            <Box>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 800 }}>
+                {config.running ? "🟢 Autonomous Agent is ACTIVE & POSTING DAILY" : "⏸️ Autonomous Agent is PAUSED"}
+              </Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: config.running ? "#a1a1aa" : "#71717a" }}>
+                {config.running
+                  ? `Posting 1 unique 9:16 Reel daily at ${config.dailyPostTime || "12:00"} IST with sequential song looping.`
+                  : "Click 'Start Autonomous Agent' to enable automatic daily posting with your uploaded songs until stopped."}
+              </Typography>
+            </Box>
+          </Box>
+
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+            {config.running ? (
+              <Button
+                variant="outlined"
+                color="error"
+                disabled={togglingAgent}
+                onClick={handleStopAgent}
+                startIcon={togglingAgent ? <CircularProgress size={16} color="inherit" /> : <PauseIcon />}
+                sx={{
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  px: 3,
+                  py: 1.2,
+                  bgcolor: "rgba(239, 68, 68, 0.1)",
+                  borderColor: "#ef4444",
+                  color: "#ef4444",
+                  "&:hover": { bgcolor: "rgba(239, 68, 68, 0.2)", borderColor: "#dc2626" },
+                }}
+              >
+                {togglingAgent ? "Stopping..." : "⏹ Stop Autonomous Agent"}
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                disabled={togglingAgent}
+                onClick={handleStartAgent}
+                startIcon={togglingAgent ? <CircularProgress size={16} color="inherit" /> : <PlayArrowIcon sx={{ color: "#22c55e" }} />}
+                sx={{
+                  borderRadius: "12px",
+                  textTransform: "none",
+                  fontWeight: 800,
+                  fontSize: 14,
+                  px: 3.5,
+                  py: 1.2,
+                  bgcolor: "#09090b",
+                  color: "#ffffff",
+                  boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
+                  "&:hover": { bgcolor: "#27272a" },
+                }}
+              >
+                {togglingAgent ? "Starting Agent..." : "▶ START AUTONOMOUS AGENT (Post Daily)"}
+              </Button>
+            )}
+          </Box>
+        </Box>
+
+        {/* 4 Telemetry Metrics Grid */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" }, gap: 1.5, pt: 1 }}>
+          <Box
+            sx={{
+              p: 1.8,
+              borderRadius: "10px",
+              bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
+              border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <ScheduleIcon sx={{ fontSize: 16, color: config.running ? "#eab308" : "#71717a" }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+                Daily Post Schedule
+              </Typography>
+            </Box>
+            <FormControl size="small" fullWidth sx={{ mt: 0.5 }}>
+              <Select
+                value={config.dailyPostTime || "12:00"}
+                onChange={(e) => handleSavePostTime(e.target.value)}
+                sx={{
+                  fontSize: 13,
+                  fontWeight: 700,
+                  height: 32,
+                  bgcolor: config.running ? "#18181b" : "#ffffff",
+                  color: config.running ? "#ffffff" : "#09090b",
+                  "& .MuiOutlinedInput-notchedOutline": {
+                    borderColor: config.running ? "#3f3f46" : "#e4e4e7",
+                  },
+                }}
+              >
+                <MenuItem value="06:00">06:00 AM IST (Morning Kickoff)</MenuItem>
+                <MenuItem value="09:00">09:00 AM IST (Breakfast Prime)</MenuItem>
+                <MenuItem value="12:00">12:00 PM IST (Noon Peak - Default)</MenuItem>
+                <MenuItem value="15:00">03:00 PM IST (Afternoon Buzz)</MenuItem>
+                <MenuItem value="18:00">06:00 PM IST (Evening Hype)</MenuItem>
+                <MenuItem value="21:00">09:00 PM IST (Night Viral Peak)</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+
+          <Box
+            sx={{
+              p: 1.8,
+              borderRadius: "10px",
+              bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
+              border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <LoopIcon sx={{ fontSize: 16, color: config.running ? "#38bdf8" : "#71717a" }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+                Song Looping Status
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+              {listedSongs.length === 0
+                ? "No uploaded songs (Ambient Soundscape)"
+                : listedSongs.length === 1
+                ? `1 Song Loop: "${listedSongs[0]?.title || 'Uploaded Song'}"`
+                : `${listedSongs.length} Songs Loop Active · Next: "${statusSummary?.currentSong?.title || listedSongs[0]?.title}"`}
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              p: 1.8,
+              borderRadius: "10px",
+              bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
+              border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <SecurityIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a" }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+                Zero Repeat Engine
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+              100% Lifetime Unique Guarantee
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a" }}>
+              Lifetime MongoDB fingerprint check
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              p: 1.8,
+              borderRadius: "10px",
+              bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
+              border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+            }}
+          >
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
+              <CheckCircleIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a" }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+                Autonomous Activity
+              </Typography>
+            </Box>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+              {statusSummary?.publishedToday ? "✅ Today's Reel Published" : "⏳ Scheduled for Today"}
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a" }}>
+              {config.running ? "Runs automatically every day" : "Agent is currently stopped"}
+            </Typography>
+          </Box>
+        </Box>
+      </Paper>
 
       {/* ── MODE SELECTOR TABS ── */}
       <Box sx={{ display: "flex", gap: 1.5, mb: 3, borderBottom: "1px solid #e4e4e7", pb: 1.5 }}>
