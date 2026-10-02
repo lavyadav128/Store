@@ -62,9 +62,12 @@ const whiteCard = {
   borderRadius: "16px",
   border: "1px solid #e4e4e7",
   boxShadow: "0 1px 4px rgba(0,0,0,0.03)",
-  p: { xs: 2.5, sm: 3.5 },
+  p: { xs: 2, sm: 3.5 },
   bgcolor: "#ffffff",
   color: "#09090b",
+  boxSizing: "border-box",
+  overflow: "hidden",
+  maxWidth: "100%",
 };
 
 const titleStyle = {
@@ -893,15 +896,15 @@ export default function InstagramGrowthAgent() {
   const promotions = data.promotions || [];
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: 1300, mx: "auto", fontFamily: "'DM Sans', sans-serif" }}>
+    <Box sx={{ p: { xs: 1.5, sm: 3, md: 4 }, maxWidth: 1300, mx: "auto", fontFamily: "'DM Sans', sans-serif", width: "100%", boxSizing: "border-box", overflowX: "hidden" }}>
       {/* ── HEADER BAR ── */}
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3, flexWrap: "wrap", gap: 2 }}>
-        <Box>
+      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexDirection: { xs: "column", sm: "row" }, mb: 3, gap: 2 }}>
+        <Box sx={{ width: { xs: "100%", sm: "auto" } }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             <Box
               sx={{
-                width: 44,
-                height: 44,
+                width: { xs: 38, sm: 44 },
+                height: { xs: 38, sm: 44 },
                 borderRadius: "12px",
                 bgcolor: "#09090b",
                 display: "flex",
@@ -909,27 +912,28 @@ export default function InstagramGrowthAgent() {
                 justifyContent: "center",
                 color: "#eab308",
                 boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                flexShrink: 0,
               }}
             >
-              <EmojiEventsIcon sx={{ fontSize: 26 }} />
+              <EmojiEventsIcon sx={{ fontSize: { xs: 22, sm: 26 } }} />
             </Box>
-            <Box>
-              <Typography sx={{ ...titleStyle, fontSize: { xs: 20, sm: 24 } }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ ...titleStyle, fontSize: { xs: 18, sm: 24 }, wordBreak: "break-word" }}>
                 Instagram Growth & Automation Agent
               </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#71717a" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 12, sm: 13 }, color: "#71717a", wordBreak: "break-word" }}>
                 Connected to <strong>@{account.username || "quietframes.ai"}</strong> · Google Quote Scraper & Song Publisher
               </Typography>
             </Box>
           </Box>
         </Box>
 
-        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
+        <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap", width: { xs: "100%", sm: "auto" } }}>
           <Button
             variant="outlined"
             onClick={load}
             startIcon={<RefreshIcon />}
-            sx={{ borderRadius: "10px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7" }}
+            sx={{ borderRadius: "10px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7", flex: { xs: 1, sm: "none" } }}
           >
             Refresh
           </Button>
@@ -937,7 +941,7 @@ export default function InstagramGrowthAgent() {
             variant="outlined"
             onClick={handleExchangeToken}
             startIcon={<VpnKeyIcon />}
-            sx={{ borderRadius: "10px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7" }}
+            sx={{ borderRadius: "10px", textTransform: "none", color: "#09090b", borderColor: "#e4e4e7", flex: { xs: 1, sm: "none" } }}
           >
             60-Day Meta Token
           </Button>
@@ -946,7 +950,7 @@ export default function InstagramGrowthAgent() {
 
       {/* ── TOP STATS BAR WITH LIVE PULSE ── */}
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(3, 1fr)" }, gap: 2, mb: 3 }}>
-        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+        <Paper sx={{ ...whiteCard, p: { xs: 2, sm: 2.5 } }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
               Live Followers
@@ -962,7 +966,7 @@ export default function InstagramGrowthAgent() {
               }}
             />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 24, sm: 28 }, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
             {liveFollowers !== null ? liveFollowers.toLocaleString() : (account.followers !== null ? account.followers : "—")}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
@@ -970,14 +974,14 @@ export default function InstagramGrowthAgent() {
           </Typography>
         </Paper>
 
-        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+        <Paper sx={{ ...whiteCard, p: { xs: 2, sm: 2.5 } }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
               Published Posts & Reels
             </Typography>
             <TrendingUpIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 24, sm: 28 }, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
             {publishedItems.length || account.mediaCount || 0}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
@@ -985,14 +989,14 @@ export default function InstagramGrowthAgent() {
           </Typography>
         </Paper>
 
-        <Paper sx={{ ...whiteCard, p: 2.5 }}>
+        <Paper sx={{ ...whiteCard, p: { xs: 2, sm: 2.5 } }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <Typography sx={{ fontSize: 11, fontWeight: 800, color: "#71717a", textTransform: "uppercase" }}>
               Listed Motivational Songs
             </Typography>
             <MusicNoteIcon sx={{ color: "#71717a", fontSize: 18 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 28, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 24, sm: 28 }, fontWeight: 800, color: "#09090b", mt: 0.5 }}>
             {listedSongs.length}
           </Typography>
           <Typography sx={{ fontSize: 11, color: "#71717a", mt: 0.5 }}>
@@ -1005,7 +1009,7 @@ export default function InstagramGrowthAgent() {
       <Paper
         sx={{
           ...whiteCard,
-          p: { xs: 2.5, sm: 3 },
+          p: { xs: 2, sm: 3 },
           mb: 3.5,
           background: config.running
             ? "linear-gradient(135deg, #09090b 0%, #18181b 100%)"
@@ -1017,8 +1021,8 @@ export default function InstagramGrowthAgent() {
           overflow: "hidden",
         }}
       >
-        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 2, mb: 2.5 }}>
-          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2.5 }}>
+          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5 }}>
             <Box
               sx={{
                 width: 14,
@@ -1027,6 +1031,8 @@ export default function InstagramGrowthAgent() {
                 bgcolor: config.running ? "#22c55e" : "#eab308",
                 boxShadow: config.running ? "0 0 12px #22c55e" : "0 0 8px #eab308",
                 animation: config.running ? "pulseGlow 2s infinite" : "none",
+                mt: 0.5,
+                flexShrink: 0,
                 "@keyframes pulseGlow": {
                   "0%": { boxShadow: "0 0 4px #22c55e" },
                   "50%": { boxShadow: "0 0 16px #22c55e, 0 0 24px rgba(34,197,94,0.4)" },
@@ -1034,11 +1040,11 @@ export default function InstagramGrowthAgent() {
                 },
               }}
             />
-            <Box>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 18, fontWeight: 800 }}>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 16, sm: 18 }, fontWeight: 800, wordBreak: "break-word" }}>
                 {config.running ? "🟢 Autonomous Agent is ACTIVE & POSTING DAILY" : "⏸️ Autonomous Agent is PAUSED"}
               </Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: config.running ? "#a1a1aa" : "#71717a" }}>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 12, sm: 13 }, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
                 {config.running
                   ? `Posting 1 unique 9:16 Reel daily at ${config.dailyPostTime || "12:00"} IST with sequential song looping.`
                   : "Click 'Start Autonomous Agent' to enable automatic daily posting with your uploaded songs until stopped."}
@@ -1046,11 +1052,12 @@ export default function InstagramGrowthAgent() {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center" }}>
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", width: { xs: "100%", sm: "auto" } }}>
             {config.running ? (
               <Button
                 variant="outlined"
                 color="error"
+                fullWidth
                 disabled={togglingAgent}
                 onClick={handleStopAgent}
                 startIcon={togglingAgent ? <CircularProgress size={16} color="inherit" /> : <PauseIcon />}
@@ -1058,9 +1065,10 @@ export default function InstagramGrowthAgent() {
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 800,
-                  fontSize: 14,
-                  px: 3,
+                  fontSize: { xs: 13, sm: 14 },
+                  px: { xs: 2, sm: 3 },
                   py: 1.2,
+                  width: { xs: "100%", sm: "auto" },
                   bgcolor: "rgba(239, 68, 68, 0.1)",
                   borderColor: "#ef4444",
                   color: "#ef4444",
@@ -1072,6 +1080,7 @@ export default function InstagramGrowthAgent() {
             ) : (
               <Button
                 variant="contained"
+                fullWidth
                 disabled={togglingAgent}
                 onClick={handleStartAgent}
                 startIcon={togglingAgent ? <CircularProgress size={16} color="inherit" /> : <PlayArrowIcon sx={{ color: "#22c55e" }} />}
@@ -1079,9 +1088,10 @@ export default function InstagramGrowthAgent() {
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 800,
-                  fontSize: 14,
-                  px: 3.5,
+                  fontSize: { xs: 13, sm: 14 },
+                  px: { xs: 2, sm: 3.5 },
                   py: 1.2,
+                  width: { xs: "100%", sm: "auto" },
                   bgcolor: "#09090b",
                   color: "#ffffff",
                   boxShadow: "0 4px 14px rgba(0,0,0,0.2)",
@@ -1102,11 +1112,13 @@ export default function InstagramGrowthAgent() {
               borderRadius: "10px",
               bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
               border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+              minWidth: 0,
+              overflow: "hidden",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-              <ScheduleIcon sx={{ fontSize: 16, color: config.running ? "#eab308" : "#71717a" }} />
-              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+              <ScheduleIcon sx={{ fontSize: 16, color: config.running ? "#eab308" : "#71717a", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 Daily Post Schedule
               </Typography>
             </Box>
@@ -1141,15 +1153,17 @@ export default function InstagramGrowthAgent() {
               borderRadius: "10px",
               bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
               border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+              minWidth: 0,
+              overflow: "hidden",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-              <LoopIcon sx={{ fontSize: 16, color: config.running ? "#38bdf8" : "#71717a" }} />
-              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+              <LoopIcon sx={{ fontSize: 16, color: config.running ? "#38bdf8" : "#71717a", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 Song Looping Status
               </Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5, wordBreak: "break-word" }}>
               {listedSongs.length === 0
                 ? "No uploaded songs (Ambient Soundscape)"
                 : listedSongs.length === 1
@@ -1164,18 +1178,20 @@ export default function InstagramGrowthAgent() {
               borderRadius: "10px",
               bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
               border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+              minWidth: 0,
+              overflow: "hidden",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-              <SecurityIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a" }} />
-              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+              <SecurityIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 Zero Repeat Engine
               </Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5, wordBreak: "break-word" }}>
               100% Lifetime Unique Guarantee
             </Typography>
-            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a" }}>
+            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
               Lifetime MongoDB fingerprint check
             </Typography>
           </Box>
@@ -1186,18 +1202,20 @@ export default function InstagramGrowthAgent() {
               borderRadius: "10px",
               bgcolor: config.running ? "rgba(255,255,255,0.06)" : "#f4f4f5",
               border: config.running ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e4e4e7",
+              minWidth: 0,
+              overflow: "hidden",
             }}
           >
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
-              <CheckCircleIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a" }} />
-              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a" }}>
+              <CheckCircleIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a", flexShrink: 0 }} />
+              <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 Autonomous Activity
               </Typography>
             </Box>
-            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5 }}>
+            <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5, wordBreak: "break-word" }}>
               {statusSummary?.publishedToday ? "✅ Today's Reel Published" : "⏳ Scheduled for Today"}
             </Typography>
-            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a" }}>
+            <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
               {config.running ? "Runs automatically every day" : "Agent is currently stopped"}
             </Typography>
           </Box>
@@ -1205,7 +1223,7 @@ export default function InstagramGrowthAgent() {
       </Paper>
 
       {/* ── MODE SELECTOR TABS ── */}
-      <Box sx={{ display: "flex", gap: 1.5, mb: 3, borderBottom: "1px solid #e4e4e7", pb: 1.5 }}>
+      <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, mb: 3, borderBottom: "1px solid #e4e4e7", pb: 1.5 }}>
         <Button
           variant={activeTab === "virat_kohli" ? "contained" : "outlined"}
           onClick={() => setActiveTab("virat_kohli")}
@@ -1217,6 +1235,7 @@ export default function InstagramGrowthAgent() {
             fontSize: 14,
             px: 3,
             py: 1,
+            width: { xs: "100%", sm: "auto" },
             bgcolor: activeTab === "virat_kohli" ? "#09090b" : "transparent",
             color: activeTab === "virat_kohli" ? "#ffffff" : "#09090b",
             borderColor: "#e4e4e7",
@@ -1237,6 +1256,7 @@ export default function InstagramGrowthAgent() {
             fontSize: 14,
             px: 3,
             py: 1,
+            width: { xs: "100%", sm: "auto" },
             bgcolor: activeTab === "nature_reels" ? "#09090b" : "transparent",
             color: activeTab === "nature_reels" ? "#ffffff" : "#09090b",
             borderColor: "#e4e4e7",
@@ -1263,8 +1283,8 @@ export default function InstagramGrowthAgent() {
               boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
             }}
           >
-            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5, flexWrap: "wrap", gap: 1.5 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, mb: 1.5, flexWrap: "wrap", gap: 1.5 }}>
+              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1.5, minWidth: 0 }}>
                 <Box
                   sx={{
                     width: 36,
@@ -1276,15 +1296,17 @@ export default function InstagramGrowthAgent() {
                     alignItems: "center",
                     justifyContent: "center",
                     color: "#eab308",
+                    flexShrink: 0,
+                    mt: 0.3,
                   }}
                 >
                   <StarIcon />
                 </Box>
-                <Box>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 18, color: "#ffffff" }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: { xs: 16, sm: 18 }, color: "#ffffff", wordBreak: "break-word" }}>
                     Autonomous Virat Kohli 9:16 Reel Agent
                   </Typography>
-                  <Typography sx={{ fontSize: 13, color: "#a1a1aa" }}>
+                  <Typography sx={{ fontSize: { xs: 12, sm: 13 }, color: "#a1a1aa", wordBreak: "break-word" }}>
                     1-Click engine: Browses Google Images, downloads high-res quote image, attaches your looped song, generates 9:16 vertical video reel, and publishes to Instagram with 100% accuracy.
                   </Typography>
                 </Box>
@@ -1297,15 +1319,15 @@ export default function InstagramGrowthAgent() {
               />
             </Box>
 
-            <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #27272a", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 2 }}>
-              <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", alignItems: "center" }}>
-                <Typography sx={{ fontSize: 12.5, color: "#d4d4d8" }}>
+            <Box sx={{ mt: 2, pt: 2, borderTop: "1px solid #27272a", display: "flex", justifyContent: "space-between", alignItems: { xs: "stretch", sm: "center" }, flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
+              <Box sx={{ display: "flex", gap: 1, flexDirection: "column", minWidth: 0 }}>
+                <Typography sx={{ fontSize: 12.5, color: "#d4d4d8", wordBreak: "break-word" }}>
                   🔍 Search Target: <strong style={{ color: "#eab308" }}>"{searchQuery}"</strong>
                 </Typography>
                 <Typography sx={{ fontSize: 12.5, color: "#d4d4d8" }}>
                   🎵 Active Looped Songs: <strong style={{ color: "#22c55e" }}>{listedSongs.filter((s) => s.active !== false).length} songs</strong>
                 </Typography>
-                <Typography sx={{ fontSize: 12, color: "#a1a1aa" }}>
+                <Typography sx={{ fontSize: 12, color: "#a1a1aa", wordBreak: "break-word" }}>
                   🔁 Looping: {listedSongs.length === 0 ? "No songs (uses soundscape)" : listedSongs.length === 1 ? "1 Song (Repeats on every reel)" : `Cycles 1-by-1 across all ${listedSongs.length} songs`}
                 </Typography>
               </Box>
@@ -1319,9 +1341,10 @@ export default function InstagramGrowthAgent() {
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 800,
-                  fontSize: 14.5,
-                  px: 3.5,
+                  fontSize: { xs: 13.5, sm: 14.5 },
+                  px: { xs: 2, sm: 3.5 },
                   py: 1.2,
+                  width: { xs: "100%", sm: "auto" },
                   bgcolor: "#eab308",
                   color: "#09090b",
                   boxShadow: "0 4px 14px rgba(234, 179, 8, 0.4)",
@@ -1337,8 +1360,8 @@ export default function InstagramGrowthAgent() {
           <Paper sx={{ ...whiteCard, mb: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <SearchIcon sx={{ color: "#09090b", fontSize: 24 }} />
-                <Typography sx={{ ...titleStyle, fontSize: 19 }}>
+                <SearchIcon sx={{ color: "#09090b", fontSize: 24, flexShrink: 0 }} />
+                <Typography sx={{ ...titleStyle, fontSize: { xs: 17, sm: 19 } }}>
                   Google Browser Image & Quote Explorer
                 </Typography>
               </Box>
@@ -1347,7 +1370,7 @@ export default function InstagramGrowthAgent() {
               </Typography>
             </Box>
 
-            <Box sx={{ display: "flex", gap: 1.5, mb: 2 }}>
+            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, mb: 2 }}>
               <TextField
                 size="small"
                 fullWidth
@@ -1372,6 +1395,9 @@ export default function InstagramGrowthAgent() {
                   bgcolor: "#09090b",
                   color: "#ffffff",
                   px: 3,
+                  py: { xs: 1.2, sm: "auto" },
+                  width: { xs: "100%", sm: "auto" },
+                  whiteSpace: "nowrap",
                   "&:hover": { bgcolor: "#27272a" },
                 }}
               >
@@ -1490,8 +1516,8 @@ export default function InstagramGrowthAgent() {
             <Paper sx={{ ...whiteCard, mb: 3, border: "2px solid #09090b" }}>
               <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                  <CloudUploadIcon sx={{ color: "#09090b", fontSize: 24 }} />
-                  <Typography sx={{ ...titleStyle, fontSize: 19 }}>
+                  <CloudUploadIcon sx={{ color: "#09090b", fontSize: 24, flexShrink: 0 }} />
+                  <Typography sx={{ ...titleStyle, fontSize: { xs: 17, sm: 19 } }}>
                     Post Studio · Instagram 9:16 Video Reel
                   </Typography>
                 </Box>
@@ -1504,7 +1530,7 @@ export default function InstagramGrowthAgent() {
                   <Box
                     sx={{
                       width: "100%",
-                      height: 380,
+                      height: { xs: 280, sm: 380 },
                       borderRadius: "12px",
                       bgcolor: "#09090b",
                       overflow: "hidden",
@@ -1523,15 +1549,15 @@ export default function InstagramGrowthAgent() {
                         bottom: 0,
                         left: 0,
                         right: 0,
-                        p: 2,
+                        p: { xs: 1.5, sm: 2 },
                         background: "linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%)",
                         color: "#ffffff",
                       }}
                     >
-                      <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#eab308", textTransform: "uppercase" }}>
+                      <Typography sx={{ fontSize: { xs: 11, sm: 12 }, fontWeight: 700, color: "#eab308", textTransform: "uppercase" }}>
                         {selectedTopicText}
                       </Typography>
-                      <Typography sx={{ fontSize: 14, fontWeight: 700, fontStyle: "italic", mt: 0.5 }}>
+                      <Typography sx={{ fontSize: { xs: 12.5, sm: 14 }, fontWeight: 700, fontStyle: "italic", mt: 0.5, wordBreak: "break-word" }}>
                         "{selectedQuoteText}"
                       </Typography>
                     </Box>
@@ -1541,7 +1567,7 @@ export default function InstagramGrowthAgent() {
                 {/* Form Controls */}
                 <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
                   <Box>
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 0.8, flexWrap: "wrap", gap: 1 }}>
                       <Typography sx={{ fontSize: 12, fontWeight: 700, color: "#09090b" }}>
                         🎵 Attached Audio Track (Looped Songs)
                       </Typography>
@@ -1633,8 +1659,9 @@ export default function InstagramGrowthAgent() {
                       borderRadius: "12px",
                       textTransform: "none",
                       fontWeight: 800,
-                      fontSize: 16,
+                      fontSize: { xs: 14.5, sm: 16 },
                       minHeight: 52,
+                      width: "100%",
                       bgcolor: "#09090b",
                       color: "#ffffff",
                       boxShadow: "0 4px 14px rgba(0,0,0,0.15)",
@@ -1652,8 +1679,8 @@ export default function InstagramGrowthAgent() {
           <Paper sx={{ ...whiteCard, mb: 3 }}>
             <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1.5 }}>
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <MusicNoteIcon sx={{ color: "#09090b", fontSize: 24 }} />
-                <Typography sx={{ ...titleStyle, fontSize: 19 }}>
+                <MusicNoteIcon sx={{ color: "#09090b", fontSize: 24, flexShrink: 0 }} />
+                <Typography sx={{ ...titleStyle, fontSize: { xs: 17, sm: 19 } }}>
                   Listed Songs & Audio Soundscapes ({listedSongs.length})
                 </Typography>
               </Box>
@@ -1685,7 +1712,7 @@ export default function InstagramGrowthAgent() {
               </Box>
             </Box>
 
-            <Typography sx={{ fontSize: 12.5, color: "#71717a", mb: 2.5 }}>
+            <Typography sx={{ fontSize: 12.5, color: "#71717a", mb: 2.5, wordBreak: "break-word" }}>
               Upload audio files (<strong>.mp3, .wav, .m4a, .aac, .ogg</strong>) directly from your PC or mobile phone. When 1 song is added, the agent uses it for every 9:16 reel. When 2 or more songs are uploaded, the agent loops through them sequentially <strong>1-by-1</strong> for each daily post/reel. Click play to listen to any track directly!
             </Typography>
 
@@ -1700,7 +1727,7 @@ export default function InstagramGrowthAgent() {
 
             <Box
               sx={{
-                p: 2.5,
+                p: { xs: 2, sm: 2.5 },
                 mb: 3,
                 bgcolor: "#fcfcfc",
                 borderRadius: "14px",
@@ -1708,7 +1735,7 @@ export default function InstagramGrowthAgent() {
                 display: "flex",
                 flexDirection: { xs: "column", sm: "row" },
                 justifyContent: "space-between",
-                alignItems: "center",
+                alignItems: { xs: "stretch", sm: "center" },
                 gap: 2,
               }}
             >
@@ -1728,11 +1755,11 @@ export default function InstagramGrowthAgent() {
                 >
                   <CloudUploadIcon sx={{ fontSize: 28 }} />
                 </Box>
-                <Box>
-                  <Typography sx={{ fontWeight: 800, fontSize: 14.5, color: "#09090b" }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: { xs: 13.5, sm: 14.5 }, color: "#09090b", wordBreak: "break-word" }}>
                     Upload Song File from PC / Mobile
                   </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#71717a" }}>
+                  <Typography sx={{ fontSize: 12, color: "#71717a", wordBreak: "break-word" }}>
                     Supported formats: MP3, WAV, M4A, AAC, OGG, FLAC (Max 50MB)
                   </Typography>
                 </Box>
@@ -1752,7 +1779,8 @@ export default function InstagramGrowthAgent() {
                   color: "#ffffff",
                   px: 3,
                   py: 1.2,
-                  whiteSpace: "nowrap",
+                  width: { xs: "100%", sm: "auto" },
+                  whiteSpace: "normal",
                   "&:hover": { bgcolor: "#27272a" },
                 }}
               >
@@ -1764,7 +1792,7 @@ export default function InstagramGrowthAgent() {
             <Typography sx={{ fontSize: 11.5, fontWeight: 700, color: "#71717a", textTransform: "uppercase", mb: 1 }}>
               Or Add Custom Audio Track with URL / Metadata:
             </Typography>
-            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1.2fr 1fr 1fr 1.2fr auto" }, gap: 1.5, mb: 3, p: 2, bgcolor: "#fafafa", borderRadius: "12px", border: "1px solid #e4e4e7" }}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "1.2fr 1fr 1fr 1.2fr auto" }, gap: 1.5, mb: 3, p: 2, bgcolor: "#fafafa", borderRadius: "12px", border: "1px solid #e4e4e7" }}>
               <TextField
                 size="small"
                 label="Song Title *"
@@ -1803,6 +1831,7 @@ export default function InstagramGrowthAgent() {
                 disabled={addingSong || !newSongTitle.trim()}
                 startIcon={<AddIcon />}
                 sx={{
+                  gridColumn: { xs: "1 / -1", md: "auto" },
                   borderRadius: "10px",
                   textTransform: "none",
                   fontWeight: 800,
@@ -1810,6 +1839,7 @@ export default function InstagramGrowthAgent() {
                   bgcolor: "#09090b",
                   color: "#ffffff",
                   px: 2.5,
+                  py: { xs: 1.2, md: "auto" },
                   "&:hover": { bgcolor: "#27272a" },
                 }}
               >
@@ -1847,9 +1877,11 @@ export default function InstagramGrowthAgent() {
                         gap: 1.5,
                         transition: "all 0.2s ease",
                         boxShadow: isCurrentPlaying ? "0 4px 14px rgba(0,0,0,0.2)" : "none",
+                        minWidth: 0,
+                        overflow: "hidden",
                       }}
                     >
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0, flex: 1, overflow: "hidden" }}>
                         <IconButton
                           size="medium"
                           onClick={() => togglePlaySong(song)}
@@ -1863,7 +1895,7 @@ export default function InstagramGrowthAgent() {
                           {isCurrentPlaying ? <PauseIcon sx={{ fontSize: 20 }} /> : <PlayArrowIcon sx={{ fontSize: 20 }} />}
                         </IconButton>
 
-                        <Box sx={{ minWidth: 0 }}>
+                        <Box sx={{ minWidth: 0, overflow: "hidden" }}>
                           <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
                             <Typography
                               sx={{
@@ -1878,7 +1910,7 @@ export default function InstagramGrowthAgent() {
                               {song.title}
                             </Typography>
                             {isCurrentPlaying && (
-                              <GraphicEqIcon sx={{ fontSize: 16, color: "#eab308" }} />
+                              <GraphicEqIcon sx={{ fontSize: 16, color: "#eab308", flexShrink: 0 }} />
                             )}
                           </Box>
                           <Typography
@@ -1933,21 +1965,21 @@ export default function InstagramGrowthAgent() {
         <Paper sx={{ ...whiteCard, mb: 3, border: "2px solid #09090b" }}>
           <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-              <CloudUploadIcon sx={{ color: "#09090b", fontSize: 24 }} />
-              <Typography sx={{ ...titleStyle, fontSize: 20 }}>
+              <CloudUploadIcon sx={{ color: "#09090b", fontSize: 24, flexShrink: 0 }} />
+              <Typography sx={{ ...titleStyle, fontSize: { xs: 17, sm: 20 } }}>
                 Direct Instagram Reel Publisher
               </Typography>
             </Box>
             <Chip label="Instant Publishing" size="small" sx={{ bgcolor: "#09090b", color: "#ffffff", fontWeight: 800, fontSize: 11 }} />
           </Box>
-          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13.5, mb: 3 }}>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", color: "#71717a", fontSize: 13.5, mb: 3, wordBreak: "break-word" }}>
             Upload your video, pick your 12-Series Nature Realm & Aspect Ratio, and click <strong>Publish to Instagram</strong>.
           </Typography>
 
           <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 3 }}>
             {/* Left Column: Media Selection */}
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-              <Box sx={{ display: "flex", gap: 1.5 }}>
+              <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5 }}>
                 <Button
                   variant="contained"
                   onClick={() => fileInputRef.current?.click()}
@@ -2013,7 +2045,7 @@ export default function InstagramGrowthAgent() {
               <Box
                 sx={{
                   width: "100%",
-                  height: aspectRatio === "16:9" ? 220 : 340,
+                  height: aspectRatio === "16:9" ? { xs: 180, sm: 220 } : { xs: 260, sm: 340 },
                   borderRadius: "12px",
                   bgcolor: "#09090b",
                   border: "1px solid #e4e4e7",
@@ -2115,7 +2147,7 @@ export default function InstagramGrowthAgent() {
                   borderRadius: "12px",
                   textTransform: "none",
                   fontWeight: 800,
-                  fontSize: 16,
+                  fontSize: { xs: 14.5, sm: 16 },
                   minHeight: 54,
                   bgcolor: "#09090b",
                   color: "#ffffff",
@@ -2132,7 +2164,7 @@ export default function InstagramGrowthAgent() {
       {/* ── PUBLISHED POSTS & REELS HISTORY ── */}
       <Paper sx={{ ...whiteCard, mb: 3 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2, flexWrap: "wrap", gap: 1 }}>
-          <Typography sx={{ ...titleStyle, fontSize: 18 }}>
+          <Typography sx={{ ...titleStyle, fontSize: { xs: 16, sm: 18 } }}>
             Live Published Posts & Reels ({publishedItems.length})
           </Typography>
           <Typography sx={{ fontSize: 12, color: "#71717a" }}>
@@ -2159,10 +2191,12 @@ export default function InstagramGrowthAgent() {
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
+                  minWidth: 0,
+                  overflow: "hidden",
                 }}
               >
-                <Box>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1 }}>
+                <Box sx={{ minWidth: 0 }}>
+                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 0.5 }}>
                     <Chip
                       label={item.themeCategory || item.speaker || "Virat Kohli"}
                       size="small"
@@ -2174,15 +2208,15 @@ export default function InstagramGrowthAgent() {
                       sx={{ bgcolor: "#e4e4e7", color: "#09090b", fontWeight: 700, fontSize: 10 }}
                     />
                   </Box>
-                  <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#09090b", mb: 0.5 }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#09090b", mb: 0.5, wordBreak: "break-word" }}>
                     {item.topic}
                   </Typography>
-                  <Typography sx={{ fontSize: 12, color: "#71717a", maxHeight: 50, overflow: "hidden", textOverflow: "ellipsis" }}>
+                  <Typography sx={{ fontSize: 12, color: "#71717a", maxHeight: 50, overflow: "hidden", textOverflow: "ellipsis", wordBreak: "break-word" }}>
                     {item.caption}
                   </Typography>
                 </Box>
 
-                <Box sx={{ mt: 2, pt: 1.5, borderTop: "1px solid #e4e4e7", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <Box sx={{ mt: 2, pt: 1.5, borderTop: "1px solid #e4e4e7", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
                   <Typography sx={{ fontSize: 11, color: "#a1a1aa" }}>
                     {item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : "Live on IG"}
                   </Typography>
@@ -2252,21 +2286,23 @@ export default function InstagramGrowthAgent() {
           elevation={8}
           sx={{
             position: "fixed",
-            bottom: 24,
+            bottom: { xs: 12, sm: 24 },
             left: "50%",
             transform: "translateX(-50%)",
-            width: { xs: "92%", sm: 580, md: 680 },
+            width: { xs: "calc(100% - 24px)", sm: 580, md: 680 },
+            maxWidth: "100%",
+            boxSizing: "border-box",
             zIndex: 1300,
             borderRadius: "16px",
             bgcolor: "#09090b",
             color: "#ffffff",
-            p: 2,
+            p: { xs: 1.5, sm: 2 },
             border: "1px solid #27272a",
             boxShadow: "0 12px 36px rgba(0,0,0,0.5)",
           }}
         >
           <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", mb: 1, gap: 1.5 }}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, minWidth: 0, flex: 1, overflow: "hidden" }}>
               <IconButton
                 onClick={() => togglePlaySong(activePlayingSong)}
                 sx={{
@@ -2274,23 +2310,24 @@ export default function InstagramGrowthAgent() {
                   color: "#09090b",
                   width: 38,
                   height: 38,
+                  flexShrink: 0,
                   "&:hover": { bgcolor: "#facc15" },
                 }}
               >
                 {isPlayingAudio ? <PauseIcon sx={{ fontSize: 20 }} /> : <PlayArrowIcon sx={{ fontSize: 20 }} />}
               </IconButton>
-              <Box sx={{ minWidth: 0 }}>
-                <Typography sx={{ fontWeight: 800, fontSize: 13.5, color: "#ffffff", noWrap: true }}>
+              <Box sx={{ minWidth: 0, overflow: "hidden" }}>
+                <Typography sx={{ fontWeight: 800, fontSize: { xs: 12.5, sm: 13.5 }, color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   🎵 {activePlayingSong.title}
                 </Typography>
-                <Typography sx={{ fontSize: 11.5, color: "#a1a1aa", noWrap: true }}>
+                <Typography sx={{ fontSize: { xs: 10.5, sm: 11.5 }, color: "#a1a1aa", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {activePlayingSong.artist} · <span style={{ color: "#eab308" }}>{activePlayingSong.genre}</span>
                 </Typography>
               </Box>
             </Box>
 
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
-              <Typography sx={{ fontSize: 11.5, color: "#d4d4d8", fontFamily: "monospace" }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1, flexShrink: 0 }}>
+              <Typography sx={{ fontSize: { xs: 10.5, sm: 11.5 }, color: "#d4d4d8", fontFamily: "monospace" }}>
                 {formatTime(audioProgress)} / {formatTime(audioDuration)}
               </Typography>
               <IconButton
@@ -2307,7 +2344,7 @@ export default function InstagramGrowthAgent() {
             </Box>
           </Box>
 
-          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: { xs: 1, sm: 2 } }}>
             <Slider
               size="small"
               value={audioProgress}
@@ -2316,10 +2353,11 @@ export default function InstagramGrowthAgent() {
               sx={{
                 color: "#eab308",
                 height: 4,
+                flex: 1,
                 "& .MuiSlider-thumb": { width: 10, height: 10 },
               }}
             />
-            <Box sx={{ display: "flex", alignItems: "center", gap: 1, width: 120 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, width: { xs: 70, sm: 120 } }}>
               <IconButton
                 size="small"
                 onClick={() => {
