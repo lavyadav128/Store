@@ -421,10 +421,9 @@ export async function publishContent(content) {
 
   try {
     const isVideoAsset =
-      content.type === 'reel' ||
-      content.assetSource === 'ai_video' ||
-      content.assetSource === 'admin' ||
-      /\.(mp4|mov|webm)(\?|$)/i.test(content.assetUrl);
+      (/\.(mp4|mov|webm)(\?|$)/i.test(content.assetUrl) ||
+      (typeof content.assetUrl === 'string' && content.assetUrl.includes('/video/upload/'))) &&
+      !content.assetUrl.includes('/image/upload/');
 
     const caption = `${content.caption}\n\n${(content.hashtags || []).join(' ')}`.trim();
 

@@ -2,6 +2,7 @@ import os from 'os';
 import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
+import ffmpegStatic from 'ffmpeg-static';
 import { cloudinary } from '../../../config/cloudinary.js';
 import InstagramContent from '../schema/InstagramContent.model.js';
 import InstagramAgentConfig from '../schema/InstagramAgentConfig.model.js';
@@ -434,7 +435,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     }
 
     // 3. Build aesthetic 9:16 vertical (1080x1920) reel with blurred background & centered sharp quote wallpaper
-    const filter = '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=25:5[bg];[0:v]scale=1080:-2:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]';
+    const filter = '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]';
 
     const args = [
       '-y',
@@ -446,7 +447,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     if (hasAudio && tmpAudio) {
       args.push('-ss', '0', '-t', String(duration), '-i', tmpAudio);
     } else {
-      args.push('-f', 'lavfi', '-i', `anullsrc=r=44100:cl=stereo`);
+      args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo');
     }
 
     args.push(
@@ -456,7 +457,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
       '-c:v', 'libx264',
       '-profile:v', 'main',
       '-level', '4.0',
-      '-preset', 'veryfast',
+      '-preset', 'fast',
       '-crf', '22',
       '-pix_fmt', 'yuv420p',
       '-r', '30',
@@ -471,9 +472,11 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
       tmpOut
     );
 
-    // Execute FFmpeg
+    // Execute FFmpeg using ffmpeg-static or system ffmpeg
+    const ffmpegBin = (typeof ffmpegStatic === 'string' && fs.existsSync(ffmpegStatic)) ? ffmpegStatic : 'ffmpeg';
+
     await new Promise((resolve, reject) => {
-      const proc = spawn('ffmpeg', args);
+      const proc = spawn(ffmpegBin, args);
       let errData = '';
       proc.stderr.on('data', (d) => { errData += d.toString(); });
       proc.on('close', (code) => {
@@ -493,7 +496,12 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
       format: 'mp4',
     });
 
-    return uploadResult.secure_url;
+    let secureVideoUrl = uploadResult.secure_url || uploadResult.url || '';
+    if (secureVideoUrl && !secureVideoUrl.endsWith('.mp4')) {
+      secureVideoUrl = secureVideoUrl.replace(/\.[^/.]+$/, "") + ".mp4";
+    }
+
+    return secureVideoUrl.replace(/^http:/, 'https:');
   } catch (err) {
     console.error("[Generate Reel Warning, falling back to secure CDN image]:", err.message);
     return await downloadAndUploadImageToCloudinary(imageUrl);
@@ -569,7 +577,7 @@ export async function createViratKohliDraft({
     duration: 12,
   });
 
-  const isVideoReel = /\.(mp4|mov|webm)(\?|$)/i.test(secureReelUrl);
+  const isVideoReel = /\.(mp4|mov|webm)(\?|$)/i.test(secureReelUrl) || secureReelUrl.includes('/video/upload/');
 
   const caption = buildViratKohliCaption({
     quote: selectedQuote,
@@ -587,7 +595,7 @@ export async function createViratKohliDraft({
 
   const content = await InstagramContent.create({
     type: isVideoReel ? 'reel' : 'post',
-    topic: `Virat Kohli Reel: "${selectedTopic}"`,
+    topic: isVideoReel ? `Virat Kohli Reel: "${selectedTopic}"` : `Virat Kohli Post: "${selectedTopic}"`,
     quote: selectedQuote,
     speaker: "Virat Kohli",
     quoteFingerprint: topicFp,
@@ -597,7 +605,7 @@ export async function createViratKohliDraft({
     creativeBrief: `Virat Kohli 9:16 Video Reel with song: ${soundscape}`,
     aspectRatio: "9:16",
     assetUrl: secureReelUrl,
-    assetSource: isVideoReel ? "ai_video" : "admin",
+    assetSource: isVideoReel ? "ai_video" : "ai_post",
     soundscape: soundscape,
     audioTrack: {
       title: songTitle,

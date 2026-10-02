@@ -4,6 +4,12 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
+# Install system dependencies including ffmpeg for Instagram Reel video generation
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install back and dash dependencies
 COPY package*.json ./
 COPY back/package*.json ./back/

@@ -23,7 +23,7 @@ const instagramContentSchema = new mongoose.Schema({
   assetUrl: { type: String, default: "" },
   assetSource: {
     type: String,
-    enum: ["", "admin", "ai_reel", "ai_post"],
+    enum: ["", "admin", "ai_reel", "ai_post", "ai_video"],
     default: "admin",
   },
   soundscape: { type: String, default: "" },
