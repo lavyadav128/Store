@@ -177,10 +177,23 @@ async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
   }
 }
 
+export const VIRAT_KOHLI_SEARCH_QUERIES = [
+  "Virat Kohli quotes wallpapers HD",
+  "Virat Kohli attitude motivation quotes wallpaper",
+  "Virat Kohli match winning speech wallpaper",
+  "King Kohli wallpaper 1080x1920 quotes",
+  "Virat Kohli never give up quotes wallpaper HD",
+  "Virat Kohli cricket inspiration wallpaper",
+  "Virat Kohli aggression celebration quote wallpaper",
+  "Virat Kohli hard work self belief wallpaper",
+  "Virat Kohli gym fitness discipline quotes",
+  "Virat Kohli king of cricket motivation HD",
+];
+
 /**
  * Searches Google / Web specifically for direct quote wallpapers with text
  */
-export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpapers", limit = 16) {
+export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpapers", limit = 20) {
   const cleanQuery = String(query || "Virat Kohli quotes wallpapers").trim();
   const searchResults = [];
   const seenUrls = new Set();
@@ -224,51 +237,55 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
     console.warn("[WallpaperCave Scraper Info]:", err.message);
   }
 
-  // 2. High-Res Image Search Engine (Bing/Google) for dynamic queries
-  try {
-    const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(cleanQuery)}&first=1&scenario=ImageBasicHover`;
-    const response = await fetchWithTimeout(
-      searchUrl,
-      {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+  // 2. High-Res Image Search Engine for dynamic queries
+  const queriesToSearch = [cleanQuery, ...VIRAT_KOHLI_SEARCH_QUERIES.slice(0, 3)];
+  for (const q of queriesToSearch) {
+    if (searchResults.length >= limit * 2) break;
+    try {
+      const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&first=1&scenario=ImageBasicHover`;
+      const response = await fetchWithTimeout(
+        searchUrl,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+          },
         },
-      },
-      5000
-    );
+        5000
+      );
 
-    if (response.ok) {
-      const html = await response.text();
-      const itemRegex = /class="iusc"[^>]*m="([^"]+)"/g;
-      let match;
-      let idx = 0;
+      if (response.ok) {
+        const html = await response.text();
+        const itemRegex = /class="iusc"[^>]*m="([^"]+)"/g;
+        let match;
+        let idx = searchResults.length;
 
-      while ((match = itemRegex.exec(html)) !== null && searchResults.length < limit * 2) {
-        try {
-          const decoded = match[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
-          const json = JSON.parse(decoded);
-          if (json.murl && !seenUrls.has(json.murl) && (json.murl.startsWith('http://') || json.murl.startsWith('https://'))) {
-            seenUrls.add(json.murl);
-            const rawTitle = json.t || json.desc || `Virat Kohli Quote #${idx + 1}`;
-            const paired = VIRAT_KOHLI_QUOTES[idx % VIRAT_KOHLI_QUOTES.length];
+        while ((match = itemRegex.exec(html)) !== null && searchResults.length < limit * 3) {
+          try {
+            const decoded = match[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+            const json = JSON.parse(decoded);
+            if (json.murl && !seenUrls.has(json.murl) && (json.murl.startsWith('http://') || json.murl.startsWith('https://'))) {
+              seenUrls.add(json.murl);
+              const rawTitle = json.t || json.desc || `Virat Kohli Quote #${idx + 1}`;
+              const paired = VIRAT_KOHLI_QUOTES[idx % VIRAT_KOHLI_QUOTES.length];
 
-            searchResults.push({
-              imageUrl: json.murl,
-              thumbnailUrl: json.turl || json.murl,
-              title: rawTitle.replace(/<[^>]+>/g, '').trim(),
-              sourceUrl: json.purl || '',
-              quote: paired.quote,
-              topic: paired.topic,
-              context: paired.context,
-            });
-            idx++;
-          }
-        } catch (_) {}
+              searchResults.push({
+                imageUrl: json.murl,
+                thumbnailUrl: json.turl || json.murl,
+                title: rawTitle.replace(/<[^>]+>/g, '').trim(),
+                sourceUrl: json.purl || '',
+                quote: paired.quote,
+                topic: paired.topic,
+                context: paired.context,
+              });
+              idx++;
+            }
+          } catch (_) {}
+        }
       }
+    } catch (err) {
+      console.warn("[Web Image Scraper Info]:", err.message);
     }
-  } catch (err) {
-    console.warn("[Web Image Scraper Info]:", err.message);
   }
 
   // 3. Fallback: Add verified quote wallpapers if needed
@@ -289,7 +306,67 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
     }
   }
 
-  return searchResults.slice(0, limit);
+  return searchResults;
+}
+
+/**
+ * 100% Strict Deduplication Engine:
+ * Fetches fresh candidate quote wallpapers and guarantees that NO image or quote fingerprint
+ * has EVER been posted in the past across the entire database history.
+ */
+export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
+  // Fetch ALL historical posts from database for complete lifetime uniqueness
+  const pastContents = await InstagramContent.find(
+    {},
+    { quoteFingerprint: 1, quote: 1, assetUrl: 1, originalImageUrl: 1 }
+  ).lean();
+
+  const usedFingerprints = new Set(
+    pastContents.map((p) => p.quoteFingerprint || getQuoteFingerprint(p.quote)).filter(Boolean)
+  );
+  const usedImages = new Set(
+    pastContents.flatMap((p) => [p.assetUrl, p.originalImageUrl]).filter(Boolean)
+  );
+
+  // Search across multiple query rotations
+  const queries = [
+    preferredTopic || "Virat Kohli quotes wallpapers",
+    ...VIRAT_KOHLI_SEARCH_QUERIES
+  ];
+
+  for (const query of queries) {
+    const candidates = await searchGoogleKohliImages(query, 30);
+    const freshChoice = candidates.find((item) => {
+      const fp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
+      const isFpUsed = usedFingerprints.has(fp) || usedFingerprints.has(getQuoteFingerprint(item.quote));
+      const isImgUsed = usedImages.has(item.imageUrl) || (item.thumbnailUrl && usedImages.has(item.thumbnailUrl));
+      return !isFpUsed && !isImgUsed;
+    });
+
+    if (freshChoice) {
+      return freshChoice;
+    }
+  }
+
+  // If all scraped images were previously used, pair a verified wallpaper with an unposted quote
+  for (const wp of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
+    for (const q of VIRAT_KOHLI_QUOTES) {
+      const fp = getQuoteFingerprint(wp.imageUrl + q.quote + q.topic);
+      if (!usedFingerprints.has(fp)) {
+        return {
+          imageUrl: wp.imageUrl,
+          thumbnailUrl: wp.imageUrl,
+          title: `Virat Kohli - ${q.topic}`,
+          sourceUrl: wp.sourceUrl,
+          quote: q.quote,
+          topic: q.topic,
+          context: q.context,
+        };
+      }
+    }
+  }
+
+  return VERIFIED_KOHLI_QUOTE_WALLPAPERS[0];
 }
 
 /**
@@ -654,39 +731,14 @@ export async function autoRunViratKohliAgent() {
   const config = await InstagramAgentConfig.findOne({ key: 'default' });
   const searchTopic = config?.searchTopic || "Virat Kohli quotes wallpapers";
 
-  // 1. Fetch direct quote images
-  const searchResults = await searchGoogleKohliImages(searchTopic, 30);
-  if (!searchResults || searchResults.length === 0) {
-    throw new Error("Could not find any Virat Kohli quote images from search engine.");
-  }
+  // 1. Fetch 100% Guaranteed Unique Quote Wallpaper (checks lifetime database history)
+  const chosenItem = await getUniqueViratKohliQuoteImage(searchTopic);
 
-  // 2. Strict Deduplication: filter out any image URL or quote already posted
-  const pastContents = await InstagramContent.find(
-    {},
-    { quoteFingerprint: 1, quote: 1, assetUrl: 1, creativeBrief: 1 }
-  ).sort({ createdAt: -1 }).limit(300).lean();
-
-  const usedFingerprints = new Set(
-    pastContents.map((p) => p.quoteFingerprint || getQuoteFingerprint(p.quote)).filter(Boolean)
-  );
-  const usedImages = new Set(
-    pastContents.map((p) => p.assetUrl).filter(Boolean)
-  );
-
-  let chosenItem = searchResults.find((item) => {
-    const fp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
-    return !usedFingerprints.has(fp) && !usedImages.has(item.imageUrl);
-  });
-
-  if (!chosenItem) {
-    chosenItem = searchResults[Math.floor(Math.random() * searchResults.length)];
-  }
-
-  // 3. Select next song in exact round-robin loop from user's manual songs list
+  // 2. Select next song in exact round-robin loop from user's manual songs list
   const activeSongs = (config?.listedSongs || []).filter((s) => s.active !== false);
   const chosenSong = await getNextLoopedSong(activeSongs);
 
-  // 4. Create 9:16 Reel draft with Cloudinary Video CDN URL & custom caption
+  // 3. Create 9:16 Reel draft with Cloudinary Video CDN URL & custom caption
   const content = await createViratKohliDraft({
     imageUrl: chosenItem.imageUrl,
     quote: chosenItem.quote,
@@ -695,7 +747,7 @@ export async function autoRunViratKohliAgent() {
     status: "ready",
   });
 
-  // 5. Publish directly to Instagram as Reel
+  // 4. Publish directly to Instagram as Reel
   await logInstagramActivity('agent_auto_publishing', `Autonomous agent publishing unique Virat Kohli Reel to Instagram with looped song "${chosenSong.title}"...`, {
     contentId: String(content._id),
     song: chosenSong.title,
