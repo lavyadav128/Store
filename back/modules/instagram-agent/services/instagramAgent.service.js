@@ -32,10 +32,37 @@ function getGraphBase() {
 export async function getInstagramConfig() {
   let config = await InstagramAgentConfig.findOne({ key: 'default' });
   if (!config) {
-    config = await InstagramAgentConfig.create({ key: 'default', dailyPostTime: '12:00' });
-  } else if (!config.dailyPostTime || config.dailyPostTime === '07:00') {
-    config.dailyPostTime = '12:00';
-    await config.save();
+    config = await InstagramAgentConfig.create({ key: 'default', dailyPostTime: '12:00', listedSongs: [] });
+  } else {
+    // Purge old default mock songs from database so only user-uploaded songs exist
+    const legacyTitles = [
+      "Winning Speech",
+      "Chak De India",
+      "Believer",
+      "Bande Hain Hum Uske",
+      "Dangal Title Track",
+      "Zinda",
+      "Unstoppable",
+      "Brothers Anthem",
+      "Kar Har Maidaan Fateh",
+      "Sultan Title Track",
+      "Lehra Do",
+      "Hall of Fame",
+      "aaee",
+    ];
+    const hasLegacy = (config.listedSongs || []).some(
+      (s) => legacyTitles.includes(s.title) || (s.audioUrl && s.audioUrl.includes('soundhelix.com'))
+    );
+    if (hasLegacy) {
+      config.listedSongs = (config.listedSongs || []).filter(
+        (s) => !legacyTitles.includes(s.title) && !(s.audioUrl && s.audioUrl.includes('soundhelix.com'))
+      );
+      await config.save();
+    }
+    if (!config.dailyPostTime || config.dailyPostTime === '07:00') {
+      config.dailyPostTime = '12:00';
+      await config.save();
+    }
   }
   return config;
 }
@@ -417,34 +444,61 @@ export async function publishContent(content) {
       };
     }
 
-    const container = await graph(`/${accountId}/media`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(creationPayload),
-    });
+    let container = null;
+    let isReady = false;
 
-    if (!container.id) {
-      throw new Error(`Failed to create Instagram container: ${JSON.stringify(container)}`);
+    // Retry loop for video container creation & processing (handles Meta API 2207082 glitches)
+    const maxContainerAttempts = isVideoAsset ? 2 : 1;
+
+    for (let cAttempt = 1; cAttempt <= maxContainerAttempts; cAttempt++) {
+      try {
+        container = await graph(`/${accountId}/media`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(creationPayload),
+        });
+
+        if (!container?.id) {
+          throw new Error(`Failed to create Instagram container: ${JSON.stringify(container)}`);
+        }
+
+        // If video asset, poll container status until FINISHED
+        if (isVideoAsset) {
+          isReady = false;
+          for (let attempt = 0; attempt < 35; attempt += 1) {
+            await new Promise((r) => setTimeout(r, 3000));
+            try {
+              const statusRes = await graph(`/${container.id}?fields=status_code,status`);
+              if (statusRes.status_code === 'FINISHED') {
+                isReady = true;
+                break;
+              }
+              if (statusRes.status_code === 'ERROR') {
+                const errMsg = statusRes.status || 'Failed to process reel';
+                if (cAttempt < maxContainerAttempts) {
+                  console.warn(`[Meta Video Container notice, retrying upload...]: ${errMsg}`);
+                  break; // Break inner loop to retry container creation
+                }
+                throw new Error(`Instagram video processing error: ${errMsg}`);
+              }
+            } catch (pollErr) {
+              if (pollErr.message.includes('Instagram video processing error')) throw pollErr;
+            }
+          }
+
+          if (isReady) break;
+        } else {
+          isReady = true;
+          break;
+        }
+      } catch (err) {
+        if (cAttempt >= maxContainerAttempts) throw err;
+        await new Promise((r) => setTimeout(r, 3000));
+      }
     }
 
-    // If video, poll container until FINISHED
-    if (isVideoAsset) {
-      let isReady = false;
-      for (let attempt = 0; attempt < 30; attempt += 1) {
-        await new Promise((r) => setTimeout(r, 2500));
-        try {
-          const statusRes = await graph(`/${container.id}?fields=status_code,status`);
-          if (statusRes.status_code === 'FINISHED') {
-            isReady = true;
-            break;
-          }
-          if (statusRes.status_code === 'ERROR') {
-            throw new Error(`Instagram video processing error: ${statusRes.status || 'Failed to process reel'}`);
-          }
-        } catch (pollErr) {
-          if (pollErr.message.includes('Instagram video processing error')) throw pollErr;
-        }
-      }
+    if (!container?.id) {
+      throw new Error(`Failed to establish valid Instagram upload container.`);
     }
 
     // Publish container

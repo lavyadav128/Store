@@ -1,7 +1,8 @@
 import cron from "node-cron";
 import InstagramContent from "../schema/InstagramContent.model.js";
-import { generateContentDraft, getInstagramConfig, logInstagramActivity, publishDueContent } from "./instagramAgent.service.js";
+import { generateContentDraft, getInstagramConfig, logInstagramActivity, publishDueContent, getQuoteFingerprint } from "./instagramAgent.service.js";
 import { analyzeAudiencePreferences } from "./growthOptimizer.js";
+import { searchGoogleKohliImages, createViratKohliDraft, getNextLoopedSong } from "./viratKohliSearch.service.js";
 
 let scheduled = false;
 
@@ -28,6 +29,63 @@ export async function createDailyDrafts() {
     scheduledTime.setTime(Date.now() + 10 * 60 * 1000);
   }
 
+  // If agent persona is Virat Kohli inspiration, use Google Search & Song Engine
+  if (config.agentPersona === "virat_kohli_inspiration" || config.searchTopic?.toLowerCase().includes("virat")) {
+    const searchTopic = config.searchTopic || "Virat Kohli quotes wallpapers";
+    const searchResults = await searchGoogleKohliImages(searchTopic, 30);
+    
+    // Strict Deduplication against all past posts
+    const pastContents = await InstagramContent.find(
+      {},
+      { quoteFingerprint: 1, quote: 1, assetUrl: 1 }
+    ).sort({ createdAt: -1 }).limit(300).lean();
+
+    const usedFingerprints = new Set(
+      pastContents.map((p) => p.quoteFingerprint || getQuoteFingerprint(p.quote)).filter(Boolean)
+    );
+    const usedImages = new Set(
+      pastContents.map((p) => p.assetUrl).filter(Boolean)
+    );
+
+    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false);
+
+    for (let index = 0; index < missing; index += 1) {
+      let chosenItem = searchResults.find((item) => {
+        const fp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
+        return !usedFingerprints.has(fp) && !usedImages.has(item.imageUrl);
+      });
+
+      if (!chosenItem) {
+        chosenItem = searchResults[index % searchResults.length];
+      }
+      
+      const chosenFp = getQuoteFingerprint(chosenItem.imageUrl + chosenItem.quote + chosenItem.topic);
+      usedFingerprints.add(chosenFp);
+      usedImages.add(chosenItem.imageUrl);
+
+      const chosenSong = await getNextLoopedSong(activeSongs);
+
+      const draft = await createViratKohliDraft({
+        imageUrl: chosenItem.imageUrl,
+        quote: chosenItem.quote,
+        topic: chosenItem.topic || "King Kohli Motivation",
+        song: chosenSong,
+        status: "scheduled",
+      });
+
+      if (draft) {
+        draft.scheduledFor = scheduledTime;
+        await draft.save();
+      }
+    }
+
+    await logInstagramActivity(
+      "daily_drafts_created",
+      `Created ${missing} unique daily Virat Kohli 9:16 Video Reel(s) with looped song, scheduled for ${config.dailyPostTime || "12:00"} IST.`
+    );
+    return;
+  }
+
   const types = config.contentMode === "both" ? ["post", "reel"] : [config.contentMode || "post"];
 
   for (let index = 0; index < missing; index += 1) {
@@ -40,7 +98,7 @@ export async function createDailyDrafts() {
 
   await logInstagramActivity(
     "daily_drafts_created",
-    `Created ${missing} unique daily 8K Nature Reel draft(s), scheduled for ${config.dailyPostTime || "12:00"} IST.`
+    `Created ${missing} unique daily draft(s), scheduled for ${config.dailyPostTime || "12:00"} IST.`
   );
 }
 

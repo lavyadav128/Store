@@ -11,6 +11,7 @@ const questionsData = {
     Input:  nums = [5, 1, 4, 2, 8]
     Output: [1, 2, 4, 5, 8]
     Explanation: [5,1,4,2,8] -> [1,5,4,2,8] -> [1,4,5,2,8] -> [1,4,2,5,8] -> [1,2,4,5,8]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
 
         bruteForceComplexity: ``,
 
@@ -55,6 +56,7 @@ const questionsData = {
     Input:  nums = [9, 5, 1, 4, 3]
     Output: [1, 3, 4, 5, 9]
     Explanation: [9,5,1,4,3] -> [5,9,1,4,3] -> [1,5,9,4,3] -> [1,4,5,9,3] -> [1,3,4,5,9]`,
+        link: "https://leetcode.com/problems/insertion-sort-list/",
 
         bruteForceComplexity: ``,
 
@@ -98,6 +100,7 @@ const questionsData = {
     Input:  nums = [64, 25, 12, 22, 11]
     Output: [11, 12, 22, 25, 64]
     Explanation: [64,25,12,22,11] -> [11,25,12,22,64] -> [11,12,25,22,64] -> [11,12,22,25,64] -> [11,12,22,25,64]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
 
         bruteForceComplexity: ``,
 
@@ -141,6 +144,7 @@ const questionsData = {
     Input:  nums = [38, 27, 43, 3, 9, 82, 10]
     Output: [3, 9, 10, 27, 38, 43, 82]
     Explanation: [38,27,43,3,9,82,10] -> [27,38,43] & [3,9,10,82] -> [3,9,10,27,38,43,82]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
 
         bruteForceComplexity: ``,
 
@@ -186,6 +190,7 @@ const questionsData = {
     Input:  nums = [10, 7, 8, 9, 1, 5]
     Output: [1, 5, 7, 8, 9, 10]
     Explanation: [10,7,8,9,1,5] -> [1,5,8,9,10,7] -> [1,5,7,9,10,8] -> [1,5,7,8,10,9] -> [1,5,7,8,9,10]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
 
         bruteForceComplexity: ``,
 
@@ -235,7 +240,7 @@ const questionsData = {
     }
     ],
 
-  "arrays":[
+  "arrays": [
     {
         title: `QUESTION:
     Given an array of numbers, find the second distinct largest element without sorting.
@@ -247,6 +252,7 @@ const questionsData = {
  
     Input:  nums = [10, 10, 10]
     Output: -1`,
+        link: "https://leetcode.com/problems/third-maximum-number/",
  
         bruteForceComplexity: ``,
  
@@ -285,6 +291,7 @@ const questionsData = {
     Input:  nums = [0, 1, 0, 3, 12]
     Output: [1, 3, 12, 0, 0]
     Explanation: Non-zero elements keep their order, zeroes go to the end.`,
+        link: "https://leetcode.com/problems/move-zeroes/",
  
         bruteForceComplexity: ``,
  
@@ -324,6 +331,7 @@ const questionsData = {
     Input:  readings = [10, 20, 30, 40, 50], k = 3
     Output: [20.0, 30.0, 40.0]
     Explanation: (10+20+30)/3 = 20, (20+30+40)/3 = 30, (30+40+50)/3 = 40.`,
+        link: "https://leetcode.com/problems/moving-average-from-data-stream/",
  
         bruteForceComplexity: ``,
  
@@ -368,6 +376,7 @@ const questionsData = {
     Input:  a = 12, b = 18
     Output: GCD = 6, LCM = 36
     Explanation: 6 is the largest number dividing both, and 12 * 18 / 6 = 36.`,
+        link: "https://leetcode.com/problems/find-greatest-common-divisor-of-array/",
  
         bruteForceComplexity: ``,
  
@@ -409,6 +418,7 @@ const questionsData = {
     Input:  n = 10
     Output: 2
     Explanation: 10! = 3628800, which has 2 trailing zeroes.`,
+        link: "https://leetcode.com/problems/factorial-trailing-zeroes/",
  
         bruteForceComplexity: ``,
  
@@ -445,6 +455,7 @@ const questionsData = {
     Input:  nums = [1, 6, 2, 10, 3]   target = 7
     Output: [0, 1]
     Explanation:  nums[0] + nums[1] = 1 + 6 = 7`,
+        link: "https://leetcode.com/problems/two-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Two nested loops are used to check every possible pair.
@@ -522,6 +533,7 @@ const questionsData = {
     
     Explanation:
     The nums array in sorted order has 2 zeroes, 2 ones and 1 two.`,
+        link: "https://leetcode.com/problems/sort-colors/",
     
       bruteForceComplexity: `Time Complexity: O(N log N)
     - Using built-in sorting algorithm.
@@ -606,6 +618,7 @@ const questionsData = {
     EXAMPLE:
     Input: nums = [2, 2, 1, 1, 1, 2, 2]
     Output: 2`,
+        link: "https://leetcode.com/problems/majority-element/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - For each element, count its occurrences.
@@ -693,6 +706,7 @@ class Solution {
     Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
     Output: 6
     Explanation: [4,-1,2,1] has the largest sum = 6.`,
+        link: "https://leetcode.com/problems/maximum-subarray/",
     
       bruteForceComplexity: `Time Complexity: O(N³) or O(N²)
     - Check all possible subarrays.
@@ -758,6 +772,7 @@ class Solution {
     Input: prices = [7,1,5,3,6,4]
     Output: 5
     Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 5.`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Check all possible buy-sell pairs.
@@ -832,6 +847,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [3,1,-2,-5,2,-4]
     Output: [3,-2,1,-5,2,-4]`,
+        link: "https://leetcode.com/problems/rearrange-array-elements-by-sign/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     - Two passes to separate positives and negatives.
@@ -914,6 +930,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,3]
     Output: [1,3,2]`,
+        link: "https://leetcode.com/problems/next-permutation/",
     
       bruteForceComplexity: `Time Complexity: O(N!)
     - Generate all permutations.
@@ -1007,6 +1024,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [10, 22, 12, 3, 0, 6]
     Output: [22, 12, 6]`,
+        link: "https://leetcode.com/problems/replace-elements-with-greatest-element-on-right-side/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - For each element check all elements to its right.
@@ -1087,6 +1105,7 @@ class Solution {
     Input: nums = [100, 4, 200, 1, 3, 2]
     Output: 4
     Explanation: The longest consecutive sequence is [1, 2, 3, 4].`,
+        link: "https://leetcode.com/problems/longest-consecutive-sequence/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - For each number check consecutive numbers.
@@ -1181,6 +1200,7 @@ class Solution {
     EXAMPLE:
     Input: matrix = [[1,1,1],[1,0,1],[1,1,1]]
     Output: [[1,0,1],[0,0,0],[1,0,1]]`,
+        link: "https://leetcode.com/problems/set-matrix-zeroes/",
     
       bruteForceComplexity: `Time Complexity: O(M*N*(M+N))
     - For each zero, mark row and column.
@@ -1319,6 +1339,7 @@ class Solution {
     EXAMPLE:
     Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
     Output: [[7,4,1],[8,5,2],[9,6,3]]`,
+        link: "https://leetcode.com/problems/rotate-image/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Create new matrix and copy.
@@ -1406,6 +1427,7 @@ class Solution {
     EXAMPLE:
     Input: matrix = [[1,2,3],[4,5,6],[7,8,9]]
     Output: [1,2,3,6,9,8,7,4,5]`,
+        link: "https://leetcode.com/problems/spiral-matrix/",
     
       bruteForceComplexity: `Time Complexity: O(M*N)
     - Simulation with direction changes.
@@ -1554,6 +1576,7 @@ class Solution {
     Input: nums = [1,2,3], k = 3
     Output: 2
     Explanation: Subarrays [3] and [1,2] have sum = 3.`,
+        link: "https://leetcode.com/problems/subarray-sum-equals-k/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Check sum of every possible subarray.
@@ -1649,6 +1672,7 @@ class Solution {
     EXAMPLE:
     Input: numRows = 5
     Output: [[1],[1,1],[1,2,1],[1,3,3,1],[1,4,6,4,1]]`,
+        link: "https://leetcode.com/problems/pascals-triangle/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Build row by row.
@@ -1737,6 +1761,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [3,2,3]
     Output: [3]`,
+        link: "https://leetcode.com/problems/majority-element-ii/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Count frequency of each element.
@@ -1873,6 +1898,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [-1,0,1,2,-1,-4]
     Output: [[-1,-1,2],[-1,0,1]]`,
+        link: "https://leetcode.com/problems/3sum/",
     
       bruteForceComplexity: `Time Complexity: O(N³)
     - Three nested loops.
@@ -2077,6 +2103,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,0,-1,0,-2,2], target = 0
     Output: [[-2,-1,1,2],[-2,0,0,2],[-1,0,0,1]]`,
+        link: "https://leetcode.com/problems/4sum/",
     
       bruteForceComplexity: `Time Complexity: O(N⁴)
     - Four nested loops.
@@ -2156,6 +2183,7 @@ class Solution {
     Input: nums = [15, -2, 2, -8, 1, 7, 10, 23]
     Output: 5
     Explanation: The longest subarray with sum 0 is [-2, 2, -8, 1, 7].`,
+        link: "https://leetcode.com/problems/contiguous-array/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Check sum of every possible subarray.
@@ -2240,6 +2268,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [4, 2, 2, 6, 4], k = 6
     Output: 4`,
+        link: "https://leetcode.com/problems/count-triplets-that-can-form-two-arrays-of-equal-xor/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Check XOR of every possible subarray.
@@ -2324,6 +2353,7 @@ class Solution {
     EXAMPLE:
     Input: intervals = [[1,3],[2,6],[8,10],[15,18]]
     Output: [[1,6],[8,10],[15,18]]`,
+        link: "https://leetcode.com/problems/merge-intervals/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     - Check every pair for overlap.
@@ -2367,6 +2397,7 @@ class Solution {
     EXAMPLE:
     Input: arr1 = [1, 3, 5, 7], arr2 = [0, 2, 6, 8]
     Output: arr1 = [0, 1, 2, 3], arr2 = [5, 6, 7, 8]`,
+        link: "https://leetcode.com/problems/merge-sorted-array/",
     
       bruteForceComplexity: `Time Complexity: O((M+N) log(M+N))
     - Merge and sort.
@@ -2432,6 +2463,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [4, 3, 6, 2, 1, 1]
     Output: Repeating = 1, Missing = 5`,
+        link: "https://leetcode.com/problems/set-mismatch/",
       
       bruteForceComplexity: `Time Complexity: O(N²) or O(N log N)
     - Use nested loops or sorting.
@@ -2520,6 +2552,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1, 3, 2, 3, 1]
     Output: 2`,
+        link: "https://leetcode.com/problems/reverse-pairs/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -2592,6 +2625,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [2, 3, -2, 4]
     Output: 6`,
+        link: "https://leetcode.com/problems/maximum-product-subarray/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -2662,7 +2696,7 @@ class Solution {
     }
     ],
 
-  "binary-search":[
+  "binary-search": [
     {
       title: `QUESTION:
     Given a non-negative integer x, return the square root of x rounded down to the nearest integer.
@@ -2670,6 +2704,7 @@ class Solution {
     EXAMPLE:
     Input: x = 8
     Output: 2`,
+        link: "https://leetcode.com/problems/sqrtx/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -2716,6 +2751,7 @@ class Solution {
     EXAMPLE:
     Input: N = 3, M = 27
     Output: 3`,
+        link: "https://leetcode.com/problems/powx-n/",
     
       bruteForceComplexity: `Time Complexity: O(M)
     Space Complexity: O(1)`,
@@ -2760,6 +2796,7 @@ class Solution {
     Explanation: 
     - With speed 4:     -Pile 3: 1 hour     -Pile 6: 2 hours    -Pile 7: 2 hours    -Pile 11: 3 hours
     Total = 8 hours`,
+        link: "https://leetcode.com/problems/koko-eating-bananas/",
     
       bruteForceComplexity: `Time Complexity: O(max(piles) * N)
     Space Complexity: O(1)`,
@@ -2837,6 +2874,7 @@ class Solution {
     EXAMPLE:
     Input: bloomDay = [1,10,3,10,2], m = 3, k = 1
     Output: 3`,
+        link: "https://leetcode.com/problems/minimum-number-of-days-to-make-m-bouquets/",
     
       bruteForceComplexity: `Time Complexity: O(N * MaxDay)
     Space Complexity: O(1)`,
@@ -2916,6 +2954,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,5,9], threshold = 6
     Output: 5`,
+        link: "https://leetcode.com/problems/find-the-smallest-divisor-given-a-threshold/",
     
       bruteForceComplexity: `Time Complexity: O(N * MaxNum)
     Space Complexity: O(1)`,
@@ -2977,6 +3016,7 @@ class Solution {
     EXAMPLE:
     Input: weights = [1,2,3,4,5,6,7,8,9,10], days = 5
     Output: 15`,
+        link: "https://leetcode.com/problems/capacity-to-ship-packages-within-d-days/",
     
       bruteForceComplexity: `Time Complexity: O(N * TotalSum)
     Space Complexity: O(1)`,
@@ -3027,6 +3067,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [2,3,4,7,11], k = 5
     Output: 9`,
+        link: "https://leetcode.com/problems/kth-missing-positive-number/",
     
       bruteForceComplexity: `Time Complexity: O(N + k)
     Space Complexity: O(1)`,
@@ -3075,6 +3116,7 @@ class Solution {
     Input: stalls = [1,2,4,8,9], k = 3
     Output: 3
     Place cows at 1, 4, 8`,
+        link: "https://leetcode.com/problems/magnetic-force-between-two-balls/",
     
       bruteForceComplexity: `Time Complexity: O(N² log MaxDist) or worse
     Space Complexity: O(1)`,
@@ -3131,6 +3173,7 @@ class Solution {
     - Student 1: [10,20,30] = 60 pages
     - Student 2: [40] = 40 pages
     Maximum load = 60`,
+        link: "https://leetcode.com/problems/split-array-largest-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N * Sum)
     Space Complexity: O(1)`,
@@ -3212,6 +3255,7 @@ class Solution {
     EXAMPLE:
     Input: stations = [1,2,3,4,5,6,7,8,9,10], k = 9
     Output: 0.5`,
+        link: "https://leetcode.com/problems/minimize-max-distance-to-gas-station/",
     
       optimalComplexity: `Time Complexity: O(N log N) with binary search on double
     Space Complexity: O(1)`,
@@ -3252,6 +3296,7 @@ Given two sorted arrays nums1 and nums2 of size m and n respectively, return the
 EXAMPLE:
 Input: nums1 = [1,3], nums2 = [2]
 Output: 2.0`,
+        link: "https://leetcode.com/problems/median-of-two-sorted-arrays/",
 
   bruteForceComplexity: `Time Complexity: O(m + n)
 Space Complexity: O(m + n)`,
@@ -3358,6 +3403,7 @@ Given two sorted arrays arr1 and arr2 of size m and n respectively and an intege
 EXAMPLE:
 Input: arr1 = [2,3,6,7,9], arr2 = [1,4,8,10], k = 5
 Output: 6`,
+        link: "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
 
   bruteForceComplexity: `Time Complexity: O(m + n)
 Space Complexity: O(m + n)`,
@@ -3404,6 +3450,7 @@ Given a binary matrix (0s and 1s) of size n x m where each row is sorted in non-
 EXAMPLE:
 Input: matrix = [[0,1,1,1], [0,0,1,1], [1,1,1,1], [0,0,0,0]]
 Output: 2`,
+        link: "https://leetcode.com/problems/row-with-maximum-ones/",
 
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
@@ -3471,6 +3518,7 @@ Write an efficient algorithm to search for a target value in an m x n integer ma
 EXAMPLE:
 Input: matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
 Output: true`,
+        link: "https://leetcode.com/problems/search-a-2d-matrix/",
 
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
@@ -3523,6 +3571,7 @@ Write an efficient algorithm to search for a target value in an m x n integer ma
 EXAMPLE:
 Input: matrix = [[1,4,7,11,15],[2,5,8,12,19],[3,6,9,16,22],[10,13,14,17,24],[18,21,23,26,30]], target = 5
 Output: true`,
+        link: "https://leetcode.com/problems/search-a-2d-matrix-ii/",
 
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
@@ -3570,6 +3619,7 @@ A peak element in a 2D grid is an element that is strictly greater than all of i
 EXAMPLE:
 Input: mat = [[1,4],[3,2]]
 Output: [0,1]`,
+        link: "https://leetcode.com/problems/find-a-peak-element-ii/",
 
   bruteForceComplexity: `Time Complexity: O(N * M)
 Space Complexity: O(1)`,
@@ -3640,6 +3690,7 @@ Given a row-wise sorted matrix of odd size (n x m), find the median of all eleme
 EXAMPLE:
 Input: matrix = [[1,3,5], [2,6,9], [3,6,9]]
 Output: 5`,
+        link: "https://leetcode.com/problems/kth-smallest-element-in-a-sorted-matrix/",
 
   bruteForceComplexity: `Time Complexity: O(N*M log(N*M))
 Space Complexity: O(N*M)`,
@@ -3712,7 +3763,7 @@ Space Complexity: O(1)`,
 
 
 
-  "strings":[
+  "strings": [
     {
     title: `QUESTION:
     Given an array of strings strs, group the anagrams together. Return the groups in any order.
@@ -3720,6 +3771,7 @@ Space Complexity: O(1)`,
     EXAMPLE:
     Input:  strs = ["eat", "tea", "tan", "ate", "nat", "bat"]
     Output: [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]`,
+        link: "https://leetcode.com/problems/group-anagrams/",
  
         bruteForceComplexity: ``,
  
@@ -3764,6 +3816,7 @@ Space Complexity: O(1)`,
     Input:  s = "abbccd"
     Output: "b"
     Explanation: 'b' is the first character that is seen a second time.`,
+        link: "https://leetcode.com/problems/first-letter-to-appear-twice/",
  
         bruteForceComplexity: ``,
  
@@ -3804,6 +3857,7 @@ Space Complexity: O(1)`,
     Input:  s = "loveleetcode"
     Output: "v"
     Explanation: 'l' and 'o' repeat, 'v' is the first character that appears only once.`,
+        link: "https://leetcode.com/problems/first-unique-character-in-a-string/",
  
         bruteForceComplexity: ``,
  
@@ -3844,6 +3898,7 @@ Space Complexity: O(1)`,
     Input:  s = "abccbaacz"
     Output: "c"
     Explanation: 'a' appears twice at index 5, but 'c' becomes a repeat first at index 3.`,
+        link: "https://leetcode.com/problems/first-letter-to-appear-twice/",
  
         bruteForceComplexity: ``,
  
@@ -3884,6 +3939,7 @@ Space Complexity: O(1)`,
  
     Input:  s = "rat", t = "car"
     Output: false`,
+        link: "https://leetcode.com/problems/valid-anagram/",
  
         bruteForceComplexity: ``,
  
@@ -3928,6 +3984,7 @@ Space Complexity: O(1)`,
     Input:  s = "A man, a plan, a canal: Panama"
     Output: true
     Explanation: "amanaplanacanalpanama" reads the same forwards and backwards.`,
+        link: "https://leetcode.com/problems/valid-palindrome/",
  
         bruteForceComplexity: ``,
  
@@ -3972,6 +4029,7 @@ Space Complexity: O(1)`,
     Input:  s = "aaabbc"
     Output: "a3b2c1"
     Explanation: 'a' repeats 3 times, 'b' 2 times, 'c' once.`,
+        link: "https://leetcode.com/problems/string-compression/",
  
         bruteForceComplexity: ``,
  
@@ -4016,6 +4074,7 @@ Space Complexity: O(1)`,
     Input:  s = "banana"
     Output: "ban"
     Explanation: Only the first 'b', 'a' and 'n' are kept.`,
+        link: "https://leetcode.com/problems/remove-duplicate-letters/",
  
         bruteForceComplexity: ``,
  
@@ -4055,6 +4114,7 @@ Space Complexity: O(1)`,
     Input:  s = "Hello World 123!"
     Output: {vowels=3, consonants=7, digits=3}
     Explanation: Vowels are e, o, o. Spaces and punctuation are ignored.`,
+        link: "https://leetcode.com/problems/vowels-of-all-substrings/",
  
         bruteForceComplexity: ``,
  
@@ -4103,6 +4163,7 @@ Space Complexity: O(1)`,
     Input: s = "tree"
     Output: "eert"
     Explanation: 'e' appears twice, 'r' and 't' appear once each.`,
+        link: "https://leetcode.com/problems/sort-characters-by-frequency/",
     
       bruteForceComplexity: `Time Complexity: O(N log N)
     Space Complexity: O(N)`,
@@ -4183,6 +4244,7 @@ Space Complexity: O(1)`,
     EXAMPLE:
     Input: s = "(1+(2*3)+((8)/4))+1"
     Output: 3`,
+        link: "https://leetcode.com/problems/maximum-nesting-depth-of-the-parentheses/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -4245,6 +4307,7 @@ Space Complexity: O(1)`,
     XC = 100 - 10 = 90
     CD = 500 - 100 = 400
     CM = 1000 - 100 = 900`,
+        link: "https://leetcode.com/problems/roman-to-integer/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -4300,6 +4363,7 @@ Space Complexity: O(1)`,
     Output: 42
     Input: s = "   -42"
     Output: -42`,
+        link: "https://leetcode.com/problems/string-to-integer-atoi/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -4339,6 +4403,7 @@ Space Complexity: O(1)`,
     Input: s = "aaaba"
     Output: 8
     Explanation: substrings: "a","a","aa","aaa","b","aa","a","a"`,
+        link: "https://leetcode.com/problems/count-number-of-homogenous-substrings/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -4407,6 +4472,7 @@ Space Complexity: O(1)`,
     EXAMPLE:
     Input: s = "babad"
     Output: "bab"`,
+        link: "https://leetcode.com/problems/longest-palindromic-substring/",
     
       bruteForceComplexity: `Time Complexity: O(N³)
     Space Complexity: O(1)`,
@@ -4485,6 +4551,7 @@ function expand(s, left, right) {
     Input: s = "aabcb"
     Output: 5  i=0 (0+0+1+1+1​) ​+ i=1 (0+0+0+1​​) + i=2 (0+0+1)​ ​+ i=3 (0+0) ​​+ i=4 (0)​​
      =3+1+1+0+0=5`,
+        link: "https://leetcode.com/problems/sum-of-beauty-of-all-substrings/",
     
       bruteForceComplexity: `Time Complexity: O(N³)
     Space Complexity: O(1)`,
@@ -4547,6 +4614,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: s = "Let's take LeetCode contest"
     Output: "s'teL ekat edoCteeL tsetnoc"`,
+        link: "https://leetcode.com/problems/reverse-words-in-a-string-iii/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -4587,6 +4655,7 @@ function expand(s, left, right) {
     Output: 2
     Input: s = "{{{}"
     Output: 1`,
+        link: "https://leetcode.com/problems/minimum-add-to-make-parentheses-valid/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -4656,7 +4725,8 @@ function expand(s, left, right) {
     countAndSay(1) = "1"  read previous one that it
     countAndSay(2) = "11"     previous 11
     countAndSay(3) = "21"     previous 21
-    countAndSay(4) = "1211"`,     
+    countAndSay(4) = "1211"`,
+        link: "https://leetcode.com/problems/count-and-say/",     
     
       bruteForceComplexity: `Time Complexity: O(N * L) where L is length of string
     Space Complexity: O(L)`,
@@ -4720,6 +4790,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: text = "ABABDABACDABABCABAB", pattern = "ABABCABAB"
     Output: Pattern found at index 10`,
+        link: "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/",
     
       bruteForceComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(1)`,
@@ -4775,6 +4846,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: s = "aabcaabxaaz"
     Output: [0,1,0,0,0,2,1,0,0,1,0]`,
+        link: "https://leetcode.com/problems/longest-duplicate-substring/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
@@ -4813,6 +4885,7 @@ function expand(s, left, right) {
     Index:    0 1 2 3 4 5 6 7 8
     Pattern:  A B A B C A B A B
     LPS:      0 0 1 2 0 1 2 3 4`,
+        link: "https://leetcode.com/problems/find-the-index-of-the-first-occurrence-in-a-string/",
     
       bruteForceComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(1)`,
@@ -4875,6 +4948,7 @@ function expand(s, left, right) {
     Index:     0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16
     Character: a a c e c a a a # a  a  a  c  e  c  a  a
     LPS:       0 1 0 0 0 1 2 2 0 1  2  2  3  4  5  6  7`,
+        link: "https://leetcode.com/problems/shortest-palindrome/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
@@ -4923,6 +4997,7 @@ function expand(s, left, right) {
     Index:    0 1 2 3 4 5
     String:   a b a b a b
     LPS:      0 0 1 2 3 4`,
+        link: "https://leetcode.com/problems/longest-happy-prefix/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -4961,6 +5036,7 @@ function expand(s, left, right) {
     Input: s = "bccb"
     Output: 6
     Explanation: The 6 different non-empty palindromic subsequences are 'b', 'c', 'bb', 'cc', 'bcb', 'bccb'.`,
+        link: "https://leetcode.com/problems/count-different-palindromic-subsequences/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -5004,7 +5080,7 @@ function expand(s, left, right) {
 
 
 
-  "linked-list":[
+  "linked-list": [
       {
         title: `QUESTION:
     Given a singly linked list, insert a new node with value val at the beginning (start) of the list and return the new head.
@@ -5012,6 +5088,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list = 2 -> 3 -> 4, val = 1
     Output: 1 -> 2 -> 3 -> 4`,
+        link: "https://leetcode.com/problems/design-linked-list/",
     
         bruteForceComplexity: `Time Complexity: O(N) — copies all existing values into a new array, then rebuilds the entire list from scratch
     Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5057,6 +5134,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list = 1 -> 2 -> 3, val = 4
     Output: 1 -> 2 -> 3 -> 4`,
+        link: "https://leetcode.com/problems/design-linked-list/",
     
         bruteForceComplexity: `Time Complexity: O(N) — copies all existing values into an array, then rebuilds the entire list including the new value
     Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5108,6 +5186,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list = 1 -> 2 -> 4, val = 3, position = 2
     Output: 1 -> 2 -> 3 -> 4`,
+        link: "https://leetcode.com/problems/design-linked-list/",
     
         bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, inserts at the given index, then rebuilds the whole list
     Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5165,6 +5244,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list = 1 -> 2 -> 3 -> 4, val = 3
     Output: 1 -> 2 -> 4`,
+        link: "https://leetcode.com/problems/delete-node-in-a-linked-list/",
     
         bruteForceComplexity: `Time Complexity: O(N) — copies all values except the target into an array, then rebuilds the entire list
     Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5240,6 +5320,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list = 1 -> 2 -> 3 -> 4 -> 5
     Output: 5 -> 4 -> 3 -> 2 -> 1`,
+        link: "https://leetcode.com/problems/reverse-linked-list/",
     
         bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, reverses the array, then rebuilds the entire list
     Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5293,6 +5374,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: head = [1,2,3,4,5]
     Output: [3,4,5]`,
+        link: "https://leetcode.com/problems/middle-of-the-linked-list/",
     
       bruteForceComplexity: `Time Complexity: O(N) + O(N/2) — two passes
     Space Complexity: O(1)`,
@@ -5339,6 +5421,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: head = [1,2,3,4,5]
     Output: [5,4,3,2,1]`,
+        link: "https://leetcode.com/problems/reverse-linked-list/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — uses extra array/stack`,
@@ -5385,6 +5468,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4
   Output: 1 -> 2 -> 3`,
+        link: "https://leetcode.com/problems/remove-linked-list-elements/",
    
       bruteForceComplexity: `Time Complexity: O(N) — copies all values except the last into an array, then rebuilds the list
   Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5435,6 +5519,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4, target = 3
   Output: true`,
+        link: "https://leetcode.com/problems/design-linked-list/",
    
       bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then scans the array
   Space Complexity: O(N) for the temporary array`,
@@ -5479,6 +5564,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4 -> 5, n = 2
   Output: 1 -> 2 -> 3 -> 5`,
+        link: "https://leetcode.com/problems/remove-nth-node-from-end-of-list/",
    
       bruteForceComplexity: `Time Complexity: O(N) — one pass to count total nodes, another pass to reach and remove the target node
   Space Complexity: O(1) extra space (no copy needed, but conceptually two passes)`,
@@ -5556,6 +5642,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4 -> (points back to 2)
   Output: true`,
+        link: "https://leetcode.com/problems/linked-list-cycle/",
    
       bruteForceComplexity: `Time Complexity: O(N) — visits each node once and stores it in a hash set to check for repeats
   Space Complexity: O(N) for the hash set`,
@@ -5597,6 +5684,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4 -> (points back to 2)
   Output: 1 -> 2 -> 3 -> 4 -> null`,
+        link: "https://leetcode.com/problems/linked-list-cycle-ii/",
    
       bruteForceComplexity: `Time Complexity: O(N) — stores visited nodes in a hash set, unlinks as soon as a repeat is found
   Space Complexity: O(N) for the hash set`,
@@ -5666,6 +5754,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 4 -> 2 -> 1 -> 3
   Output: 1 -> 2 -> 3 -> 4`,
+        link: "https://leetcode.com/problems/sort-list/",
    
       bruteForceComplexity: `Time Complexity: O(N log N) for sorting, but O(N) extra work — copies values into an array, sorts, then rebuilds the list
   Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5749,6 +5838,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 -> 2 -> 3 -> 4 -> 5
   Output: 1 -> 5 -> 2 -> 4 -> 3`,
+        link: "https://leetcode.com/problems/reorder-list/",
    
       bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then rebuilds the list by picking alternately from front and back
   Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5840,6 +5930,7 @@ function expand(s, left, right) {
   EXAMPLE:
   Input: list = 1 <-> 2 <-> 3 <-> 4
   Output: 4 <-> 3 <-> 2 <-> 1`,
+        link: "https://leetcode.com/problems/reverse-linked-list/",
    
       bruteForceComplexity: `Time Complexity: O(N) — copies all values into an array, then rebuilds a brand new doubly linked list in reverse order
   Space Complexity: O(N) for the temporary array/new nodes`,
@@ -5895,6 +5986,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: list1 = [1,2,4], list2 = [1,3,4]
     Output: [1,1,2,3,4,4]`,
+        link: "https://leetcode.com/problems/merge-two-sorted-lists/",
     
       bruteForceComplexity: `Time Complexity: O((N+M) log(N+M)) — collect all values, then sort
     Space Complexity: O(N+M)`,
@@ -5951,6 +6043,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: head = [1,2,2,1]
     Output: true`,
+        link: "https://leetcode.com/problems/palindrome-linked-list/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — stores all values in a list`,
@@ -6034,6 +6127,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: head = [1,2,3,4,5], left = 2, right = 4
     Output: [1,4,3,2,5]`,
+        link: "https://leetcode.com/problems/reverse-linked-list-ii/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — stores values in a list to reverse the segment`,
@@ -6135,6 +6229,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: l1 = [2,4,3], l2 = [5,6,4]
     Output: [7,0,8]  (342 + 465 = 807)`,
+        link: "https://leetcode.com/problems/add-two-numbers/",
     
       bruteForceComplexity: `Time Complexity: O(N+M)
     Space Complexity: O(N+M) — converts lists to numbers via strings/BigInteger`,
@@ -6197,6 +6292,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: DLL: 2 <-> 2 <-> 10 <-> 8 <-> 4 <-> 2 <-> 5 <-> 2, key = 2
     Output: 10 <-> 8 <-> 4 <-> 5`,
+        link: "https://leetcode.com/problems/remove-linked-list-elements/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -6253,6 +6349,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: DLL: 1 <-> 2 <-> 4 <-> 5 <-> 6 <-> 8 <-> 9, target = 7
     Output: [[1,6], [2,5]]`,
+        link: "https://leetcode.com/problems/two-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -6312,6 +6409,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: DLL: 1 <-> 1 <-> 1 <-> 2 <-> 3 <-> 3 <-> 4
     Output: 1 <-> 2 <-> 3 <-> 4`,
+        link: "https://leetcode.com/problems/remove-duplicates-from-sorted-list/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -6367,6 +6465,7 @@ function expand(s, left, right) {
     EXAMPLE:
     Input: head = [1,2,3,4,5], k = 2
     Output: [2,1,4,3,5]`,
+        link: "https://leetcode.com/problems/reverse-nodes-in-k-group/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -6434,6 +6533,7 @@ class Solution {
     EXAMPLE:
     Input: head = [1,2,3,4,5], k = 2
     Output: [4,5,1,2,3]`,
+        link: "https://leetcode.com/problems/rotate-list/",
     
       bruteForceComplexity: `Time Complexity: O(N * K)
     Space Complexity: O(1)`,
@@ -6488,6 +6588,7 @@ class Solution {
               |
               5 -> 6
     Output: 1 -> 2 -> 3 -> 4 -> 5 -> 6`,
+        link: "https://leetcode.com/problems/flatten-a-multilevel-doubly-linked-list/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) using sorting`,
     
@@ -6537,6 +6638,7 @@ class Solution {
     Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
     Output: Deep copy of the list
     7  -> 7'  -> 13 -> 13' -> 11 -> 11' -> 10 -> 10' -> 1 -> 1' -> null`,
+        link: "https://leetcode.com/problems/copy-list-with-random-pointer/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -6591,10 +6693,11 @@ class Solution {
 
   ],
 
-  "bit-manipulation":[
+  "bit-manipulation": [
     {
       title: `QUESTION:
     Complete Bit Manipulation Theory - All Important Concepts, Tricks, and Techniques (Must Know for Interviews)`,
+        link: "https://leetcode.com/problems/single-number/",
     
       bruteForceComplexity: `Not Applicable (Theory)`,
     
@@ -6701,6 +6804,7 @@ class Solution {
     EXAMPLE:
     Input: start = 10, goal = 7
     Output: 3`,
+        link: "https://leetcode.com/problems/minimum-bit-flips-to-convert-number/",
     
       bruteForceComplexity: `Time Complexity: O(log N)
     Space Complexity: O(1)`,
@@ -6746,6 +6850,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [2,2,1]
     Output: 1`,
+        link: "https://leetcode.com/problems/single-number/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) (using HashMap)`,
@@ -6779,6 +6884,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,3]
     Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]`,
+        link: "https://leetcode.com/problems/subsets/",
     
       bruteForceComplexity: `Time Complexity: O(N * 2^N)
     Space Complexity: O(N * 2^N)`,
@@ -6820,6 +6926,7 @@ class Solution {
     EXAMPLE:
     Input: L = 4, R = 7
     Output: 4`,
+        link: "https://leetcode.com/problems/xor-operation-in-an-array/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -6863,6 +6970,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,1,3,2,5]
     Output: [3,5]`,
+        link: "https://leetcode.com/problems/single-number-iii/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -6905,6 +7013,7 @@ class Solution {
     EXAMPLE:
     Input: n = 12 (2x6=2x2x3)
     Output: 2 2 3`,
+        link: "https://leetcode.com/problems/distinct-prime-factors-of-product-of-array/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -6967,6 +7076,7 @@ class Solution {
     EXAMPLE:
     Input: n = 12
     Output: [1, 2, 3, 4, 6, 12]`,
+        link: "https://leetcode.com/problems/kth-factor-of-n/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -7014,6 +7124,7 @@ class Solution {
     EXAMPLE:
     Input: L = 1, R = 10
     Output: 4`,
+        link: "https://leetcode.com/problems/count-primes/",
     
       bruteForceComplexity: `Time Complexity: O((R-L+1) * √R)
     Space Complexity: O(1)`,
@@ -7077,6 +7188,7 @@ class Solution {
     EXAMPLE:
     Input: n = 84
     Output: [2, 2, 3, 7]`,
+        link: "https://leetcode.com/problems/prime-arrangements/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(log N)`,
@@ -7118,6 +7230,7 @@ class Solution {
     EXAMPLE:
     Input: x = 2.00000, n = 10
     Output: 1024.00000`,
+        link: "https://leetcode.com/problems/powx-n/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(1)`,
@@ -7170,7 +7283,7 @@ class Solution {
 
   ],
 
-  "sliding-and-two-pointer":[
+  "sliding-and-two-pointer": [
     {
       title: `QUESTION:
     Given a string s, find the length of the longest substring without repeating characters.
@@ -7179,6 +7292,7 @@ class Solution {
     Input: s = "abcabcbb"
     Output: 3
     Explanation: The answer is "abc", with length 3.`,
+        link: "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(256) ≈ O(1)`,
@@ -7248,6 +7362,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2
     Output: 6`,
+        link: "https://leetcode.com/problems/max-consecutive-ones-iii/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -7314,6 +7429,7 @@ class Solution {
     EXAMPLE:
     Input: fruits = [1,2,1,2,3]
     Output: 4`,
+        link: "https://leetcode.com/problems/fruit-into-baskets/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(2)`,
@@ -7388,6 +7504,7 @@ class Solution {
     EXAMPLE:
     Input: s = "ABAB", k = 2
     Output: 4`,
+        link: "https://leetcode.com/problems/longest-repeating-character-replacement/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(26)`,
@@ -7466,6 +7583,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,0,1,0,1], goal = 2
     Output: 4  =  [1,0,1],[1,0,1,0],[0,1,0,1],[1,0,1]`,
+        link: "https://leetcode.com/problems/binary-subarrays-with-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -7523,6 +7641,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,1,2,1,1], k = 3
     Output: 2`,
+        link: "https://leetcode.com/problems/count-number-of-nice-subarrays/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -7587,6 +7706,7 @@ class Solution {
     EXAMPLE:
     Input: s = "abcabc"
     Output: 10  ("abc", "abca", "abcab", "abcabc", "bca", "bcab", "bcabc", "cab", "cabc", "abc")`,
+        link: "https://leetcode.com/problems/number-of-substrings-containing-all-three-characters/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -7660,6 +7780,7 @@ class Solution {
     EXAMPLE:
     Input: cardPoints = [1,2,3,4,5,6,1], k = 3
     Output: 12`,
+        link: "https://leetcode.com/problems/maximum-points-you-can-obtain-from-cards/",
     
       bruteForceComplexity: `Time Complexity: O(2^K)
     Space Complexity: O(K)`,
@@ -7719,6 +7840,7 @@ class Solution {
     Input: s = "eceba", k = 2
     Output: 3
     Explanation: "ece" contains only 2 distinct characters.`,
+        link: "https://leetcode.com/problems/longest-substring-with-at-most-k-distinct-characters/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(K)`,
@@ -7783,6 +7905,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,1,2,3], k = 2
     Output: 7 -> [1,2] [1,2,1] [1,2,1,2] [2,1] [2,1,2] [1,2] [2,3]`,
+        link: "https://leetcode.com/problems/subarrays-with-k-different-integers/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(K)`,
@@ -7858,6 +7981,7 @@ class Solution {
            t = "ABC"
     
     Output: "BANC"`,
+        link: "https://leetcode.com/problems/minimum-window-substring/",
     
       bruteForceComplexity: `Time Complexity: O(N^3)
     Space Complexity: O(256)`,
@@ -7956,6 +8080,7 @@ class Solution {
     
     Output:
     "bcde"`,
+        link: "https://leetcode.com/problems/minimum-window-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(N^3)
     Space Complexity: O(1)`,
@@ -8050,7 +8175,7 @@ class Solution {
 
 
 
-  "graphs":[
+  "graphs": [
     {
       title: `QUESTION:
     Given an n x n matrix isConnected where isConnected[i][j] = 1 if the ith city and the jth city are directly connected, return the total number of provinces.
@@ -8058,6 +8183,7 @@ class Solution {
     EXAMPLE:
     Input: isConnected = [[1,1,0],[1,1,0],[0,0,1]]
     Output: 2`,
+        link: "https://leetcode.com/problems/number-of-provinces/",
     
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N)`,
@@ -8097,6 +8223,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[1,1,0],[0,1,0],[0,0,1]]
     Output: 2`,
+        link: "https://leetcode.com/problems/number-of-connected-components-in-an-undirected-graph/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8140,6 +8267,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[2,1,1],[1,1,0],[0,1,1]]
     Output: 4`,
+        link: "https://leetcode.com/problems/rotting-oranges/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8195,6 +8323,7 @@ class Solution {
     EXAMPLE:
     Input: image = [[1,1,1],[1,1,0],[1,0,1]], sr = 1, sc = 1, newColor = 2
     Output: [[2,2,2],[2,2,0],[2,0,1]]`,
+        link: "https://leetcode.com/problems/flood-fill/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8228,6 +8357,7 @@ class Solution {
     EXAMPLE:
     Input: edges = [[0,1],[1,2],[2,0]]
     Output: true`,
+        link: "https://leetcode.com/problems/redundant-connection/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -8274,6 +8404,7 @@ class Solution {
     EXAMPLE:
     Input: edges = [[0,1],[1,2],[2,0]]
     Output: true`,
+        link: "https://leetcode.com/problems/redundant-connection/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -8311,6 +8442,7 @@ class Solution {
         EXAMPLE:
         Input: grid = [[0,1,1,0],[1,1,0,0],[0,0,1,1]]
         Output: [[1,0,0,1],[0,0,1,1],[1,1,0,0]]`,
+        link: "https://leetcode.com/problems/01-matrix/",
     
       optimalComplexity: `Time Complexity: O(N * M)
         Space Complexity: O(N * M)`,
@@ -8373,6 +8505,7 @@ class Solution {
     X O O X           X O O X
     X X X X           X X X X   
     `,
+        link: "https://leetcode.com/problems/surrounded-regions/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8418,6 +8551,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[0,0,0,0],[1,0,1,0],[0,1,1,0],[0,0,0,0]]
     Output: 3`,
+        link: "https://leetcode.com/problems/number-of-enclaves/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8463,6 +8597,7 @@ class Solution {
     Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
     Output: 5
     hit → hot → dot → dog → cog`,
+        link: "https://leetcode.com/problems/word-ladder/",
 
 
     bruteForceCode:`
@@ -8592,6 +8727,7 @@ class Solution {
                              \           /
                               \         /
                 4                cog (4)`,
+        link: "https://leetcode.com/problems/word-ladder-ii/",
     
       optimalComplexity: `Time Complexity: O(N * L²)
     Space Complexity: O(N)`,
@@ -8671,6 +8807,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]
     Output: 1`,
+        link: "https://leetcode.com/problems/number-of-islands/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -8711,6 +8848,7 @@ class Solution {
     EXAMPLE:
     Input: graph = [[1,2,3],[0,2],[0,1,3],[0,2]]
     Output: false`,
+        link: "https://leetcode.com/problems/is-graph-bipartite/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -8750,6 +8888,7 @@ class Solution {
     EXAMPLE:
     Input: graph with cycle
     Output: true`,
+        link: "https://leetcode.com/problems/course-schedule/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -8791,6 +8930,7 @@ class Solution {
     EXAMPLE:
     Input: V = 6, edges = [[5,0],[5,2],[2,3],[3,1],[4,0],[4,1]]
     Output: [5,4,2,3,1,0]`,
+        link: "https://leetcode.com/problems/course-schedule-ii/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -8834,6 +8974,7 @@ class Solution {
     EXAMPLE:
     Input: V = 6, edges = [[5,0],[5,2],[2,3],[3,1],[4,0],[4,1]]
     Output: [4,5,2,0,3,1]`,
+        link: "https://leetcode.com/problems/course-schedule/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -8880,6 +9021,7 @@ class Solution {
     EXAMPLE:
     Input: Graph with cycle (e.g., 0->1->2->0)
     Output: true`,
+        link: "https://leetcode.com/problems/course-schedule/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -8924,6 +9066,7 @@ class Solution {
     EXAMPLE:
     Input: numCourses = 2, prerequisites = [[1,0]]
     Output: true`,
+        link: "https://leetcode.com/problems/course-schedule/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -8972,6 +9115,7 @@ class Solution {
     EXAMPLE:
     Input: numCourses = 4, prerequisites = [[1,0],[2,0],[3,1],[3,2]]
     Output: [0,2,1,3]`,
+        link: "https://leetcode.com/problems/course-schedule-ii/",
 
     bruteForceCode:`
     class Solution {
@@ -9064,6 +9208,7 @@ class Solution {
     EXAMPLE:
     Input: graph = [[1,2],[2,3],[5],[0],[5],[],[]]
     Output: [2,4,5,6]`,
+        link: "https://leetcode.com/problems/find-eventual-safe-states/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V)`,
@@ -9115,6 +9260,7 @@ class Solution {
     EXAMPLE:
     Input: words = ["baa", "abcd", "abca", "cab", "cad"]
     Output: "bdac"`,
+        link: "https://leetcode.com/problems/alien-dictionary/",
     
       optimalComplexity: `Time Complexity: O(N * L + K) where K is number of unique characters
     Space Complexity: O(K)`,
@@ -9177,6 +9323,7 @@ class Solution {
     EXAMPLE:
     Input: edges = [[0,1],[0,2],[1,3],[2,3]], source = 0
     Output: [0,1,1,2]`,
+        link: "https://leetcode.com/problems/shortest-path-in-binary-matrix/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -9224,6 +9371,7 @@ class Solution {
     EXAMPLE:
     Input: N = 6, edges = [[0,1,2],[0,4,1],[1,2,3],[4,2,2],[4,5,4],[5,3,1]]
     Output: [0,2,4,6,1,5]`,
+        link: "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -9281,6 +9429,7 @@ class Solution {
     EXAMPLE:
     Input: N = 4, edges = [[0,1,1],[0,2,3],[1,3,4],[2,3,2]], source = 0
     Output: [0,1,3,5]`,
+        link: "https://leetcode.com/problems/network-delay-time/",
     
       optimalComplexity: `Time Complexity: O((V + E) log V)
     Space Complexity: O(V + E)`,
@@ -9321,6 +9470,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[0,1,1],[1,0,1],[1,0,0]], source = {0,0}, destination = {2,2}
     Output: 4`,
+        link: "https://leetcode.com/problems/shortest-path-in-a-grid-with-obstacles-elimination/",
     
       optimalComplexity: `Time Complexity: O(N * M)
     Space Complexity: O(N * M)`,
@@ -9366,6 +9516,7 @@ class Solution {
     EXAMPLE:
     Input: heights = [[1,2,2],[3,8,2],[5,3,5]]
     Output: 2`,
+        link: "https://leetcode.com/problems/path-with-minimum-effort/",
     
       optimalComplexity: `Time Complexity: O(N * M * log(MaxDiff))
     Space Complexity: O(N * M)`,
@@ -9425,6 +9576,7 @@ class Solution {
     EXAMPLE:
     Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
     Output: 700`,
+        link: "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
     
       optimalComplexity: `Time Complexity: O(E * K)
     Space Complexity: O(V + E)`,
@@ -9480,6 +9632,7 @@ class Solution {
     EXAMPLE:
     Input: times = [[2,1,1],[2,3,1],[3,4,1]], n = 4, k = 2
     Output: 2`,
+        link: "https://leetcode.com/problems/network-delay-time/",
     
       optimalComplexity: `Time Complexity: O((V + E) log V)
     Space Complexity: O(V + E)`,
@@ -9532,6 +9685,7 @@ class Solution {
     EXAMPLE:
     Input: n = 7, roads = [[0,6,7],[0,1,2],[1,2,3],[1,3,3],[6,3,3],[3,5,1],[6,5,1],[2,5,1],[0,4,5],[4,6,2]]
     Output: 4`,
+        link: "https://leetcode.com/problems/number-of-ways-to-arrive-at-destination/",
     
       optimalComplexity: `Time Complexity: O((V + E) log V)
     Space Complexity: O(V + E)`,
@@ -9592,6 +9746,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [2,3,5], start = 3, end = 30
     Output: 2`,
+        link: "https://leetcode.com/problems/minimum-genetic-mutation/",
     
       optimalComplexity: `Time Complexity: O(100000 * N)
     Space Complexity: O(100000)`,
@@ -9630,6 +9785,7 @@ class Solution {
     
     EXAMPLE:  Input : V = 6, Edges = [[3, 2, 6], [5, 3, 1], [0, 1, 5], [1, 5, -3], [1, 2, -2], [3, 4, -2], [2, 4, 3]], S = 0
     Output: 0 5 3 3 1 2`,
+        link: "https://leetcode.com/problems/cheapest-flights-within-k-stops/",
     
       optimalComplexity: `Time Complexity: O(V * E)
     Space Complexity: O(V)`,
@@ -9673,6 +9829,7 @@ class Solution {
     Output: [[0, 2, 5, 6], [1, 0, 3, 4], [4, 6, 0, 1], [3, 5, 4, 0]] 
     Explanation: matrix[0][0] is storing the distance from vertex 0 to vertex 0, the distance from vertex 0 to vertex 1 is 2 and so on.
      Floyd-Warshall finds shortest paths between every single pair of cities in one go.`,
+        link: "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/",
     
       optimalComplexity: `Time Complexity: O(V³)
     Space Complexity: O(V²)`,
@@ -9712,6 +9869,7 @@ class Solution {
     EXAMPLE:
     Input: n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4
     Output: 3`,
+        link: "https://leetcode.com/problems/find-the-city-with-the-smallest-number-of-neighbors-at-a-threshold-distance/",
     
       optimalComplexity: `Time Complexity: O(N³)
     Space Complexity: O(N²)`,
@@ -9758,6 +9916,7 @@ class Solution {
     {
       title: `QUESTION:      (NEW PATTERN)
     Minimum Spanning Tree (MST) is a subset of edges in a connected, undirected, weighted graph that connects all the vertices with the minimum possible total edge weight. No cycles are allowed in MST.`,
+        link: "https://leetcode.com/problems/min-cost-to-connect-all-points/",
     
       optimalComplexity: `Prim's / Kruskal's - O(E log V)
     Space Complexity: O(V + E)`,
@@ -9775,6 +9934,7 @@ class Solution {
     EXAMPLE:
     Input: V = 5, edges = [[0,1,2],[0,2,1],[1,2,1],[2,3,2],[3,4,1]]
     Output: 5`,
+        link: "https://leetcode.com/problems/min-cost-to-connect-all-points/",
     
       optimalComplexity: `Time Complexity: O(E log V)
     Space Complexity: O(V + E)`,
@@ -9817,6 +9977,7 @@ class Solution {
     
     EXAMPLE:
     Input: Operations on DSU`,
+        link: "https://leetcode.com/problems/redundant-connection/",
     
       optimalComplexity: `Time Complexity: O(α(N)) ~ almost constant
     Space Complexity: O(N)`,
@@ -9868,6 +10029,7 @@ class Solution {
     From node 2 → [3, 3] (weight 3)
     The total MST weight is 1 + 2 + 3 = 6.
     These edges connect all vertices (0, 1, 2, 3) with minimum cost.`,
+        link: "https://leetcode.com/problems/min-cost-to-connect-all-points/",
     
       optimalComplexity: `Time Complexity: O(E log E)
     Space Complexity: O(V)`,
@@ -9962,6 +10124,7 @@ class Solution {
     EXAMPLE:
     Input: n = 4, connections = [[0,1],[0,2],[1,2]]
     Output: 1`,
+        link: "https://leetcode.com/problems/number-of-operations-to-make-network-connected/",
     
       optimalComplexity: `Time Complexity: O(N + E)
     Space Complexity: O(N)`,
@@ -9996,6 +10159,7 @@ class Solution {
     EXAMPLE:
     Input: stones = [[0,0],[0,1],[1,0],[1,2],[2,1],[2,2]]
     Output: 5`,
+        link: "https://leetcode.com/problems/most-stones-removed-with-same-row-or-column/",
     
       optimalComplexity: `Time Complexity: O(N)
     Space Complexity: O(N)`,
@@ -10035,6 +10199,7 @@ class Solution {
     EXAMPLE:
     Input: accounts = [["John","johnsmith@mail.com","john_newyork@mail.com"],["John","johnsmith@mail.com","john00@mail.com"]]
     Output: [["John","john00@mail.com","john_newyork@mail.com","johnsmith@mail.com"]]`,
+        link: "https://leetcode.com/problems/accounts-merge/",
     
       optimalComplexity: `Time Complexity: O(N * α(N))
     Space Complexity: O(N)`,
@@ -10109,6 +10274,7 @@ class Solution {
     EXAMPLE:
     Input: m = 3, n = 3, positions = [[0,0],[0,1],[1,2],[2,1]]
     Output: [1,1,2,3] ->Return a list containing the number of islands after each land addition.`,
+        link: "https://leetcode.com/problems/number-of-islands-ii/",
     
       optimalComplexity: `Time Complexity: O(K * α(M*N))
     Space Complexity: O(M*N)`,
@@ -10206,6 +10372,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[1,0],[0,1]]
     Output: 3`,
+        link: "https://leetcode.com/problems/making-a-large-island/",
     
       optimalComplexity: `Time Complexity: O(N²)
     Space Complexity: O(N²)`,
@@ -10308,6 +10475,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[0,2],[1,3]]
     Output: 3`,
+        link: "https://leetcode.com/problems/swim-in-rising-water/",
     
       optimalComplexity: `Time Complexity: O(N² log N)
     Space Complexity: O(N²)`,
@@ -10368,6 +10536,7 @@ class Solution {
     EXAMPLE:
     Input: V = 5, edges = [[0,1],[0,2],[1,2],[0,3],[3,4]]
     Output: [[0,3],[3,4]]`,
+        link: "https://leetcode.com/problems/critical-connections-in-a-network/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -10433,6 +10602,7 @@ class Solution {
     EXAMPLE:
     Input: V = 5, edges = [[0,1],[0,2],[1,2],[0,3],[3,4]]
     Output: [0,3]`,
+        link: "https://leetcode.com/problems/critical-connections-in-a-network/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -10501,6 +10671,7 @@ class Solution {
     Input: V = 5, edges = [[0,1],[1,2],[2,0],[1,3],[3,4],[4,3]]
     Output: 2 
     {0,1,2} and {3,4}`,
+        link: "https://leetcode.com/problems/critical-connections-in-a-network/",
     
       optimalComplexity: `Time Complexity: O(V + E)
     Space Complexity: O(V + E)`,
@@ -10579,7 +10750,7 @@ class Solution {
 
 
 
-  "dynamic-programming":[
+  "dynamic-programming": [
     {
       title: `QUESTION:
     You are climbing a staircase with n steps. Each time you can either climb 1 or 2 steps. Return the number of distinct ways you can climb to the top.
@@ -10588,6 +10759,7 @@ class Solution {
     Input: n = 3
     Output: 3
     Explanation: There are 3 ways to climb: (1,1,1), (1,2), (2,1)`,
+        link: "https://leetcode.com/problems/climbing-stairs/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -10686,6 +10858,7 @@ class Solution {
         ├── Cost = 1 + 1 = 2
         │
         └── helper(4)=min(4,2)=2`,
+        link: "https://leetcode.com/problems/min-cost-climbing-stairs/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -10799,6 +10972,7 @@ class Solution {
         ├── Cost = 10 + 5 = 15
         │
         └── helper(4)=min(25,15)=15`,
+        link: "https://leetcode.com/problems/frog-jump/",
     
       bruteForceComplexity: `Time Complexity: O(k^N)
     Space Complexity: O(N)`,
@@ -10854,6 +11028,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [2,1,4,9]
     Output: 11`,
+        link: "https://leetcode.com/problems/house-robber/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -10901,6 +11076,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [2,7,9,3,1]
     Output: 12`,
+        link: "https://leetcode.com/problems/house-robber-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -10949,6 +11125,7 @@ class Solution {
     EXAMPLE:
     Input: points = [[1,2,5],[3,1,1],[3,3,3]]
     Output: 11`,
+        link: "https://leetcode.com/problems/maximum-vacation-days/",
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -11020,6 +11197,7 @@ class Solution {
     EXAMPLE:
     Input: m = 3, n = 7
     Output: 28`,
+        link: "https://leetcode.com/problems/unique-paths/",
     
       bruteForceComplexity: `Time Complexity: O(2^(m+n))
     Space Complexity: O(m+n)`,
@@ -11064,6 +11242,7 @@ class Solution {
     EXAMPLE:
     Input: obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
     Output: 2`,
+        link: "https://leetcode.com/problems/unique-paths-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^(m+n))
     Space Complexity: O(m+n)`,
@@ -11138,6 +11317,7 @@ class Solution {
                 └──9
 
             Result = 2(matrix[i][j]) +12=14           similarly for helper(0,1) and helper(0,2) of for loop`,
+        link: "https://leetcode.com/problems/minimum-falling-path-sum/",
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -11200,6 +11380,7 @@ class Solution {
     EXAMPLE:
     Input: triangle = [[2],[3,4],[6,5,7],[4,1,8,3]]
     Output: 11`,
+        link: "https://leetcode.com/problems/triangle/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11247,6 +11428,7 @@ class Solution {
     EXAMPLE:
     Input: grid = [[3,1,1],[2,5,1],[1,5,5],[2,1,1]]
     Output: 24`,
+        link: "https://leetcode.com/problems/cherry-pickup-ii/",
     
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
@@ -11319,6 +11501,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1, 2, 3, 7], target = 6
     Output: true`,
+        link: "https://leetcode.com/problems/partition-equal-subset-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11381,6 +11564,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1, 5, 11, 5]
     Output: true`,
+        link: "https://leetcode.com/problems/partition-equal-subset-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11457,6 +11641,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [1, 6, 11, 5]
     Output: 1`,
+        link: "https://leetcode.com/problems/partition-array-into-two-arrays-to-minimize-sum-difference/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11539,6 +11724,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [1, 2, 3, 3], K = 6
     Output: 3`,
+        link: "https://leetcode.com/problems/target-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11606,6 +11792,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [5, 2, 6, 4], d = 3
     Output: 1`,
+        link: "https://leetcode.com/problems/target-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11693,6 +11880,7 @@ class Solution {
     EXAMPLE:
     Input: g = [1, 2, 3], s = [1, 1]
     Output: 1`,
+        link: "https://leetcode.com/problems/assign-cookies/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(1)`,
@@ -11751,6 +11939,7 @@ class Solution {
     EXAMPLE:
     Input: coins = [1, 2, 5], amount = 11
     Output: 3  (5 + 5 + 1)`,
+        link: "https://leetcode.com/problems/coin-change/",
     
       bruteForceComplexity: `Time Complexity: O(amount^N)
     Space Complexity: O(amount)`,
@@ -11822,6 +12011,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1, 1, 1, 1, 1], target = 3
     Output: 5`,
+        link: "https://leetcode.com/problems/target-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -11898,6 +12088,7 @@ class Solution {
     EXAMPLE:
     Input: amount = 5, coins = [1, 2, 5]
     Output: 4  (5), (1+2+2), (1+1+1+2), (1+1+1+1+1)`,
+        link: "https://leetcode.com/problems/coin-change-ii/",
     
       bruteForceComplexity: `Time Complexity: O(amount^N)
     Space Complexity: O(amount)`,
@@ -11963,6 +12154,7 @@ class Solution {
     EXAMPLE:
     Input: W = 8, wt = [1,3,4,5], val = [1,4,5,7]
     Output: 11`,
+        link: "https://leetcode.com/problems/coin-change-ii/",
     
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
@@ -12020,6 +12212,7 @@ class Solution {
     EXAMPLE:
     Input: N = 8, price = [1,5,8,9,10,17,17,20]
     Output: 22`,
+        link: "https://leetcode.com/problems/integer-break/",
     
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
@@ -12077,6 +12270,7 @@ class Solution {
     EXAMPLE:
     Input: text1 = "abcde", text2 = "ace"
     Output: 3`,
+        link: "https://leetcode.com/problems/longest-common-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(2^(M+N))
     Space Complexity: O(M+N)`,
@@ -12125,6 +12319,7 @@ class Solution {
     EXAMPLE:
     Input: text1 = "abcde", text2 = "ace"
     Output: "ace"`,
+        link: "https://leetcode.com/problems/longest-common-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(2^(M+N))
     Space Complexity: O(M+N)`,
@@ -12175,6 +12370,7 @@ class Solution {
     EXAMPLE:
     Input: s1 = "abcde", s2 = "abfce"
     Output: 2`,
+        link: "https://leetcode.com/problems/maximum-length-of-repeated-subarray/",
     
       bruteForceComplexity: `Time Complexity: O(M * N * min(M,N))
     Space Complexity: O(1)`,
@@ -12211,6 +12407,7 @@ class Solution {
     EXAMPLE:
     Input: s = "bbbab"
     Output: 4`,
+        link: "https://leetcode.com/problems/longest-palindromic-subsequence/",
     
       bruteForceComplexity: `Time Complexity: Exponential
     Space Complexity: O(N)`,
@@ -12261,6 +12458,7 @@ class Solution {
     EXAMPLE:
     Input: s = "ab"
     Output: 1`,
+        link: "https://leetcode.com/problems/minimum-insertion-steps-to-make-a-string-palindrome/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12300,6 +12498,7 @@ class Solution {
     EXAMPLE:
     Input: A = "abcd", B = "anc"
     Output: 3`,
+        link: "https://leetcode.com/problems/delete-operation-for-two-strings/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12340,6 +12539,7 @@ class Solution {
     EXAMPLE:
     Input: str1 = "abac", str2 = "cab"
     Output: "cabac"`,
+        link: "https://leetcode.com/problems/shortest-common-supersequence/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12395,6 +12595,7 @@ class Solution {
     EXAMPLE:
     Input: s = "rabbbit", t = "rabbit"
     Output: 3`,
+        link: "https://leetcode.com/problems/distinct-subsequences/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12445,6 +12646,7 @@ class Solution {
     EXAMPLE:
     Input: word1 = "horse", word2 = "ros"
     Output: 3`,
+        link: "https://leetcode.com/problems/edit-distance/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12495,6 +12697,7 @@ class Solution {
     EXAMPLE:
     Input: s = "aa", p = "a*"
     Output: true`,
+        link: "https://leetcode.com/problems/wildcard-matching/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12555,6 +12758,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [10,9,2,5,3,7,101,18]
     Output: 4`,
+        link: "https://leetcode.com/problems/longest-increasing-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -12612,6 +12816,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [10,9,2,5,3,7,101,18]
     Output: [2,3,7,101]`,
+        link: "https://leetcode.com/problems/longest-increasing-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)`,
     
@@ -12662,6 +12867,7 @@ class Solution {
     {
       title: `QUESTION:
     Return the length of the Longest Increasing Subsequence (Standard DP-43 problem).`,
+        link: "https://leetcode.com/problems/longest-increasing-subsequence/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -12683,6 +12889,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,3]
     Output: [1,2]`,
+        link: "https://leetcode.com/problems/largest-divisible-subset/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)`,
     
@@ -12739,6 +12946,7 @@ class Solution {
     EXAMPLE:
     Input: words = ["a","b","ba","bca","bda","bdca"]
     Output: 4`,
+        link: "https://leetcode.com/problems/longest-string-chain/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12790,6 +12998,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,11,2,10,4,5,2,1]
     Output: 6`,
+        link: "https://leetcode.com/problems/minimum-number-of-removals-to-make-mountain-array/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12843,6 +13052,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,3,5,4,7]
     Output: 2`,
+        link: "https://leetcode.com/problems/number-of-longest-increasing-subsequence/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -12921,6 +13131,7 @@ class Solution {
         i=1 |   0      0     24000
 
         i=2 |   0      0        0`,
+        link: "https://leetcode.com/problems/burst-balloons/",
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -12975,6 +13186,7 @@ class Solution {
     {
       title: `QUESTION:
     Matrix Chain Multiplication using Bottom-Up Tabulation approach (Standard DP-49).`,
+        link: "https://leetcode.com/problems/burst-balloons/",
     
       bruteForceComplexity: `Time Complexity: O(3^N)
     Space Complexity: O(N)`,
@@ -12999,6 +13211,7 @@ class Solution {
     1→3→4→5 = 7+6+4+3 = 20
     4→3→5→1 = 7+4+3+3 = 17
     3→5→1→4 = 7+4+3+2 = 16 ✅`,
+        link: "https://leetcode.com/problems/minimum-cost-to-cut-a-stick/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13087,6 +13300,7 @@ class Solution {
     Burst 3: 1 × 3 × 8 = 24
     Burst 8: 1 × 8 × 1 = 8
     Total= 15 + 120 + 24 + 8 = 167`,
+        link: "https://leetcode.com/problems/burst-balloons/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13161,6 +13375,7 @@ class Solution {
     Input: s = "aab"
     Output: 1
     Explanation: The palindrome partitioning ["aa", "b"] could be produced using 1 cut.`,
+        link: "https://leetcode.com/problems/palindrome-partitioning-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N * N)
     Space Complexity: O(N) recursion stack`,
@@ -13242,6 +13457,7 @@ class Solution {
     [9] → 9
     [2,5,10] → 10
     Final array sum = 84`,
+        link: "https://leetcode.com/problems/partition-array-for-maximum-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^N * N)
     Space Complexity: O(N) recursion stack`,
@@ -13307,6 +13523,7 @@ class Solution {
     EXAMPLE:
     Input: expression = "2-1-1"
     Output: [0,2]`,
+        link: "https://leetcode.com/problems/different-ways-to-add-parentheses/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13351,6 +13568,7 @@ class Solution {
     EXAMPLE:
     Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
     Output: 6`,
+        link: "https://leetcode.com/problems/maximal-rectangle/",
     
       bruteForceComplexity: `Time Complexity: O((M*N)^2)
     Space Complexity: O(1)`,
@@ -13437,6 +13655,7 @@ class Solution {
     EXAMPLE:
     Input: matrix = [[0,1,1,1],[1,1,1,1],[0,1,1,1]]
     Output: 15`,
+        link: "https://leetcode.com/problems/count-square-submatrices-with-all-ones/",
     
       bruteForceComplexity: `Time Complexity: O(M² * N²)
     Space Complexity: O(1)`,
@@ -13520,6 +13739,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [7,1,5,3,6,4]
     Output: 5`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
     
       bruteForceComplexity: `Time Complexity: O(N²)
     Space Complexity: O(1)`,
@@ -13562,6 +13782,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [7,1,5,3,6,4]
     Output: 7`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N)
     Space Complexity: O(N)`,
@@ -13609,6 +13830,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [3,3,5,0,0,3,1,4]
     Output: 6`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iii/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13650,6 +13872,7 @@ class Solution {
     EXAMPLE:
     Input: k = 2, prices = [2,4,1]
     Output: 2`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-iv/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13692,6 +13915,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [1,2,3,0,2]
     Output: 3`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-cooldown/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13729,6 +13953,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [1,3,2,8,4,9], fee = 2
     Output: 8`,
+        link: "https://leetcode.com/problems/best-time-to-buy-and-sell-stock-with-transaction-fee/",
     
       bruteForceComplexity: `Time Complexity: Exponential`,
     
@@ -13758,7 +13983,7 @@ class Solution {
   ],
 
 
-  "recurssion-&-backtracking":[
+  "recurssion-&-backtracking": [
 
     {
       title: `QUESTION:
@@ -13767,6 +13992,7 @@ class Solution {
     EXAMPLE:
     Input: candidates = [2,3,6,7], target = 7
     Output: [[2,2,3],[7]]`,
+        link: "https://leetcode.com/problems/combination-sum/",
     
       bruteForceComplexity: `Time Complexity: O(2^target) worst case — explores every combination without early cutoff
     Space Complexity: O(target) recursion depth`,
@@ -13827,6 +14053,7 @@ class Solution {
     EXAMPLE:
     Input: candidates = [10,1,2,7,6,1,5], target = 8
     Output: [[1,1,6],[1,2,5],[1,7],[2,6]]`,
+        link: "https://leetcode.com/problems/combination-sum-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N) plus HashSet overhead to dedupe
     Space Complexity: O(2^N * N)`,
@@ -13891,6 +14118,7 @@ class Solution {
     EXAMPLE:
     Input: s = "aab"
     Output: [["a","a","b"],["aa","b"]]`,
+        link: "https://leetcode.com/problems/palindrome-partitioning/",
     
       bruteForceComplexity: `Time Complexity: O(N * 2^N) — checks palindrome from scratch for every substring
     Space Complexity: O(N) recursion depth`,
@@ -13970,6 +14198,7 @@ class Solution {
     EXAMPLE:
     Input: n = 4
     Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]`,
+        link: "https://leetcode.com/problems/n-queens/",
     
       bruteForceComplexity: `Time Complexity: O(N^N) — tries every column in every row, validating with full board scan each time
     Space Complexity: O(N^2) for the board`,
@@ -14063,6 +14292,7 @@ class Solution {
     EXAMPLE:
     Input: A partially filled 9x9 board
     Output: The board filled in with a valid solution`,
+        link: "https://leetcode.com/problems/sudoku-solver/",
     
       bruteForceComplexity: `Time Complexity: O(9^(N*N)) — tries digits 1-9 in every empty cell, validating via full row/col/box scan
     Space Complexity: O(N*N) recursion + board`,
@@ -14160,6 +14390,7 @@ class Solution {
     EXAMPLE:
     Input: graph = [[0,1,1,1],[1,0,1,0],[1,1,0,1],[1,0,1,0]], m = 3
     Output: true`,
+        link: "https://leetcode.com/problems/flower-planting-with-no-adjacent/",
     
       bruteForceComplexity: `Time Complexity: O(m^N) — tries every color for every vertex, checking all edges each time
     Space Complexity: O(N) recursion + color array`,
@@ -14243,6 +14474,7 @@ class Solution {
     EXAMPLE:
     Input: N = 5, start = (0, 0)
     Output: A 5x5 grid showing visit order (0 to 24)`,
+        link: "https://leetcode.com/problems/check-knight-tour-configuration/",
     
       bruteForceComplexity: `Time Complexity: O(8^(N*N))
     Space Complexity: O(N*N)`,
@@ -14333,6 +14565,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,2]
     Output: [[],[1],[1,2],[1,2,2],[2],[2,2]]`,
+        link: "https://leetcode.com/problems/subsets-ii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N * N) plus HashSet overhead for dedup
     Space Complexity: O(2^N * N)`,
@@ -14390,6 +14623,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [5,2,3,1]
     Output: [1,2,3,5]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(N) recursion stack`,
@@ -14453,6 +14687,7 @@ class Solution {
     EXAMPLE:
     Input: maze = [[1,0,0,0],[1,1,0,1],[1,1,0,0],[0,1,1,1]]
     Output: ["DDRDRR","DRDDRR"]`,
+        link: "https://leetcode.com/problems/unique-paths-iii/",
     
       bruteForceComplexity: `Time Complexity: O(4^(N*N))
     Space Complexity: O(N*N)`,
@@ -14529,6 +14764,7 @@ class Solution {
     EXAMPLE:
     Input: arr = [2,4,1,3,5]
     Output: 3`,
+        link: "https://leetcode.com/problems/global-and-local-inversions/",
     
       bruteForceComplexity: `Time Complexity: O(N^2)
     Space Complexity: O(N) recursion stack`,
@@ -14594,7 +14830,7 @@ class Solution {
 
 
 
-  "stack-&-queue":[
+  "stack-&-queue": [
 
     {
       title: `QUESTION:
@@ -14603,6 +14839,7 @@ class Solution {
     EXAMPLE:
     Input: push(1), push(2), top(), pop(), empty()
     Output: 2, 2, false`,
+        link: "https://leetcode.com/problems/implement-stack-using-queues/",
     
       bruteForceComplexity: `Time Complexity: O(N) for push, O(1) for pop — using two queues
     Space Complexity: O(N)`,
@@ -14673,6 +14910,7 @@ class Solution {
     EXAMPLE:
     Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
     Output: [-1,3,-1]`,
+        link: "https://leetcode.com/problems/next-greater-element-i/",
     
       bruteForceComplexity: `Time Complexity: O(N*M)
     Space Complexity: O(N) for the result`,
@@ -14732,6 +14970,7 @@ class Solution {
     EXAMPLE:
     Input: push(1), push(2), peek(), pop(), empty()
     Output: 1, 1, false`,
+        link: "https://leetcode.com/problems/implement-queue-using-stacks/",
     
       bruteForceComplexity: `Time Complexity: O(N) for push, O(1) for pop — using two stacks, always transferring on push
     Space Complexity: O(N)`,
@@ -14800,6 +15039,7 @@ class Solution {
     EXAMPLE:
     Input: s = "()[]{}"
     Output: true`,
+        link: "https://leetcode.com/problems/valid-parentheses/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — repeatedly removes matched adjacent pairs
     Space Complexity: O(N)`,
@@ -14851,6 +15091,7 @@ class Solution {
     EXAMPLE:
     Input: stream = "aabc"
     Output: "a a b b"  (after 'a': a, after 'a': a repeats so still a until removed -> a, after 'b': b, after 'c': b)`,
+        link: "https://leetcode.com/problems/first-unique-character-in-a-string/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — rescans the whole stream for each new character
     Space Complexity: O(N)`,
@@ -14906,6 +15147,7 @@ class Solution {
     EXAMPLE:
     Input: queue = [1,2,3,4,5], k = 3
     Output: [3,2,1,4,5]`,
+        link: "https://leetcode.com/problems/implement-queue-using-stacks/",
     
       bruteForceComplexity: `Time Complexity: O(N) — using an auxiliary array to reverse the first k
     Space Complexity: O(N)`,
@@ -14962,6 +15204,7 @@ class Solution {
     EXAMPLE:
     Input: tickets = [2,3,2], k = 2
     Output: 6`,
+        link: "https://leetcode.com/problems/time-needed-to-buy-tickets/",
     
       bruteForceComplexity: `Time Complexity: O(sum(tickets)) — actually simulates the queue with a real Queue data structure
     Space Complexity: O(N)`,
@@ -15015,6 +15258,7 @@ class Solution {
     EXAMPLE:
     Input: capacity = 2, put(1,1), put(2,2), get(1), put(3,3) [evicts 2], get(2)
     Output: get(1) = 1, get(2) = -1`,
+        link: "https://leetcode.com/problems/lru-cache/",
     
       bruteForceComplexity: `Time Complexity: O(N) for get and put — using a LinkedHashMap-like linear scan or ArrayList
     Space Complexity: O(N)`,
@@ -15119,6 +15363,7 @@ class Solution {
     EXAMPLE:
     Input: push(-2), push(0), push(-3), getMin(), pop(), top(), getMin()
     Output: -3, 0, -2`,
+        link: "https://leetcode.com/problems/min-stack/",
     
       bruteForceComplexity: `Time Complexity: O(N) for getMin — scans the whole stack each time
     Space Complexity: O(N)`,
@@ -15192,6 +15437,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,2,1]
     Output: [2,-1,2]`,
+        link: "https://leetcode.com/problems/next-greater-element-ii/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each element, scans up to 2N elements circularly
     Space Complexity: O(N)`,
@@ -15251,6 +15497,7 @@ class Solution {
     EXAMPLE:
     Input: M = [[0,1,0],[0,0,0],[0,1,0]]
     Output: 1`,
+        link: "https://leetcode.com/problems/find-the-celebrity/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — checks every candidate against everyone
     Space Complexity: O(1)`,
@@ -15315,6 +15562,7 @@ class Solution {
     EXAMPLE:
     Input: stack = [34,3,31,98,92,23]
     Output: [3,23,31,34,92,98]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) but with heavy constant overhead — repeatedly finds and extracts the max via full pass, one at a time
     Space Complexity: O(N) for the result stack`,
@@ -15378,6 +15626,7 @@ class Solution {
     EXAMPLE:
     Input: prices = [100,80,60,70,60,75,85]
     Output: [1,1,1,2,1,4,6]`,
+        link: "https://leetcode.com/problems/online-stock-span/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each day, scans backward until a higher price is found
     Space Complexity: O(N) for the result`,
@@ -15428,6 +15677,7 @@ class Solution {
     EXAMPLE:
     Input: gas = [1,2,3,4,5], cost = [3,4,5,1,2]
     Output: 3`,
+        link: "https://leetcode.com/problems/gas-station/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — tries every starting point and simulates the full circular trip
     Space Complexity: O(1)`,
@@ -15487,6 +15737,7 @@ class Solution {
     EXAMPLE:
     Input: heights = [2,1,5,6,2,3]
     Output: 10`,
+        link: "https://leetcode.com/problems/largest-rectangle-in-histogram/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each bar, expands left and right to find the boundary
     Space Complexity: O(1)`,
@@ -15535,7 +15786,7 @@ class Solution {
   ],
 
 
-  "bt-&-bst":[
+  "bt-&-bst": [
 
     {
       title: `QUESTION:
@@ -15544,6 +15795,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,null,2,3]
     Output: [1,2,3]`,
+        link: "https://leetcode.com/problems/binary-tree-preorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — recursion stack (O(H) for height, worst case O(N) for skewed tree)`,
@@ -15602,6 +15854,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,9,20,null,null,15,7]
     Output: [[3],[9,20],[15,7]]`,
+        link: "https://leetcode.com/problems/binary-tree-level-order-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — computes tree height first, then does a separate pass per level
     Space Complexity: O(N)`,
@@ -15675,6 +15928,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,null,2,3]
     Output: [1,3,2]`,
+        link: "https://leetcode.com/problems/binary-tree-inorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — recursion stack`,
@@ -15732,6 +15986,7 @@ class Solution {
     EXAMPLE:
     Input: root = [4,2,6,1,3]
     Output: 1`,
+        link: "https://leetcode.com/problems/minimum-absolute-difference-in-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — compares every pair of node values
     Space Complexity: O(N) for storing all values`,
@@ -15794,6 +16049,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,2,3,4,4,3]
     Output: true`,
+        link: "https://leetcode.com/problems/symmetric-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — builds a mirrored copy of the tree, then compares node by node with re-traversal
     Space Complexity: O(N)`,
@@ -15846,6 +16102,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,null,2,3]
     Output: [3,2,1]`,
+        link: "https://leetcode.com/problems/binary-tree-postorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — recursion stack`,
@@ -15904,6 +16161,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,null,2,3]
     Output: [1,3,2]`,
+        link: "https://leetcode.com/problems/binary-tree-inorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — uses an explicit stack to simulate recursion`,
@@ -15966,6 +16224,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,3,4,5]
     Output: 3`,
+        link: "https://leetcode.com/problems/diameter-of-binary-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each node, recomputes height of its subtrees independently
     Space Complexity: O(H) recursion stack`,
@@ -16025,6 +16284,7 @@ class Solution {
     EXAMPLE:
     Input: p = [1,2,3], q = [1,2,3]
     Output: true`,
+        link: "https://leetcode.com/problems/same-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — serializes both trees into strings then compares
     Space Complexity: O(N)`,
@@ -16062,6 +16322,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,2,3,4,4,3]
     Output: true`,
+        link: "https://leetcode.com/problems/symmetric-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — builds a mirrored copy of the tree, then compares node by node
     Space Complexity: O(N)`,
@@ -16113,6 +16374,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,4,5,1,2], subRoot = [4,1,2]
     Output: true`,
+        link: "https://leetcode.com/problems/subtree-of-another-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N*M) — serializes both trees to strings and searches naively, or compares subtree at every node from scratch
     Space Complexity: O(N+M)`,
@@ -16168,6 +16430,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,9,20,null,null,15,7]
     Output: true`,
+        link: "https://leetcode.com/problems/balanced-binary-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each node, recomputes height of its subtrees independently
     Space Complexity: O(H) recursion stack`,
@@ -16223,6 +16486,7 @@ class Solution {
     EXAMPLE:
     Input: root = [20,8,22,5,3,4,25,null,null,10,14]
     Output: [5,10,4,14,25]`,
+        link: "https://leetcode.com/problems/binary-tree-vertical-order-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — for each horizontal distance, tracks the last node seen at that level via repeated map updates without proper level tracking (may overwrite with a higher node incorrectly in some traversal orders)
     Space Complexity: O(N)`,
@@ -16286,6 +16550,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,3,4,5,6,7]
     Output: [4,2,1,3,7]`,
+        link: "https://leetcode.com/problems/binary-tree-vertical-order-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N log N)
     Space Complexity: O(N)`,
@@ -16357,6 +16622,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
     Output: 3`,
+        link: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) to find paths + O(H) to compare — but path storage adds overhead
     Space Complexity: O(N)`,
@@ -16416,6 +16682,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,3,4,5,6,7], k = 2
     Output: [4,5,6,7]`,
+        link: "https://leetcode.com/problems/all-nodes-distance-k-in-binary-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) but with redundant traversal overhead — re-traverses from root for level checking
     Space Complexity: O(N)`,
@@ -16489,6 +16756,7 @@ class Solution {
     EXAMPLE:
     Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
     Output: [3,9,20,null,null,15,7]`,
+        link: "https://leetcode.com/problems/construct-binary-tree-from-preorder-and-inorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — linear search in inorder array to find root index each time
     Space Complexity: O(N^2) — creates new subarrays at every recursive call`,
@@ -16559,6 +16827,7 @@ class Solution {
     EXAMPLE:
     Input: root = [10,-2,6,8,-4,7,5]
     Output: [20,4,12,0,0,0,0]`,
+        link: "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each node, sums its subtree via a separate full traversal
     Space Complexity: O(H) recursion stack`,
@@ -16618,6 +16887,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,5,3,4,null,6]
     Output: [1,null,2,null,3,null,4,null,5,null,6]`,
+        link: "https://leetcode.com/problems/flatten-binary-tree-to-linked-list/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — stores preorder traversal in a list first`,
@@ -16676,6 +16946,7 @@ class Solution {
     EXAMPLE:
     Input: root = [-10,9,20,null,null,15,7]
     Output: 42`,
+        link: "https://leetcode.com/problems/binary-tree-maximum-path-sum/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each node as potential path root, recomputes max downward sums separately
     Space Complexity: O(H) recursion stack`,
@@ -16738,6 +17009,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,3,2,5,3,null,9]
     Output: 4`,
+        link: "https://leetcode.com/problems/maximum-width-of-binary-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each level, does a separate traversal to find leftmost/rightmost positions
     Space Complexity: O(N)`,
@@ -16824,6 +17096,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,9,20,null,null,15,7]
     Output: [[3],[20,9],[15,7]]`,
+        link: "https://leetcode.com/problems/binary-tree-zigzag-level-order-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — does normal level order traversal, then reverses alternate levels using sorting-like overhead per level
     Space Complexity: O(N)`,
@@ -16907,6 +17180,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,3,4,5,6,7], target = 5, k = 2
     Output: 1`,
+        link: "https://leetcode.com/problems/kth-ancestor-of-a-tree-node/",
     
       bruteForceComplexity: `Time Complexity: O(N) to find path + O(1) to index — but path storage adds overhead
     Space Complexity: O(N)`,
@@ -16977,6 +17251,7 @@ class Solution {
     EXAMPLE:
     Input: root = [3,1,4,null,2], k = 1
     Output: 4`,
+        link: "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all values then sorts
     Space Complexity: O(N)`,
@@ -17032,6 +17307,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [-10,-3,0,5,9]
     Output: [0,-3,9,-10,null,5]`,
+        link: "https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) but produces an unbalanced/skewed tree — inserts elements one by one via standard BST insertion
     Space Complexity: O(N)`,
@@ -17083,6 +17359,7 @@ class Solution {
     EXAMPLE:
     Input: root = [5,3,6,2,4,null,null,1], k = 3
     Output: 3`,
+        link: "https://leetcode.com/problems/kth-smallest-element-in-a-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects all values then sorts
     Space Complexity: O(N)`,
@@ -17138,6 +17415,7 @@ class Solution {
     EXAMPLE:
     Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
     Output: 6`,
+        link: "https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) — treats it like a generic binary tree, ignoring BST ordering property
     Space Complexity: O(N)`,
@@ -17202,6 +17480,7 @@ class Solution {
     EXAMPLE:
     Input: root = [5,1,4,null,null,3,6]
     Output: false`,
+        link: "https://leetcode.com/problems/validate-binary-search-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N) but with extra overhead — collects inorder traversal into a list, then checks sorted order
     Space Complexity: O(N)`,
@@ -17253,6 +17532,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,3,null,null,2]
     Output: [3,1,null,null,2]  (nodes 1 and 3 are swapped back)`,
+        link: "https://leetcode.com/problems/recover-binary-search-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — collects all values, sorts them, then reassigns via another inorder pass
     Space Complexity: O(N)`,
@@ -17321,6 +17601,7 @@ class Solution {
     EXAMPLE:
     Input: root = [1,2,3,4,5,6,7]
     Output: [1,#,2,3,#,4,5,6,7,#]`,
+        link: "https://leetcode.com/problems/populating-next-right-pointers-in-each-node/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — uses a queue for level order traversal`,
@@ -17385,6 +17666,7 @@ class Solution {
     EXAMPLE:
     Input: preorder = [8,5,1,7,10,12]
     Output: [8,5,10,1,7,null,12]`,
+        link: "https://leetcode.com/problems/construct-binary-search-tree-from-preorder-traversal/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for each node, linearly scans ahead to find where the right subtree begins
     Space Complexity: O(N)`,
@@ -17447,6 +17729,7 @@ class Solution {
     EXAMPLE:
     Input: root = [7,3,15,null,null,9,20], calls: next(), next(), hasNext(), next(), hasNext()
     Output: 3, 7, true, 9, true`,
+        link: "https://leetcode.com/problems/binary-search-tree-iterator/",
     
       bruteForceComplexity: `Time Complexity: O(N) upfront, O(1) per next() call
     Space Complexity: O(N) — stores entire inorder traversal in a list`,
@@ -17519,6 +17802,7 @@ class Solution {
     EXAMPLE:
     Input: root = [5,3,6,2,4,null,8]
     Output: [2,3,4,5,6,8]`,
+        link: "https://leetcode.com/problems/increasing-order-search-tree/",
     
       bruteForceComplexity: `Time Complexity: O(N)
     Space Complexity: O(N) — stores inorder traversal in a list first`,
@@ -17589,6 +17873,7 @@ class Solution {
     EXAMPLE:
     Input: root1 = [2,1,4], root2 = [1,0,3]
     Output: [0,1,1,2,3,4]`,
+        link: "https://leetcode.com/problems/all-elements-in-two-binary-search-trees/",
     
       bruteForceComplexity: `Time Complexity: O((N+M) log(N+M)) — collect all values from both trees, then sort
     Space Complexity: O(N+M)`,
@@ -17654,6 +17939,7 @@ class Solution {
     EXAMPLE:
     Input: root = [4,2,5,1,3]
     Output: (serialized string) -> deserialize -> same tree structure`,
+        link: "https://leetcode.com/problems/serialize-and-deserialize-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N) but treats it like a generic tree — serializes with null markers, ignoring BST property
     Space Complexity: O(N)`,
@@ -17740,6 +18026,7 @@ class Solution {
     EXAMPLE:
     Input: root = [20,10,30,5,15], target = 15
     Output: 10`,
+        link: "https://leetcode.com/problems/inorder-successor-in-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N) — collects entire inorder traversal, then searches for the predecessor
     Space Complexity: O(N)`,
@@ -17793,6 +18080,7 @@ class Solution {
     EXAMPLE:
     Input: root = [10,5,15,1,8,null,7]
     Output: 3  (the subtree rooted at 5, containing nodes 1, 5, 8)`,
+        link: "https://leetcode.com/problems/largest-bst-subtree/",
     
       bruteForceComplexity: `Time Complexity: O(N^2) — for every node, checks if its subtree is a valid BST via a separate full traversal
     Space Complexity: O(H) recursion stack`,
@@ -17876,6 +18164,7 @@ class Solution {
     EXAMPLE:
     Input: root = [20,10,30,5,15], target = 15
     Output: 20`,
+        link: "https://leetcode.com/problems/inorder-successor-in-bst/",
     
       bruteForceComplexity: `Time Complexity: O(N) — collects entire inorder traversal, then searches for the successor
     Space Complexity: O(N)`,
@@ -17935,6 +18224,7 @@ class Solution {
       
       Serialized: "1,2,#,#,3,4,#,#,5,#,#"
       Output after Deserialization: Original Binary Tree`,
+        link: "https://leetcode.com/problems/serialize-and-deserialize-binary-tree/",
       
         bruteForceComplexity: `Time Complexity: O(N) — visits every node during serialization and deserialization
       Space Complexity: O(N) — stores the serialized string and uses extra recursion/queue space`,
@@ -18055,7 +18345,7 @@ class Solution {
 
   ],
 
-  "heaps":[
+  "heaps": [
 
     {
       title: `TOPIC:
@@ -18065,6 +18355,7 @@ class Solution {
     Input added to heap: 5, 1, 3, 9, 2
     Min-Heap removal order: 1 -> 2 -> 3 -> 5 -> 9
     Max-Heap removal order: 9 -> 5 -> 3 -> 2 -> 1`,
+        link: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     
       bruteForceComplexity: `MIN-HEAP EXPLANATION:
     A Min-Heap keeps the smallest element at the root. Every parent node is <= its children. peek() gives O(1) access to the minimum, and poll()/add() take O(log N) since the tree re-balances (sift up/down) after every change.
@@ -18145,6 +18436,7 @@ class Solution {
     EXAMPLE:
     Input: heap = [1,3,5,7,9], insert 2
     Output: [1,3,2,7,9,5]  (heap array after insertion, satisfies min-heap property)`,
+        link: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — appends element then re-sorts and re-validates entire heap structure
     Space Complexity: O(N)`,
@@ -18187,6 +18479,7 @@ class Solution {
     EXAMPLE:
     Input: heap = [1,2,3,7,9,5]
     Output: [2,5,3,7,9]  (heap array after removing the min)`,
+        link: "https://leetcode.com/problems/kth-largest-element-in-a-stream/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — removes root then re-sorts entire array from scratch
     Space Complexity: O(N)`,
@@ -18242,6 +18535,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [12,11,13,5,6,7]
     Output: [5,6,7,11,12,13]`,
+        link: "https://leetcode.com/problems/sort-an-array/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) but with extra overhead — uses a library PriorityQueue instead of in-place heapify
     Space Complexity: O(N) — auxiliary heap structure`,
@@ -18302,6 +18596,7 @@ class Solution {
     EXAMPLE:
     Input: points = [[1,3],[-2,2],[5,8],[0,1]], reference = [0,0], K = 2
     Output: [[-2,2],[0,1]]`,
+        link: "https://leetcode.com/problems/k-closest-points-to-origin/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — computes all distances, then sorts the entire array
     Space Complexity: O(N)`,
@@ -18352,6 +18647,7 @@ class Solution {
     EXAMPLE:
     Input: ropes = [4,3,2,6]
     Output: 29`,
+        link: "https://leetcode.com/problems/minimum-cost-to-connect-sticks/",
     
       bruteForceComplexity: `Time Complexity: O(N^2 log N) — sorts the array from scratch after every single merge
     Space Complexity: O(N)`,
@@ -18402,6 +18698,7 @@ class Solution {
     EXAMPLE:
     Input: mat = [[1,1,0,0],[1,1,1,1],[1,0,0,0],[1,1,0,0],[1,1,1,1]], K = 3
     Output: [2,0,3]`,
+        link: "https://leetcode.com/problems/the-k-weakest-rows-in-a-matrix/",
     
       bruteForceComplexity: `Time Complexity: O(N*M log N) — counts soldiers per row, then sorts ALL rows by count
     Space Complexity: O(N)`,
@@ -18466,6 +18763,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
     Output: [3,3,5,5,6,7]`,
+        link: "https://leetcode.com/problems/sliding-window-maximum/",
     
       bruteForceComplexity: `Time Complexity: O(N*K) — scans the entire window from scratch for every position
     Space Complexity: O(N-K+1) for the result`,
@@ -18524,6 +18822,7 @@ class Solution {
     EXAMPLE:
     Input: s = "anagram", t = "nagaram"
     Output: true`,
+        link: "https://leetcode.com/problems/valid-anagram/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — sorts both strings and compares
     Space Complexity: O(N) for character arrays`,
@@ -18569,6 +18868,7 @@ class Solution {
     EXAMPLE:
     Input: nums1 = [1,2,2,1], nums2 = [2,2]
     Output: union = [1,2], intersection = [2]`,
+        link: "https://leetcode.com/problems/intersection-of-two-arrays-ii/",
     
       bruteForceComplexity: `Time Complexity: O(N*M) — nested loops checking every pair for equality
     Space Complexity: O(N+M) for result storage`,
@@ -18629,6 +18929,7 @@ class Solution {
     EXAMPLE:
     Input: tickets = [["MUC","LHR"],["JFK","MUC"],["SFO","SJC"],["LHR","SFO"]]
     Output: ["JFK","MUC","LHR","SFO","SJC"]`,
+        link: "https://leetcode.com/problems/reconstruct-itinerary/",
     
       bruteForceComplexity: `Time Complexity: O(N!) — tries every permutation of tickets to find a valid itinerary
     Space Complexity: O(N) recursion stack`,
@@ -18707,6 +19008,7 @@ class Solution {
     EXAMPLE:
     Input: arrays = [[1,4,5],[1,3,4],[2,6]]
     Output: [1,1,2,3,4,4,5,6]`,
+        link: "https://leetcode.com/problems/merge-k-sorted-lists/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — N = total elements, collects everything then sorts
     Space Complexity: O(N)`,
@@ -18766,6 +19068,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [1,1,1,2,2,3], k = 2
     Output: [1,2]`,
+        link: "https://leetcode.com/problems/top-k-frequent-elements/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — counts frequencies, then sorts all unique elements by frequency
     Space Complexity: O(N)`,
@@ -18822,6 +19125,7 @@ class Solution {
     EXAMPLE:
     Input: addNum(1), addNum(2), findMedian(), addNum(3), findMedian()
     Output: 1.5, 2.0`,
+        link: "https://leetcode.com/problems/find-median-from-data-stream/",
     
       bruteForceComplexity: `Time Complexity: O(N) per insertion (to keep sorted) — O(N^2) total for N insertions
     Space Complexity: O(N)`,
@@ -18882,6 +19186,7 @@ class Solution {
     EXAMPLE:
     Input: lists = [[4,10,15,24,26],[0,9,12,20],[5,18,22,30]]
     Output: [20,24]`,
+        link: "https://leetcode.com/problems/smallest-range-covering-elements-from-k-lists/",
     
       bruteForceComplexity: `Time Complexity: O(N^K) — tries all combinations of one element from each list
     Space Complexity: O(K) for indices`,
@@ -18964,6 +19269,7 @@ class Solution {
     EXAMPLE:
     Input: nums = [3,2,1,5,6,4], k = 2
     Output: 2`,
+        link: "https://leetcode.com/problems/kth-largest-element-in-an-array/",
     
       bruteForceComplexity: `Time Complexity: O(N log N) — sorts the entire array
     Space Complexity: O(log N) to O(N) depending on sort implementation`,
@@ -18996,7 +19302,7 @@ class Solution {
 
   ],
 
-  "tries":[
+  "tries": [
       {
         title: `QUESTION:
     Implement the insert(String word) operation for a Trie (prefix tree) data structure using 26 lowercase English letters per node.
@@ -19004,6 +19310,7 @@ class Solution {
     EXAMPLE:
     Input: insert("apple"), insert("app"), insert("apricot")
     Output: Trie contains "apple", "app", "apricot" sharing the common prefix "ap"`,
+        link: "https://leetcode.com/problems/implement-trie-prefix-tree/",
     
         bruteForceComplexity: `Time Complexity: O(N * L) per insert — scans all existing words to check for duplicates (N = number of words, L = average length)
     Space Complexity: O(N * L) — every word stored fully, no prefix sharing`,
@@ -19056,6 +19363,7 @@ class Solution {
       // "dog" needed fully since "dog","duck","dovc" all start with 'd'
       // "du" needed since "duck" and "dovc" both start with 'd','o'... wait "duck" and "dog" both start with 'd' but diverge at 2nd char
       // "dov" needed since "duck" and "dovc" both start with 'd','o' and diverge at 3rd char`,
+        link: "https://leetcode.com/problems/replace-words/",
       
         bruteForceComplexity: `Time Complexity: O(N^2 * L) — for each word, tries every increasing prefix length and compares it against every other word's same-length prefix (N words, L = avg length)
       Space Complexity: O(1) extra (excluding output array)`,
@@ -19152,6 +19460,7 @@ class Solution {
     
     EXAMPLE:
     Input: insert("apple"); search("apple") -> true; search("app") -> false; search("appl") -> false`,
+        link: "https://leetcode.com/problems/design-add-and-search-words-data-structure/",
     
         bruteForceComplexity: `Time Complexity: O(N * L) — compares the target word against every stored word (N words, L = average length)
     Space Complexity: O(N * L) for storing all words in a list`,
@@ -19212,6 +19521,7 @@ class Solution {
     EXAMPLE:
     Input: s = "leetcode", wordDict = ["leet","code"]
     Output: true // segmented as "leet code"`,
+        link: "https://leetcode.com/problems/word-break/",
     
         bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible way to partition the string via recursion, no memoization
     Space Complexity: O(N) recursion stack`,
@@ -19297,6 +19607,7 @@ class Solution {
              e(1)    ...    h(1)
                |             |
              r(1)           t(1)`,
+        link: "https://leetcode.com/problems/longest-common-prefix/",
     
         bruteForceComplexity: `Time Complexity: O(N^2 * S) worst case — repeatedly compares the shrinking prefix against every other string pairwise (S = length of shortest string, N = number of strings)
     Space Complexity: O(1) extra space`,
@@ -19369,6 +19680,7 @@ class Solution {
     
     EXAMPLE:
     Input: insert("apple"); startsWith("app") -> true; startsWith("appl") -> true; startsWith("b") -> false`,
+        link: "https://leetcode.com/problems/implement-trie-prefix-tree/",
     
         bruteForceComplexity: `Time Complexity: O(N * L) — checks the prefix against every stored word using String.startsWith (N words, L = average length)
     Space Complexity: O(N * L) for storing all words`,
@@ -19429,6 +19741,7 @@ class Solution {
     EXAMPLE:
     Input: s = "aba"
     Output: 5 // "a", "b", "ab", "ba", "aba" ("a" counted once despite appearing twice)`,
+        link: "https://leetcode.com/problems/count-unique-characters-of-all-substrings-of-a-given-string/",
     
         bruteForceComplexity: `Time Complexity: O(N^3) — generates all O(N^2) substrings, each hashed/compared in O(N), deduplicated via a HashSet
     Space Complexity: O(N^2) to store all substrings`,
@@ -19486,6 +19799,7 @@ class Solution {
     EXAMPLE:
     Input: words = ["w","wo","wor","worl","world"]
     Output: "world"`,
+        link: "https://leetcode.com/problems/longest-word-in-dictionary/",
     
       bruteForceComplexity: `Time Complexity: O(N^2 * L) — for each word, checks every prefix's existence via linear search in the array
     Space Complexity: O(N) for the word set`,
@@ -19570,6 +19884,7 @@ class Solution {
     EXAMPLE:
     Input: add("john"), add("jane"), search("ja"), delete(jane)
     Output: ["jane"]`,
+        link: "https://leetcode.com/problems/search-suggestions-system/",
     
       bruteForceComplexity: `Time Complexity: O(N*L) per search — N = number of contacts, L = contact length
     Space Complexity: O(N*L)`,
@@ -19672,7 +19987,7 @@ class Solution {
 
   ],
 
-  "greedy-algorithm":[
+  "greedy-algorithm": [
 
     {
       title: `QUESTION:
@@ -19681,6 +19996,7 @@ class Solution {
     EXAMPLE:
     Input: start = [1,3,0,5,8,5], finish = [2,4,6,7,9,9]
     Output: 4  (activities with intervals [1,2],[3,4],[5,7],[8,9])`,
+        link: "https://leetcode.com/problems/non-overlapping-intervals/",
     
       bruteForceComplexity: `Time Complexity: O(2^N) — tries every possible subset of activities and checks for overlaps
     Space Complexity: O(N) recursion stack`,
@@ -19739,6 +20055,7 @@ class Solution {
     EXAMPLE:
     Input: values = [60,100,120], weights = [10,20,30], W = 50
     Output: 240.0`,
+        link: "https://leetcode.com/problems/maximum-units-on-a-truck/",
     
       bruteForceComplexity: `Time Complexity: O(2^N) — tries every combination of fractions via exhaustive subset exploration
     Space Complexity: O(N) recursion stack`,
@@ -19804,6 +20121,7 @@ class Solution {
     EXAMPLE:
     Input: pairs = [[5,24],[39,60],[15,28],[27,40],[50,90]]
     Output: 3  (chain: [5,24] -> [27,40] -> [50,90])`,
+        link: "https://leetcode.com/problems/maximum-length-of-pair-chain/",
     
       bruteForceComplexity: `Time Complexity: O(2^N) — tries every subset of pairs and checks validity of the chain
     Space Complexity: O(N) recursion stack`,
@@ -19856,6 +20174,7 @@ class Solution {
     EXAMPLE:
     Input: V = 93, coins = [1,2,5,10,20,50,100,500,1000]
     Output: 5  (50 + 20 + 20 + 2 + 1)`,
+        link: "https://leetcode.com/problems/coin-change/",
     
       bruteForceComplexity: `Time Complexity: O(2^V) — tries every combination of coin counts via exhaustive recursion
     Space Complexity: O(V) recursion stack`,
@@ -19904,6 +20223,7 @@ class Solution {
     EXAMPLE:
     Input: jobs = [(1,4,20),(2,1,10),(3,1,40),(4,1,30)] (id, deadline, profit)
     Output: 2 jobs, 60 profit`,
+        link: "https://leetcode.com/problems/course-schedule-iii/",
     
       bruteForceComplexity: `Time Complexity: O(2^N * maxDeadline) — tries every subset of jobs and every valid slot assignment
     Space Complexity: O(maxDeadline) for slot tracking`,
@@ -19979,6 +20299,7 @@ class Solution {
     EXAMPLE:
     Input: chocolates = [3,4,1,9,56,7,9,12], M = 5
     Output: 6  (packets [3,4,7,9,9] -> max-min = 9-3 = 6)`,
+        link: "https://leetcode.com/problems/minimum-difference-between-highest-and-lowest-of-k-scores/",
     
       bruteForceComplexity: `Time Complexity: O(N choose M) — tries every possible combination of M packets out of N
     Space Complexity: O(M) recursion stack`,
@@ -24070,6 +24391,1625 @@ Disk Scheduling Algorithms:
         }
     ]
   
-  };
+  ,
+
+"sql": [
+    {
+        title: `QUESTION:
+Find the IDs of products that are both low fat and recyclable.
+
+Table: Products
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| product_id  | int     |
+| low_fats    | enum    |
+| recyclable  | enum    |
++-------------+---------+
+product_id is the primary key (column with unique values) for this table.
+low_fats is an ENUM (category) of type ('Y', 'N') where 'Y' means this product is low fat and 'N' means it is not.
+recyclable is an ENUM (category) of types ('Y', 'N') where 'Y' means this product is recyclable and 'N' means it is not.`,
+        link: "https://leetcode.com/problems/recyclable-and-low-fat-products/",
+        bruteForceComplexity: `Filtering rows using WHERE with multiple boolean conditions combined with AND.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N) - Full table scan or index lookup on (low_fats, recyclable).
+Space Complexity: O(1) - Constant auxiliary space.`,
+        optimalCode: `SELECT product_id
+FROM Products
+WHERE low_fats = 'Y' AND recyclable = 'Y';`
+    },
+
+    {
+        title: `QUESTION:
+Find the names of the customer that are not referred by the customer with id = 2.
+Include customers who have no referee (NULL referee_id).
+
+Table: Customer
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
+| referee_id  | int     |
++-------------+---------+
+id is the primary key column for this table.`,
+        link: "https://leetcode.com/problems/find-customer-referee/",
+        bruteForceComplexity: `NULL values in SQL evaluate to UNKNOWN with standard inequality (!= 2). To include rows where referee_id is NULL, explicitly check OR referee_id IS NULL or use COALESCE(referee_id, 0) != 2.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT name
+FROM Customer
+WHERE referee_id != 2 OR referee_id IS NULL;`
+    },
+
+    {
+        title: `QUESTION:
+A country is big if:
+- it has an area of at least three million (i.e. 3,000,000 km²), or
+- it has a population of at least twenty-five million (i.e. 25,000,000).
+
+Write a solution to find the name, population, and area of the big countries.
+
+Table: World
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| name        | varchar |
+| continent   | varchar |
+| area        | int     |
+| population  | int     |
+| gdp         | bigint  |
++-------------+---------+
+name is the primary key column for this table.`,
+        link: "https://leetcode.com/problems/big-countries/",
+        bruteForceComplexity: `Filter rows where area >= 3000000 OR population >= 25000000.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT name, population, area
+FROM World
+WHERE area >= 3000000 OR population >= 25000000;`
+    },
+
+    {
+        title: `QUESTION:
+Find all distinct authors who viewed at least one of their own articles.
+Sort the result by id in ascending order.
+
+Table: Views
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| article_id    | int     |
+| author_id     | int     |
+| viewer_id     | int     |
+| view_date     | date    |
++---------------+---------+
+There is no primary key (column with unique values) for this table, the table may have duplicate rows.`,
+        link: "https://leetcode.com/problems/article-views-i/",
+        bruteForceComplexity: `Filter author_id = viewer_id and apply DISTINCT to remove duplicates, then order by id ASC.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N) for sorting/deduplication.
+Space Complexity: O(N) auxiliary space.`,
+        optimalCode: `SELECT DISTINCT author_id AS id
+FROM Views
+WHERE author_id = viewer_id
+ORDER BY id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+Find the IDs of the invalid tweets. The tweet is invalid if the number of characters used in the content of the tweet is strictly greater than 15.
+
+Table: Tweets
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| tweet_id       | int     |
+| content        | varchar |
++----------------+---------+
+tweet_id is the primary key for this table.`,
+        link: "https://leetcode.com/problems/invalid-tweets/",
+        bruteForceComplexity: `Use CHAR_LENGTH(content) > 15 to count characters.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT tweet_id
+FROM Tweets
+WHERE CHAR_LENGTH(content) > 15;`
+    },
+
+    {
+        title: `QUESTION:
+Show the unique ID of each user, If a user does not have a unique ID replace just show null.
+
+Table: Employees
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| name          | varchar |
++---------------+---------+
+
+Table: EmployeeUNI
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| unique_id     | int     |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/replace-employee-id-with-the-unique-identifier/",
+        bruteForceComplexity: `Use a LEFT JOIN from Employees to EmployeeUNI on id to retain all employees even when they have no match in EmployeeUNI.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N + M)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT eu.unique_id, e.name
+FROM Employees e
+LEFT JOIN EmployeeUNI eu ON e.id = eu.id;`
+    },
+
+    {
+        title: `QUESTION:
+Report the product_name, year, and price for each sale_id in the Sales table.
+
+Table: Sales
++-------------+-------+
+| Column Name | Type  |
++-------------+-------+
+| sale_id     | int   |
+| product_id  | int   |
+| year        | int   |
+| quantity    | int   |
+| price       | int   |
++-------------+-------+
+
+Table: Product
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| product_id   | int     |
+| product_name | varchar |
++--------------+---------+`,
+        link: "https://leetcode.com/problems/product-sales-analysis-i/",
+        bruteForceComplexity: `INNER JOIN Sales with Product on product_id to fetch product_name for each recorded sale.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT p.product_name, s.year, s.price
+FROM Sales s
+JOIN Product p ON s.product_id = p.product_id;`
+    },
+
+    {
+        title: `QUESTION:
+Find the IDs of the users who visited without making any transactions and the number of times they made these types of visits.
+
+Table: Visits
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| visit_id    | int     |
+| customer_id | int     |
++-------------+---------+
+
+Table: Transactions
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| transaction_id | int     |
+| visit_id       | int     |
+| amount         | int     |
++----------------+---------+`,
+        link: "https://leetcode.com/problems/customer-who-visited-but-did-not-make-any-transactions/",
+        bruteForceComplexity: `LEFT JOIN Visits with Transactions on visit_id, filter WHERE transaction_id IS NULL, and GROUP BY customer_id counting visits.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(V + T)
+Space Complexity: O(C)`,
+        optimalCode: `SELECT v.customer_id, COUNT(v.visit_id) AS count_no_trans
+FROM Visits v
+LEFT JOIN Transactions t ON v.visit_id = t.visit_id
+WHERE t.transaction_id IS NULL
+GROUP BY v.customer_id;`
+    },
+
+    {
+        title: `QUESTION:
+Find all dates' Id with higher temperatures compared to its previous dates (yesterday).
+
+Table: Weather
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| recordDate    | date    |
+| temperature   | int     |
++---------------+---------+
+id is the column with unique values for this table.`,
+        link: "https://leetcode.com/problems/rising-temperature/",
+        bruteForceComplexity: `Self join Weather w1 with Weather w2 on DATEDIFF(w1.recordDate, w2.recordDate) = 1 and check w1.temperature > w2.temperature.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT w1.id
+FROM Weather w1
+JOIN Weather w2 ON DATEDIFF(w1.recordDate, w2.recordDate) = 1
+WHERE w1.temperature > w2.temperature;`
+    },
+
+    {
+        title: `QUESTION:
+There is a factory website that has several machines each running the same number of processes. Write a solution to find the average time each machine takes to complete a process (end timestamp minus start timestamp), rounded to 3 decimal places.
+
+Table: Activity
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| machine_id     | int     |
+| process_id     | int     |
+| activity_type  | enum    |
+| timestamp      | float   |
++----------------+---------+`,
+        link: "https://leetcode.com/problems/average-time-of-process-per-machine/",
+        bruteForceComplexity: `Self-join start and end activity rows for the same machine and process, then calculate AVG(end - start) grouped by machine_id.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(M)`,
+        optimalCode: `SELECT a1.machine_id,
+       ROUND(AVG(a2.timestamp - a1.timestamp), 3) AS processing_time
+FROM Activity a1
+JOIN Activity a2
+  ON a1.machine_id = a2.machine_id
+ AND a1.process_id = a2.process_id
+ AND a1.activity_type = 'start'
+ AND a2.activity_type = 'end'
+GROUP BY a1.machine_id;`
+    },
+
+    {
+        title: `QUESTION:
+Report the name and bonus amount of each employee with a bonus less than 1000. Include employees who don't have a bonus (bonus is NULL).
+
+Table: Employee
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| empId       | int     |
+| name        | varchar |
+| supervisor  | int     |
+| salary      | int     |
++-------------+---------+
+
+Table: Bonus
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| empId       | int     |
+| bonus       | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/employee-bonus/",
+        bruteForceComplexity: `LEFT JOIN Employee with Bonus on empId, filter WHERE bonus < 1000 OR bonus IS NULL.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT e.name, b.bonus
+FROM Employee e
+LEFT JOIN Bonus b ON e.empId = b.empId
+WHERE b.bonus < 1000 OR b.bonus IS NULL;`
+    },
+
+    {
+        title: `QUESTION:
+Find the number of times each student attended each exam.
+Return the result table ordered by student_id and subject_name.
+
+Table: Students
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| student_id    | int     |
+| student_name  | varchar |
++---------------+---------+
+
+Table: Subjects
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| subject_name | varchar |
++--------------+---------+
+
+Table: Examinations
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| student_id   | int     |
+| subject_name | varchar |
++--------------+---------+`,
+        link: "https://leetcode.com/problems/students-and-examinations/",
+        bruteForceComplexity: `CROSS JOIN Students and Subjects to generate all student-subject pairs, then LEFT JOIN with Examinations to count attendance.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(S * Sub + E)
+Space Complexity: O(S * Sub)`,
+        optimalCode: `SELECT s.student_id, s.student_name, sub.subject_name,
+       COUNT(e.subject_name) AS attended_exams
+FROM Students s
+CROSS JOIN Subjects sub
+LEFT JOIN Examinations e
+  ON s.student_id = e.student_id AND sub.subject_name = e.subject_name
+GROUP BY s.student_id, s.student_name, sub.subject_name
+ORDER BY s.student_id, sub.subject_name;`
+    },
+
+    {
+        title: `QUESTION:
+Find the managers with at least five direct reports.
+
+Table: Employee
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
+| department  | varchar |
+| managerId   | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/managers-with-at-least-5-direct-reports/",
+        bruteForceComplexity: `Join Employee as manager with Employee as direct report on id = managerId, group by manager id, and filter HAVING COUNT >= 5.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT e1.name
+FROM Employee e1
+JOIN Employee e2 ON e1.id = e2.managerId
+GROUP BY e1.id, e1.name
+HAVING COUNT(e2.id) >= 5;`
+    },
+
+    {
+        title: `QUESTION:
+The confirmation rate of a user is the number of 'confirmed' messages divided by the total number of requested confirmation messages. The confirmation rate of a user that did not request any confirmation messages is 0. Round the confirmation rate to two decimal places.
+
+Table: Signups
++----------------+----------+
+| Column Name    | Type     |
++----------------+----------+
+| user_id        | int      |
+| time_stamp     | datetime |
++----------------+----------+
+
+Table: Confirmations
++----------------+----------+
+| Column Name    | Type     |
++----------------+----------+
+| user_id        | int      |
+| time_stamp     | datetime |
+| action         | ENUM     |
++----------------+----------+`,
+        link: "https://leetcode.com/problems/confirmation-rate/",
+        bruteForceComplexity: `LEFT JOIN Signups with Confirmations on user_id, calculate AVG(action = 'confirmed') or SUM(action = 'confirmed') / COUNT(action), using IFNULL(..., 0).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(S + C)
+Space Complexity: O(S)`,
+        optimalCode: `SELECT s.user_id,
+       ROUND(IFNULL(SUM(c.action = 'confirmed') / COUNT(c.action), 0), 2) AS confirmation_rate
+FROM Signups s
+LEFT JOIN Confirmations c ON s.user_id = c.user_id
+GROUP BY s.user_id;`
+    },
+
+    {
+        title: `QUESTION:
+Write a solution to report the movies with an odd-numbered ID and a description that is not "boring".
+Return the result table ordered by rating in descending order.
+
+Table: Cinema
++----------------+----------+
+| Column Name    | Type     |
++----------------+----------+
+| id             | int      |
+| movie          | varchar  |
+| description    | varchar  |
+| rating         | float    |
++----------------+----------+`,
+        link: "https://leetcode.com/problems/not-boring-movies/",
+        bruteForceComplexity: `Filter id % 2 = 1 AND description != 'boring' and ORDER BY rating DESC.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT id, movie, description, rating
+FROM Cinema
+WHERE id % 2 = 1 AND description != 'boring'
+ORDER BY rating DESC;`
+    },
+
+    {
+        title: `QUESTION:
+Find the average selling price for each product. average_price should be rounded to 2 decimal places. If a product does not have any units sold, its average selling price is assumed to be 0.
+
+Table: Prices
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| start_date    | date    |
+| end_date      | date    |
+| price         | int     |
++---------------+---------+
+
+Table: UnitsSold
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| purchase_date | date    |
+| units         | int     |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/average-selling-price/",
+        bruteForceComplexity: `LEFT JOIN Prices with UnitsSold on product_id and purchase_date BETWEEN start_date AND end_date, then calculate weighted average SUM(price * units) / SUM(units).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(P * U)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT p.product_id,
+       ROUND(IFNULL(SUM(p.price * u.units) / SUM(u.units), 0), 2) AS average_price
+FROM Prices p
+LEFT JOIN UnitsSold u
+  ON p.product_id = u.product_id
+ AND u.purchase_date BETWEEN p.start_date AND p.end_date
+GROUP BY p.product_id;`
+    },
+
+    {
+        title: `QUESTION:
+Report the average experience years of all the employees for each project, rounded to 2 digits.
+
+Table: Project
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| project_id  | int     |
+| employee_id | int     |
++-------------+---------+
+
+Table: Employee
++------------------+---------+
+| Column Name      | Type    |
++------------------+---------+
+| employee_id      | int     |
+| name             | varchar |
+| experience_years | int     |
++------------------+---------+`,
+        link: "https://leetcode.com/problems/project-employees-i/",
+        bruteForceComplexity: `JOIN Project and Employee on employee_id, GROUP BY project_id, and compute ROUND(AVG(experience_years), 2).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(P + E)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT p.project_id,
+       ROUND(AVG(e.experience_years), 2) AS average_years
+FROM Project p
+JOIN Employee e ON p.employee_id = e.employee_id
+GROUP BY p.project_id;`
+    },
+
+    {
+        title: `QUESTION:
+Find the percentage of the users registered in each contest rounded to two decimals.
+Return the result table ordered by percentage in descending order. In case of a tie, order it by contest_id in ascending order.
+
+Table: Users
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| user_id     | int     |
+| user_name   | varchar |
++-------------+---------+
+
+Table: Register
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| contest_id  | int     |
+| user_id     | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/percentage-of-users-attended-a-contest/",
+        bruteForceComplexity: `Group Register by contest_id and divide COUNT(user_id) by total user count from (SELECT COUNT(*) FROM Users), multiplied by 100.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(R log R + U)
+Space Complexity: O(R)`,
+        optimalCode: `SELECT contest_id,
+       ROUND(COUNT(user_id) * 100.0 / (SELECT COUNT(*) FROM Users), 2) AS percentage
+FROM Register
+GROUP BY contest_id
+ORDER BY percentage DESC, contest_id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+We define query quality as:
+The average of the ratio between query rating and its position.
+We also define poor query percentage as:
+The percentage of all queries with rating less than 3.
+Find each query_name, its quality and its poor_query_percentage, rounded to 2 decimal places.
+
+Table: Queries
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| query_name  | varchar |
+| result      | varchar |
+| position    | int     |
+| rating      | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/queries-quality-and-percentage/",
+        bruteForceComplexity: `GROUP BY query_name, compute AVG(rating/position) and SUM(rating < 3)*100/COUNT(*).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT query_name,
+       ROUND(AVG(rating / position), 2) AS quality,
+       ROUND(SUM(rating < 3) * 100.0 / COUNT(*), 2) AS poor_query_percentage
+FROM Queries
+WHERE query_name IS NOT NULL
+GROUP BY query_name;`
+    },
+
+    {
+        title: `QUESTION:
+Find for each month and country, the number of transactions and their total amount, the number of approved transactions and their total amount.
+
+Table: Transactions
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| id            | int     |
+| country       | varchar |
+| state         | enum    |
+| amount        | int     |
+| trans_date    | date    |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/monthly-transactions-i/",
+        bruteForceComplexity: `Extract month using DATE_FORMAT(trans_date, '%Y-%m'), group by month and country, and use conditional SUM to aggregate approved state.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(G)`,
+        optimalCode: `SELECT DATE_FORMAT(trans_date, '%Y-%m') AS month,
+       country,
+       COUNT(*) AS trans_count,
+       SUM(state = 'approved') AS approved_count,
+       SUM(amount) AS trans_total_amount,
+       SUM(CASE WHEN state = 'approved' THEN amount ELSE 0 END) AS approved_total_amount
+FROM Transactions
+GROUP BY month, country;`
+    },
+
+    {
+        title: `QUESTION:
+If the customer's preferred delivery date is the same as the order date, then the order is called immediate; otherwise, it is called scheduled.
+The first order of a customer is the order with the earliest order date that the customer made. It is guaranteed that a customer has precisely one first order.
+Find the percentage of immediate orders in the first orders of all customers, rounded to 2 decimal places.
+
+Table: Delivery
++-----------------------------+---------+
+| Column Name                 | Type    |
++-----------------------------+---------+
+| delivery_id                 | int     |
+| customer_id                 | int     |
+| order_date                  | date    |
+| customer_pref_delivery_date | date    |
++-----------------------------+---------+`,
+        link: "https://leetcode.com/problems/immediate-food-delivery-ii/",
+        bruteForceComplexity: `Filter only first orders using (customer_id, order_date) IN (SELECT customer_id, MIN(order_date) FROM Delivery GROUP BY customer_id), then calculate immediate percentage.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(C)`,
+        optimalCode: `SELECT ROUND(
+    SUM(order_date = customer_pref_delivery_date) * 100.0 / COUNT(*), 2
+) AS immediate_percentage
+FROM Delivery
+WHERE (customer_id, order_date) IN (
+    SELECT customer_id, MIN(order_date)
+    FROM Delivery
+    GROUP BY customer_id
+);`
+    },
+
+    {
+        title: `QUESTION:
+Write a solution to report the fraction of players that logged in again on the day after the day they first logged in, rounded to 2 decimal places. In other words, count the number of players that logged in for at least two consecutive days starting from their first login date, then divide that number by the total number of players.
+
+Table: Activity
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| player_id    | int     |
+| device_id    | int     |
+| event_date   | date    |
+| games_played | int     |
++--------------+---------+`,
+        link: "https://leetcode.com/problems/game-play-analysis-iv/",
+        bruteForceComplexity: `Find first login date per player in a subquery, join Activity on player_id and DATEDIFF(event_date, first_login) = 1, then divide by total distinct players.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT ROUND(
+    COUNT(a.player_id) * 1.0 / (SELECT COUNT(DISTINCT player_id) FROM Activity), 2
+) AS fraction
+FROM Activity a
+JOIN (
+    SELECT player_id, MIN(event_date) AS first_login
+    FROM Activity
+    GROUP BY player_id
+) f ON a.player_id = f.player_id
+   AND DATEDIFF(a.event_date, f.first_login) = 1;`
+    },
+
+    {
+        title: `QUESTION:
+Calculate the number of unique subjects each teacher teaches in the university.
+
+Table: Teacher
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| teacher_id  | int     |
+| subject_id  | int     |
+| dept_id     | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/number-of-unique-subjects-taught-by-each-teacher/",
+        bruteForceComplexity: `Group by teacher_id and use COUNT(DISTINCT subject_id).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(T)`,
+        optimalCode: `SELECT teacher_id, COUNT(DISTINCT subject_id) AS cnt
+FROM Teacher
+GROUP BY teacher_id;`
+    },
+
+    {
+        title: `QUESTION:
+Find the daily active user count for a period of 30 days ending 2019-07-27 inclusively. A user was active on someday if they made at least one activity on that day.
+
+Table: Activity
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| user_id       | int     |
+| session_id    | int     |
+| activity_date | date    |
+| activity_type | enum    |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/user-activity-for-the-past-30-days-i/",
+        bruteForceComplexity: `Filter activity_date BETWEEN DATE_SUB('2019-07-27', INTERVAL 29 DAY) AND '2019-07-27', group by activity_date, and count distinct user_id.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(D)`,
+        optimalCode: `SELECT activity_date AS day, COUNT(DISTINCT user_id) AS active_users
+FROM Activity
+WHERE activity_date BETWEEN DATE_SUB('2019-07-27', INTERVAL 29 DAY) AND '2019-07-27'
+GROUP BY activity_date;`
+    },
+
+    {
+        title: `QUESTION:
+Select the product id, year, quantity, and price for the first year of every product sold.
+
+Table: Sales
++-------------+-------+
+| Column Name | Type  |
++-------------+-------+
+| sale_id     | int   |
+| product_id  | int   |
+| year        | int   |
+| quantity    | int   |
+| price       | int   |
++-------------+-------+`,
+        link: "https://leetcode.com/problems/product-sales-analysis-iii/",
+        bruteForceComplexity: `Filter sales where (product_id, year) matches the minimum year for that product.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT product_id, year AS first_year, quantity, price
+FROM Sales
+WHERE (product_id, year) IN (
+    SELECT product_id, MIN(year)
+    FROM Sales
+    GROUP BY product_id
+);`
+    },
+
+    {
+        title: `QUESTION:
+Find all the classes that have at least five students.
+
+Table: Courses
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| student     | varchar |
+| class       | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/classes-more-than-5-students/",
+        bruteForceComplexity: `GROUP BY class and filter using HAVING COUNT(student) >= 5.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(C)`,
+        optimalCode: `SELECT class
+FROM Courses
+GROUP BY class
+HAVING COUNT(student) >= 5;`
+    },
+
+    {
+        title: `QUESTION:
+Write a solution that will, for each user, return the number of followers.
+Return the result table ordered by user_id in ascending order.
+
+Table: Followers
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| user_id     | int  |
+| follower_id | int  |
++-------------+------+`,
+        link: "https://leetcode.com/problems/find-followers-count/",
+        bruteForceComplexity: `Group by user_id, count follower_id, and sort by user_id ASC.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(U)`,
+        optimalCode: `SELECT user_id, COUNT(follower_id) AS followers_count
+FROM Followers
+GROUP BY user_id
+ORDER BY user_id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+A single number is a number that appeared only once in the MyNumbers table.
+Find the largest single number. If there is no single number, report null.
+
+Table: MyNumbers
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| num         | int  |
++-------------+------+`,
+        link: "https://leetcode.com/problems/biggest-single-number/",
+        bruteForceComplexity: `Group by num, filter HAVING COUNT(num) = 1, and take MAX(num) over the subquery result.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT MAX(num) AS num
+FROM (
+    SELECT num
+    FROM MyNumbers
+    GROUP BY num
+    HAVING COUNT(num) = 1
+) AS unique_nums;`
+    },
+
+    {
+        title: `QUESTION:
+Report the customer_ids from the Customer table that bought all the products in the Product table.
+
+Table: Customer
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| customer_id | int     |
+| product_key | int     |
++-------------+---------+
+
+Table: Product
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| product_key | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/customers-who-bought-all-products/",
+        bruteForceComplexity: `Group Customer by customer_id and filter HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(C + P)
+Space Complexity: O(C)`,
+        optimalCode: `SELECT customer_id
+FROM Customer
+GROUP BY customer_id
+HAVING COUNT(DISTINCT product_key) = (SELECT COUNT(*) FROM Product);`
+    },
+
+    {
+        title: `QUESTION:
+For this problem, we will consider a manager an employee who has at least 1 other employee reporting to them.
+Write a solution to report the ids and the names of all managers, the number of employees who report directly to them, and the average age of the reports rounded to the nearest integer.
+Return the result table ordered by employee_id.
+
+Table: Employees
++-------------+----------+
+| Column Name | Type     |
++-------------+----------+
+| employee_id | int      |
+| name        | varchar  |
+| reports_to  | int      |
+| age         | int      |
++-------------+----------+`,
+        link: "https://leetcode.com/problems/the-number-of-employees-which-report-to-each-employee/",
+        bruteForceComplexity: `Self-join Employees manager with Employees report on manager.employee_id = report.reports_to, group by manager, calculate count and rounded average age.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(M)`,
+        optimalCode: `SELECT m.employee_id,
+       m.name,
+       COUNT(e.employee_id) AS reports_count,
+       ROUND(AVG(e.age)) AS average_age
+FROM Employees m
+JOIN Employees e ON m.employee_id = e.reports_to
+GROUP BY m.employee_id, m.name
+ORDER BY m.employee_id;`
+    },
+
+    {
+        title: `QUESTION:
+Employees can belong to multiple departments. When the employee joins other departments, they need to decide which department is their primary department. Note that when an employee belongs to only one department, their primary column is 'N'.
+Write a solution to report all the employees with their primary department. For employees who belong to one department, report their only department.
+
+Table: Employee
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| employee_id   | int     |
+| department_id | int     |
+| primary_flag  | varchar |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/primary-department-for-each-employee/",
+        bruteForceComplexity: `UNION employees having primary_flag = 'Y' with employees who belong to only 1 department (HAVING COUNT = 1).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT employee_id, department_id
+FROM Employee
+WHERE primary_flag = 'Y'
+UNION
+SELECT employee_id, department_id
+FROM Employee
+GROUP BY employee_id
+HAVING COUNT(department_id) = 1;`
+    },
+
+    {
+        title: `QUESTION:
+Report for every three line segments whether they can form a triangle (the sum of any two sides must be strictly greater than the third side: x + y > z AND x + z > y AND y + z > x).
+
+Table: Triangle
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| x           | int  |
+| y           | int  |
+| z           | int  |
++-------------+------+`,
+        link: "https://leetcode.com/problems/triangle-judgement/",
+        bruteForceComplexity: `Use IF() or CASE statement checking triangle inequality theorem.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT x, y, z,
+       IF(x + y > z AND x + z > y AND y + z > x, 'Yes', 'No') AS triangle
+FROM Triangle;`
+    },
+
+    {
+        title: `QUESTION:
+Find all numbers that appear at least three times consecutively.
+Return the result table in any order.
+
+Table: Logs
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| num         | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/consecutive-numbers/",
+        bruteForceComplexity: `Use LAG(num, 1) and LAG(num, 2) over order by id, or join 3 consecutive rows on id = id+1 and id = id+2.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT DISTINCT num AS ConsecutiveNums
+FROM (
+    SELECT num,
+           LAG(num, 1) OVER (ORDER BY id) AS prev1,
+           LAG(num, 2) OVER (ORDER BY id) AS prev2
+    FROM Logs
+) t
+WHERE num = prev1 AND num = prev2;`
+    },
+
+    {
+        title: `QUESTION:
+Find the prices of all products on 2019-08-16. Assume the price of all products before any change is 10.
+
+Table: Products
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| new_price     | int     |
+| change_date   | date    |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/product-price-at-a-given-date/",
+        bruteForceComplexity: `Find the latest price changed on or before 2019-08-16, and UNION with products whose changes only happened after 2019-08-16 (default 10).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT product_id, new_price AS price
+FROM Products
+WHERE (product_id, change_date) IN (
+    SELECT product_id, MAX(change_date)
+    FROM Products
+    WHERE change_date <= '2019-08-16'
+    GROUP BY product_id
+)
+UNION
+SELECT product_id, 10 AS price
+FROM Products
+WHERE product_id NOT IN (
+    SELECT product_id
+    FROM Products
+    WHERE change_date <= '2019-08-16'
+);`
+    },
+
+    {
+        title: `QUESTION:
+There is a queue of people that are waiting to board a bus. However, the bus has a weight limit of 1000 kilograms, so there may be some people who cannot board.
+Find the person_name of the last person that can fit on the bus without exceeding the weight limit.
+
+Table: Queue
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| person_id   | int     |
+| person_name | varchar |
+| weight      | int     |
+| turn        | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/last-person-to-fit-in-the-bus/",
+        bruteForceComplexity: `Compute cumulative sum SUM(weight) OVER (ORDER BY turn ASC), filter total_weight <= 1000, order by total_weight DESC and limit 1.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT person_name
+FROM (
+    SELECT person_name,
+           SUM(weight) OVER (ORDER BY turn ASC) AS total_weight
+    FROM Queue
+) t
+WHERE total_weight <= 1000
+ORDER BY total_weight DESC
+LIMIT 1;`
+    },
+
+    {
+        title: `QUESTION:
+Calculate the number of bank accounts for each salary category:
+- "Low Salary": All the salaries strictly less than $20,000.
+- "Average Salary": All the salaries in the inclusive range [$20,000, $50,000].
+- "High Salary": All the salaries strictly greater than $50,000.
+The result table must contain all three categories. If there are no accounts in a category, return 0.
+
+Table: Accounts
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| account_id  | int  |
+| income      | int  |
++-------------+------+`,
+        link: "https://leetcode.com/problems/count-salary-categories/",
+        bruteForceComplexity: `Use UNION ALL with hardcoded category labels and conditional SUM on income to ensure all 3 rows exist even if count is 0.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT 'Low Salary' AS category, SUM(income < 20000) AS accounts_count FROM Accounts
+UNION ALL
+SELECT 'Average Salary' AS category, SUM(income BETWEEN 20000 AND 50000) AS accounts_count FROM Accounts
+UNION ALL
+SELECT 'High Salary' AS category, SUM(income > 50000) AS accounts_count FROM Accounts;`
+    },
+
+    {
+        title: `QUESTION:
+Find the IDs of the employees whose salary is strictly less than $30,000 and whose manager left the company. When a manager leaves the company, their information is deleted from the Employees table, but their reports still have their manager_id set to the manager that left.
+Return the result table ordered by employee_id.
+
+Table: Employees
++-------------+----------+
+| Column Name | Type     |
++-------------+----------+
+| employee_id | int      |
+| name        | varchar  |
+| manager_id  | int      |
+| salary      | int      |
++-------------+----------+`,
+        link: "https://leetcode.com/problems/employees-whose-manager-left-the-company/",
+        bruteForceComplexity: `Filter salary < 30000 AND manager_id IS NOT NULL AND manager_id NOT IN (SELECT employee_id FROM Employees) and sort by employee_id ASC.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT employee_id
+FROM Employees
+WHERE salary < 30000
+  AND manager_id IS NOT NULL
+  AND manager_id NOT IN (SELECT employee_id FROM Employees)
+ORDER BY employee_id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+Write a solution to swap the seat id of every two consecutive students. If the number of students is odd, the id of the last student is not swapped.
+Return the result table ordered by id in ascending order.
+
+Table: Seat
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| student     | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/exchange-seats/",
+        bruteForceComplexity: `Use CASE: if id is odd and last, keep id; if odd, id+1; if even, id-1.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT CASE
+           WHEN id % 2 = 1 AND id = (SELECT COUNT(*) FROM Seat) THEN id
+           WHEN id % 2 = 1 THEN id + 1
+           ELSE id - 1
+       END AS id,
+       student
+FROM Seat
+ORDER BY id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+Find the name of the user who has rated the greatest number of movies. In case of a tie, return the lexicographically smaller user name.
+Find the movie name with the highest average rating in February 2020. In case of a tie, return the lexicographically smaller movie name.
+
+Table: Movies
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| movie_id      | int     |
+| title         | varchar |
++---------------+---------+
+
+Table: Users
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| user_id       | int     |
+| name          | varchar |
++---------------+---------+
+
+Table: MovieRating
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| movie_id      | int     |
+| user_id       | int     |
+| rating        | int     |
+| created_at    | date    |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/movie-rating/",
+        bruteForceComplexity: `Write two subqueries (one for top user by rating count, one for top movie by avg rating in Feb 2020) and combine with UNION ALL.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(R log R)
+Space Complexity: O(R)`,
+        optimalCode: `(
+    SELECT u.name AS results
+    FROM MovieRating mr
+    JOIN Users u ON mr.user_id = u.user_id
+    GROUP BY mr.user_id, u.name
+    ORDER BY COUNT(mr.movie_id) DESC, u.name ASC
+    LIMIT 1
+)
+UNION ALL
+(
+    SELECT m.title AS results
+    FROM MovieRating mr
+    JOIN Movies m ON mr.movie_id = m.movie_id
+    WHERE mr.created_at BETWEEN '2020-02-01' AND '2020-02-29'
+    GROUP BY mr.movie_id, m.title
+    ORDER BY AVG(mr.rating) DESC, m.title ASC
+    LIMIT 1
+);`
+    },
+
+    {
+        title: `QUESTION:
+Compute the moving average of how much the customer paid in a seven days window (i.e., current day + 6 days before). average_amount should be rounded to 2 decimal places.
+Return the result table ordered by visited_on in ascending order.
+
+Table: Customer
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| customer_id   | int     |
+| name          | varchar |
+| visited_on    | date    |
+| amount        | int     |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/restaurant-growth/",
+        bruteForceComplexity: `Aggregate daily totals with a CTE, then use window functions SUM() OVER (ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) and AVG() OVER (...), starting after the 6th offset.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(D log D)
+Space Complexity: O(D)`,
+        optimalCode: `WITH DailyTotals AS (
+    SELECT visited_on, SUM(amount) AS daily_amount
+    FROM Customer
+    GROUP BY visited_on
+)
+SELECT visited_on,
+       SUM(daily_amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount,
+       ROUND(AVG(daily_amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) AS average_amount
+FROM DailyTotals
+LIMIT 999999 OFFSET 6;`
+    },
+
+    {
+        title: `QUESTION:
+Find the people who have the most friends and the most friends number.
+The test cases are generated so that only one person has the most friends.
+
+Table: RequestAccepted
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| requester_id   | int     |
+| accepter_id    | int     |
+| accept_date    | date    |
++----------------+---------+`,
+        link: "https://leetcode.com/problems/friend-requests-ii-who-has-the-most-friends/",
+        bruteForceComplexity: `UNION ALL requester_id and accepter_id into a single list of IDs, group by ID, count occurrences, and order by count DESC limit 1.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `WITH AllFriends AS (
+    SELECT requester_id AS id FROM RequestAccepted
+    UNION ALL
+    SELECT accepter_id AS id FROM RequestAccepted
+)
+SELECT id, COUNT(*) AS num
+FROM AllFriends
+GROUP BY id
+ORDER BY num DESC
+LIMIT 1;`
+    },
+
+    {
+        title: `QUESTION:
+Report the sum of all total investment values in 2016 (tiv_2016) for all policyholders who:
+- Have the same tiv_2015 value as one or more other policyholders, and
+- Are not located in the same city as any other policyholder (i.e., the (lat, lon) attribute pairs must be unique).
+Round tiv_2016 to two decimal places.
+
+Table: Insurance
++-------------+-------+
+| Column Name | Type  |
++-------------+-------+
+| pid         | int   |
+| tiv_2015    | float |
+| tiv_2016    | float |
+| lat         | float |
+| lon         | float |
++-------------+-------+`,
+        link: "https://leetcode.com/problems/investments-in-2016/",
+        bruteForceComplexity: `Filter tiv_2015 IN (values with COUNT > 1) AND (lat, lon) IN (locations with COUNT = 1), then SUM(tiv_2016).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT ROUND(SUM(tiv_2016), 2) AS tiv_2016
+FROM Insurance
+WHERE tiv_2015 IN (
+    SELECT tiv_2015
+    FROM Insurance
+    GROUP BY tiv_2015
+    HAVING COUNT(*) > 1
+)
+AND (lat, lon) IN (
+    SELECT lat, lon
+    FROM Insurance
+    GROUP BY lat, lon
+    HAVING COUNT(*) = 1
+);`
+    },
+
+    {
+        title: `QUESTION:
+A company's executives are interested in seeing who earns the most money in each of the company's departments. A high earner in a department is an employee who has a salary in the top three unique salaries for that department.
+Write a solution to find the employees who are high earners in each of the departments.
+
+Table: Employee
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| id           | int     |
+| name         | varchar |
+| salary       | int     |
+| departmentId | int     |
++--------------+---------+
+
+Table: Department
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| name        | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/department-top-three-salaries/",
+        bruteForceComplexity: `Use DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) in a CTE, join Department, and filter WHERE rnk <= 3.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `WITH RankedSalaries AS (
+    SELECT d.name AS Department,
+           e.name AS Employee,
+           e.salary AS Salary,
+           DENSE_RANK() OVER (PARTITION BY e.departmentId ORDER BY e.salary DESC) AS rnk
+    FROM Employee e
+    JOIN Department d ON e.departmentId = d.id
+)
+SELECT Department, Employee, Salary
+FROM RankedSalaries
+WHERE rnk <= 3;`
+    },
+
+    {
+        title: `QUESTION:
+Fix the names so that only the first character is uppercase and the rest are lowercase.
+Return the result table ordered by user_id.
+
+Table: Users
++----------------+---------+
+| Column Name    | Type    |
++----------------+---------+
+| user_id        | int     |
+| name           | varchar |
++----------------+---------+`,
+        link: "https://leetcode.com/problems/fix-names-in-a-table/",
+        bruteForceComplexity: `CONCAT(UPPER(SUBSTRING(name, 1, 1)), LOWER(SUBSTRING(name, 2))) and ORDER BY user_id ASC.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT user_id,
+       CONCAT(UPPER(SUBSTRING(name, 1, 1)), LOWER(SUBSTRING(name, 2))) AS name
+FROM Users
+ORDER BY user_id ASC;`
+    },
+
+    {
+        title: `QUESTION:
+Find the patient_id, patient_name, and conditions of the patients who have Type I Diabetes. Type I Diabetes always starts with DIAB1 prefix.
+
+Table: Patients
++--------------+---------+
+| Column Name  | Type    |
++--------------+---------+
+| patient_id   | int     |
+| patient_name | varchar |
+| conditions   | varchar |
++--------------+---------+`,
+        link: "https://leetcode.com/problems/patients-with-a-condition/",
+        bruteForceComplexity: `Use pattern matching WHERE conditions LIKE 'DIAB1%' OR conditions LIKE '% DIAB1%'.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT patient_id, patient_name, conditions
+FROM Patients
+WHERE conditions LIKE 'DIAB1%' OR conditions LIKE '% DIAB1%';`
+    },
+
+    {
+        title: `QUESTION:
+Delete all duplicate emails, keeping only one unique email with the smallest id.
+For SQL users, please note that you are supposed to write a DELETE statement and not a SELECT one.
+
+Table: Person
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| email       | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/delete-duplicate-emails/",
+        bruteForceComplexity: `Perform a multi-table DELETE joining Person p1 with Person p2 on p1.email = p2.email AND p1.id > p2.id.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N² worst-case join / O(N log N)
+Space Complexity: O(1)`,
+        optimalCode: `DELETE p1
+FROM Person p1
+JOIN Person p2
+  ON p1.email = p2.email
+ AND p1.id > p2.id;`
+    },
+
+    {
+        title: `QUESTION:
+Find the second highest distinct salary from the Employee table. If there is no second highest salary, return null.
+
+Table: Employee
++-------------+------+
+| Column Name | Type |
++-------------+------+
+| id          | int  |
+| salary      | int  |
++-------------+------+`,
+        link: "https://leetcode.com/problems/second-highest-salary/",
+        bruteForceComplexity: `Find MAX(salary) from Employee where salary < (SELECT MAX(salary) FROM Employee). If no second salary exists, MAX() naturally returns NULL.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT MAX(salary) AS SecondHighestSalary
+FROM Employee
+WHERE salary < (SELECT MAX(salary) FROM Employee);`
+    },
+
+    {
+        title: `QUESTION:
+Find for each date the number of different products sold and their names.
+The sold products names for each date should be sorted lexicographically.
+Return the result table ordered by sell_date.
+
+Table: Activities
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| sell_date   | date    |
+| product     | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/group-sold-products-by-the-date/",
+        bruteForceComplexity: `Group by sell_date, count DISTINCT product, and use GROUP_CONCAT(DISTINCT product ORDER BY product ASC SEPARATOR ',').`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `SELECT sell_date,
+       COUNT(DISTINCT product) AS num_sold,
+       GROUP_CONCAT(DISTINCT product ORDER BY product ASC SEPARATOR ',') AS products
+FROM Activities
+GROUP BY sell_date
+ORDER BY sell_date ASC;`
+    },
+
+    {
+        title: `QUESTION:
+Get the names of products that have at least 100 units ordered in February 2020 and their amount.
+
+Table: Products
++------------------+---------+
+| Column Name      | Type    |
++------------------+---------+
+| product_id       | int     |
+| product_name     | varchar |
+| product_category | varchar |
++------------------+---------+
+
+Table: Orders
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| product_id    | int     |
+| order_date    | date    |
+| unit          | int     |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/list-the-products-ordered-in-a-period/",
+        bruteForceComplexity: `JOIN Products and Orders on product_id, filter February 2020 order dates, group by product_name, and filter HAVING SUM(unit) >= 100.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(P)`,
+        optimalCode: `SELECT p.product_name, SUM(o.unit) AS unit
+FROM Products p
+JOIN Orders o ON p.product_id = o.product_id
+WHERE o.order_date BETWEEN '2020-02-01' AND '2020-02-29'
+GROUP BY p.product_name
+HAVING SUM(o.unit) >= 100;`
+    },
+
+    {
+        title: `QUESTION:
+Find the users who have valid emails.
+A valid e-mail has a prefix name and a domain where:
+- The prefix name is a string that may contain letters (upper or lower case), digits, underscore '_', period '.', and/or dash '-'. The prefix name must start with a letter.
+- The domain is '@leetcode.com'.
+
+Table: Users
++---------------+---------+
+| Column Name   | Type    |
++---------------+---------+
+| user_id       | int     |
+| name          | varchar |
+| mail          | varchar |
++---------------+---------+`,
+        link: "https://leetcode.com/problems/find-users-with-valid-e-mails/",
+        bruteForceComplexity: `Use regular expression matching WHERE mail REGEXP '^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$'.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(1)`,
+        optimalCode: `SELECT user_id, name, mail
+FROM Users
+WHERE mail REGEXP '^[A-Za-z][A-Za-z0-9_.-]*@leetcode[.]com$';`
+    },
+
+    {
+        title: `QUESTION:
+Find the entire management reporting chain and hierarchy level for each employee in the company up to the CEO (where manager_id IS NULL or employee_id = 1).
+Return employee_id, name, manager_id, and hierarchy_level.
+
+Table: Employees
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| employee_id | int     |
+| name        | varchar |
+| manager_id  | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/all-people-report-to-the-given-manager/",
+        bruteForceComplexity: `Base anchor selects top-level root (CEO), recursive member joins subordinate employees incrementing hierarchy level by 1.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N) where N is total employees in hierarchy.
+Space Complexity: O(H) recursion depth.`,
+        optimalCode: `WITH RECURSIVE OrgHierarchy AS (
+    -- Anchor member: CEO / Root level
+    SELECT employee_id, name, manager_id, 1 AS hierarchy_level
+    FROM Employees
+    WHERE manager_id IS NULL OR employee_id = 1
+    
+    UNION ALL
+    
+    -- Recursive member: Subordinates reporting to above
+    SELECT e.employee_id, e.name, e.manager_id, o.hierarchy_level + 1
+    FROM Employees e
+    JOIN OrgHierarchy o ON e.manager_id = o.employee_id
+)
+SELECT * FROM OrgHierarchy
+ORDER BY hierarchy_level, employee_id;`
+    },
+
+    {
+        title: `QUESTION:
+Given daily user login logs, find all continuous login streaks (islands) for each user with streak start date, end date, and total streak length.
+
+Table: UserLogins
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| user_id     | int     |
+| login_date  | date    |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/find-cumulative-salary-of-an-employee/",
+        bruteForceComplexity: `Subtract ROW_NUMBER() in days from login_date. Consecutive dates produce identical group dates. Group by (user_id, group_date).`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `WITH DistinctLogins AS (
+    SELECT DISTINCT user_id, login_date
+    FROM UserLogins
+),
+GroupedStreaks AS (
+    SELECT user_id, login_date,
+           DATE_SUB(login_date, INTERVAL ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY login_date) DAY) AS streak_group
+    FROM DistinctLogins
+)
+SELECT user_id,
+       MIN(login_date) AS streak_start,
+       MAX(login_date) AS streak_end,
+       COUNT(*) AS streak_days
+FROM GroupedStreaks
+GROUP BY user_id, streak_group
+ORDER BY user_id, streak_start;`
+    },
+
+    {
+        title: `QUESTION:
+Calculate monthly cohort retention rate: For each signup cohort month, calculate how many users signed up and what percentage of those users remained active in subsequent months (Month 1, Month 2, Month 3).
+
+Table: Subscriptions
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| user_id     | int     |
+| active_date | date    |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/active-users/",
+        bruteForceComplexity: `Identify cohort month as MIN(active_date). Calculate month difference between activity date and cohort month, then pivot counts.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(U)`,
+        optimalCode: `WITH UserCohorts AS (
+    SELECT user_id,
+           DATE_FORMAT(MIN(active_date), '%Y-%m-01') AS cohort_month
+    FROM Subscriptions
+    GROUP BY user_id
+),
+ActivityWithCohort AS (
+    SELECT u.cohort_month,
+           TIMESTAMPDIFF(MONTH, u.cohort_month, DATE_FORMAT(s.active_date, '%Y-%m-01')) AS month_number,
+           COUNT(DISTINCT s.user_id) AS active_users
+    FROM Subscriptions s
+    JOIN UserCohorts u ON s.user_id = u.user_id
+    GROUP BY u.cohort_month, month_number
+)
+SELECT cohort_month,
+       MAX(CASE WHEN month_number = 0 THEN active_users ELSE 0 END) AS cohort_size,
+       ROUND(MAX(CASE WHEN month_number = 1 THEN active_users ELSE 0 END) * 100.0 / MAX(CASE WHEN month_number = 0 THEN active_users ELSE NULL END), 2) AS m1_retention_pct,
+       ROUND(MAX(CASE WHEN month_number = 2 THEN active_users ELSE 0 END) * 100.0 / MAX(CASE WHEN month_number = 0 THEN active_users ELSE NULL END), 2) AS m2_retention_pct
+FROM ActivityWithCohort
+GROUP BY cohort_month
+ORDER BY cohort_month;`
+    },
+
+    {
+        title: `QUESTION:
+Reformat the sales department revenue table such that there is a department id column and a revenue column for each month of the year.
+
+Table: DepartmentRevenue
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| revenue     | int     |
+| month       | varchar |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/reformat-department-table/",
+        bruteForceComplexity: `Use conditional aggregation SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) for each month, grouped by id.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N)
+Space Complexity: O(D)`,
+        optimalCode: `SELECT id,
+       SUM(CASE WHEN month = 'Jan' THEN revenue ELSE NULL END) AS Jan_Revenue,
+       SUM(CASE WHEN month = 'Feb' THEN revenue ELSE NULL END) AS Feb_Revenue,
+       SUM(CASE WHEN month = 'Mar' THEN revenue ELSE NULL END) AS Mar_Revenue,
+       SUM(CASE WHEN month = 'Apr' THEN revenue ELSE NULL END) AS Apr_Revenue,
+       SUM(CASE WHEN month = 'May' THEN revenue ELSE NULL END) AS May_Revenue,
+       SUM(CASE WHEN month = 'Jun' THEN revenue ELSE NULL END) AS Jun_Revenue,
+       SUM(CASE WHEN month = 'Jul' THEN revenue ELSE NULL END) AS Jul_Revenue,
+       SUM(CASE WHEN month = 'Aug' THEN revenue ELSE NULL END) AS Aug_Revenue,
+       SUM(CASE WHEN month = 'Sep' THEN revenue ELSE NULL END) AS Sep_Revenue,
+       SUM(CASE WHEN month = 'Oct' THEN revenue ELSE NULL END) AS Oct_Revenue,
+       SUM(CASE WHEN month = 'Nov' THEN revenue ELSE NULL END) AS Nov_Revenue,
+       SUM(CASE WHEN month = 'Dec' THEN revenue ELSE NULL END) AS Dec_Revenue
+FROM DepartmentRevenue
+GROUP BY id
+ORDER BY id;`
+    },
+
+    {
+        title: `QUESTION:
+Find the median salary for each company without using a built-in MEDIAN function.
+If there are an even number of employees, the median is the average of the two middle values.
+
+Table: Employee
++-------------+---------+
+| Column Name | Type    |
++-------------+---------+
+| id          | int     |
+| company     | varchar |
+| salary      | int     |
++-------------+---------+`,
+        link: "https://leetcode.com/problems/find-median-given-frequency-of-numbers/",
+        bruteForceComplexity: `Use ROW_NUMBER() partitioned by company ordered by salary, alongside COUNT(*) OVER (PARTITION BY company), and select rows where row_num BETWEEN total_count/2.0 AND total_count/2.0 + 1.`,
+        bruteForceCode: ``,
+        optimalComplexity: `Time Complexity: O(N log N)
+Space Complexity: O(N)`,
+        optimalCode: `WITH RankedSalaries AS (
+    SELECT id, company, salary,
+           ROW_NUMBER() OVER (PARTITION BY company ORDER BY salary, id) AS rnk,
+           COUNT(*) OVER (PARTITION BY company) AS total_count
+    FROM Employee
+)
+SELECT company, ROUND(AVG(salary), 2) AS median_salary
+FROM RankedSalaries
+WHERE rnk BETWEEN total_count / 2.0 AND total_count / 2.0 + 1
+GROUP BY company;`
+    }
+]
+};
   
   export default questionsData;

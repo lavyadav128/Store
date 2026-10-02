@@ -9,6 +9,7 @@ import {
   Grid,
 } from "@mui/material";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import OpenInNewIcon from "@mui/icons-material/OpenInNew";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
@@ -18,7 +19,7 @@ const PracticePage = () => {
   const { topicId } = useParams();
   const navigate = useNavigate();
 
-  const questions = questionsData[topicId] || [];
+  const questions = questionsData[topicId] || questionsData[topicId?.toLowerCase()] || [];
 
   const [currentQIndex, setCurrentQIndex] = useState(0);
 
@@ -29,6 +30,7 @@ const PracticePage = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
   const q = questions[currentQIndex];
+  const codeLanguage = topicId?.toLowerCase() === "sql" ? "sql" : (topicId?.toLowerCase() === "python" ? "python" : "java");
 
   return (
     <Box
@@ -157,20 +159,50 @@ const PracticePage = () => {
 
       {q ? (
         <>
-          {/* Question Number */}
-          <Typography
-            variant="overline"
-            sx={{
-              fontWeight: 700,
-              fontSize: "0.7rem",
-              color: "#888",
-              letterSpacing: "0.12em",
-              display: "block",
-              mb: 0.5,
-            }}
-          >
-            Question {currentQIndex + 1} of {questions.length}
-          </Typography>
+          {/* Question Header & LeetCode Practice Button */}
+          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
+            <Typography
+              variant="overline"
+              sx={{
+                fontWeight: 700,
+                fontSize: "0.75rem",
+                color: "#888",
+                letterSpacing: "0.12em",
+              }}
+            >
+              Question {currentQIndex + 1} of {questions.length}
+            </Typography>
+
+            {q.link && (
+              <Button
+                variant="outlined"
+                component="a"
+                href={q.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                endIcon={<OpenInNewIcon sx={{ fontSize: "14px !important" }} />}
+                sx={{
+                  textTransform: "none",
+                  fontWeight: 700,
+                  fontSize: "0.8rem",
+                  color: "#d97706",
+                  borderColor: "#f59e0b",
+                  backgroundColor: "#fffbeb",
+                  borderRadius: "8px",
+                  px: 1.8,
+                  py: 0.5,
+                  boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                  "&:hover": {
+                    backgroundColor: "#fef3c7",
+                    borderColor: "#d97706",
+                    boxShadow: "0 2px 5px rgba(0,0,0,0.08)",
+                  },
+                }}
+              >
+                Solve on LeetCode
+              </Button>
+            )}
+          </Box>
 
           {/* Question Box */}
           <Box
@@ -266,7 +298,7 @@ const PracticePage = () => {
                   border: "1px solid #2a2a2a",
                 }}
               >
-                <SyntaxHighlighter language="java" style={oneDark}>
+                <SyntaxHighlighter language={codeLanguage} style={oneDark}>
                   {q.bruteForceCode}
                 </SyntaxHighlighter>
               </Box>
@@ -342,7 +374,7 @@ const PracticePage = () => {
                   border: "1px solid #2a2a2a",
                 }}
               >
-                <SyntaxHighlighter language="java" style={oneDark}>
+                <SyntaxHighlighter language={codeLanguage} style={oneDark}>
                   {q.optimalCode}
                 </SyntaxHighlighter>
               </Box>

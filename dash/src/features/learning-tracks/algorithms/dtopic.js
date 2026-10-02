@@ -32,8 +32,7 @@ const topics = [
   { id: "analyses", name: "Analyses" },
   { id: "aptitude", name: "Aptitude" },
   { id: "cs", name: "CS" },
-
-
+  { id: "sql", name: "SQL" },
 ];
 
 const TopicPage = () => {

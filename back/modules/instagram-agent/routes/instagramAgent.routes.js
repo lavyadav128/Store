@@ -20,12 +20,20 @@ import {
   sendInstagramMessage,
   verifyMetaSignature,
 } from "../services/instagramAgent.service.js";
+import fs from "fs";
 import os from "os";
 import path from "path";
 import multer from "multer";
 import { upload, cloudinary } from "../../../config/cloudinary.js";
 import { NATURE_THEMES } from "../services/natureThemes.js";
 import { analyzeAudiencePreferences, getChannelGrowthAnalysis } from "../services/growthOptimizer.js";
+import {
+  searchGoogleKohliImages,
+  createViratKohliDraft,
+  autoRunViratKohliAgent,
+  VIRAT_KOHLI_QUOTES,
+} from "../services/viratKohliSearch.service.js";
+import { DEFAULT_SONGS } from "../schema/InstagramAgentConfig.model.js";
 
 // Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
 const videoDiskStorage = multer.diskStorage({
@@ -39,6 +47,27 @@ const videoDiskStorage = multer.diskStorage({
 const videoUpload = multer({
   storage: videoDiskStorage,
   limits: { fileSize: 150 * 1024 * 1024 }, // 150MB
+});
+
+// Dedicated disk storage for audio song uploads (.mp3, .wav, .m4a, .aac, .ogg)
+const audioDiskStorage = multer.diskStorage({
+  destination: (_req, _file, cb) => cb(null, os.tmpdir()),
+  filename: (_req, file, cb) => {
+    const ext = path.extname(file.originalname || ".mp3") || ".mp3";
+    cb(null, `user_song_${Date.now()}_${Math.random().toString(36).substring(2, 8)}${ext}`);
+  },
+});
+
+const audioUpload = multer({
+  storage: audioDiskStorage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith("audio/") || /\.(mp3|wav|m4a|aac|ogg|flac|wma)$/i.test(file.originalname)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only audio files (.mp3, .wav, .m4a, .aac, .ogg, .flac) are allowed!"), false);
+    }
+  },
 });
 
 const router = express.Router();
@@ -138,6 +167,188 @@ router.get("/cloudinary/signature", async (_req, res) => {
   } catch (err) {
     console.error("[Cloudinary Signature Error]:", err);
     return res.status(500).json({ error: err.message });
+  }
+});
+
+// Public Search & Read-Only Listed Songs (Accessible immediately by dashboard)
+router.post("/search-google-quotes", async (req, res) => {
+  try {
+    const { query = "Virat Kohli quotes wallpapers", limit = 16 } = req.body;
+    const results = await searchGoogleKohliImages(query, Number(limit) || 16);
+    res.json({ success: true, count: results.length, results, defaultQuotes: VIRAT_KOHLI_QUOTES });
+  } catch (error) {
+    console.error("[Search Google Quotes Error]:", error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.get("/listed-songs", async (_req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    res.json({ success: true, songs: config.listedSongs || [] });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Direct Audio File Upload from PC / Mobile (.mp3, .wav, .m4a, .aac, .ogg)
+router.post("/upload-song", audioUpload.single("audioFile"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Please select an audio file from your device (.mp3, .wav, .m4a, .aac, .ogg)." });
+    }
+
+    const originalName = req.file.originalname || "custom_song.mp3";
+    const derivedTitle = req.body.title?.trim() || originalName.replace(/\.[^/.]+$/, "").replace(/[_-]/g, " ").trim();
+    const artist = (req.body.artist?.trim() || "My Uploaded Track");
+    const genre = (req.body.genre?.trim() || "Custom Audio");
+
+    // Upload audio file to Cloudinary under video/audio resource type
+    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
+      resource_type: "video",
+      folder: "instagram-agent/user-songs",
+    });
+
+    // Clean up temporary local file
+    if (fs.existsSync(req.file.path)) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+    }
+
+    const config = await getInstagramConfig();
+    config.listedSongs.push({
+      title: derivedTitle,
+      artist: artist,
+      genre: genre,
+      audioUrl: uploadResult.secure_url,
+      active: true,
+    });
+    await config.save();
+
+    await logInstagramActivity(
+      'song_uploaded',
+      `Uploaded custom audio track: "${derivedTitle}" (${artist})`,
+      {
+        title: derivedTitle,
+        artist: artist,
+        audioUrl: uploadResult.secure_url,
+      }
+    );
+
+    res.json({
+      success: true,
+      songs: config.listedSongs,
+      song: config.listedSongs[config.listedSongs.length - 1],
+      message: `"${derivedTitle}" uploaded successfully from your device! 🎵`,
+    });
+  } catch (error) {
+    if (req.file && fs.existsSync(req.file.path)) {
+      try { fs.unlinkSync(req.file.path); } catch (_) {}
+    }
+    console.error("[Song Upload Error]:", error);
+    res.status(400).json({ error: error.message || "Failed to upload audio file." });
+  }
+});
+
+// Add a song manually with metadata/URL
+router.post("/listed-songs", async (req, res) => {
+  try {
+    const { title, artist, genre, audioUrl } = req.body;
+    if (!title || !title.trim()) {
+      return res.status(400).json({ error: "Song title is required." });
+    }
+
+    const config = await getInstagramConfig();
+    config.listedSongs.push({
+      title: title.trim(),
+      artist: (artist || "Trending Artist").trim(),
+      genre: genre || "Motivational / Hype",
+      audioUrl: audioUrl || "",
+      active: true,
+    });
+    await config.save();
+    res.json({ success: true, songs: config.listedSongs, message: `Added "${title}" to listed songs!` });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Clear ALL listed songs from database
+router.delete("/listed-songs/all/clear", async (_req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    config.listedSongs = [];
+    await config.save();
+    await logInstagramActivity('songs_cleared', 'User cleared all listed songs.');
+    res.json({ success: true, songs: [], message: "All songs cleared from list!" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Delete a single song from listed songs
+router.delete("/listed-songs/:id", async (req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    config.listedSongs = config.listedSongs.filter((s) => String(s._id) !== String(req.params.id));
+    await config.save();
+    res.json({ success: true, songs: config.listedSongs, message: "Song removed from list." });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Toggle a song's active state
+router.patch("/listed-songs/:id/toggle", async (req, res) => {
+  try {
+    const config = await getInstagramConfig();
+    const song = config.listedSongs.id(req.params.id);
+    if (!song) return res.status(404).json({ error: "Song not found." });
+    song.active = !song.active;
+    await config.save();
+    res.json({ success: true, song, songs: config.listedSongs });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Create Post from selected Google image + Listed Song
+router.post("/create-virat-kohli-post", async (req, res) => {
+  try {
+    const { imageUrl, quote, topic, song, customCaption, customHashtags, publishImmediately = false } = req.body;
+    if (!imageUrl) {
+      return res.status(400).json({ error: "Image URL is required." });
+    }
+
+    const draft = await createViratKohliDraft({
+      imageUrl,
+      quote,
+      topic,
+      song,
+      customCaption,
+      customHashtags,
+      status: "ready",
+    });
+
+    if (publishImmediately) {
+      const published = await publishContent(draft);
+      return res.json({ success: true, content: published, message: "Published to Instagram successfully! 👑🚀" });
+    }
+
+    res.json({ success: true, content: draft, message: "Draft created successfully!" });
+  } catch (error) {
+    console.error("[Create Virat Kohli Post Error]:", error);
+    res.status(400).json({ error: error.message });
+  }
+});
+
+// Autonomous 1-Click Agent Execution
+router.post("/auto-run-virat-kohli", async (req, res) => {
+  try {
+    const result = await autoRunViratKohliAgent();
+    res.json(result);
+  } catch (error) {
+    console.error("[Auto-Run Virat Kohli Agent Error]:", error);
+    res.status(500).json({ error: error.message });
   }
 });
 
