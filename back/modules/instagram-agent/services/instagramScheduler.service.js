@@ -55,7 +55,18 @@ export async function createDailyDrafts() {
 
   const { startOfDayIST, endOfDayIST } = getISTDayBounds();
 
-  // Count already published posts for today in IST
+  // 1. Purge / cancel any stale pending drafts created before today's IST day start
+  // This guarantees that no leftover draft from yesterday or earlier is EVER published today!
+  await InstagramContent.updateMany(
+    {
+      createdBy: "agent",
+      status: { $in: ["ready", "scheduled"] },
+      createdAt: { $lt: startOfDayIST },
+    },
+    { $set: { status: "failed", error: "Stale draft from previous day cancelled." } }
+  );
+
+  // 2. Count already published posts for today in IST
   const publishedToday = await InstagramContent.countDocuments({
     createdBy: "agent",
     status: "published",
@@ -71,18 +82,19 @@ export async function createDailyDrafts() {
   const now = Date.now();
   const isOverdue = now >= scheduledTime.getTime();
 
-  // Check for any existing ready/scheduled drafts for today
-  const pendingDrafts = await InstagramContent.find({
+  // 3. Check for any valid drafts created TODAY
+  const todaysDrafts = await InstagramContent.find({
     createdBy: "agent",
     status: { $in: ["ready", "scheduled"] },
+    createdAt: { $gte: startOfDayIST },
     assetUrl: { $ne: "" },
   }).sort({ scheduledFor: 1 });
 
-  // If overdue and pending drafts exist, publish them immediately
-  if (isOverdue && pendingDrafts.length > 0) {
-    for (const draft of pendingDrafts) {
+  // If overdue and today's drafts exist, publish them immediately
+  if (isOverdue && todaysDrafts.length > 0) {
+    for (const draft of todaysDrafts) {
       try {
-        console.log(`[Daily Scheduler] Publishing overdue draft ${draft._id} (${draft.topic})...`);
+        console.log(`[Daily Scheduler] Publishing today's overdue draft ${draft._id} (${draft.topic})...`);
         await publishContent(draft);
       } catch (err) {
         console.error(`[Daily Scheduler] Failed to publish overdue draft ${draft._id}:`, err.message);
@@ -97,13 +109,13 @@ export async function createDailyDrafts() {
     if (recheckPublished >= postsPerDay) return;
   }
 
-  const remainingToCreate = Math.max(0, postsPerDay - publishedToday - pendingDrafts.length);
+  const remainingToCreate = Math.max(0, postsPerDay - publishedToday - todaysDrafts.length);
   if (remainingToCreate <= 0) return;
 
   // If agent persona is Virat Kohli inspiration, use Google Search & Song Engine
   if (config.agentPersona === "virat_kohli_inspiration" || config.searchTopic?.toLowerCase().includes("virat")) {
     const searchTopic = config.searchTopic || "Virat Kohli quotes wallpapers";
-    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false);
+    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false && s.audioUrl);
 
     for (let index = 0; index < remainingToCreate; index += 1) {
       // 1. Fetch 100% Guaranteed Unique Quote Wallpaper (checks lifetime database history)

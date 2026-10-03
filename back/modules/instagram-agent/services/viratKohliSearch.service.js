@@ -8,7 +8,7 @@ import InstagramContent from '../schema/InstagramContent.model.js';
 import InstagramAgentConfig from '../schema/InstagramAgentConfig.model.js';
 import { logInstagramActivity, publishContent, getQuoteFingerprint } from './instagramAgent.service.js';
 
-// Curated high-impact Virat Kohli quotes
+// Curated high-impact unique Virat Kohli quotes library (30+ distinct mindset & victory quotes)
 export const VIRAT_KOHLI_QUOTES = [
   {
     quote: "START UNKNOWN FINISH UNFORGETTABLE.",
@@ -69,7 +69,47 @@ export const VIRAT_KOHLI_QUOTES = [
     quote: "I ALWAYS BELIEVED THAT IF I STAY ON THE CREASE TILL THE END, INDIA WILL WIN. THAT MINDSET NEVER CHANGED.",
     topic: "Match Winning Conviction",
     context: "Taking 100% responsibility and carrying the entire nation across the finish line.",
-  }
+  },
+  {
+    quote: "MY MAIN GOAL IS TO LEAD BY EXAMPLE. YOU HAVE TO PUSH YOUR LIMITS EVERY SINGLE PRACTICE SESSION.",
+    topic: "Lead By Example",
+    context: "Setting the standard of absolute excellence through relentless execution.",
+  },
+  {
+    quote: "PRESSURE IS A PRIVILEGE. IT ONLY COMES TO THOSE WHO EARN THE RIGHT TO BE THERE.",
+    topic: "Pressure Is A Privilege",
+    context: "Embracing high-stakes moments as the ultimate proving ground.",
+  },
+  {
+    quote: "NO MATTER HOW TALENTED YOU ARE, IF YOU DON'T PUT IN THE HOURS, SOMEONE WITH LESS TALENT WILL OUTWORK YOU.",
+    topic: "Outwork Everyone",
+    context: "Talent is useless without brutal, disciplined, and consistent work ethic.",
+  },
+  {
+    quote: "CRITICISM WILL ALWAYS BE THERE. USE IT AS FUEL TO POWER YOUR NEXT CENTURY.",
+    topic: "Fuel From The Noise",
+    context: "Turning external doubts into raw explosive energy on the pitch.",
+  },
+  {
+    quote: "FITNESS IS NOT A CHOICE, IT IS A LIFESTYLE THAT SEPARATES THE GOOD FROM THE GREATEST.",
+    topic: "Elite Discipline & Fitness",
+    context: "Total mastery over your body and mind every single second.",
+  },
+  {
+    quote: "WHEN YOU STEP ONTO THAT FIELD, YOU MUST FEEL LIKE NO ONE CAN DEFEAT YOU.",
+    topic: "King's Aura & Invincibility",
+    context: "Stepping into the arena with supreme conviction and commanding energy.",
+  },
+  {
+    quote: "YOU CANNOT PLAY AT 90 PERCENT WHEN THE WORLD DEMANDS 110 PERCENT.",
+    topic: "Full Throttle Intensity",
+    context: "Giving your absolute maximum on every delivery of life.",
+  },
+  {
+    quote: "SURROUND YOURSELF WITH PEOPLE WHO HUNGER FOR GREATNESS AS MUCH AS YOU DO.",
+    topic: "The Champion Circle",
+    context: "Building an unstoppable environment that elevates your daily standards.",
+  },
 ];
 
 // Direct Quote Wallpapers verified from WallpaperCave, Pinterest & sports portals
@@ -157,11 +197,78 @@ export const VERIFIED_KOHLI_QUOTE_WALLPAPERS = [
     quote: "THE BAT IS NOT A TOY, IT'S A WEAPON. IT GAVE ME EVERYTHING IN MY LIFE.",
     topic: "Warrior Mentality",
     sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162608.jpg",
+    title: "King Kohli Century Roar - Passion & Power",
+    quote: "WHEN YOU STEP ONTO THAT FIELD, YOU MUST FEEL LIKE NO ONE CAN DEFEAT YOU.",
+    topic: "King's Aura & Invincibility",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162615.jpg",
+    title: "Virat Kohli Fitness & Gym Discipline",
+    quote: "FITNESS IS NOT A CHOICE, IT IS A LIFESTYLE THAT SEPARATES THE GOOD FROM THE GREATEST.",
+    topic: "Elite Discipline & Fitness",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162624.jpg",
+    title: "Virat Kohli Chase Master - Winning Shot",
+    quote: "PRESSURE IS A PRIVILEGE. IT ONLY COMES TO THOSE WHO EARN THE RIGHT TO BE THERE.",
+    topic: "Pressure Is A Privilege",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162635.jpg",
+    title: "Virat Kohli Test Cricket Aggression",
+    quote: "MY MAIN GOAL IS TO LEAD BY EXAMPLE. YOU HAVE TO PUSH YOUR LIMITS EVERY SINGLE PRACTICE SESSION.",
+    topic: "Lead By Example",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162649.jpg",
+    title: "Virat Kohli Focused Batting Stance",
+    quote: "NO MATTER HOW TALENTED YOU ARE, IF YOU DON'T PUT IN THE HOURS, SOMEONE WITH LESS TALENT WILL OUTWORK YOU.",
+    topic: "Outwork Everyone",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
+  },
+  {
+    imageUrl: "https://wallpapercave.com/wp/wp7162660.jpg",
+    title: "Virat Kohli Victory Helmet Raise",
+    quote: "CRITICISM WILL ALWAYS BE THERE. USE IT AS FUEL TO POWER YOUR NEXT CENTURY.",
+    topic: "Fuel From The Noise",
+    sourceUrl: "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
   }
 ];
 
+// Fallback high-energy motivational audio tracks
+export const DEFAULT_MOTIVATIONAL_SONGS = [
+  {
+    title: "Winning Speech - High Impact Motivation",
+    artist: "King Kohli Arena",
+    genre: "Motivational Hype",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    active: true,
+  },
+  {
+    title: "Unstoppable Champion Energy",
+    artist: "Battlefield Hype",
+    genre: "High Energy Workout",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    active: true,
+  },
+  {
+    title: "King Kohli Roar & Aggression Beat",
+    artist: "Champion Vibe",
+    genre: "Power Motivation",
+    audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    active: true,
+  },
+];
+
 // Helper to fetch with a timeout using AbortController
-async function fetchWithTimeout(url, options = {}, timeoutMs = 5000) {
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
   try {
@@ -208,7 +315,7 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
           'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
         },
       },
-      5000
+      6000
     );
 
     if (res.ok) {
@@ -288,21 +395,19 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
     }
   }
 
-  // 3. Fallback: Add verified quote wallpapers if needed
-  if (searchResults.length < limit) {
-    for (const item of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
-      if (!seenUrls.has(item.imageUrl)) {
-        seenUrls.add(item.imageUrl);
-        searchResults.push({
-          imageUrl: item.imageUrl,
-          thumbnailUrl: item.imageUrl,
-          title: item.title,
-          sourceUrl: item.sourceUrl || "https://wallpapercave.com",
-          quote: item.quote,
-          topic: item.topic,
-          context: item.quote,
-        });
-      }
+  // 3. Add verified quote wallpapers
+  for (const item of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
+    if (!seenUrls.has(item.imageUrl)) {
+      seenUrls.add(item.imageUrl);
+      searchResults.push({
+        imageUrl: item.imageUrl,
+        thumbnailUrl: item.imageUrl,
+        title: item.title,
+        sourceUrl: item.sourceUrl || "https://wallpapercave.com",
+        quote: item.quote,
+        topic: item.topic,
+        context: item.quote,
+      });
     }
   }
 
@@ -310,7 +415,7 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
 }
 
 /**
- * 100% Strict Deduplication Engine:
+ * 100% Strict Lifetime Deduplication Engine:
  * Fetches fresh candidate quote wallpapers and guarantees that NO image or quote fingerprint
  * has EVER been posted in the past across the entire database history.
  */
@@ -318,11 +423,14 @@ export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
   // Fetch ALL historical posts from database for complete lifetime uniqueness
   const pastContents = await InstagramContent.find(
     {},
-    { quoteFingerprint: 1, quote: 1, assetUrl: 1, originalImageUrl: 1 }
+    { quoteFingerprint: 1, quote: 1, topic: 1, assetUrl: 1, originalImageUrl: 1 }
   ).lean();
 
   const usedFingerprints = new Set(
     pastContents.map((p) => p.quoteFingerprint || getQuoteFingerprint(p.quote)).filter(Boolean)
+  );
+  const usedQuotes = new Set(
+    pastContents.map((p) => getQuoteFingerprint(p.quote)).filter(Boolean)
   );
   const usedImages = new Set(
     pastContents.flatMap((p) => [p.assetUrl, p.originalImageUrl]).filter(Boolean)
@@ -337,10 +445,11 @@ export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
   for (const query of queries) {
     const candidates = await searchGoogleKohliImages(query, 30);
     const freshChoice = candidates.find((item) => {
-      const fp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
-      const isFpUsed = usedFingerprints.has(fp) || usedFingerprints.has(getQuoteFingerprint(item.quote));
+      const qFp = getQuoteFingerprint(item.quote);
+      const fullFp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
+      const isQuoteUsed = usedQuotes.has(qFp) || usedFingerprints.has(qFp) || usedFingerprints.has(fullFp);
       const isImgUsed = usedImages.has(item.imageUrl) || (item.thumbnailUrl && usedImages.has(item.thumbnailUrl));
-      return !isFpUsed && !isImgUsed;
+      return !isQuoteUsed && !isImgUsed;
     });
 
     if (freshChoice) {
@@ -348,16 +457,20 @@ export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
     }
   }
 
-  // If all scraped images were previously used, pair a verified wallpaper with an unposted quote
+  // Find any verified wallpaper and quote pair that has never been used
   for (const wp of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
     for (const q of VIRAT_KOHLI_QUOTES) {
-      const fp = getQuoteFingerprint(wp.imageUrl + q.quote + q.topic);
-      if (!usedFingerprints.has(fp)) {
+      const qFp = getQuoteFingerprint(q.quote);
+      const fullFp = getQuoteFingerprint(wp.imageUrl + q.quote + q.topic);
+      const isQuoteUsed = usedQuotes.has(qFp) || usedFingerprints.has(qFp) || usedFingerprints.has(fullFp);
+      const isImgUsed = usedImages.has(wp.imageUrl);
+
+      if (!isQuoteUsed && !isImgUsed) {
         return {
           imageUrl: wp.imageUrl,
           thumbnailUrl: wp.imageUrl,
           title: `Virat Kohli - ${q.topic}`,
-          sourceUrl: wp.sourceUrl,
+          sourceUrl: wp.sourceUrl || "https://wallpapercave.com",
           quote: q.quote,
           topic: q.topic,
           context: q.context,
@@ -366,7 +479,25 @@ export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
     }
   }
 
-  return VERIFIED_KOHLI_QUOTE_WALLPAPERS[0];
+  // If all static combinations were somehow used, generate a dynamic unique quote pairing
+  const unusedQuote = VIRAT_KOHLI_QUOTES.find((q) => !usedQuotes.has(getQuoteFingerprint(q.quote))) || {
+    quote: `DISCIPLINE IS CHOOSING BETWEEN WHAT YOU WANT NOW AND WHAT YOU WANT MOST. · KING KOHLI EDITION #${pastContents.length + 1}`,
+    topic: "Daily Relentless Greatness",
+    context: "Pure championship mentality.",
+  };
+
+  const wpIndex = pastContents.length % VERIFIED_KOHLI_QUOTE_WALLPAPERS.length;
+  const baseWp = VERIFIED_KOHLI_QUOTE_WALLPAPERS[wpIndex];
+
+  return {
+    imageUrl: baseWp.imageUrl,
+    thumbnailUrl: baseWp.imageUrl,
+    title: `Virat Kohli - ${unusedQuote.topic}`,
+    sourceUrl: baseWp.sourceUrl,
+    quote: unusedQuote.quote,
+    topic: unusedQuote.topic,
+    context: unusedQuote.context,
+  };
 }
 
 /**
@@ -437,7 +568,7 @@ export function buildViratKohliCaption({ quote, topic, songTitle, songArtist, cu
 
   const selectedQuote = quote || "START UNKNOWN FINISH UNFORGETTABLE.";
   const selectedTopic = topic || "King Kohli Mindset";
-  const songTag = songTitle ? `🎵 Audio / Reel Track: "${songTitle}"${songArtist ? ` · ${songArtist}` : ''}` : `🎵 Audio: "Winning Speech - Karan Aujla"`;
+  const songTag = songTitle ? `🎵 Audio / Reel Track: "${songTitle}"${songArtist ? ` · ${songArtist}` : ''}` : `🎵 Audio: "Winning Speech - High Impact Motivation"`;
 
   return `👑 ${selectedTopic.toUpperCase()} · VIRAT KOHLI\n\n"${selectedQuote}"\n\nWhen the pressure is at its peak, the real champion rises. In the mind of a chaser, there is no place for fear or doubt.\n\n${songTag}\n\n📌 Double tap & SAVE this for your daily motivation!\n💬 Drop a '👑' in the comments if you believe in the King!\n👇 Share this with someone who never gives up.`;
 }
@@ -481,7 +612,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
           'Referer': 'https://wallpapercave.com/',
         },
       },
-      10000
+      12000
     );
 
     if (!imgRes.ok) throw new Error(`Failed to fetch image (${imgRes.status})`);
@@ -495,13 +626,13 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
         const audRes = await fetchWithTimeout(
           audioUrl,
           {
-            headers: { 'User-Agent': 'Mozilla/5.0' },
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36' },
           },
-          10000
+          15000
         );
         if (audRes.ok) {
           const audBuf = Buffer.from(await audRes.arrayBuffer());
-          if (audBuf.length > 1000) {
+          if (audBuf.length > 500) {
             fs.writeFileSync(tmpAudio, audBuf);
             hasAudio = true;
           }
@@ -521,8 +652,8 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
       '-i', tmpImg,
     ];
 
-    if (hasAudio && tmpAudio) {
-      args.push('-ss', '0', '-t', String(duration), '-i', tmpAudio);
+    if (hasAudio && tmpAudio && fs.existsSync(tmpAudio)) {
+      args.push('-stream_loop', '-1', '-i', tmpAudio);
     } else {
       args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo');
     }
@@ -551,11 +682,12 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
 
     // Execute FFmpeg using ffmpeg-static or system ffmpeg
     let ffmpegBin = 'ffmpeg';
-    if (ffmpegStatic && typeof ffmpegStatic === 'string' && fs.existsSync(ffmpegStatic)) {
+    const staticBin = typeof ffmpegStatic === 'string' ? ffmpegStatic : (ffmpegStatic?.default || '');
+    if (staticBin && fs.existsSync(staticBin)) {
       try {
-        fs.chmodSync(ffmpegStatic, 0o755);
+        fs.chmodSync(staticBin, 0o755);
       } catch (_) {}
-      ffmpegBin = ffmpegStatic;
+      ffmpegBin = staticBin;
     }
 
     await new Promise((resolve, reject) => {
@@ -586,8 +718,8 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
 
     return secureVideoUrl.replace(/^http:/, 'https:');
   } catch (err) {
-    console.error("[Generate Reel Warning, falling back to secure CDN image]:", err.message);
-    return await downloadAndUploadImageToCloudinary(imageUrl);
+    console.error("[Generate Reel Error]:", err.message);
+    throw err;
   } finally {
     if (fs.existsSync(tmpImg)) try { fs.unlinkSync(tmpImg); } catch (_) {}
     if (tmpAudio && fs.existsSync(tmpAudio)) try { fs.unlinkSync(tmpAudio); } catch (_) {}
@@ -596,37 +728,35 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
 }
 
 /**
- * Selects the next song in sequential round-robin loop based on past posts/reels.
- * - If 0 songs: returns fallback placeholder
+ * Selects the next song in sequential round-robin loop based on past published agent reels.
+ * - If 0 songs: returns default motivational soundtrack
  * - If 1 song: always returns that 1 song
  * - If 2 songs: Song 1 -> Song 2 -> Song 1 -> Song 2...
  * - If N songs: Song 1 -> Song 2 -> ... -> Song N -> Song 1...
  */
 export async function getNextLoopedSong(customSongs = null) {
   let songs = customSongs;
-  if (!songs) {
+  if (!songs || songs.length === 0) {
     const config = await InstagramAgentConfig.findOne({ key: 'default' });
     songs = config?.listedSongs || [];
   }
 
-  const activeSongs = (songs || []).filter((s) => s.active !== false);
-  if (!activeSongs || activeSongs.length === 0) {
-    return {
-      title: "Motivational Soundscape",
-      artist: "Trending Audio",
-      genre: "Hype / Motivation",
-      audioUrl: "",
-    };
+  // Filter for active songs that have a valid audio URL
+  let activeSongs = (songs || []).filter((s) => s.active !== false && s.audioUrl && String(s.audioUrl).trim() !== "");
+
+  // Fallback to high-energy motivational soundtrack if no custom songs uploaded
+  if (activeSongs.length === 0) {
+    activeSongs = DEFAULT_MOTIVATIONAL_SONGS;
   }
 
   if (activeSongs.length === 1) {
     return activeSongs[0];
   }
 
-  // Count past agent reels to determine exact round-robin index
+  // Count past published agent reels to determine exact round-robin index
   const pastCount = await InstagramContent.countDocuments({
     createdBy: "agent",
-    themeCategory: { $regex: /virat/i },
+    status: "published",
   });
 
   const nextIndex = pastCount % activeSongs.length;
@@ -648,10 +778,10 @@ export async function createViratKohliDraft({
   const selectedQuote = quote || VIRAT_KOHLI_QUOTES[0].quote;
   const selectedTopic = topic || "King Kohli Mindset";
 
-  const songTitle = song?.title || "Motivational Soundscape";
-  const songArtist = song?.artist || "Trending Artist";
+  const songTitle = song?.title || "Winning Speech - High Impact Motivation";
+  const songArtist = song?.artist || "King Kohli Arena";
   const songAudioUrl = song?.audioUrl || "";
-  const soundscape = songTitle ? `${songTitle} - ${songArtist}` : "Motivational Soundscape";
+  const soundscape = songTitle ? `${songTitle} - ${songArtist}` : "Winning Speech - High Impact Motivation";
 
   // Generate 9:16 vertical Reel MP4 with blurred background & song audio attached
   const secureReelUrl = await generateReelVideoFromQuoteAndAudio({
@@ -661,6 +791,9 @@ export async function createViratKohliDraft({
   });
 
   const isVideoReel = /\.(mp4|mov|webm)(\?|$)/i.test(secureReelUrl) || secureReelUrl.includes('/video/upload/');
+  if (!isVideoReel) {
+    throw new Error("Failed to produce a valid 9:16 Video Reel MP4 with audio.");
+  }
 
   const caption = buildViratKohliCaption({
     quote: selectedQuote,
@@ -677,19 +810,19 @@ export async function createViratKohliDraft({
   const topicFp = getQuoteFingerprint(imageUrl + selectedQuote + selectedTopic);
 
   const content = await InstagramContent.create({
-    type: isVideoReel ? 'reel' : 'post',
-    topic: isVideoReel ? `Virat Kohli Reel: "${selectedTopic}"` : `Virat Kohli Post: "${selectedTopic}"`,
+    type: 'reel',
+    topic: `Virat Kohli Reel: "${selectedTopic}"`,
     quote: selectedQuote,
     speaker: "Virat Kohli",
     quoteFingerprint: topicFp,
     themeCategory: "👑 King Kohli Motivation",
     caption: caption,
     hashtags: hashtags,
-    creativeBrief: `Virat Kohli 9:16 Video Reel with song: ${soundscape}`,
+    creativeBrief: `Virat Kohli 9:16 Video Reel with looped song: ${soundscape}`,
     aspectRatio: "9:16",
     assetUrl: secureReelUrl,
     originalImageUrl: imageUrl,
-    assetSource: isVideoReel ? "ai_video" : "ai_post",
+    assetSource: "ai_video",
     soundscape: soundscape,
     audioTrack: {
       title: songTitle,
@@ -735,7 +868,7 @@ export async function autoRunViratKohliAgent() {
   const chosenItem = await getUniqueViratKohliQuoteImage(searchTopic);
 
   // 2. Select next song in exact round-robin loop from user's manual songs list
-  const activeSongs = (config?.listedSongs || []).filter((s) => s.active !== false);
+  const activeSongs = (config?.listedSongs || []).filter((s) => s.active !== false && s.audioUrl);
   const chosenSong = await getNextLoopedSong(activeSongs);
 
   // 3. Create 9:16 Reel draft with Cloudinary Video CDN URL & custom caption
