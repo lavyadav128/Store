@@ -2,14 +2,33 @@ import { Ratelimit } from '@upstash/ratelimit';
 import redis from '../../config/redis.js';
 
 export function rateLimiter({ requests = 10, window = '1 m', prefix = 'ratelimit' } = {}) {
-  const ratelimit = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(requests, window),
-    prefix,
-  });
+  // If Redis credentials are not configured, pass through gracefully
+  if (!process.env.UPSTASH_REDIS_REST_URL || !process.env.UPSTASH_REDIS_REST_TOKEN) {
+    return (req, res, next) => next();
+  }
+
+  let ratelimit;
+  try {
+    ratelimit = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(requests, window),
+      prefix,
+    });
+  } catch (initErr) {
+    console.warn('[RateLimiter Init Warning]:', initErr.message);
+    return (req, res, next) => next();
+  }
 
   return async (req, res, next) => {
-    const identifier = req.ip || 'unknown';
+    // Never rate-limit CORS preflight OPTIONS requests
+    if (req.method === 'OPTIONS') return next();
+
+    const forwarded = req.headers['x-forwarded-for'];
+    const identifier =
+      (typeof forwarded === 'string' ? forwarded.split(',')[0].trim() : null) ||
+      req.ip ||
+      req.socket?.remoteAddress ||
+      'unknown';
 
     try {
       const { success, limit, remaining, reset } = await ratelimit.limit(identifier);

@@ -10,14 +10,18 @@ const onlineUsers = new Map(); // username -> Set of socket ids
 export function initSocket(httpServer) {
   io = new Server(httpServer, {
     cors: {
-      origin: [
-        'http://localhost:3001',
-        'http://localhost:3002',
-        'https://note-vevp.onrender.com',
-        'http://localhost:3000',
-      ],
+      origin: (origin, callback) => {
+        // Allow all frontend origins dynamically with credentials
+        callback(null, true);
+      },
+      methods: ["GET", "POST", "OPTIONS"],
       credentials: true,
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
     },
+    transports: ['websocket', 'polling'],
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000,
   });
 
   io.on('connection', (socket) => {

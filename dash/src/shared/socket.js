@@ -5,6 +5,12 @@ import server from './environment';
 const socket = io(server, {
   autoConnect: false,
   withCredentials: true,
+  transports: ['websocket', 'polling'],
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 2000,
+  reconnectionDelayMax: 10000,
+  timeout: 15000,
 });
 
 export function connectSocket({ isAdmin = false } = {}) {

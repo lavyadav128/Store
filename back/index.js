@@ -120,20 +120,51 @@ app.set('trust proxy', 1);
 // ═════════════════════════════════════════════════════════════
 
 const corsOptions = {
-  origin: true, // Dynamically allows all origins (mobile LAN, Render, Vercel, localhost)
-  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
+  origin: (origin, callback) => {
+    // Dynamically allows all origins (mobile LAN, Render, Vercel, localhost, Postman)
+    callback(null, true);
+  },
+  methods: ["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS", "HEAD"],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'Origin',
+    'Access-Control-Request-Method',
+    'Access-Control-Request-Headers',
+  ],
+  exposedHeaders: ['X-RateLimit-Limit', 'X-RateLimit-Remaining', 'Retry-After'],
+  optionsSuccessStatus: 204,
 };
 app.use(cors(corsOptions));
-
-// Handle "preflight" OPTIONS requests
-// Before sending POST/PUT/DELETE, browsers first send an OPTIONS request to check if CORS is allowed
-// app.options('*') tells express to respond to OPTIONS on ALL routes using the cors() settings above
-// Without this, cross-origin POST requests would fail
 app.options('*', cors(corsOptions));
 
-app.use(helmet());
+// Explicit fallback middleware to guarantee CORS headers on all responses including errors/preflight
+app.use((req, res, next) => {
+  const reqOrigin = req.headers.origin;
+  if (reqOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', reqOrigin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS, HEAD');
+    res.setHeader(
+      'Access-Control-Allow-Headers',
+      'Content-Type, Authorization, X-Requested-With, Accept, Origin, Access-Control-Request-Method, Access-Control-Request-Headers'
+    );
+  }
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
+
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    crossOriginEmbedderPolicy: false,
+  })
+);
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
 app.use('/api/instagram-agent', instagramWebhookRouter);
