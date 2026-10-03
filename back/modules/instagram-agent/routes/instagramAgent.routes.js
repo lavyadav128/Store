@@ -34,7 +34,12 @@ import {
   getNextLoopedSong,
   VIRAT_KOHLI_QUOTES,
 } from "../services/viratKohliSearch.service.js";
-import { createDailyDrafts } from "../services/instagramScheduler.service.js";
+import {
+  createDailyDrafts,
+  getISTDayBounds,
+  getISTScheduledDate,
+} from "../services/instagramScheduler.service.js";
+import { publishDueContent } from "../services/instagramAgent.service.js";
 import { DEFAULT_SONGS } from "../schema/InstagramAgentConfig.model.js";
 
 // Dedicated disk storage for video reels (avoids RAM limits on free tier servers)
@@ -363,17 +368,16 @@ router.get("/status-summary", async (_req, res) => {
     const currentSongIndex = activeSongs.length > 0 ? (pastCount % activeSongs.length) : 0;
     const nextSongIndex = activeSongs.length > 0 ? ((pastCount + 1) % activeSongs.length) : 0;
 
-    const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
-    const todayEnd = new Date();
-    todayEnd.setHours(23, 59, 59, 999);
+    const { startOfDayIST, endOfDayIST } = getISTDayBounds();
 
     const publishedToday = await InstagramContent.countDocuments({
+      createdBy: "agent",
       status: "published",
-      publishedAt: { $gte: todayStart, $lte: todayEnd },
+      publishedAt: { $gte: startOfDayIST, $lte: endOfDayIST },
     });
 
     const scheduledNext = await InstagramContent.findOne({
+      createdBy: "agent",
       status: { $in: ["ready", "scheduled"] },
     }).sort({ scheduledFor: 1 }).lean();
 
@@ -413,8 +417,9 @@ router.post("/start", async (_req, res) => {
     config.lastError = "";
     await config.save();
 
-    // Trigger daily content generation immediately upon start
+    // Trigger daily content generation & overdue publishing immediately upon start
     createDailyDrafts().catch((err) => console.error("[Agent Start Draft Error]:", err.message));
+    publishDueContent().catch((err) => console.error("[Agent Start Publish Error]:", err.message));
 
     await logInstagramActivity("agent_started", "Instagram Autonomous Growth Agent started by admin. Daily automated posting is now ACTIVE.");
     res.json({ success: true, running: true, config, message: "Autonomous Agent started! Daily automatic posting is now ACTIVE. 👑🚀" });

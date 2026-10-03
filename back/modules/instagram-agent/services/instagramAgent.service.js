@@ -587,18 +587,21 @@ export async function getNextAvailableScheduleDate() {
   const timeStr = config.dailyPostTime || '12:00';
   const [postHour, postMin] = timeStr.split(':').map((num) => parseInt(num, 10) || 0);
 
+  const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
   const now = new Date();
-  const todayPostTime = new Date();
-  todayPostTime.setHours(postHour, postMin, 0, 0);
+  const istNow = new Date(now.getTime() + IST_OFFSET_MS);
 
-  const startOfDay = new Date();
-  startOfDay.setHours(0, 0, 0, 0);
-  const endOfDay = new Date();
-  endOfDay.setHours(23, 59, 59, 999);
+  const year = istNow.getUTCFullYear();
+  const month = istNow.getUTCMonth();
+  const day = istNow.getUTCDate();
+
+  const startOfDayIST = new Date(Date.UTC(year, month, day, 0, 0, 0, 0) - IST_OFFSET_MS);
+  const endOfDayIST = new Date(Date.UTC(year, month, day, 23, 59, 59, 999) - IST_OFFSET_MS);
+  const todayScheduledIST = new Date(Date.UTC(year, month, day, postHour, postMin, 0, 0) - IST_OFFSET_MS);
 
   const publishedToday = await InstagramContent.countDocuments({
     status: 'published',
-    publishedAt: { $gte: startOfDay, $lte: endOfDay },
+    publishedAt: { $gte: startOfDayIST, $lte: endOfDayIST },
   });
 
   const latestScheduled = await InstagramContent.findOne({
@@ -606,14 +609,13 @@ export async function getNextAvailableScheduleDate() {
     assetUrl: { $ne: '' },
   }).sort({ scheduledFor: -1 });
 
-  let nextDate = new Date(todayPostTime);
+  let nextDate = new Date(todayScheduledIST);
 
   if (latestScheduled && latestScheduled.scheduledFor) {
     const latestDate = new Date(latestScheduled.scheduledFor);
     nextDate = new Date(latestDate.getTime() + 24 * 60 * 60 * 1000);
-    nextDate.setHours(postHour, postMin, 0, 0);
-  } else if (publishedToday >= 1 || now.getTime() > todayPostTime.getTime()) {
-    nextDate = new Date(todayPostTime.getTime() + 24 * 60 * 60 * 1000);
+  } else if (publishedToday >= (config.postsPerDay || 1) || now.getTime() >= todayScheduledIST.getTime()) {
+    nextDate = new Date(todayScheduledIST.getTime() + 24 * 60 * 60 * 1000);
   }
 
   return nextDate;
