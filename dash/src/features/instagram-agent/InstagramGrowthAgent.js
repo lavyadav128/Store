@@ -565,7 +565,7 @@ export default function InstagramGrowthAgent() {
     const timer = setInterval(() => {
       fetchLiveFollowers();
       fetchStatusSummary();
-    }, 10000);
+    }, 30000);
     return () => clearInterval(timer);
   }, []);
 

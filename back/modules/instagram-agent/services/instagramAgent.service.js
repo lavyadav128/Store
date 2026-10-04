@@ -109,17 +109,28 @@ async function graph(path, options = {}) {
   }
 
   const separator = path.includes('?') ? '&' : '?';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-  const response = await fetch(
-    `${getGraphBase()}${path}${separator}access_token=${encodeURIComponent(accessToken)}`,
-    options
-  );
-  const data = await response.json();
-  if (!response.ok) {
-    const errorMsg = data?.error?.message || `Meta Graph API error (${response.status})`;
-    throw new Error(errorMsg);
+  try {
+    const response = await fetch(
+      `${getGraphBase()}${path}${separator}access_token=${encodeURIComponent(accessToken)}`,
+      {
+        ...options,
+        signal: controller.signal,
+      }
+    );
+    clearTimeout(timeoutId);
+    const data = await response.json();
+    if (!response.ok) {
+      const errorMsg = data?.error?.message || `Meta Graph API error (${response.status})`;
+      throw new Error(errorMsg);
+    }
+    return data;
+  } catch (err) {
+    clearTimeout(timeoutId);
+    throw err;
   }
-  return data;
 }
 
 export async function logInstagramActivity(type, message, metadata = {}) {
@@ -220,9 +231,18 @@ export function verifyMetaSignature(req) {
   return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
 }
 
-export async function getAccountSnapshot() {
+let accountSnapshotCache = null;
+let accountSnapshotCacheTime = 0;
+const ACCOUNT_CACHE_TTL = 3 * 60 * 1000; // 3 minutes cache
+
+export async function getAccountSnapshot(forceRefresh = false) {
+  const now = Date.now();
+  if (!forceRefresh && accountSnapshotCache && (now - accountSnapshotCacheTime < ACCOUNT_CACHE_TTL)) {
+    return accountSnapshotCache;
+  }
+
   if (!accountConfigured()) {
-    return {
+    accountSnapshotCache = {
       connected: false,
       username: '',
       followers: null,
@@ -230,11 +250,13 @@ export async function getAccountSnapshot() {
       mediaCount: null,
       message: 'Configure META_ACCESS_TOKEN to connect Instagram.',
     };
+    accountSnapshotCacheTime = now;
+    return accountSnapshotCache;
   }
 
   const accountId = process.env.INSTAGRAM_ACCOUNT_ID;
   if (!accountId) {
-    return {
+    accountSnapshotCache = {
       connected: true,
       username: 'quietframes.ai',
       followers: 4,
@@ -242,6 +264,8 @@ export async function getAccountSnapshot() {
       mediaCount: 25,
       message: 'Add INSTAGRAM_ACCOUNT_ID in environment to sync live Graph metrics.',
     };
+    accountSnapshotCacheTime = now;
+    return accountSnapshotCache;
   }
 
   try {
@@ -253,13 +277,17 @@ export async function getAccountSnapshot() {
 
     if (profileFollowers === null || profileFollowers === undefined) {
       try {
+        const scrapeController = new AbortController();
+        const scrapeTimeout = setTimeout(() => scrapeController.abort(), 3000);
         const scrapeRes = await fetch('https://www.instagram.com/quietframes.ai/?__a=1&__d=dis', {
+          signal: scrapeController.signal,
           headers: {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.9',
           }
         });
+        clearTimeout(scrapeTimeout);
         if (scrapeRes.ok) {
           const rawText = await scrapeRes.text();
           const match = rawText.match(/"edge_followed_by":\{"count":(\d+)\}/) || rawText.match(/([0-9,]+)\s+Followers/i);
@@ -271,10 +299,10 @@ export async function getAccountSnapshot() {
     }
 
     if (profileFollowers === null || profileFollowers === undefined) {
-      profileFollowers = 4;
+      profileFollowers = accountSnapshotCache?.followers || 4;
     }
 
-    return {
+    accountSnapshotCache = {
       connected: true,
       id: data.id,
       username: data.username || 'quietframes.ai',
@@ -286,15 +314,19 @@ export async function getAccountSnapshot() {
       biography: data.biography,
       message: '',
     };
+    accountSnapshotCacheTime = now;
+    return accountSnapshotCache;
   } catch (error) {
-    return {
+    accountSnapshotCache = {
       connected: true,
       username: 'quietframes.ai',
-      followers: 4,
+      followers: accountSnapshotCache?.followers || 4,
       reach: null,
       mediaCount: 25,
       message: `Account connected (${error.message})`,
     };
+    accountSnapshotCacheTime = now;
+    return accountSnapshotCache;
   }
 }
 
@@ -563,22 +595,33 @@ export async function publishContent(content) {
   }
 }
 
+let isPublishingDue = false;
+
 export async function publishDueContent() {
-  const config = await getInstagramConfig();
-  if (!config.running) return;
+  if (isPublishingDue) return;
+  isPublishingDue = true;
 
-  const dueItems = await InstagramContent.find({
-    status: { $in: ['ready', 'scheduled'] },
-    scheduledFor: { $lte: new Date() },
-    assetUrl: { $ne: '' },
-  }).sort({ scheduledFor: 1 });
+  try {
+    const config = await getInstagramConfig();
+    if (!config.running) return;
 
-  for (const item of dueItems) {
-    try {
-      await publishContent(item);
-    } catch (err) {
-      console.error(`[Scheduler] Failed to publish due content ${item._id}:`, err.message);
+    const dueItems = await InstagramContent.find({
+      status: { $in: ['ready', 'scheduled'] },
+      scheduledFor: { $lte: new Date() },
+      assetUrl: { $ne: '' },
+    }).sort({ scheduledFor: 1 });
+
+    for (const item of dueItems) {
+      try {
+        await publishContent(item);
+      } catch (err) {
+        console.error(`[Scheduler] Failed to publish due content ${item._id}:`, err.message);
+      }
     }
+  } catch (error) {
+    console.error('[Publish Due Content Error]:', error.message);
+  } finally {
+    isPublishingDue = false;
   }
 }
 

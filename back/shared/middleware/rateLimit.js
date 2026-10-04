@@ -31,7 +31,10 @@ export function rateLimiter({ requests = 10, window = '1 m', prefix = 'ratelimit
       'unknown';
 
     try {
-      const { success, limit, remaining, reset } = await ratelimit.limit(identifier);
+      const limitPromise = ratelimit.limit(identifier);
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Rate limit timeout')), 500));
+
+      const { success, limit, remaining, reset } = await Promise.race([limitPromise, timeoutPromise]);
 
       res.setHeader('X-RateLimit-Limit', limit);
       res.setHeader('X-RateLimit-Remaining', remaining);
@@ -48,7 +51,7 @@ export function rateLimiter({ requests = 10, window = '1 m', prefix = 'ratelimit
 
       next();
     } catch (err) {
-      console.error('Rate limit check failed, allowing request:', err.message);
+      // If rate limiter times out or errors, allow request immediately
       next();
     }
   };
