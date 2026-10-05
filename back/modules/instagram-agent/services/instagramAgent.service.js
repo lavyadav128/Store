@@ -124,7 +124,9 @@ async function graph(path, options = {}) {
     const data = await response.json();
     if (!response.ok) {
       const errorMsg = data?.error?.message || `Meta Graph API error (${response.status})`;
-      throw new Error(errorMsg);
+      const error = new Error(errorMsg);
+      error.status = response.status;
+      throw error;
     }
     return data;
   } catch (err) {
@@ -453,13 +455,14 @@ export async function publishContent(content) {
 
   const claimed = await InstagramContent.findOneAndUpdate(
     { _id: content._id, status: { $in: ['draft', 'ready', 'scheduled', 'failed'] } },
-    { $set: { status: 'publishing', error: '' } },
+    { $set: { status: 'publishing', error: '' }, $inc: { publishAttempts: 1 } },
     { new: true }
   );
   if (!claimed) {
     throw new Error('This content is already publishing or has already been published.');
   }
   content = claimed;
+  let publishRequested = false;
 
   try {
     const isVideoAsset =
@@ -566,6 +569,7 @@ export async function publishContent(content) {
     }
 
     // Publish container
+    publishRequested = true;
     const published = await graph(`/${accountId}/media_publish`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -596,7 +600,13 @@ export async function publishContent(content) {
     });
     return content;
   } catch (error) {
-    content.status = 'failed';
+    const attempts = Number(content.publishAttempts || 1);
+    const safeToRetry = !publishRequested || (error.status >= 400 && error.status < 500);
+    const retryDelayMs = attempts === 1 ? 5 * 60 * 1000 : 15 * 60 * 1000;
+    content.status = safeToRetry && attempts < 3 ? 'scheduled' : 'failed';
+    if (content.status === 'scheduled') {
+      content.scheduledFor = new Date(Date.now() + retryDelayMs);
+    }
     content.error = error.message;
     await content.save();
     await logInstagramActivity('publish_failed', `Could not publish reel: ${error.message}`, {

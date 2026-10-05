@@ -42,6 +42,7 @@ const instagramContentSchema = new mongoose.Schema({
   viewsCount: { type: Number, default: 0 },
   savesCount: { type: Number, default: 0 },
   error: { type: String, default: "" },
+  publishAttempts: { type: Number, default: 0 },
   createdBy: { type: String, enum: ["agent", "admin"], default: "admin" },
 }, { timestamps: true });
 
