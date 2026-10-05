@@ -389,8 +389,12 @@ router.post("/auto-run-virat-kohli", async (req, res) => {
 router.get("/status-summary", async (_req, res) => {
   try {
     const config = await getInstagramConfig();
-    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false);
-    const pastCount = await InstagramContent.countDocuments({ createdBy: "agent" });
+    const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false && s.audioUrl);
+    const pastCount = await InstagramContent.countDocuments({
+      createdBy: "agent",
+      status: "published",
+      "audioTrack.audioUrl": { $ne: "" },
+    });
     const currentSongIndex = activeSongs.length > 0 ? (pastCount % activeSongs.length) : 0;
     const nextSongIndex = activeSongs.length > 0 ? ((pastCount + 1) % activeSongs.length) : 0;
 
@@ -695,6 +699,19 @@ router.put("/config", async (req, res) => {
   const config = await getInstagramConfig();
   Object.assign(config, updates);
   await config.save();
+  if (updates.dailyPostTime !== undefined) {
+    const { startOfDayIST, endOfDayIST } = getISTDayBounds();
+    const scheduledFor = getISTScheduledDate(config.dailyPostTime);
+    await InstagramContent.updateMany(
+      {
+        createdBy: "agent",
+        status: { $in: ["ready", "scheduled"] },
+        createdAt: { $gte: startOfDayIST, $lte: endOfDayIST },
+        assetUrl: { $ne: "" },
+      },
+      { $set: { scheduledFor } }
+    );
+  }
   await logInstagramActivity("config_updated", "Instagram agent configuration updated.");
   res.json(config);
 });

@@ -194,12 +194,10 @@ export async function createDailyDrafts() {
           topic: chosenItem.topic || "King Kohli Motivation",
           song: chosenSong,
           status: isOverdue ? "ready" : "scheduled",
+          scheduledFor: isOverdue ? new Date() : scheduledTime,
         });
 
         if (draft) {
-          draft.scheduledFor = isOverdue ? new Date() : scheduledTime;
-          await draft.save();
-
           if (isOverdue) {
             try {
               console.log(`[Daily Scheduler] Overdue post detected. Publishing 9:16 Reel immediately...`);
@@ -285,10 +283,14 @@ export function startInstagramAgentScheduler() {
     publishDueContent().catch((err) => console.error("[Startup Publish Error]:", err.message));
   }, 15000);
 
-  // 1. Lightweight 2-minute monitor with mutex locking: ensures no overlapping jobs run
+  // Check queued posts every minute so a fixed daily schedule is not delayed by
+  // the old two-minute polling interval. Publishing itself is DB-claimed atomically.
   cron.schedule("*/2 * * * *", () => {
     createDailyDrafts().catch((err) => console.error("[2-Min Draft Scheduler Error]:", err.message));
-    publishDueContent().catch((err) => console.error("[2-Min Publish Scheduler Error]:", err.message));
+  });
+
+  cron.schedule("* * * * *", () => {
+    publishDueContent().catch((err) => console.error("[Minute Publish Scheduler Error]:", err.message));
   });
 
   // 2. Daily morning content generation at 06:00 AM IST

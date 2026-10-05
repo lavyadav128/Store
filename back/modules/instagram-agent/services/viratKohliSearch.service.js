@@ -742,6 +742,7 @@ export async function getNextLoopedSong(customSongs = null) {
   const pastCount = await InstagramContent.countDocuments({
     createdBy: "agent",
     status: "published",
+    "audioTrack.audioUrl": { $ne: "" },
   });
 
   const nextIndex = pastCount % activeSongs.length;
@@ -759,6 +760,7 @@ export async function createViratKohliDraft({
   customCaption,
   customHashtags,
   status = "ready",
+  scheduledFor = null,
 }) {
   const selectedQuote = quote || VIRAT_KOHLI_QUOTES[0].quote;
   const selectedTopic = topic || "King Kohli Mindset";
@@ -819,6 +821,7 @@ export async function createViratKohliDraft({
     trendingAudioSuggestion: `🎵 Audio Track: "${soundscape}"`,
     mediaGenerationStatus: "ready",
     status: status,
+    scheduledFor,
     createdBy: "agent",
   });
 

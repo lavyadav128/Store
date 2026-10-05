@@ -59,7 +59,7 @@ export async function getInstagramConfig() {
       );
       await config.save();
     }
-    if (!config.dailyPostTime || config.dailyPostTime === '07:00') {
+    if (!config.dailyPostTime) {
       config.dailyPostTime = '12:00';
       await config.save();
     }
