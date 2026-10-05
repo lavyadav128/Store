@@ -675,11 +675,35 @@ export default function InstagramGrowthAgent() {
       });
 
       const data = await res.json();
-      if (data.success) {
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || data.message || `Request failed (${res.status})`);
+      }
+
+      if (data.jobId) {
+        let completed = false;
+        for (let attempt = 0; attempt < 100; attempt += 1) {
+          await new Promise((resolve) => setTimeout(resolve, 3000));
+          let jobRes;
+          try {
+            jobRes = await fetch(`${server}/api/instagram-agent/kohli-publish-jobs/${data.jobId}`, { headers: authHeaders() });
+          } catch (pollError) {
+            if (attempt < 99) continue;
+            throw new Error(`Could not reconnect to check publishing status: ${pollError.message}`);
+          }
+          const jobData = await jobRes.json();
+          if (!jobRes.ok || !jobData.success) throw new Error(jobData.error || `Status check failed (${jobRes.status})`);
+          if (jobData.job.status === "failed") throw new Error(jobData.job.error || "Instagram could not publish this Reel.");
+          if (jobData.job.status === "published") {
+            completed = true;
+            break;
+          }
+        }
+        if (!completed) throw new Error("Reel is still processing. Check the published posts list shortly; the server job continues in the background.");
         notify("🎉 9:16 Reel published directly to Instagram!", "success");
         load();
       } else {
-        notify(data.error || "Failed to publish reel to Instagram.", "error");
+        notify("🎉 9:16 Reel published directly to Instagram!", "success");
+        load();
       }
     } catch (err) {
       notify(`Failed to publish: ${err.message}`, "error");

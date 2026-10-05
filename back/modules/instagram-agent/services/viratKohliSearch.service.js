@@ -643,10 +643,12 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     }
 
     args.push(
+      '-filter_threads', '1',
       '-filter_complex', filter,
       '-map', '[v]',
       '-map', '1:a',
       '-c:v', 'libx264',
+      '-threads', '1',
       '-profile:v', 'main',
       '-level', '4.0',
       '-preset', 'veryfast',

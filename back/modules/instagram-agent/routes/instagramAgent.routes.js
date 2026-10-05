@@ -1,4 +1,5 @@
 import express from "express";
+import { randomUUID } from "node:crypto";
 import auth from "../../auth/authh.js";
 import requireAdmin from "../../../shared/middleware/requireAdmin.js";
 import InstagramContent from "../schema/InstagramContent.model.js";
@@ -78,6 +79,7 @@ const audioUpload = multer({
 });
 
 const router = express.Router();
+const kohliPublishJobs = new Map();
 export const instagramWebhookRouter = express.Router();
 
 // Keep all management APIs behind admin auth; the Meta webhook uses its own router.
@@ -199,6 +201,12 @@ router.get("/listed-songs", async (_req, res) => {
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
+});
+
+router.get("/kohli-publish-jobs/:jobId", (req, res) => {
+  const job = kohliPublishJobs.get(req.params.jobId);
+  if (!job) return res.status(404).json({ success: false, error: "Publish job not found or expired." });
+  return res.json({ success: true, job });
 });
 
 // Direct Audio File Upload from PC / Mobile (.mp3, .wav, .m4a, .aac, .ogg)
@@ -329,6 +337,26 @@ router.post("/create-virat-kohli-post", async (req, res) => {
       return res.status(400).json({ error: "Image URL is required." });
     }
 
+    if (publishImmediately) {
+      const jobId = randomUUID();
+      kohliPublishJobs.set(jobId, { status: "generating", message: "Generating the Reel and preparing its audio." });
+      res.status(202).json({ success: true, jobId, message: "Reel generation and publishing started." });
+      setImmediate(async () => {
+        try {
+          const draft = await createViratKohliDraft({ imageUrl, quote, topic, song, customCaption, customHashtags, status: "ready" });
+          kohliPublishJobs.set(jobId, { status: "publishing", contentId: String(draft._id), message: "Reel generated. Instagram is processing the upload." });
+          const published = await publishContent(draft);
+          kohliPublishJobs.set(jobId, { status: "published", contentId: String(published._id), message: "Reel published successfully." });
+        } catch (publishError) {
+          console.error(`[Instagram Async Publish Error] ${jobId}:`, publishError);
+          kohliPublishJobs.set(jobId, { status: "failed", error: publishError.message || "Instagram publish failed." });
+        }
+      });
+      const cleanup = setTimeout(() => kohliPublishJobs.delete(jobId), 60 * 60 * 1000);
+      cleanup.unref?.();
+      return;
+    }
+
     const draft = await createViratKohliDraft({
       imageUrl,
       quote,
@@ -338,11 +366,6 @@ router.post("/create-virat-kohli-post", async (req, res) => {
       customHashtags,
       status: "ready",
     });
-
-    if (publishImmediately) {
-      const published = await publishContent(draft);
-      return res.json({ success: true, content: published, message: "Published to Instagram successfully! 👑🚀" });
-    }
 
     res.json({ success: true, content: draft, message: "Draft created successfully!" });
   } catch (error) {
