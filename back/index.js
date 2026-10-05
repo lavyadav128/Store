@@ -166,6 +166,25 @@ app.use(
   })
 );
 
+// Bind the web process immediately, but tell Render and API clients to wait until
+// MongoDB is ready before routing application traffic.
+app.get('/health', (_req, res) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({ status: 'starting', database: 'connecting' });
+  }
+  return res.status(200).json({ status: 'ok', database: 'connected' });
+});
+
+app.use('/api', (_req, res, next) => {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(503).json({
+      error: 'Backend is starting up. Please retry shortly.',
+      retryable: true,
+    });
+  }
+  return next();
+});
+
 app.use('/api/agent/revenue-recovery', revenueRecoveryWebhook);
 app.use('/api/instagram-agent', instagramWebhookRouter);
 
@@ -235,9 +254,6 @@ app.use('/api/admin/pochi', pochiRoutes);
 app.use("/api/recommendations",recommendationRouter);
 app.use("/api/catalog", catalogRouter);
 app.use("/api/commerce", commerceRouter);
-
-startInstagramAgentScheduler();
-startClientAgentScheduler();
 
 // ── HEALTH CHECK ROUTE ──
 // A simple GET "/" route to confirm the backend server is alive
@@ -391,23 +407,47 @@ async function connectDB() {
 //  START THE SERVER
 // ═════════════════════════════════════════════════════════════
 
-// Read the port number from .env, or default to 3000 if not set
-// process.env.PORT is usually set automatically by hosting platforms like Render or Railway
+// Use Render's assigned port in production and port 5000 for local development.
 const PORT = process.env.PORT || 5000;
 
-// connectDB() returns a Promise — .then() runs AFTER the database connects successfully
-// This ensures the server only starts AFTER we have a working DB connection
-// If DB fails, connectDB() calls process.exit(1) and the server never starts
+// Bind the port before connecting to MongoDB so Render can detect the listener
+// immediately. /health and /api readiness middleware keep traffic gated until DB is up.
 import { startRevenueRecoveryScheduler } from './modules/revenue-recovery/services/revenueRecoveryScheduler.js';
 
-connectDB().then(() => {
-  startRevenueRecoveryScheduler();
+const httpServer = http.createServer(app);
+const socketServer = initSocket(httpServer);
 
-  const httpServer = http.createServer(app);
-  initSocket(httpServer);
-
-  httpServer.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on port ${PORT}`);
-    console.log(`🔌 Socket.io ready for real-time connections`);
-  });
+httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server listening on port ${PORT}; waiting for MongoDB readiness`);
+  console.log(`🔌 Socket.io ready for real-time connections`);
 });
+
+connectDB().then(() => {
+  startInstagramAgentScheduler();
+  startClientAgentScheduler();
+  startRevenueRecoveryScheduler();
+});
+
+let shutdownStarted = false;
+async function shutdown(signal) {
+  if (shutdownStarted) return;
+  shutdownStarted = true;
+  console.log(`${signal} received; gracefully closing the web service.`);
+
+  const forceExitTimer = setTimeout(() => process.exit(1), 10_000);
+  forceExitTimer.unref();
+
+  socketServer.close(async () => {
+    try {
+      await mongoose.disconnect();
+      clearTimeout(forceExitTimer);
+      process.exit(0);
+    } catch (error) {
+      console.error('Error while closing MongoDB:', error.message);
+      process.exit(1);
+    }
+  });
+}
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
