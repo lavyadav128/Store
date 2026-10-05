@@ -110,7 +110,11 @@ async function graph(path, options = {}) {
 
   const separator = path.includes('?') ? '&' : '?';
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 8000);
+  const configuredTimeout = Number(process.env.META_GRAPH_TIMEOUT_MS);
+  const timeoutMs = Number.isFinite(configuredTimeout) && configuredTimeout >= 5000
+    ? Math.min(configuredTimeout, 120000)
+    : 30000;
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const response = await fetch(
@@ -120,8 +124,8 @@ async function graph(path, options = {}) {
         signal: controller.signal,
       }
     );
-    clearTimeout(timeoutId);
     const data = await response.json();
+    clearTimeout(timeoutId);
     if (!response.ok) {
       const errorMsg = data?.error?.message || `Meta Graph API error (${response.status})`;
       const error = new Error(errorMsg);
@@ -131,6 +135,12 @@ async function graph(path, options = {}) {
     return data;
   } catch (err) {
     clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      const timeoutError = new Error(`Meta Graph API request timed out after ${timeoutMs} ms (${options.method || 'GET'} ${path}).`);
+      timeoutError.name = 'TimeoutError';
+      timeoutError.cause = err;
+      throw timeoutError;
+    }
     throw err;
   }
 }
