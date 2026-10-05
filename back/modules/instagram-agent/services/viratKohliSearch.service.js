@@ -1,4 +1,5 @@
 import os from 'os';
+import { createHash } from 'node:crypto';
 import path from 'path';
 import fs from 'fs';
 import { spawn } from 'child_process';
@@ -6,7 +7,12 @@ import ffmpegStatic from 'ffmpeg-static';
 import { cloudinary } from '../../../config/cloudinary.js';
 import InstagramContent from '../schema/InstagramContent.model.js';
 import InstagramAgentConfig from '../schema/InstagramAgentConfig.model.js';
-import { logInstagramActivity, publishContent, getQuoteFingerprint } from './instagramAgent.service.js';
+import { logInstagramActivity, publishContent } from './instagramAgent.service.js';
+
+function getViratQuoteFingerprint(text = '') {
+  const normalized = String(text || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+  return createHash('sha256').update(normalized).digest('hex');
+}
 
 // Curated high-impact unique Virat Kohli quotes library (30+ distinct mindset & victory quotes)
 export const VIRAT_KOHLI_QUOTES = [
@@ -345,7 +351,9 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
   }
 
   // 2. High-Res Image Search Engine for dynamic queries
-  const queriesToSearch = [cleanQuery, ...VIRAT_KOHLI_SEARCH_QUERIES.slice(0, 3)];
+  // One user-selected query is enough for each refresh. The previous four sequential
+  // Bing requests multiplied the latency of each daily unique-content search.
+  const queriesToSearch = [cleanQuery];
   for (const q of queriesToSearch) {
     if (searchResults.length >= limit * 2) break;
     try {
@@ -415,54 +423,39 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
 }
 
 /**
- * 100% Strict Lifetime Deduplication Engine:
- * Fetches fresh candidate quote wallpapers and guarantees that NO image or quote fingerprint
- * has EVER been posted in the past across the entire database history.
+ * Avoids previously used quotes and images where fresh candidates are available.
+ * When the source library is exhausted, it generates a new quote for the fallback reel.
  */
 export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
   // Fetch ALL historical posts from database for complete lifetime uniqueness
   const pastContents = await InstagramContent.find(
     {},
-    { quoteFingerprint: 1, quote: 1, topic: 1, assetUrl: 1, originalImageUrl: 1 }
+    { quote: 1, assetUrl: 1, originalImageUrl: 1 }
   ).lean();
 
-  const usedFingerprints = new Set(
-    pastContents.map((p) => p.quoteFingerprint || getQuoteFingerprint(p.quote)).filter(Boolean)
-  );
   const usedQuotes = new Set(
-    pastContents.map((p) => getQuoteFingerprint(p.quote)).filter(Boolean)
+    pastContents.map((p) => getViratQuoteFingerprint(p.quote)).filter(Boolean)
   );
   const usedImages = new Set(
     pastContents.flatMap((p) => [p.assetUrl, p.originalImageUrl]).filter(Boolean)
   );
 
-  // Search across multiple query rotations
-  const queries = [
-    preferredTopic || "Virat Kohli quotes wallpapers",
-    ...VIRAT_KOHLI_SEARCH_QUERIES
-  ];
-
-  for (const query of queries) {
-    const candidates = await searchGoogleKohliImages(query, 30);
-    const freshChoice = candidates.find((item) => {
-      const qFp = getQuoteFingerprint(item.quote);
-      const fullFp = getQuoteFingerprint(item.imageUrl + item.quote + item.topic);
-      const isQuoteUsed = usedQuotes.has(qFp) || usedFingerprints.has(qFp) || usedFingerprints.has(fullFp);
-      const isImgUsed = usedImages.has(item.imageUrl) || (item.thumbnailUrl && usedImages.has(item.thumbnailUrl));
-      return !isQuoteUsed && !isImgUsed;
-    });
-
-    if (freshChoice) {
-      return freshChoice;
-    }
-  }
+  // Search once, then use the curated fallback library. Repeating up to 11 full
+  // scrape cycles made the request slow and caused background CPU/network spikes.
+  const candidates = await searchGoogleKohliImages(preferredTopic || "Virat Kohli quotes wallpapers", 30);
+  const freshChoice = candidates.find((item) => {
+    const qFp = getViratQuoteFingerprint(item.quote);
+    const isQuoteUsed = usedQuotes.has(qFp);
+    const isImgUsed = usedImages.has(item.imageUrl) || (item.thumbnailUrl && usedImages.has(item.thumbnailUrl));
+    return !isQuoteUsed && !isImgUsed;
+  });
+  if (freshChoice) return freshChoice;
 
   // Find any verified wallpaper and quote pair that has never been used
   for (const wp of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
     for (const q of VIRAT_KOHLI_QUOTES) {
-      const qFp = getQuoteFingerprint(q.quote);
-      const fullFp = getQuoteFingerprint(wp.imageUrl + q.quote + q.topic);
-      const isQuoteUsed = usedQuotes.has(qFp) || usedFingerprints.has(qFp) || usedFingerprints.has(fullFp);
+      const qFp = getViratQuoteFingerprint(q.quote);
+      const isQuoteUsed = usedQuotes.has(qFp);
       const isImgUsed = usedImages.has(wp.imageUrl);
 
       if (!isQuoteUsed && !isImgUsed) {
@@ -480,7 +473,7 @@ export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
   }
 
   // If all static combinations were somehow used, generate a dynamic unique quote pairing
-  const unusedQuote = VIRAT_KOHLI_QUOTES.find((q) => !usedQuotes.has(getQuoteFingerprint(q.quote))) || {
+  const unusedQuote = VIRAT_KOHLI_QUOTES.find((q) => !usedQuotes.has(getViratQuoteFingerprint(q.quote))) || {
     quote: `DISCIPLINE IS CHOOSING BETWEEN WHAT YOU WANT NOW AND WHAT YOU WANT MOST. · KING KOHLI EDITION #${pastContents.length + 1}`,
     topic: "Daily Relentless Greatness",
     context: "Pure championship mentality.",
@@ -597,6 +590,7 @@ export const VIRAT_KOHLI_HASHTAGS = [
  */
 export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, duration = 12 }) {
   if (!imageUrl) throw new Error("Image URL is required for Reel generation.");
+  if (!audioUrl) throw new Error("An uploaded audio track is required for the daily Reel.");
 
   const tmpImg = path.join(os.tmpdir(), `reel_img_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.jpg`);
   const tmpAudio = audioUrl ? path.join(os.tmpdir(), `reel_aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.mp3`) : null;
@@ -620,27 +614,17 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     fs.writeFileSync(tmpImg, imgBuf);
 
     // 2. Download audio if available
-    let hasAudio = false;
-    if (audioUrl) {
-      try {
-        const audRes = await fetchWithTimeout(
-          audioUrl,
-          {
-            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36' },
-          },
-          15000
-        );
-        if (audRes.ok) {
-          const audBuf = Buffer.from(await audRes.arrayBuffer());
-          if (audBuf.length > 500) {
-            fs.writeFileSync(tmpAudio, audBuf);
-            hasAudio = true;
-          }
-        }
-      } catch (audErr) {
-        console.warn("[Reel Audio Fetch Warning]:", audErr.message);
-      }
-    }
+    const audRes = await fetchWithTimeout(
+      audioUrl,
+      {
+        headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/120.0.0.0 Safari/537.36' },
+      },
+      15000
+    );
+    if (!audRes.ok) throw new Error(`Failed to download the selected audio track (${audRes.status}).`);
+    const audBuf = Buffer.from(await audRes.arrayBuffer());
+    if (audBuf.length <= 500) throw new Error("The selected audio track is empty or invalid.");
+    fs.writeFileSync(tmpAudio, audBuf);
 
     // 3. Build aesthetic 9:16 vertical (1080x1920) reel with blurred background & centered sharp quote wallpaper
     const filter = '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]';
@@ -652,7 +636,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
       '-i', tmpImg,
     ];
 
-    if (hasAudio && tmpAudio && fs.existsSync(tmpAudio)) {
+    if (tmpAudio && fs.existsSync(tmpAudio)) {
       args.push('-stream_loop', '-1', '-i', tmpAudio);
     } else {
       args.push('-f', 'lavfi', '-i', 'anullsrc=r=44100:cl=stereo');
@@ -744,9 +728,8 @@ export async function getNextLoopedSong(customSongs = null) {
   // Filter for active songs that have a valid audio URL
   let activeSongs = (songs || []).filter((s) => s.active !== false && s.audioUrl && String(s.audioUrl).trim() !== "");
 
-  // Fallback to high-energy motivational soundtrack if no custom songs uploaded
   if (activeSongs.length === 0) {
-    activeSongs = DEFAULT_MOTIVATIONAL_SONGS;
+    throw new Error("Add at least one active uploaded song with an audio URL before starting daily Reels.");
   }
 
   if (activeSongs.length === 1) {
@@ -807,7 +790,7 @@ export async function createViratKohliDraft({
     ? customHashtags
     : VIRAT_KOHLI_HASHTAGS;
 
-  const topicFp = getQuoteFingerprint(imageUrl + selectedQuote + selectedTopic);
+  const topicFp = getViratQuoteFingerprint(selectedQuote);
 
   const content = await InstagramContent.create({
     type: 'reel',

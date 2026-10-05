@@ -30,6 +30,11 @@ const instagramAgentConfigSchema = new mongoose.Schema({
   lastStartedAt: { type: Date, default: null },
   lastStoppedAt: { type: Date, default: null },
   lastError: { type: String, default: "" },
+  dailyGenerationDay: { type: String, default: "" },
+  dailyGenerationAttempts: { type: Number, default: 0 },
+  dailyGenerationRetryAt: { type: Date, default: null },
+  dailyGenerationLeaseToken: { type: String, default: "" },
+  dailyGenerationLeaseUntil: { type: Date, default: null },
 }, { timestamps: true });
 
 export default mongoose.models.InstagramAgentConfig || mongoose.model("InstagramAgentConfig", instagramAgentConfigSchema);

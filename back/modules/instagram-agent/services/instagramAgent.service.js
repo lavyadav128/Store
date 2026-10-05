@@ -225,10 +225,13 @@ export async function exchangeLongLivedToken() {
 export function verifyMetaSignature(req) {
   const signature = req.headers['x-hub-signature-256'];
   const appSecret = process.env.META_APP_SECRET;
-  if (!signature || !appSecret) return true;
+  if (typeof signature !== 'string' || !appSecret || !Buffer.isBuffer(req.body)) return false;
+  const match = /^sha256=([a-f0-9]{64})$/i.exec(signature);
+  if (!match) return false;
   const hmac = crypto.createHmac('sha256', appSecret);
-  const digest = `sha256=${hmac.update(req.rawBody || JSON.stringify(req.body)).digest('hex')}`;
-  return crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(digest));
+  const digest = hmac.update(req.body).digest();
+  const received = Buffer.from(match[1], 'hex');
+  return received.length === digest.length && crypto.timingSafeEqual(received, digest);
 }
 
 let accountSnapshotCache = null;
@@ -448,8 +451,15 @@ export async function publishContent(content) {
     throw new Error('Cannot publish content without a media asset (assetUrl is empty).');
   }
 
-  content.status = 'publishing';
-  await content.save();
+  const claimed = await InstagramContent.findOneAndUpdate(
+    { _id: content._id, status: { $in: ['draft', 'ready', 'scheduled', 'failed'] } },
+    { $set: { status: 'publishing', error: '' } },
+    { new: true }
+  );
+  if (!claimed) {
+    throw new Error('This content is already publishing or has already been published.');
+  }
+  content = claimed;
 
   try {
     const isVideoAsset =
@@ -496,7 +506,8 @@ export async function publishContent(content) {
         // If video asset, poll container status until FINISHED
         if (isVideoAsset) {
           isReady = false;
-          for (let attempt = 0; attempt < 35; attempt += 1) {
+          const processingDeadline = Date.now() + 120_000;
+          for (let attempt = 0; attempt < 35 && Date.now() < processingDeadline; attempt += 1) {
             await new Promise((r) => setTimeout(r, 3000));
             try {
               const statusRes = await graph(`/${container.id}?fields=status_code,status`);

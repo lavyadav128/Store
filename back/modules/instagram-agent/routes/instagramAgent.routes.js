@@ -80,6 +80,9 @@ const audioUpload = multer({
 const router = express.Router();
 export const instagramWebhookRouter = express.Router();
 
+// Keep all management APIs behind admin auth; the Meta webhook uses its own router.
+router.use(auth, requireAdmin);
+
 // Meta subscription handshake. Keep public; it validates a secret verification token.
 instagramWebhookRouter.get("/webhook", (req, res) => {
   if (
@@ -412,6 +415,13 @@ router.post("/start", async (_req, res) => {
         error: "Connect the Instagram professional account through environment credentials before starting.",
       });
     }
+    if (!process.env.INSTAGRAM_ACCOUNT_ID) {
+      return res.status(400).json({ error: "INSTAGRAM_ACCOUNT_ID is required before starting daily publishing." });
+    }
+    const hasActiveSong = (config.listedSongs || []).some((song) => song.active !== false && song.audioUrl);
+    if (!hasActiveSong) {
+      return res.status(400).json({ error: "Add an active uploaded song before starting daily Reels." });
+    }
     config.running = true;
     config.lastStartedAt = new Date();
     config.lastError = "";
@@ -444,26 +454,6 @@ router.post("/stop", async (_req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-// Update Agent Config (post time, frequency, persona)
-router.put("/config", async (req, res) => {
-  try {
-    const config = await getInstagramConfig();
-    const updates = req.body || {};
-    if (updates.dailyPostTime) config.dailyPostTime = updates.dailyPostTime;
-    if (updates.postsPerDay) config.postsPerDay = updates.postsPerDay;
-    if (updates.agentPersona) config.agentPersona = updates.agentPersona;
-    if (updates.searchTopic) config.searchTopic = updates.searchTopic;
-    if (updates.running !== undefined) config.running = Boolean(updates.running);
-    await config.save();
-    await logInstagramActivity("config_updated", "Instagram agent configuration updated.");
-    res.json({ success: true, config });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-router.use(auth, requireAdmin);
 
 router.get("/overview", async (_req, res) => {
   try {
@@ -667,12 +657,18 @@ router.put("/config", async (req, res) => {
     "topAudienceCategory",
     "autoReplyComments",
     "autoReplyMessages",
+    "agentPersona",
+    "searchTopic",
   ];
   const updates = Object.fromEntries(
     allowed.filter((key) => req.body[key] !== undefined).map((key) => [key, req.body[key]])
   );
   if (updates.postsPerDay !== undefined)
     updates.postsPerDay = Math.min(Math.max(Number(updates.postsPerDay) || 1, 1), 3);
+  if (updates.dailyPostTime !== undefined && !/^([01]\d|2[0-3]):[0-5]\d$/.test(updates.dailyPostTime))
+    return res.status(400).json({ error: "dailyPostTime must use 24-hour HH:mm format." });
+  if (updates.searchTopic !== undefined)
+    updates.searchTopic = String(updates.searchTopic).trim().slice(0, 160);
   const config = await getInstagramConfig();
   Object.assign(config, updates);
   await config.save();

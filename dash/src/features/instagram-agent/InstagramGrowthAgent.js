@@ -561,7 +561,6 @@ export default function InstagramGrowthAgent() {
     fetchLiveFollowers();
     loadListedSongs();
     fetchStatusSummary();
-    handleSearchGoogle("Virat Kohli quotes images");
     const timer = setInterval(() => {
       fetchLiveFollowers();
       fetchStatusSummary();
@@ -737,7 +736,7 @@ export default function InstagramGrowthAgent() {
       if (backendSucceeded) return;
 
       // 2. Direct Cloudinary Signed Upload Fallback (Works 100% reliably regardless of server proxying)
-      const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`);
+      const sigRes = await fetch(`${server}/api/instagram-agent/cloudinary/signature`, { headers: authHeaders() });
       if (sigRes.ok) {
         const sigData = await sigRes.json();
         const cldForm = new FormData();

@@ -1,5 +1,7 @@
 import cron from "node-cron";
+import { randomUUID } from "node:crypto";
 import InstagramContent from "../schema/InstagramContent.model.js";
+import InstagramAgentConfig from "../schema/InstagramAgentConfig.model.js";
 import {
   generateContentDraft,
   getInstagramConfig,
@@ -18,13 +20,19 @@ import {
 
 let scheduled = false;
 let isCreatingDrafts = false;
-let isPublishingDue = false;
+const MAX_DAILY_GENERATION_ATTEMPTS = 4;
+const DAILY_GENERATION_RETRY_DELAY_MS = 30 * 60 * 1000;
 
 // IST offset is UTC+5:30 (+330 minutes = 19,800,000 ms)
 export const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
 
 export function getISTDate(date = new Date()) {
   return new Date(date.getTime() + IST_OFFSET_MS);
+}
+
+function getISTDayKey(date = new Date()) {
+  const istDate = getISTDate(date);
+  return `${istDate.getUTCFullYear()}-${String(istDate.getUTCMonth() + 1).padStart(2, '0')}-${String(istDate.getUTCDate()).padStart(2, '0')}`;
 }
 
 // Returns start and end of current IST day represented in UTC Date objects (for Mongo query)
@@ -54,10 +62,44 @@ export function getISTScheduledDate(timeStr = "12:00", date = new Date()) {
 export async function createDailyDrafts() {
   if (isCreatingDrafts) return;
   isCreatingDrafts = true;
+  let generationLeaseToken = "";
+  let activeConfig = null;
 
   try {
-    const config = await getInstagramConfig();
+    let config = await getInstagramConfig();
+    activeConfig = config;
     if (!config.running) return;
+
+    // A Mongo lease coordinates multiple deployed Node instances. A process-local
+    // boolean alone cannot prevent two instances from scraping/rendering the same day.
+    generationLeaseToken = randomUUID();
+    config = await InstagramAgentConfig.findOneAndUpdate(
+      {
+        key: "default",
+        $or: [
+          { dailyGenerationLeaseUntil: null },
+          { dailyGenerationLeaseUntil: { $lte: new Date() } },
+        ],
+      },
+      {
+        $set: {
+          dailyGenerationLeaseToken: generationLeaseToken,
+          dailyGenerationLeaseUntil: new Date(Date.now() + 12 * 60 * 1000),
+        },
+      },
+      { new: true }
+    );
+    if (!config) {
+      generationLeaseToken = "";
+      return;
+    }
+    activeConfig = config;
+
+    const todayKey = getISTDayKey();
+    if (config.dailyGenerationDay === todayKey) {
+      if ((config.dailyGenerationAttempts || 0) >= MAX_DAILY_GENERATION_ATTEMPTS) return;
+      if (config.dailyGenerationRetryAt && config.dailyGenerationRetryAt.getTime() > Date.now()) return;
+    }
 
     const { startOfDayIST, endOfDayIST } = getISTDayBounds();
 
@@ -95,6 +137,14 @@ export async function createDailyDrafts() {
       assetUrl: { $ne: "" },
     }).sort({ scheduledFor: 1 });
 
+    // Do not start repeated scrape/render work for the same failed post all day.
+    const todaysFailure = await InstagramContent.exists({
+      createdBy: 'agent',
+      status: 'failed',
+      createdAt: { $gte: startOfDayIST, $lte: endOfDayIST },
+    });
+    if (todaysFailure && todaysDrafts.length === 0 && publishedToday === 0) return;
+
     // If overdue and today's drafts exist, publish them immediately
     if (isOverdue && todaysDrafts.length > 0) {
       for (const draft of todaysDrafts) {
@@ -116,6 +166,15 @@ export async function createDailyDrafts() {
 
     const remainingToCreate = Math.max(0, postsPerDay - publishedToday - todaysDrafts.length);
     if (remainingToCreate <= 0) return;
+
+    // Persist a cooldown before network searches and FFmpeg work. Failed upstream calls
+    // can retry later, but cannot launch a new render on every two-minute scheduler tick.
+    config.dailyGenerationAttempts = config.dailyGenerationDay === todayKey
+      ? (config.dailyGenerationAttempts || 0) + 1
+      : 1;
+    config.dailyGenerationDay = todayKey;
+    config.dailyGenerationRetryAt = new Date(Date.now() + DAILY_GENERATION_RETRY_DELAY_MS);
+    await config.save();
 
     // If agent persona is Virat Kohli inspiration, use Google Search & Song Engine
     if (config.agentPersona === "virat_kohli_inspiration" || config.searchTopic?.toLowerCase().includes("virat")) {
@@ -162,6 +221,9 @@ export async function createDailyDrafts() {
           `Created ${remainingToCreate} unique daily Virat Kohli 9:16 Video Reel(s) with looped song, scheduled for ${config.dailyPostTime || "12:00"} IST.`
         );
       }
+      config.dailyGenerationRetryAt = null;
+      config.lastError = "";
+      await config.save();
       return;
     }
 
@@ -190,9 +252,22 @@ export async function createDailyDrafts() {
         `Created ${remainingToCreate} unique daily draft(s), scheduled for ${config.dailyPostTime || "12:00"} IST.`
       );
     }
+    config.dailyGenerationRetryAt = null;
+    config.lastError = "";
+    await config.save();
   } catch (err) {
     console.error("[Daily Drafts Scheduler Error]:", err.message);
+    if (activeConfig) {
+      activeConfig.lastError = String(err.message || "Daily reel generation failed.").slice(0, 1000);
+      await activeConfig.save().catch(() => {});
+    }
   } finally {
+    if (generationLeaseToken) {
+      await InstagramAgentConfig.updateOne(
+        { key: "default", dailyGenerationLeaseToken: generationLeaseToken },
+        { $set: { dailyGenerationLeaseToken: "", dailyGenerationLeaseUntil: null } }
+      ).catch(() => {});
+    }
     isCreatingDrafts = false;
   }
 }
