@@ -1,5 +1,9 @@
 FROM node:20-bullseye-slim
 
+# FFmpeg uses this font to render the daily motivational quote onto each Reel.
+RUN apt-get update && apt-get install -y --no-install-recommends fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
 ENV NODE_ENV=production

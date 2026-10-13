@@ -395,6 +395,15 @@ router.get("/status-summary", async (_req, res) => {
       status: "published",
       "audioTrack.audioUrl": { $ne: "" },
     });
+    const latestAthletePost = await InstagramContent.findOne({
+      createdBy: "agent",
+      status: "published",
+      speaker: { $in: ["Virat Kohli", "Cristiano Ronaldo"] },
+    }).sort({ publishedAt: -1, createdAt: -1 }).select({ speaker: 1 }).lean();
+    const nextAthlete = latestAthletePost?.speaker === "Virat Kohli" ? "Cristiano Ronaldo" : "Virat Kohli";
+    const athleteMode = config.agentPersona === "virat_kohli_inspiration"
+      || config.searchTopic?.toLowerCase().includes("virat")
+      || config.searchTopic?.toLowerCase().includes("ronaldo");
     const currentSongIndex = activeSongs.length > 0 ? (pastCount % activeSongs.length) : 0;
     const nextSongIndex = activeSongs.length > 0 ? ((pastCount + 1) % activeSongs.length) : 0;
 
@@ -415,7 +424,9 @@ router.get("/status-summary", async (_req, res) => {
       success: true,
       running: Boolean(config.running),
       dailyPostTime: config.dailyPostTime || "12:00",
-      postsPerDay: config.postsPerDay || 1,
+      postsPerDay: athleteMode ? 1 : (config.postsPerDay || 1),
+      nextAthlete,
+      lastError: config.lastError || "",
       totalSongs: activeSongs.length,
       currentSong: activeSongs[currentSongIndex] || null,
       nextSong: activeSongs[nextSongIndex] || null,

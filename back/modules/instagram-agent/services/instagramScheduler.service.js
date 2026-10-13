@@ -12,16 +12,24 @@ import {
 } from "./instagramAgent.service.js";
 import { analyzeAudiencePreferences } from "./growthOptimizer.js";
 import {
-  searchGoogleKohliImages,
-  createViratKohliDraft,
+  createAthleteDraft,
   getNextLoopedSong,
   getUniqueViratKohliQuoteImage,
+  getUniqueRonaldoQuoteImage,
 } from "./viratKohliSearch.service.js";
 
 let scheduled = false;
 let isCreatingDrafts = false;
-const MAX_DAILY_GENERATION_ATTEMPTS = 4;
 const DAILY_GENERATION_RETRY_DELAY_MS = 30 * 60 * 1000;
+
+async function getNextAthleteForDailyPost() {
+  const lastPost = await InstagramContent.findOne({
+    createdBy: 'agent',
+    status: 'published',
+    speaker: { $in: ['Virat Kohli', 'Cristiano Ronaldo'] },
+  }).sort({ publishedAt: -1, createdAt: -1 }).select({ speaker: 1 }).lean();
+  return lastPost?.speaker === 'Virat Kohli' ? 'Cristiano Ronaldo' : 'Virat Kohli';
+}
 
 // IST offset is UTC+5:30 (+330 minutes = 19,800,000 ms)
 export const IST_OFFSET_MS = (5 * 60 + 30) * 60 * 1000;
@@ -97,7 +105,6 @@ export async function createDailyDrafts() {
 
     const todayKey = getISTDayKey();
     if (config.dailyGenerationDay === todayKey) {
-      if ((config.dailyGenerationAttempts || 0) >= MAX_DAILY_GENERATION_ATTEMPTS) return;
       if (config.dailyGenerationRetryAt && config.dailyGenerationRetryAt.getTime() > Date.now()) return;
     }
 
@@ -120,7 +127,10 @@ export async function createDailyDrafts() {
       publishedAt: { $gte: startOfDayIST, $lte: endOfDayIST },
     });
 
-    const postsPerDay = config.postsPerDay || 1;
+    const athletePersona = config.agentPersona === "virat_kohli_inspiration"
+      || config.searchTopic?.toLowerCase().includes("virat")
+      || config.searchTopic?.toLowerCase().includes("ronaldo");
+    const postsPerDay = athletePersona ? 1 : (config.postsPerDay || 1);
     const missing = Math.max(0, postsPerDay - publishedToday);
     if (missing <= 0) return;
 
@@ -136,14 +146,6 @@ export async function createDailyDrafts() {
       createdAt: { $gte: startOfDayIST },
       assetUrl: { $ne: "" },
     }).sort({ scheduledFor: 1 });
-
-    // Do not start repeated scrape/render work for the same failed post all day.
-    const todaysFailure = await InstagramContent.exists({
-      createdBy: 'agent',
-      status: 'failed',
-      createdAt: { $gte: startOfDayIST, $lte: endOfDayIST },
-    });
-    if (todaysFailure && todaysDrafts.length === 0 && publishedToday === 0) return;
 
     // If overdue and today's drafts exist, publish them immediately
     if (isOverdue && todaysDrafts.length > 0) {
@@ -176,19 +178,27 @@ export async function createDailyDrafts() {
     config.dailyGenerationRetryAt = new Date(Date.now() + DAILY_GENERATION_RETRY_DELAY_MS);
     await config.save();
 
-    // If agent persona is Virat Kohli inspiration, use Google Search & Song Engine
-    if (config.agentPersona === "virat_kohli_inspiration" || config.searchTopic?.toLowerCase().includes("virat")) {
-      const searchTopic = config.searchTopic || "Virat Kohli quotes wallpapers";
+    // Athlete posts alternate only after a successful publish; a failed run retries
+    // the same athlete and cannot skip the other athlete's day.
+    if (athletePersona) {
+      const player = await getNextAthleteForDailyPost();
+      const searchTopic = player === 'Cristiano Ronaldo'
+        ? 'Cristiano Ronaldo football motivation images'
+        : (config.searchTopic || 'Virat Kohli cricket motivation images');
       const activeSongs = (config.listedSongs || []).filter((s) => s.active !== false && s.audioUrl);
+      let publishFailed = false;
 
       for (let index = 0; index < remainingToCreate; index += 1) {
-        // 1. Fetch 100% Guaranteed Unique Quote Wallpaper (checks lifetime database history)
-        const chosenItem = await getUniqueViratKohliQuoteImage(searchTopic);
+        // Search fresh image pages and generate a never-repeated motivational line.
+        const chosenItem = player === 'Cristiano Ronaldo'
+          ? await getUniqueRonaldoQuoteImage(searchTopic, config.dailyGenerationAttempts || 0)
+          : await getUniqueViratKohliQuoteImage(searchTopic, config.dailyGenerationAttempts || 0);
 
         // 2. Select next song in exact round-robin loop
         const chosenSong = await getNextLoopedSong(activeSongs);
 
-        const draft = await createViratKohliDraft({
+        const draft = await createAthleteDraft({
+          player,
           imageUrl: chosenItem.imageUrl,
           quote: chosenItem.quote,
           topic: chosenItem.topic || "King Kohli Motivation",
@@ -204,9 +214,10 @@ export async function createDailyDrafts() {
               await publishContent(draft);
               await logInstagramActivity(
                 "daily_reel_published",
-                `Immediately published overdue daily Virat Kohli 9:16 Video Reel with looped song "${chosenSong.title}".`
+                `Immediately published overdue daily ${player} 9:16 Video Reel with looped song "${chosenSong.title}".`
               );
             } catch (pubErr) {
+              publishFailed = true;
               console.error(`[Daily Scheduler] Immediate publishing error:`, pubErr.message);
             }
           }
@@ -216,12 +227,14 @@ export async function createDailyDrafts() {
       if (!isOverdue) {
         await logInstagramActivity(
           "daily_drafts_created",
-          `Created ${remainingToCreate} unique daily Virat Kohli 9:16 Video Reel(s) with looped song, scheduled for ${config.dailyPostTime || "12:00"} IST.`
+          `Created ${remainingToCreate} unique daily ${player} 9:16 Video Reel(s) with looped song, scheduled for ${config.dailyPostTime || "12:00"} IST.`
         );
       }
-      config.dailyGenerationRetryAt = null;
-      config.lastError = "";
-      await config.save();
+      if (!publishFailed) {
+        config.dailyGenerationRetryAt = null;
+        config.lastError = "";
+        await config.save();
+      }
       return;
     }
 

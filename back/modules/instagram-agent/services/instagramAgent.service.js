@@ -603,6 +603,9 @@ export async function publishContent(content) {
 
     content.assetUrl = '';
     await content.save();
+    if (content.createdBy === 'agent') {
+      await InstagramAgentConfig.updateOne({ key: 'default' }, { $set: { lastError: '' } }).catch(() => {});
+    }
 
     await logInstagramActivity('content_published', `Published ${isVideoAsset ? 'Reel' : 'Post'} to Instagram: ${content.topic}. Storage cleaned up.`, {
       contentId: String(content._id),
@@ -619,6 +622,12 @@ export async function publishContent(content) {
     }
     content.error = error.message;
     await content.save();
+    if (content.createdBy === 'agent') {
+      await InstagramAgentConfig.updateOne(
+        { key: 'default' },
+        { $set: { lastError: String(error.message || 'Instagram publishing failed.').slice(0, 1000) } }
+      ).catch(() => {});
+    }
     await logInstagramActivity('publish_failed', `Could not publish reel: ${error.message}`, {
       contentId: String(content._id),
     });

@@ -303,16 +303,53 @@ export const VIRAT_KOHLI_SEARCH_QUERIES = [
   "Virat Kohli king of cricket motivation HD",
 ];
 
+export const RONALDO_MOTIVATION_LINES = [
+  "Talent opens the door; discipline keeps you in the room.",
+  "The next level belongs to the person who keeps showing up.",
+  "Make your standards louder than your excuses.",
+  "Greatness is built when nobody is watching.",
+  "Turn pressure into proof of preparation.",
+  "A setback is a lesson, not a limit.",
+  "Train with purpose. Compete with courage.",
+  "Consistency makes extraordinary look inevitable.",
+  "Your work ethic writes the story your talent starts.",
+  "Dream boldly, then earn it one day at a time.",
+  "Confidence grows from promises you keep to yourself.",
+  "The strongest comeback starts with one more effort.",
+  "Champions focus on the next opportunity.",
+  "Stay humble enough to learn and hungry enough to improve.",
+  "Success is a habit built from small decisions.",
+  "When the challenge gets bigger, raise your effort.",
+  "Focus on progress until results have to follow.",
+  "The final whistle cannot measure the work nobody saw.",
+  "Be patient with the process and relentless with the work.",
+  "Your future is shaped by what you repeat today.",
+];
+
+export const RONALDO_SEARCH_QUERIES = [
+  "Cristiano Ronaldo motivational portrait wallpaper 4k",
+  "Cristiano Ronaldo training discipline image vertical",
+  "Cristiano Ronaldo celebration stadium portrait wallpaper",
+  "Cristiano Ronaldo focused face football image high resolution",
+  "Cristiano Ronaldo Champions League celebration photo",
+  "Cristiano Ronaldo gym workout portrait wallpaper",
+  "Cristiano Ronaldo Portugal football inspirational image",
+  "Cristiano Ronaldo Al Nassr football portrait wallpaper",
+  "Cristiano Ronaldo career journey motivational photo",
+  "Cristiano Ronaldo iconic football moments vertical wallpaper",
+];
+
 /**
  * Searches Google / Web specifically for direct quote wallpapers with text
  */
-export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpapers", limit = 20) {
+export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpapers", limit = 20, offset = 1) {
   const cleanQuery = String(query || "Virat Kohli quotes wallpapers").trim();
   const searchResults = [];
   const seenUrls = new Set();
 
-  // 1. Direct WallpaperCave Quote Wallpapers Scraper
-  try {
+  // 1. Direct WallpaperCave quote wallpapers are only fetched on the first page.
+  // Re-fetching the same static gallery for every rotated search page wasted time.
+  if (Number(offset) <= 1) try {
     const res = await fetchWithTimeout(
       "https://wallpapercave.com/virat-kohli-quotes-wallpapers",
       {
@@ -357,7 +394,7 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
   for (const q of queriesToSearch) {
     if (searchResults.length >= limit * 2) break;
     try {
-      const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&first=1&scenario=ImageBasicHover`;
+      const searchUrl = `https://www.bing.com/images/search?q=${encodeURIComponent(q)}&first=${Math.max(1, Number(offset) || 1)}&scenario=ImageBasicHover`;
       const response = await fetchWithTimeout(
         searchUrl,
         {
@@ -422,75 +459,119 @@ export async function searchGoogleKohliImages(query = "Virat Kohli quotes wallpa
   return searchResults;
 }
 
-/**
- * Avoids previously used quotes and images where fresh candidates are available.
- * When the source library is exhausted, it generates a new quote for the fallback reel.
- */
-export async function getUniqueViratKohliQuoteImage(preferredTopic = "") {
-  // Fetch ALL historical posts from database for complete lifetime uniqueness
-  const pastContents = await InstagramContent.find(
-    {},
-    { quote: 1, assetUrl: 1, originalImageUrl: 1 }
-  ).lean();
+async function searchRonaldoImages(query, limit = 30, offset = 1) {
+  const url = `https://www.bing.com/images/search?q=${encodeURIComponent(query)}&first=${Math.max(1, Number(offset) || 1)}&scenario=ImageBasicHover`;
+  const response = await fetchWithTimeout(url, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    },
+  }, 7000);
+  if (!response.ok) throw new Error(`Ronaldo image search returned HTTP ${response.status}.`);
 
-  const usedQuotes = new Set(
-    pastContents.map((p) => getViratQuoteFingerprint(p.quote)).filter(Boolean)
-  );
-  const usedImages = new Set(
-    pastContents.flatMap((p) => [p.assetUrl, p.originalImageUrl]).filter(Boolean)
-  );
-
-  // Search once, then use the curated fallback library. Repeating up to 11 full
-  // scrape cycles made the request slow and caused background CPU/network spikes.
-  const candidates = await searchGoogleKohliImages(preferredTopic || "Virat Kohli quotes wallpapers", 30);
-  const freshChoice = candidates.find((item) => {
-    const qFp = getViratQuoteFingerprint(item.quote);
-    const isQuoteUsed = usedQuotes.has(qFp);
-    const isImgUsed = usedImages.has(item.imageUrl) || (item.thumbnailUrl && usedImages.has(item.thumbnailUrl));
-    return !isQuoteUsed && !isImgUsed;
-  });
-  if (freshChoice) return freshChoice;
-
-  // Find any verified wallpaper and quote pair that has never been used
-  for (const wp of VERIFIED_KOHLI_QUOTE_WALLPAPERS) {
-    for (const q of VIRAT_KOHLI_QUOTES) {
-      const qFp = getViratQuoteFingerprint(q.quote);
-      const isQuoteUsed = usedQuotes.has(qFp);
-      const isImgUsed = usedImages.has(wp.imageUrl);
-
-      if (!isQuoteUsed && !isImgUsed) {
-        return {
-          imageUrl: wp.imageUrl,
-          thumbnailUrl: wp.imageUrl,
-          title: `Virat Kohli - ${q.topic}`,
-          sourceUrl: wp.sourceUrl || "https://wallpapercave.com",
-          quote: q.quote,
-          topic: q.topic,
-          context: q.context,
-        };
-      }
+  const html = await response.text();
+  const candidates = [];
+  const itemRegex = /class="iusc"[^>]*m="([^"]+)"/g;
+  let match;
+  while ((match = itemRegex.exec(html)) !== null && candidates.length < limit) {
+    try {
+      const raw = match[1].replace(/&quot;/g, '"').replace(/&amp;/g, '&');
+      const image = JSON.parse(raw);
+      const imageUrl = image.murl || '';
+      if (!/^https?:\/\//i.test(imageUrl)) continue;
+      const index = candidates.length;
+      const line = RONALDO_MOTIVATION_LINES[index % RONALDO_MOTIVATION_LINES.length];
+      candidates.push({
+        imageUrl,
+        thumbnailUrl: image.turl || imageUrl,
+        title: String(image.t || image.desc || `Cristiano Ronaldo inspiration ${index + 1}`).replace(/<[^>]+>/g, '').trim(),
+        sourceUrl: image.purl || '',
+        quote: line,
+        topic: `Cristiano Ronaldo Motivation ${index + 1}`,
+        context: line,
+      });
+    } catch (_) {
+      // Skip malformed search results and continue through the result page.
     }
   }
+  return candidates;
+}
 
-  // If all static combinations were somehow used, generate a dynamic unique quote pairing
-  const unusedQuote = VIRAT_KOHLI_QUOTES.find((q) => !usedQuotes.has(getViratQuoteFingerprint(q.quote))) || {
-    quote: `DISCIPLINE IS CHOOSING BETWEEN WHAT YOU WANT NOW AND WHAT YOU WANT MOST. · KING KOHLI EDITION #${pastContents.length + 1}`,
-    topic: "Daily Relentless Greatness",
-    context: "Pure championship mentality.",
-  };
+function normalizeImageUrl(imageUrl = '') {
+  try {
+    const url = new URL(imageUrl);
+    url.search = '';
+    url.hash = '';
+    return url.toString().replace(/\/$/, '').toLowerCase();
+  } catch (_) {
+    return String(imageUrl).split(/[?#]/, 1)[0].replace(/\/$/, '').toLowerCase();
+  }
+}
 
-  const wpIndex = pastContents.length % VERIFIED_KOHLI_QUOTE_WALLPAPERS.length;
-  const baseWp = VERIFIED_KOHLI_QUOTE_WALLPAPERS[wpIndex];
+function makeUniqueMotivationLine(player, sequence) {
+  const series = player === 'Virat Kohli'
+    ? ['Discipline', 'Courage', 'Focus', 'Resilience', 'Consistency', 'Belief', 'Hard work', 'Patience']
+    : ['Discipline', 'Focus', 'Consistency', 'Courage', 'Preparation', 'Belief', 'Resilience', 'Hard work'];
+  const action = ['wins the next moment', 'turns effort into progress', 'makes the difference', 'builds lasting greatness', 'keeps the dream moving'];
+  const edition = sequence + 1;
+  return `${series[sequence % series.length]} ${action[Math.floor(sequence / series.length) % action.length]}. Daily mindset ${edition}.`;
+}
 
-  return {
-    imageUrl: baseWp.imageUrl,
-    thumbnailUrl: baseWp.imageUrl,
-    title: `Virat Kohli - ${unusedQuote.topic}`,
-    sourceUrl: baseWp.sourceUrl,
-    quote: unusedQuote.quote,
-    topic: unusedQuote.topic,
-    context: unusedQuote.context,
-  };
+async function getUniqueAthleteImage({ player, preferredTopic, searchQueries, searcher, searchAttempt = 0 }) {
+  const allAthleteContents = await InstagramContent.find(
+    { speaker: { $in: ['Virat Kohli', 'Cristiano Ronaldo'] } },
+    { quote: 1, originalImageUrl: 1, assetUrl: 1 }
+  ).lean();
+  const pastContents = allAthleteContents.filter((item) => item.speaker === player);
+  const usedQuotes = new Set(pastContents.map((item) => getViratQuoteFingerprint(item.quote)).filter(Boolean));
+  const usedImages = new Set(
+    allAthleteContents.flatMap((item) => [item.originalImageUrl, item.assetUrl]).filter(Boolean).map(normalizeImageUrl)
+  );
+
+  // Walk through different search terms and result pages on each post/retry.
+  // This prevents the agent from getting trapped on the first page it exhausted.
+  const terms = [...new Set([preferredTopic, ...searchQueries].map((value) => String(value || '').trim()).filter(Boolean))];
+  const searchCycle = pastContents.length + Math.max(0, Number(searchAttempt) || 0);
+  const start = searchCycle % terms.length;
+  const page = Math.floor(searchCycle / terms.length);
+  const queries = [0, 1, 2].map((index) => ({
+    term: terms[(start + index) % terms.length],
+    offset: 1 + (page * 30) + ((start + index) % terms.length) * 30,
+  }));
+  const searched = await Promise.allSettled(queries.map(({ term, offset }) => searcher(term, 30, offset)));
+  const candidates = searched.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  const freshChoice = candidates.find((item) => item.imageUrl && !usedImages.has(normalizeImageUrl(item.imageUrl)));
+  if (!freshChoice) {
+    const failures = searched.filter((result) => result.status === 'rejected');
+    const detail = failures.length === searched.length ? failures[0].reason?.message : 'No new image URLs were found on the searched result pages.';
+    throw new Error(`${player} image search needs another retry: ${detail}`);
+  }
+
+  const suggestedQuote = freshChoice.quote || '';
+  const quote = suggestedQuote && !usedQuotes.has(getViratQuoteFingerprint(suggestedQuote))
+    ? suggestedQuote
+    : makeUniqueMotivationLine(player, pastContents.length);
+  return { ...freshChoice, quote, topic: freshChoice.topic || `${player} daily motivation` };
+}
+
+export async function getUniqueViratKohliQuoteImage(preferredTopic = '', searchAttempt = 0) {
+  return getUniqueAthleteImage({
+    player: 'Virat Kohli',
+    preferredTopic: preferredTopic || 'Virat Kohli quotes wallpapers',
+    searchQueries: VIRAT_KOHLI_SEARCH_QUERIES,
+    searcher: searchGoogleKohliImages,
+    searchAttempt,
+  });
+}
+
+export async function getUniqueRonaldoQuoteImage(preferredTopic = '', searchAttempt = 0) {
+  return getUniqueAthleteImage({
+    player: 'Cristiano Ronaldo',
+    preferredTopic: preferredTopic || 'Cristiano Ronaldo motivation football wallpapers',
+    searchQueries: RONALDO_SEARCH_QUERIES,
+    searcher: searchRonaldoImages,
+    searchAttempt,
+  });
 }
 
 /**
@@ -583,18 +664,23 @@ export const VIRAT_KOHLI_HASHTAGS = [
   "#DisciplineOverMotivation",
   "#ReelsInstagram",
 ];
+export const RONALDO_HASHTAGS = [
+  "#CristianoRonaldo", "#CR7", "#Ronaldo", "#FootballMotivation", "#FootballLegend",
+  "#DailyDiscipline", "#ChampionMindset", "#HardWorkPaysOff", "#NeverGiveUp", "#FootballReels",
+];
 
 /**
  * Generates an aesthetic 9:16 vertical (1080x1920) Reel MP4 video from a quote wallpaper image + song audio,
  * and uploads to Cloudinary as a video asset for Instagram Reels publishing.
  */
-export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, duration = 12 }) {
+export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, quote = '', duration = 12 }) {
   if (!imageUrl) throw new Error("Image URL is required for Reel generation.");
   if (!audioUrl) throw new Error("An uploaded audio track is required for the daily Reel.");
 
   const tmpImg = path.join(os.tmpdir(), `reel_img_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.jpg`);
   const tmpAudio = audioUrl ? path.join(os.tmpdir(), `reel_aud_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.mp3`) : null;
   const tmpOut = path.join(os.tmpdir(), `reel_out_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.mp4`);
+  const tmpQuote = path.join(os.tmpdir(), `reel_quote_${Date.now()}_${Math.random().toString(36).substring(2, 6)}.txt`);
 
   try {
     // 1. Download image locally with valid browser headers
@@ -626,8 +712,26 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     if (audBuf.length <= 500) throw new Error("The selected audio track is empty or invalid.");
     fs.writeFileSync(tmpAudio, audBuf);
 
-    // 3. Build aesthetic 9:16 vertical (1080x1920) reel with blurred background & centered sharp quote wallpaper
-    const filter = '[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,setsar=1,format=yuv420p[v]';
+    const quoteWords = String(quote || '').replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
+    const quoteLines = [];
+    let quoteLine = '';
+    for (const word of quoteWords) {
+      if (quoteLine && `${quoteLine} ${word}`.length > 34) {
+        quoteLines.push(quoteLine);
+        quoteLine = word;
+      } else {
+        quoteLine = quoteLine ? `${quoteLine} ${word}` : word;
+      }
+    }
+    if (quoteLine) quoteLines.push(quoteLine);
+    fs.writeFileSync(tmpQuote, quoteLines.slice(0, 6).join('\n') || 'Keep showing up.');
+
+    // 3. Build a 9:16 Reel with the unique daily quote rendered visibly over the image.
+    const fontFile = process.platform === 'win32'
+      ? 'C:/Windows/Fonts/arial.ttf'
+      : '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf';
+    const filterPath = (value) => value.replace(/\\/g, '/').replace(/:/g, '\\:').replace(/'/g, "\\'");
+    const filter = `[0:v]scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,boxblur=20:5[bg];[0:v]scale=1080:1920:force_original_aspect_ratio=decrease[fg];[bg][fg]overlay=(W-w)/2:(H-h)/2,drawbox=x=36:y=ih-470:w=iw-72:h=430:color=black@0.62:t=fill,drawtext=fontfile='${filterPath(fontFile)}':textfile='${filterPath(tmpQuote)}':fontcolor=white:fontsize=48:line_spacing=14:shadowcolor=black:shadowx=2:shadowy=2:x=(w-text_w)/2:y=h-435:fix_bounds=1,setsar=1,format=yuv420p[v]`;
 
     const args = [
       '-y',
@@ -693,7 +797,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     // 4. Upload generated MP4 to Cloudinary as video asset
     const uploadResult = await cloudinary.uploader.upload(tmpOut, {
       resource_type: 'video',
-      folder: 'instagram-agent/virat-kohli-reels',
+      folder: 'instagram-agent/athlete-motivation-reels',
       format: 'mp4',
     });
 
@@ -710,6 +814,7 @@ export async function generateReelVideoFromQuoteAndAudio({ imageUrl, audioUrl, d
     if (fs.existsSync(tmpImg)) try { fs.unlinkSync(tmpImg); } catch (_) {}
     if (tmpAudio && fs.existsSync(tmpAudio)) try { fs.unlinkSync(tmpAudio); } catch (_) {}
     if (fs.existsSync(tmpOut)) try { fs.unlinkSync(tmpOut); } catch (_) {}
+    if (fs.existsSync(tmpQuote)) try { fs.unlinkSync(tmpQuote); } catch (_) {}
   }
 }
 
@@ -752,7 +857,8 @@ export async function getNextLoopedSong(customSongs = null) {
 /**
  * Creates an InstagramContent document for Virat Kohli Quote 9:16 Video Reel + Looped Song
  */
-export async function createViratKohliDraft({
+export async function createAthleteDraft({
+  player = 'Virat Kohli',
   imageUrl,
   quote,
   topic,
@@ -762,8 +868,10 @@ export async function createViratKohliDraft({
   status = "ready",
   scheduledFor = null,
 }) {
-  const selectedQuote = quote || VIRAT_KOHLI_QUOTES[0].quote;
-  const selectedTopic = topic || "King Kohli Mindset";
+  const isRonaldo = player === 'Cristiano Ronaldo';
+  const selectedPlayer = isRonaldo ? 'Cristiano Ronaldo' : 'Virat Kohli';
+  const selectedQuote = quote || (isRonaldo ? RONALDO_MOTIVATION_LINES[0] : VIRAT_KOHLI_QUOTES[0].quote);
+  const selectedTopic = topic || (isRonaldo ? 'Cristiano Ronaldo Mindset' : 'King Kohli Mindset');
 
   const songTitle = song?.title || "Winning Speech - High Impact Motivation";
   const songArtist = song?.artist || "King Kohli Arena";
@@ -774,6 +882,7 @@ export async function createViratKohliDraft({
   const secureReelUrl = await generateReelVideoFromQuoteAndAudio({
     imageUrl,
     audioUrl: songAudioUrl,
+    quote: selectedQuote,
     duration: 12,
   });
 
@@ -782,30 +891,26 @@ export async function createViratKohliDraft({
     throw new Error("Failed to produce a valid 9:16 Video Reel MP4 with audio.");
   }
 
-  const caption = buildViratKohliCaption({
-    quote: selectedQuote,
-    topic: selectedTopic,
-    songTitle,
-    songArtist,
-    customCaption,
-  });
+  const caption = customCaption?.trim()
+    ? `${customCaption.trim()}\n\n🎵 Audio / Reel Track: "${songTitle}"${songArtist ? ` · ${songArtist}` : ''}`
+    : `🔥 DAILY MOTIVATION · ${selectedPlayer.toUpperCase()}\n\n“${selectedQuote}”\n\nInspired by ${selectedPlayer}'s dedication, focus, and relentless work.\n\n🎵 Audio / Reel Track: "${songTitle}"${songArtist ? ` · ${songArtist}` : ''}\n\nSave this reminder and share it with someone chasing a big goal.`;
 
   const hashtags = (Array.isArray(customHashtags) && customHashtags.length > 0)
     ? customHashtags
-    : VIRAT_KOHLI_HASHTAGS;
+    : (isRonaldo ? RONALDO_HASHTAGS : VIRAT_KOHLI_HASHTAGS);
 
   const topicFp = getViratQuoteFingerprint(selectedQuote);
 
   const content = await InstagramContent.create({
     type: 'reel',
-    topic: `Virat Kohli Reel: "${selectedTopic}"`,
+    topic: `${selectedPlayer} Reel: "${selectedTopic}"`,
     quote: selectedQuote,
-    speaker: "Virat Kohli",
+    speaker: selectedPlayer,
     quoteFingerprint: topicFp,
-    themeCategory: "👑 King Kohli Motivation",
+    themeCategory: isRonaldo ? "⚽ Cristiano Ronaldo Motivation" : "👑 King Kohli Motivation",
     caption: caption,
     hashtags: hashtags,
-    creativeBrief: `Virat Kohli 9:16 Video Reel with looped song: ${soundscape}`,
+    creativeBrief: `${selectedPlayer} 9:16 Video Reel with looped song: ${soundscape}`,
     aspectRatio: "9:16",
     assetUrl: secureReelUrl,
     originalImageUrl: imageUrl,
@@ -826,8 +931,8 @@ export async function createViratKohliDraft({
   });
 
   await logInstagramActivity(
-    'virat_kohli_content_created',
-    `Created Virat Kohli 9:16 Video Reel [${selectedTopic}] with Song "${soundscape}"`,
+    'athlete_content_created',
+    `Created ${selectedPlayer} 9:16 Video Reel [${selectedTopic}] with Song "${soundscape}"`,
     {
       contentId: String(content._id),
       quote: selectedQuote,
@@ -838,6 +943,10 @@ export async function createViratKohliDraft({
   );
 
   return content;
+}
+
+export async function createViratKohliDraft(options) {
+  return createAthleteDraft({ ...options, player: 'Virat Kohli' });
 }
 
 /**

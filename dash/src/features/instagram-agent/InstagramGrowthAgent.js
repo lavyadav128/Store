@@ -1069,7 +1069,7 @@ export default function InstagramGrowthAgent() {
               </Typography>
               <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 12, sm: 13 }, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
                 {config.running
-                  ? `Posting 1 unique 9:16 Reel daily at ${config.dailyPostTime || "12:00"} IST with sequential song looping.`
+                  ? `Posting 1 unique 9:16 Reel daily at ${config.dailyPostTime || "12:00"} IST, alternating Virat Kohli and Cristiano Ronaldo with your songs in a loop.`
                   : "Click 'Start Autonomous Agent' to enable automatic daily posting with your uploaded songs until stopped."}
               </Typography>
             </Box>
@@ -1208,14 +1208,14 @@ export default function InstagramGrowthAgent() {
             <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 0.5 }}>
               <SecurityIcon sx={{ fontSize: 16, color: config.running ? "#22c55e" : "#71717a", flexShrink: 0 }} />
               <Typography sx={{ fontSize: 11, fontWeight: 800, textTransform: "uppercase", color: config.running ? "#d4d4d8" : "#71717a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                Zero Repeat Engine
+                Unique Image + Quote Engine
               </Typography>
             </Box>
             <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5, wordBreak: "break-word" }}>
-              100% Lifetime Unique Guarantee
+              Searches fresh image pages and checks post history
             </Typography>
             <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
-              Lifetime MongoDB fingerprint check
+              Retries image search when a page has already been used
             </Typography>
           </Box>
 
@@ -1236,8 +1236,13 @@ export default function InstagramGrowthAgent() {
               </Typography>
             </Box>
             <Typography sx={{ fontSize: 13, fontWeight: 700, color: config.running ? "#ffffff" : "#09090b", mt: 0.5, wordBreak: "break-word" }}>
-              {statusSummary?.publishedToday ? "✅ Today's Reel Published" : "⏳ Scheduled for Today"}
+              {statusSummary?.publishedToday ? "✅ Today's Reel Published" : `⏳ ${statusSummary?.nextAthlete || "Next athlete"} scheduled for today`}
             </Typography>
+            {statusSummary?.lastError && (
+              <Typography sx={{ fontSize: 11, color: "#fbbf24", mt: 0.5, wordBreak: "break-word" }}>
+                Retry active: {statusSummary.lastError}
+              </Typography>
+            )}
             <Typography sx={{ fontSize: 11, color: config.running ? "#a1a1aa" : "#71717a", wordBreak: "break-word" }}>
               {config.running ? "Runs automatically every day" : "Agent is currently stopped"}
             </Typography>
