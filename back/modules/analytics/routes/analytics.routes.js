@@ -12,7 +12,7 @@ router.get('/overview', async (req, res) => {
     const dataset = await analyticsDataService.getDataset();
     const totalStudents = dataset.length;
     const churnedCount = dataset.filter(d => d.churned === 1).length;
-    const churnRate = +((churnedCount / totalStudents) * 100).toFixed(1);
+    const churnRate = totalStudents > 0 ? +((churnedCount / totalStudents) * 100).toFixed(1) : 0;
 
     const studyHoursStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.studyHours));
     const quizScoreStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.quizScore));
@@ -23,6 +23,7 @@ router.get('/overview', async (req, res) => {
 
     // Distribution Histograms (bins)
     const makeBins = (numbers, binCount = 5) => {
+      if (!numbers || numbers.length === 0) return [];
       const min = Math.min(...numbers);
       const max = Math.max(...numbers);
       const step = (max - min) / binCount || 1;

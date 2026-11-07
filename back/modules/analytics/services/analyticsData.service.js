@@ -50,7 +50,9 @@ class AnalyticsDataService {
       // 1. Fetch real users from Atlas
       const users = await User.find({ username: { $ne: "adminbrand@gmail.com" } }).lean();
       if (!users || users.length === 0) {
-        throw new Error("No users found in Atlas database.");
+        this.cachedDataset = [];
+        this.cacheTimestamp = Date.now();
+        return [];
       }
 
       const userIds = users.map(u => u._id);
@@ -386,15 +388,17 @@ class AnalyticsDataService {
     const convertedPaying = data.filter(d => d.purchases > 0).length;
     const retainedActive = data.filter(d => d.churned === 0).length;
 
+    const calcPct = (cnt) => total > 0 ? Math.round((cnt / total) * 100) : 0;
+
     return [
-      { stage: "Landing & Course Discovery", count: total, pct: 100 },
-      { stage: "Account Registered", count: registered, pct: Math.round((registered / total) * 100) },
-      { stage: "Batch Catalog View", count: exploredBatch, pct: Math.round((exploredBatch / total) * 100) },
-      { stage: "Study Notes Read", count: studiedNotes, pct: Math.round((studiedNotes / total) * 100) },
-      { stage: "Quiz / Practice Taken", count: attemptedQuiz, pct: Math.round((attemptedQuiz / total) * 100) },
-      { stage: "Checkout Initiated", count: checkoutInitiated, pct: Math.round((checkoutInitiated / total) * 100) },
-      { stage: "Enrolled & Paid", count: convertedPaying, pct: Math.round((convertedPaying / total) * 100) },
-      { stage: "Active Learner (Retained)", count: retainedActive, pct: Math.round((retainedActive / total) * 100) },
+      { stage: "Landing & Course Discovery", count: total, pct: total > 0 ? 100 : 0 },
+      { stage: "Account Registered", count: registered, pct: calcPct(registered) },
+      { stage: "Batch Catalog View", count: exploredBatch, pct: calcPct(exploredBatch) },
+      { stage: "Study Notes Read", count: studiedNotes, pct: calcPct(studiedNotes) },
+      { stage: "Quiz / Practice Taken", count: attemptedQuiz, pct: calcPct(attemptedQuiz) },
+      { stage: "Checkout Initiated", count: checkoutInitiated, pct: calcPct(checkoutInitiated) },
+      { stage: "Enrolled & Paid", count: convertedPaying, pct: calcPct(convertedPaying) },
+      { stage: "Active Learner (Retained)", count: retainedActive, pct: calcPct(retainedActive) },
     ];
   }
 }

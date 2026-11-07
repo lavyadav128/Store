@@ -234,8 +234,10 @@ const Home = () => {
                 px: 1.5, py: 0.7, borderRadius: "40px",
                 border: "1.5px solid #ececec", background: "#fafafa",
                 transition: "border-color 0.2s, box-shadow 0.2s",
-                "&:hover": { borderColor: "#d0d0d0", boxShadow: "0 4px 14px rgba(0,0,0,0.06)" },
-              }}>
+                "&:hover": { borderColor: "#1a1a2e", boxShadow: "0 4px 14px rgba(0,0,0,0.08)" },
+                cursor: "pointer",
+              }}
+              onClick={() => window.dispatchEvent(new CustomEvent("open-profile"))}>
                 <Box className="avatar-ring" sx={{
                   width: 30, height: 30, borderRadius: "50%", background: "#1a1a2e",
                   display: "flex", alignItems: "center", justifyContent: "center",
@@ -286,7 +288,7 @@ const Home = () => {
         {isMobile && (
           <>
             {userName && (
-              <Box className="mobile-avatar-pill" sx={{
+              <Box className="mobile-avatar-pill" onClick={() => window.dispatchEvent(new CustomEvent("open-profile"))} sx={{ cursor: "pointer",
                 display: "flex", alignItems: "center", gap: 0.8,
                 px: 1, py: 0.5, borderRadius: "30px",
                 border: "1.5px solid #e8e8f0",

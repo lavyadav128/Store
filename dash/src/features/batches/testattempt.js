@@ -1,6 +1,8 @@
 // ✅ FULL CODE WITH REVIEW BUTTON AFTER SUBMIT + QUESTION BUTTONS IN HORIZONTAL SCROLL
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
+import server from "../../shared/environment";
 import {
   Box,
   Button,
@@ -73,16 +75,40 @@ const TestAttemptPage = () => {
 
   const handleSubmit = () => {
     let sc = 0;
+    let correctCount = 0;
+    let incorrectCount = 0;
     responses.forEach((ans, i) => {
       const correct = questions[i].answer?.trim();
       const user = ans?.trim();
-      if (user === correct) sc += 4;
-      else if (user) sc -= 1;
+      if (user === correct) {
+        sc += 4;
+        correctCount++;
+      } else if (user) {
+        sc -= 1;
+        incorrectCount++;
+      }
     });
     setScore(sc);
     setSubmitted(true);
     localStorage.removeItem("testResponses");
     localStorage.removeItem("markedQuestions");
+
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.post(
+        `${server}/api/tests/submit`,
+        {
+          testTitle: state?.testTitle || "Practice Test",
+          score: sc,
+          maxScore: questions.length * 4,
+          totalQuestions: questions.length,
+          correctCount,
+          incorrectCount,
+          timeSpentSeconds: 3 * 60 * 60 - timeLeft,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      ).catch((err) => console.error("Could not persist test attempt:", err));
+    }
   };
 
   const handleSubjectTab = (subject) => {

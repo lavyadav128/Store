@@ -47,6 +47,8 @@ import server from "../../shared/environment";
 import NotificationPage from "../notifications/notification"
 import DoubtPage from "../doubts/doubt";
 import PaymentsPage from "../commerce/payment";
+import UserProfileSection from "./UserProfileSection";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import RevenueRecoveryDashboard from "../revenue-recovery/RevenueRecoveryDashboard";
 import AdminDashboard from "./AdminDashboard";
 import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
@@ -84,12 +86,14 @@ const VIEW_REVENUE_RECOVERY = "revenue-recovery";
 const VIEW_DATA_ANALYSIS = "data-analysis";
 const VIEW_AIML = "ai-ml";
 const VIEW_DATA_AUDIT = "data-audit";
+const VIEW_PROFILE = "profile";
 
 const SECTIONS = [
-  { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
-  { icon: NotificationsIcon, title: "Notifications", desc: "Important messages from your instructor.", view: VIEW_NOTIFICATIONS, accent: "#0f4c75", tag: "Updates" },
-  { icon: HelpOutlineIcon,   title: "Doubt / Issue", desc: "Raise and track your academic doubts.",    view: VIEW_DOUBTS,        accent: "#1b262c", tag: "Support" },
-  { icon: PaymentIcon,       title: "Payments",      desc: "Manage subscriptions and billing.",        view: VIEW_PAYMENTS,      accent: "#2d132c", tag: "Finance" },
+  { icon: SchoolIcon,        title: "My Batches",              desc: "Track your enrolled classes by Class ID.",                     view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
+  { icon: NotificationsIcon, title: "Notifications",           desc: "Important messages from your instructor.",                     view: VIEW_NOTIFICATIONS, accent: "#0f4c75", tag: "Updates" },
+  { icon: HelpOutlineIcon,   title: "Doubt / Issue",           desc: "Raise and track your academic doubts.",                        view: VIEW_DOUBTS,        accent: "#1b262c", tag: "Support" },
+  { icon: PaymentIcon,       title: "Payments",                desc: "Manage subscriptions and billing.",                            view: VIEW_PAYMENTS,      accent: "#2d132c", tag: "Finance" },
+  { icon: AccountCircleIcon, title: "My Profile & Analytics",  desc: "Live session time, real test attempts & learning score.",      view: VIEW_PROFILE,       accent: "#4a154b", tag: "Live Profile" },
 ];
 
 const SOCIAL = [
@@ -479,6 +483,11 @@ const Dashboard = () => {
   const timeGreeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   const goView  = (view)  => { setActiveView(view); setMobileDrawer(false); };
+  useEffect(() => {
+    const handleOpenProfile = () => setActiveView(VIEW_PROFILE);
+    window.addEventListener("open-profile", handleOpenProfile);
+    return () => window.removeEventListener("open-profile", handleOpenProfile);
+  }, []);
   const goRoute = useCallback((route) => { navigate(route); setMobileDrawer(false); }, [navigate]);
 
   const goBackToDashboard = () => {
@@ -1179,6 +1188,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_PAYMENTS && (
                     <Fade in timeout={400}><Box><SubViewHeader title="Payments" /><PaymentsPage /></Box></Fade>
+                  )}
+                  {activeView === VIEW_PROFILE && (
+                    <Fade in timeout={400}><Box><UserProfileSection onBack={() => setActiveView(VIEW_HOME)} /></Box></Fade>
                   )}
                 </>
               )}

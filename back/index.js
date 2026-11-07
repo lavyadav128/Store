@@ -30,6 +30,7 @@ import Razorpay from 'razorpay';
 
 // handles /api/login and /api/register (user authentication)
 import userRoutes from './modules/auth/routes/users.routes.js';
+import studentProfileRoutes from './modules/auth/routes/studentProfile.routes.js';
 
 // handles course purchase related endpoints
 import purchaseRoutes from './modules/commerce/routes/purchase.js';
@@ -233,6 +234,7 @@ app.use("/api/admin/list", userListRoutes);
 
 // User auth routes — e.g. POST /api/login, POST /api/register
 app.use('/api', userRoutes);
+app.use('/api', studentProfileRoutes);
 
 // Purchase routes — e.g. POST /api/purchase, GET /api/purchases
 import recoveryOfferPublicRoutes from './modules/revenue-recovery/routes/recoveryOfferPublic.routes.js';

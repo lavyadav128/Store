@@ -699,6 +699,20 @@ class MLEngineService {
   async runFullBenchmark() {
     const rawData = await analyticsDataService.getDataset();
 
+    if (!rawData || rawData.length === 0) {
+      return {
+        supervisedLeaderboard: [],
+        featureImportance: ML_FEATURES.map(f => ({ name: f.name, importance: 0, std: 0 })),
+        unsupervised: {
+          kmeans: { clusterProfiles: [], elbowCurve: [] },
+          pca: [],
+          anomalies: [],
+        },
+        students: [],
+        split: { trainSize: 0, testSize: 0 },
+      };
+    }
+
     // Extract feature matrix X and ground-truth vector y
     const rawX = rawData.map(d => ML_FEATURES.map(f => Number(d[f.key]) || 0));
     const y = rawData.map(d => Number(d.churned) || 0);
