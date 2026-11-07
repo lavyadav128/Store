@@ -21,6 +21,12 @@ class MLEngineService {
     this.scaler = null;
   }
 
+  clearCache() {
+    this.modelsTrained = false;
+    this.modelCache = null;
+    this.scaler = null;
+  }
+
   // Feature Min-Max / Standard Scaling
   fitScaler(X) {
     const numFeatures = X[0].length;

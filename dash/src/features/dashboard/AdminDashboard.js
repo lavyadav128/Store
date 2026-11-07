@@ -1,10 +1,10 @@
-
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box, Typography, TextField, Button, Snackbar, Alert,
-  Autocomplete, Dialog, DialogTitle, DialogContent, Fade,
-  Checkbox, IconButton,
+  Autocomplete, Dialog, DialogTitle, DialogContent, DialogActions, Fade,
+  Checkbox, IconButton, Table, TableBody, TableCell, TableContainer,
+  TableHead, TableRow, Paper, Chip, Tooltip, InputAdornment, CircularProgress,
+  useTheme, useMediaQuery,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ForumIcon from "@mui/icons-material/Forum";
@@ -14,69 +14,84 @@ import AssignmentIcon from "@mui/icons-material/Assignment";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from "@mui/icons-material/Search";
+import WarningAmberIcon from "@mui/icons-material/WarningAmber";
+import PersonRemoveIcon from "@mui/icons-material/PersonRemove";
+import SchoolIcon from "@mui/icons-material/School";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import axios from "axios";
 import server from "../../shared/environment";
-import { useLocation } from "react-router-dom";
-import ErrorBoundary from "../../shared/components/ErrorBoundary";
-import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
-import AiMlEngineStudio from "../analytics/AiMlEngineStudio";
-import InsightsIcon from "@mui/icons-material/Insights";
-import PsychologyIcon from "@mui/icons-material/Psychology";
-import TableChartIcon from "@mui/icons-material/TableChart";
-import DataAuditStudio from "../analytics/DataAuditStudio";
 
 const AdminDashboard = () => {
-  const [message,      setMessage]      = useState("");
-  const [username,     setUsername]     = useState(null);
-  const [users,        setUsers]        = useState([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [sending,      setSending]      = useState(false);
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [doubts,     setDoubts]     = useState([]);
-  const [replyText,  setReplyText]  = useState({});
+  const [message, setMessage] = useState("");
+  const [username, setUsername] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMsg, setSnackbarMsg] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [sending, setSending] = useState(false);
+
+  const [doubts, setDoubts] = useState([]);
+  const [replyText, setReplyText] = useState({});
   const [openDoubts, setOpenDoubts] = useState(false);
 
   // ── Aims state ──
   const [openAims, setOpenAims] = useState(false);
-  const [aims,     setAims]     = useState([]);
-  const [newAim,   setNewAim]   = useState("");
+  const [aims, setAims] = useState([]);
+  const [newAim, setNewAim] = useState("");
 
   // ── Tasks state ──
   const [openTasks, setOpenTasks] = useState(false);
-  const [adminSection, setAdminSection] = useState("overview");
-  const [tasks,     setTasks]     = useState([]);
-  const [newTask,   setNewTask]   = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [newTask, setNewTask] = useState("");
 
-  const location = useLocation();
+  // ── Delete User Confirmation State ──
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   const authHeader = () => ({
     headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
   });
 
-  // ── fetch aims & tasks from MongoDB on mount ──
+  // ── Fetch aims & tasks from MongoDB on mount ──
+  const fetchList = async () => {
+    try {
+      const res = await axios.get(`${server}/api/admin/list`, authHeader());
+      setAims(res.data.aims || []);
+      setTasks(res.data.tasks || []);
+    } catch (err) {
+      console.error("Failed to fetch list", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchList = async () => {
-      try {
-        const res = await axios.get(`${server}/api/admin/list`, authHeader());
-        setAims(res.data.aims   || []);
-        setTasks(res.data.tasks || []);
-      } catch (err) { console.error("Failed to fetch list", err); }
-    };
     fetchList();
   }, []);
 
-  /* ── fetch users ── */
+  /* ── Fetch enriched users ── */
+  const fetchUsers = async () => {
+    setUsersLoading(true);
+    try {
+      const res = await axios.get(`${server}/api/admin/users`, authHeader());
+      setUsers(res.data.users || []);
+    } catch (err) {
+      console.error("Failed to fetch users", err);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await axios.get(`${server}/api/admin/users`, authHeader());
-        setUsers(res.data.users || []);
-      } catch (err) { console.error("Failed to fetch users", err); }
-    };
     fetchUsers();
   }, []);
 
-  /* ── fetch doubts ── */
+  /* ── Fetch doubts ── */
   const [doubtsLoading, setDoubtsLoading] = useState(false);
   const fetchDoubts = async () => {
     setDoubtsLoading(true);
@@ -100,12 +115,11 @@ const AdminDashboard = () => {
         });
       }
     };
-    window.addEventListener('new-doubt', handleNewDoubt);
-    return () => window.removeEventListener('new-doubt', handleNewDoubt);
+    window.addEventListener("new-doubt", handleNewDoubt);
+    return () => window.removeEventListener("new-doubt", handleNewDoubt);
   }, []);
 
-  
-  /* ── send message ── */
+  /* ── Send broadcast / direct message ── */
   const sendMessage = async () => {
     if (!message.trim()) return;
     setSending(true);
@@ -115,14 +129,21 @@ const AdminDashboard = () => {
         { text: message, toUsername: username || null },
         authHeader()
       );
+      setSnackbarMsg("Message sent successfully!");
+      setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setMessage("");
       setUsername(null);
-    } catch { alert("Failed to send message"); }
-    finally { setSending(false); }
+    } catch {
+      setSnackbarMsg("Failed to send message");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setSending(false);
+    }
   };
 
-  /* ── reply to doubt ── */
+  /* ── Reply to doubt ── */
   const sendReply = async (id) => {
     if (!replyText[id]) return;
     try {
@@ -133,133 +154,210 @@ const AdminDashboard = () => {
       );
       setReplyText((prev) => ({ ...prev, [id]: "" }));
       fetchDoubts();
-    } catch { alert("Failed to send reply"); }
+      setSnackbarMsg("Reply sent to student!");
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+    } catch {
+      alert("Failed to send reply");
+    }
+  };
+
+  /* ── Delete User Confirmation & Cascade Purge ── */
+  const promptDeleteUser = (user) => {
+    setUserToDelete(user);
+    setDeleteDialogOpen(true);
+  };
+
+  const executeDeleteUser = async () => {
+    if (!userToDelete) return;
+    setDeleteLoading(true);
+    try {
+      const targetId = userToDelete._id || userToDelete.username;
+      const res = await axios.delete(`${server}/api/admin/users/${targetId}`, authHeader());
+      if (res.data.success) {
+        setSnackbarMsg(`Student "${userToDelete.name || userToDelete.username}" and all data permanently deleted!`);
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        setDeleteDialogOpen(false);
+        setUserToDelete(null);
+        fetchUsers();
+      }
+    } catch (err) {
+      console.error("Failed to delete user", err);
+      setSnackbarMsg(err.response?.data?.error || "Failed to delete user from database.");
+      setSnackbarSeverity("error");
+      setSnackbarOpen(true);
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   /* ── AIMS CRUD ── */
   const addAim = async () => {
     if (!newAim.trim()) return;
     try {
-      const res = await axios.post(`${server}/api/admin/list/aims`, { text: newAim.trim() }, authHeader());
-      setAims(res.data);
+      const res = await axios.post(`${server}/api/admin/list/aims`, { title: newAim }, authHeader());
+      setAims((prev) => [res.data.aim, ...prev]);
       setNewAim("");
-    } catch { alert("Failed to add aim"); }
+    } catch {
+      alert("Failed to add aim");
+    }
   };
 
-  const toggleAim = async (id) => {
+  const toggleAim = async (id, completed) => {
     try {
-      const res = await axios.patch(`${server}/api/admin/list/aims/${id}/toggle`, {}, authHeader());
-      setAims(res.data);
-    } catch { alert("Failed to update aim"); }
+      const res = await axios.patch(`${server}/api/admin/list/aims/${id}`, { completed }, authHeader());
+      setAims((prev) => prev.map((a) => (a._id === id ? res.data.aim : a)));
+    } catch {
+      alert("Failed to update aim");
+    }
   };
 
   const deleteAim = async (id) => {
     try {
-      const res = await axios.delete(`${server}/api/admin/list/aims/${id}`, authHeader());
-      setAims(res.data);
-    } catch { alert("Failed to delete aim"); }
+      await axios.delete(`${server}/api/admin/list/aims/${id}`, authHeader());
+      setAims((prev) => prev.filter((a) => a._id !== id));
+    } catch {
+      alert("Failed to delete aim");
+    }
   };
 
   /* ── TASKS CRUD ── */
   const addTask = async () => {
     if (!newTask.trim()) return;
     try {
-      const res = await axios.post(`${server}/api/admin/list/tasks`, { text: newTask.trim() }, authHeader());
-      setTasks(res.data);
+      const res = await axios.post(`${server}/api/admin/list/tasks`, { title: newTask }, authHeader());
+      setTasks((prev) => [res.data.task, ...prev]);
       setNewTask("");
-    } catch { alert("Failed to add task"); }
+    } catch {
+      alert("Failed to add task");
+    }
   };
 
-  const toggleTask = async (id) => {
+  const toggleTask = async (id, completed) => {
     try {
-      const res = await axios.patch(`${server}/api/admin/list/tasks/${id}/toggle`, {}, authHeader());
-      setTasks(res.data);
-    } catch { alert("Failed to update task"); }
+      const res = await axios.patch(`${server}/api/admin/list/tasks/${id}`, { completed }, authHeader());
+      setTasks((prev) => prev.map((t) => (t._id === id ? res.data.task : t)));
+    } catch {
+      alert("Failed to update task");
+    }
   };
 
   const deleteTask = async (id) => {
     try {
-      const res = await axios.delete(`${server}/api/admin/list/tasks/${id}`, authHeader());
-      setTasks(res.data);
-    } catch { alert("Failed to delete task"); }
+      await axios.delete(`${server}/api/admin/list/tasks/${id}`, authHeader());
+      setTasks((prev) => prev.filter((t) => t._id !== id));
+    } catch {
+      alert("Failed to delete task");
+    }
   };
 
   const unrepliedCount = doubts.filter((d) => !d.replied).length;
 
-  /* ── shared styles ── */
-  const itemBoxStyle = (completed) => ({
-    display: "flex", alignItems: "center", gap: 1.5,
-    p: 1.8, mb: 1.5,
-    background: completed ? "#f9fdf9" : "#fff",
-    border: `1px solid ${completed ? "#d4edda" : "#f0f0f0"}`,
-    borderRadius: "14px",
-    transition: "all 0.2s ease",
-  });
+  // Filtered users for table
+  const filteredUsers = useMemo(() => {
+    if (!userSearchQuery.trim()) return users;
+    const q = userSearchQuery.toLowerCase();
+    return users.filter(
+      (u) =>
+        (u.name && u.name.toLowerCase().includes(q)) ||
+        (u.username && u.username.toLowerCase().includes(q)) ||
+        (u.email && u.email.toLowerCase().includes(q))
+    );
+  }, [users, userSearchQuery]);
 
-  /* ── shared modal renderer ── */
+  // Modal helper for aims / tasks
   const renderListModal = ({ open, onClose, title, icon, items, newVal, setNewVal, onAdd, onToggle, onDelete, placeholder }) => (
-    <Dialog
-      open={open} onClose={onClose}
-      maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: "20px", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 32px 80px rgba(0,0,0,0.15)" } }}
-    >
-      <DialogTitle sx={{
-        fontFamily: "'Playfair Display', serif", fontWeight: 800,
-        fontSize: 20, color: "#1a1a2e", pb: 1, borderBottom: "1px solid #f0f0f0",
-        display: "flex", alignItems: "center", gap: 1.5,
-      }}>
-        <Box sx={{ width: 36, height: 36, borderRadius: "11px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-          {icon}
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: "20px", fontFamily: "'DM Sans', sans-serif" } }}>
+      <DialogTitle sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 20, color: "#1a1a2e", pb: 1, borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+          <Box sx={{ width: 36, height: 36, borderRadius: "10px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            {icon}
+          </Box>
+          {title}
         </Box>
-        {title}
-        <Box component="span" sx={{ ml: 1, px: 1.2, py: 0.3, borderRadius: "8px", background: "#f4f4f6", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 11, color: "#aaa", verticalAlign: "middle" }}>
-          {items.length} total
-        </Box>
+        <IconButton size="small" onClick={onClose} sx={{ color: "#aaa" }}>
+          <CloseIcon sx={{ fontSize: 20 }} />
+        </IconButton>
       </DialogTitle>
-
-      <DialogContent dividers sx={{ p: 3 }}>
+      <DialogContent sx={{ p: 3 }}>
         <Box sx={{ display: "flex", gap: 1.5, mb: 3 }}>
           <TextField
-            fullWidth placeholder={placeholder} value={newVal}
+            fullWidth
+            size="small"
+            placeholder={placeholder}
+            value={newVal}
             onChange={(e) => setNewVal(e.target.value)}
             onKeyDown={(e) => { if (e.key === "Enter") onAdd(); }}
             sx={{
               "& .MuiOutlinedInput-root": {
-                borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontSize: 14,
+                borderRadius: "12px",
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: 13,
                 "& fieldset": { borderColor: "#e8e8e8" },
-                "&:hover fieldset": { borderColor: "#c0c0c0" },
                 "&.Mui-focused fieldset": { borderColor: "#1a1a2e" },
               },
             }}
           />
-          <Button variant="contained" onClick={onAdd} sx={{ background: "#1a1a2e", borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, px: 2.5, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", minWidth: "auto", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" }, transition: "all 0.2s ease" }}>
-            <AddIcon sx={{ fontSize: 20 }} /> Add
+          <Button
+            variant="contained"
+            onClick={onAdd}
+            startIcon={<AddIcon />}
+            sx={{
+              background: "#1a1a2e",
+              borderRadius: "12px",
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 700,
+              fontSize: 13,
+              px: 2.5,
+              textTransform: "none",
+              boxShadow: "none",
+              "&:hover": { background: "#2d2d4e" },
+            }}
+          >
+            Add
           </Button>
         </Box>
 
         {items.length === 0 ? (
           <Box sx={{ textAlign: "center", py: 5 }}>
-            <CheckCircleOutlineIcon sx={{ fontSize: 44, color: "#e0e0e0", mb: 1 }} />
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#ccc" }}>Nothing added yet</Typography>
+            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#aaa" }}>
+              No items yet. Add one above!
+            </Typography>
           </Box>
         ) : (
           items.map((item) => (
-            <Box key={item._id} sx={itemBoxStyle(item.completed)}>
+            <Box
+              key={item._id}
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                gap: 1.5,
+                p: 1.5,
+                mb: 1,
+                background: "#fafafa",
+                borderRadius: "12px",
+                border: "1px solid #f0f0f0",
+              }}
+            >
               <Checkbox
                 checked={item.completed}
-                onChange={() => onToggle(item._id)}
-                sx={{ color: "#ddd", p: 0.5, "&.Mui-checked": { color: "#2e7d32" } }}
+                onChange={(e) => onToggle(item._id, e.target.checked)}
+                size="small"
+                sx={{ color: "#ccc", "&.Mui-checked": { color: "#1a1a2e" }, p: 0.5 }}
               />
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: item.completed ? "#aaa" : "#333", flex: 1, lineHeight: 1.6, textDecoration: item.completed ? "line-through" : "none", transition: "all 0.2s ease" }}>
-                {item.text}
+              <Typography
+                sx={{
+                  flex: 1,
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontSize: 13,
+                  color: item.completed ? "#aaa" : "#1a1a2e",
+                  textDecoration: item.completed ? "line-through" : "none",
+                }}
+              >
+                {item.title}
               </Typography>
-              {item.completed && (
-                <Box sx={{ px: 1.4, py: 0.3, borderRadius: "8px", background: "#e8f5e9", display: "flex", alignItems: "center", gap: 0.6 }}>
-                  <CheckCircleOutlineIcon sx={{ fontSize: 13, color: "#2e7d32" }} />
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, color: "#2e7d32" }}>Completed</Typography>
-                </Box>
-              )}
-              <IconButton onClick={() => onDelete(item._id)} size="small" sx={{ color: "#ccc", borderRadius: "8px", p: 0.6, "&:hover": { color: "#e53935", background: "#fff0f0" }, transition: "all 0.18s ease" }}>
+              <IconButton onClick={() => onDelete(item._id)} size="small" sx={{ color: "#ccc", "&:hover": { color: "#d32f2f" } }}>
                 <DeleteOutlineIcon sx={{ fontSize: 18 }} />
               </IconButton>
             </Box>
@@ -272,102 +370,53 @@ const AdminDashboard = () => {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&display=swap');
-        * { box-sizing: border-box; }
-        .admin-card { transition: transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.22s ease !important; }
-        .admin-card:hover { transform: translateY(-4px) !important; box-shadow: 0 18px 48px rgba(0,0,0,0.10) !important; }
-        @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+        .admin-card { transition: all 0.25s cubic-bezier(0.16,1,0.3,1); }
+        .admin-card:hover { transform: translateY(-3px); box-shadow: 0 12px 32px rgba(26,26,46,0.08) !important; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
       `}</style>
 
       <Fade in timeout={500}>
-        <Box>
-          {/* ── Page header & Section Navigation ── */}
+        <Box sx={{ pb: 6 }}>
+          {/* ── Page Header (Clean, without duplicate in-page studio tabs) ── */}
           <Box sx={{ mb: 3.5, display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 2 }}>
             <Box>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontStyle: "normal", fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>Admin Panel</Typography>
-              <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>Dashboard</Typography>
-              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#888", mt: 0.5 }}>Overview, Data Analytics & AI/ML Predictive Workbench.</Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>
+                Admin Operations
+              </Typography>
+              <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>
+                Admin Dashboard
+              </Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#888", mt: 0.5 }}>
+                Direct message broadcast, academic doubts resolution, task planner, and complete student account lifecycle management.
+              </Typography>
             </Box>
-            <Box sx={{ display: "flex", gap: 1, background: "#fff", p: 0.8, borderRadius: "14px", border: "1px solid #e8e8e8", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
-              <Button size="small" onClick={() => setAdminSection("overview")} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "overview" ? "#1a1a2e" : "transparent", color: adminSection === "overview" ? "#fff" : "#666", "&:hover": { background: adminSection === "overview" ? "#2d2d4e" : "#f4f4f6" } }}>Overview</Button>
-              <Button size="small" onClick={() => setAdminSection("analytics")} startIcon={<InsightsIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "analytics" ? "#1a1a2e" : "transparent", color: adminSection === "analytics" ? "#fff" : "#666", "&:hover": { background: adminSection === "analytics" ? "#2d2d4e" : "#f4f4f6" } }}>Data Analyses</Button>
-              <Button size="small" onClick={() => setAdminSection("aiml")} startIcon={<PsychologyIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "aiml" ? "#1a1a2e" : "transparent", color: adminSection === "aiml" ? "#fff" : "#666", "&:hover": { background: adminSection === "aiml" ? "#2d2d4e" : "#f4f4f6" } }}>AI / ML Engine</Button>
-              <Button size="small" onClick={() => setAdminSection("audit")} startIcon={<TableChartIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "audit" ? "#1a1a2e" : "transparent", color: adminSection === "audit" ? "#fff" : "#666", "&:hover": { background: adminSection === "audit" ? "#2d2d4e" : "#f4f4f6" } }}>Data Hub & Audit</Button>
-            </Box>
-          </Box>
-          {adminSection === "analytics" && (<ErrorBoundary><Fade in timeout={300}><Box><DataAnalysisStudio /></Box></Fade></ErrorBoundary>)}
-          {adminSection === "aiml" && (<ErrorBoundary><Fade in timeout={300}><Box><AiMlEngineStudio /></Box></Fade></ErrorBoundary>)}
-          {adminSection === "audit" && (<ErrorBoundary><Fade in timeout={300}><Box><DataAuditStudio /></Box></Fade></ErrorBoundary>)}
-          {adminSection === "overview" && (<Box>
-
-          {/* ── Two columns ── */}
-          <Box sx={{ display: "flex", gap: 3, flexDirection: { xs: "column", md: "row" }, alignItems: "stretch" }}>
-
-            {/* ── SEND MESSAGE CARD ── */}
-            <Box className="admin-card" sx={{ flex: 1, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 4 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", gap: 0 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 3 }}>
-                <Box sx={{ width: 42, height: 42, borderRadius: "13px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                  <SendIcon sx={{ color: "#fff", fontSize: 19 }} />
-                </Box>
-                <Box>
-                  <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 17, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Send Message</Typography>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Broadcast or target a user</Typography>
-                </Box>
-                <Box sx={{ ml: "auto", px: 1.4, py: 0.4, borderRadius: "8px", background: "#f4f4f6" }}>
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, color: "#aaa", letterSpacing: "0.8px", textTransform: "uppercase" }}>Broadcast</Typography>
-                </Box>
-              </Box>
-
-              <TextField fullWidth multiline rows={4} label="Message" value={message} onChange={(e) => setMessage(e.target.value)}
-                sx={{ mb: 2, "& .MuiOutlinedInput-root": { borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontSize: 14, "& fieldset": { borderColor: "#e8e8e8" }, "&:hover fieldset": { borderColor: "#c0c0c0" }, "&.Mui-focused fieldset": { borderColor: "#1a1a2e" } }, "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif", fontSize: 14 }, "& .MuiInputLabel-root.Mui-focused": { color: "#1a1a2e" } }}
-              />
-
-              <Autocomplete
-                options={users.map((u) => u.username)} value={username} onChange={(e, val) => setUsername(val)}
-                renderInput={(params) => (
-                  <TextField {...params} label="Select Username (optional)"
-                    sx={{ "& .MuiOutlinedInput-root": { borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontSize: 14, "& fieldset": { borderColor: "#e8e8e8" }, "&:hover fieldset": { borderColor: "#c0c0c0" }, "&.Mui-focused fieldset": { borderColor: "#1a1a2e" } }, "& .MuiInputLabel-root": { fontFamily: "'DM Sans', sans-serif", fontSize: 14 }, "& .MuiInputLabel-root.Mui-focused": { color: "#1a1a2e" } }}
-                  />
-                )}
-                sx={{ mb: 3 }}
-              />
-
-              <Button variant="contained" fullWidth onClick={sendMessage} disabled={sending}
-                sx={{ background: "#1a1a2e", borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, py: 1.5, textTransform: "none", boxShadow: "none", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" }, "&:disabled": { background: "#ccc" }, transition: "all 0.2s ease" }}>
-                {sending ? "Sending…" : "Send Message"}
-              </Button>
-            </Box>
-
-            {/* ── USER DOUBTS CARD ── */}
-            <Box className="admin-card" sx={{ flex: 1, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 4 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", gap: 2, textAlign: "center" }}>
-              <Box sx={{ width: 64, height: 64, borderRadius: "20px", background: "#f4f4f6", display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
-                <ForumIcon sx={{ fontSize: 30, color: "#1a1a2e" }} />
-              </Box>
-              <Box>
-                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 20, color: "#1a1a2e", letterSpacing: "-0.4px", mb: 0.5 }}>User Doubts</Typography>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#aaa", lineHeight: 1.6 }}>View and respond to questions raised by students.</Typography>
-              </Box>
-              {unrepliedCount > 0 && (
-                <Box sx={{ px: 2, py: 0.6, borderRadius: "30px", background: "#1a1a2e", display: "inline-flex", alignItems: "center", gap: 0.8 }}>
-                  <Box sx={{ width: 7, height: 7, borderRadius: "50%", background: "#fff", animation: "pulse 1.4s infinite" }} />
-                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: "#fff" }}>{unrepliedCount} pending {unrepliedCount === 1 ? "reply" : "replies"}</Typography>
-                </Box>
-              )}
-              <Button variant="contained" onClick={() => { fetchDoubts(); setOpenDoubts(true); }}
-                sx={{ background: "#1a1a2e", borderRadius: "14px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 14, py: 1.4, px: 5, textTransform: "none", boxShadow: "none", mt: 1, "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" }, transition: "all 0.2s ease" }}>
-                {doubtsLoading ? "Loading…" : "View Messages"}
-              </Button>
-            </Box>
+            <Button
+              variant="outlined"
+              onClick={() => { fetchUsers(); fetchDoubts(); }}
+              startIcon={<RefreshIcon />}
+              sx={{
+                borderColor: "#e0e0e0",
+                color: "#1a1a2e",
+                borderRadius: "12px",
+                fontFamily: "'DM Sans', sans-serif",
+                fontWeight: 600,
+                fontSize: 12.5,
+                textTransform: "none",
+                px: 2,
+                "&:hover": { borderColor: "#1a1a2e", background: "#f8f8fa" },
+              }}
+            >
+              Refresh Data
+            </Button>
           </Box>
 
           {/* ── STATS STRIP ── */}
-          <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
+          <Box sx={{ display: "flex", gap: 2, mb: 3.5, flexWrap: "wrap" }}>
             {[
-              { label: "Total Users",     value: users.length,                   tag: "Registered" },
-              { label: "Total Doubts",    value: doubts.length,                  tag: "Received" },
-              { label: "Pending Replies", value: unrepliedCount,                 tag: "Action needed" },
-              { label: "Replied",         value: doubts.length - unrepliedCount, tag: "Resolved" },
+              { label: "Registered Students", value: users.length, tag: "Atlas Users" },
+              { label: "Academic Doubts", value: doubts.length, tag: "Received" },
+              { label: "Pending Replies", value: unrepliedCount, tag: "Action Needed" },
+              { label: "Resolved Queries", value: doubts.length - unrepliedCount, tag: "Resolved" },
             ].map(({ label, value, tag }) => (
               <Box key={label} className="admin-card" sx={{ flex: "1 1 140px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "16px", p: 2.5, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
                 <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, color: "#ccc", letterSpacing: "1.2px", textTransform: "uppercase", mb: 0.5 }}>{tag}</Typography>
@@ -377,59 +426,364 @@ const AdminDashboard = () => {
             ))}
           </Box>
 
-          {/* ── AIMS & TASKS BUTTONS ── */}
-          <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
-            <Box className="admin-card" sx={{ flex: "1 1 200px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <TrackChangesIcon sx={{ fontSize: 24, color: "#1a1a2e" }} />
+          {/* ── TWO ACTION CARDS: SEND MESSAGE & DOUBTS ── */}
+          <Box sx={{ display: "flex", gap: 3, flexDirection: { xs: "column", md: "row" }, alignItems: "stretch", mb: 3.5 }}>
+            {/* ── SEND MESSAGE CARD ── */}
+            <Box className="admin-card" sx={{ flex: 1, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 4 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column" }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2.5 }}>
+                <Box sx={{ width: 42, height: 42, borderRadius: "13px", background: "#1a1a2e", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <SendIcon sx={{ color: "#fff", fontSize: 19 }} />
+                </Box>
+                <Box>
+                  <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 17, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Send Announcement</Typography>
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Broadcast or target a specific student</Typography>
+                </Box>
               </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Aims of My Life</Typography>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>{aims.filter(a => a.completed).length}/{aims.length} completed</Typography>
-              </Box>
-              <Button variant="contained" onClick={() => setOpenAims(true)}
-                sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.5, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" }, transition: "all 0.2s ease" }}>
-                Open
+
+              <TextField
+                fullWidth
+                multiline
+                rows={3}
+                placeholder="Type your notification message to students…"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                sx={{
+                  mb: 2,
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "14px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13.5,
+                    "& fieldset": { borderColor: "#e8e8e8" },
+                    "&:hover fieldset": { borderColor: "#c0c0c0" },
+                    "&.Mui-focused fieldset": { borderColor: "#1a1a2e" },
+                  },
+                }}
+              />
+
+              <Autocomplete
+                options={users.map((u) => u.username)}
+                value={username}
+                onChange={(e, val) => setUsername(val)}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    size="small"
+                    placeholder="All Students (Broadcast) or select student…"
+                    sx={{
+                      "& .MuiOutlinedInput-root": {
+                        borderRadius: "12px",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontSize: 13,
+                        "& fieldset": { borderColor: "#e8e8e8" },
+                        "&.Mui-focused fieldset": { borderColor: "#1a1a2e" },
+                      },
+                    }}
+                  />
+                )}
+                sx={{ mb: 2.5 }}
+              />
+
+              <Button
+                variant="contained"
+                fullWidth
+                onClick={sendMessage}
+                disabled={sending}
+                sx={{
+                  background: "#1a1a2e",
+                  borderRadius: "12px",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  py: 1.3,
+                  textTransform: "none",
+                  boxShadow: "none",
+                  "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" },
+                  "&:disabled": { background: "#ccc" },
+                }}
+              >
+                {sending ? "Sending…" : "Send Notification"}
               </Button>
             </Box>
 
-            <Box className="admin-card" sx={{ flex: "1 1 200px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <AssignmentIcon sx={{ fontSize: 24, color: "#1a1a2e" }} />
+            {/* ── USER DOUBTS CARD ── */}
+            <Box className="admin-card" sx={{ flex: 1, background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 3, sm: 4 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", textAlign: "center" }}>
+              <Box sx={{ width: 56, height: 56, borderRadius: "18px", background: "#f4f4f6", display: "flex", alignItems: "center", justifyContent: "center", mb: 1.5 }}>
+                <ForumIcon sx={{ fontSize: 28, color: "#1a1a2e" }} />
               </Box>
-              <Box sx={{ flex: 1 }}>
-                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Today's Tasks</Typography>
-                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>{tasks.filter(t => t.completed).length}/{tasks.length} completed</Typography>
-              </Box>
-              <Button variant="contained" onClick={() => setOpenTasks(true)}
-                sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.5, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" }, transition: "all 0.2s ease" }}>
-                Open
+              <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 19, color: "#1a1a2e", mb: 0.5 }}>
+                Student Doubts & Questions
+              </Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "#aaa", maxWidth: 320, mb: 2 }}>
+                Review and respond to academic questions asked by registered students.
+              </Typography>
+              {unrepliedCount > 0 && (
+                <Box sx={{ px: 2, py: 0.5, borderRadius: "30px", background: "#1a1a2e", display: "inline-flex", alignItems: "center", gap: 0.8, mb: 2 }}>
+                  <Box sx={{ width: 7, height: 7, borderRadius: "50%", background: "#fff", animation: "pulse 1.4s infinite" }} />
+                  <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11.5, fontWeight: 700, color: "#fff" }}>
+                    {unrepliedCount} pending {unrepliedCount === 1 ? "reply" : "replies"}
+                  </Typography>
+                </Box>
+              )}
+              <Button
+                variant="contained"
+                onClick={() => { fetchDoubts(); setOpenDoubts(true); }}
+                sx={{
+                  background: "#1a1a2e",
+                  borderRadius: "12px",
+                  fontFamily: "'DM Sans', sans-serif",
+                  fontWeight: 700,
+                  fontSize: 13.5,
+                  py: 1.3,
+                  px: 4,
+                  textTransform: "none",
+                  boxShadow: "none",
+                  "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" },
+                }}
+              >
+                {doubtsLoading ? "Loading…" : "Open Doubts Portal"}
               </Button>
             </Box>
           </Box>
-          <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
-            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><InsightsIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
-              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Data Analyses</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Descriptive stats, Pearson r, RFM & cohorts</Typography></Box>
-              <Button variant="contained" onClick={() => setAdminSection("analytics")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
+
+          {/* ── AIMS & TASKS BUTTONS ── */}
+          <Box sx={{ display: "flex", gap: 2, mb: 3.5, flexWrap: "wrap" }}>
+            <Box className="admin-card" sx={{ flex: "1 1 200px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "18px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: "12px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <TrackChangesIcon sx={{ fontSize: 22, color: "#1a1a2e" }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15, color: "#1a1a2e" }}>Aims of My Life</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>{aims.filter(a => a.completed).length}/{aims.length} completed</Typography>
+              </Box>
+              <Button variant="contained" onClick={() => setOpenAims(true)} sx={{ background: "#1a1a2e", borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12.5, py: 1, px: 2, textTransform: "none", boxShadow: "none", "&:hover": { background: "#2d2d4e" } }}>
+                Manage
+              </Button>
             </Box>
-            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><PsychologyIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
-              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>AI / ML Engine</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>7 Models benchmark, K-Means & live prediction</Typography></Box>
-              <Button variant="contained" onClick={() => setAdminSection("aiml")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
-            </Box>
-            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
-              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><TableChartIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
-              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Data Hub & Audit</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Atlas student dataset, 7 model votes & math proofs</Typography></Box>
-              <Button variant="contained" onClick={() => setAdminSection("audit")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
+
+            <Box className="admin-card" sx={{ flex: "1 1 200px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "18px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ width: 44, height: 44, borderRadius: "12px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
+                <AssignmentIcon sx={{ fontSize: 22, color: "#1a1a2e" }} />
+              </Box>
+              <Box sx={{ flex: 1 }}>
+                <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15, color: "#1a1a2e" }}>Today's Tasks</Typography>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>{tasks.filter(t => t.completed).length}/{tasks.length} completed</Typography>
+              </Box>
+              <Button variant="contained" onClick={() => setOpenTasks(true)} sx={{ background: "#1a1a2e", borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12.5, py: 1, px: 2, textTransform: "none", boxShadow: "none", "&:hover": { background: "#2d2d4e" } }}>
+                Manage
+              </Button>
             </Box>
           </Box>
-          </Box>)}
+
+          {/* ══════════════════════════════════════════════════════════════
+              REGISTERED NOTENOVA STUDENTS & CASCADE USER DELETION
+             ══════════════════════════════════════════════════════════════ */}
+          <Box sx={{ background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3.5 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)" }}>
+            <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 2, mb: 3 }}>
+              <Box>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 0.5 }}>
+                  <Box sx={{ width: 38, height: 38, borderRadius: "12px", background: "#ffebee", display: "flex", alignItems: "center", justifyContent: "center", color: "#d32f2f" }}>
+                    <PersonRemoveIcon sx={{ fontSize: 20 }} />
+                  </Box>
+                  <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 18, sm: 22 }, color: "#1a1a2e" }}>
+                    Registered Students & Cascade Account Purge
+                  </Typography>
+                </Box>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12.5, color: "#777", maxWidth: 720 }}>
+                  Review all genuine Notenova students. When you delete a user here, they are permanently erased from MongoDB along with all their enrolled purchases, payment attempts, recovery records, and doubts.
+                </Typography>
+              </Box>
+
+              <TextField
+                size="small"
+                placeholder="Search by student name or @handle…"
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ fontSize: 18, color: "#aaa" }} />
+                    </InputAdornment>
+                  ),
+                }}
+                sx={{
+                  width: { xs: "100%", sm: 280 },
+                  "& .MuiOutlinedInput-root": {
+                    borderRadius: "12px",
+                    fontFamily: "'DM Sans', sans-serif",
+                    fontSize: 13,
+                    background: "#fdfdfd",
+                  },
+                }}
+              />
+            </Box>
+
+            {usersLoading ? (
+              <Box sx={{ textAlign: "center", py: 6 }}>
+                <CircularProgress size={32} sx={{ color: "#1a1a2e" }} />
+                <Typography sx={{ mt: 1.5, fontSize: 13, color: "#888", fontFamily: "'DM Sans', sans-serif" }}>
+                  Loading real students from MongoDB Atlas...
+                </Typography>
+              </Box>
+            ) : filteredUsers.length === 0 ? (
+              <Box sx={{ textAlign: "center", py: 5, background: "#fafafa", borderRadius: "14px", border: "1px dashed #e0e0e0" }}>
+                <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#888" }}>
+                  No students found matching your search.
+                </Typography>
+              </Box>
+            ) : (
+              <TableContainer component={Paper} elevation={0} sx={{ border: "1px solid #f0f0f0", borderRadius: "14px", overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+                <Table size="small" sx={{ minWidth: { xs: 650, md: "auto" } }}>
+                  <TableHead sx={{ background: "#fafafa" }}>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700, fontSize: 12 }}>Student</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: 12 }}>Enrolled Batches</TableCell>
+                      <TableCell align="right" sx={{ fontWeight: 700, fontSize: 12 }}>Total Spend</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, fontSize: 12 }}>Doubts</TableCell>
+                      <TableCell sx={{ fontWeight: 700, fontSize: 12 }}>Registered Date</TableCell>
+                      <TableCell align="center" sx={{ fontWeight: 700, fontSize: 12 }}>Permanent Purge</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {filteredUsers.map((u) => (
+                      <TableRow key={u._id} hover sx={{ "&:hover": { background: "#fafbfc" } }}>
+                        <TableCell>
+                          <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+                            <Box sx={{ width: 32, height: 32, borderRadius: "10px", background: "#1a1a2e", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 13 }}>
+                              {u.name?.[0]?.toUpperCase() || "S"}
+                            </Box>
+                            <Box>
+                              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, color: "#1a1a2e" }}>
+                                {u.name}
+                              </Typography>
+                              <Typography sx={{ fontSize: 11, color: "#888" }}>
+                                @{u.username}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={`${u.purchaseCount || 0} Batches`}
+                            size="small"
+                            sx={{
+                              background: (u.purchaseCount || 0) > 0 ? "#e8f5e9" : "#f4f4f6",
+                              color: (u.purchaseCount || 0) > 0 ? "#2e7d32" : "#888",
+                              fontWeight: 700,
+                              fontSize: 11,
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700, fontSize: 12.5, color: "#1a1a2e" }}>
+                          ₹{(u.totalSpend || 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Chip
+                            label={u.doubtsCount || 0}
+                            size="small"
+                            sx={{ background: "#f4f4f6", fontWeight: 700, fontSize: 11 }}
+                          />
+                        </TableCell>
+                        <TableCell sx={{ fontSize: 11.5, color: "#777" }}>
+                          {u.createdAt ? new Date(u.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "N/A"}
+                        </TableCell>
+                        <TableCell align="center">
+                          <Tooltip title="Delete user and all their records from MongoDB">
+                            <Button
+                              size="small"
+                              variant="outlined"
+                              color="error"
+                              onClick={() => promptDeleteUser(u)}
+                              startIcon={<DeleteOutlineIcon sx={{ fontSize: 16 }} />}
+                              sx={{
+                                textTransform: "none",
+                                borderRadius: "8px",
+                                fontFamily: "'DM Sans', sans-serif",
+                                fontWeight: 700,
+                                fontSize: 11.5,
+                                py: 0.4,
+                                px: 1.2,
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </Tooltip>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+          </Box>
         </Box>
       </Fade>
 
+      {/* ── CASCADE DELETE CONFIRMATION MODAL ── */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => !deleteLoading && setDeleteDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "18px", p: 1 } }}
+      >
+        <DialogTitle sx={{ display: "flex", alignItems: "center", gap: 1.5, color: "#d32f2f", fontFamily: "'Playfair Display', serif", fontWeight: 800 }}>
+          <WarningAmberIcon sx={{ fontSize: 26 }} />
+          Permanent Deletion Warning
+        </DialogTitle>
+        <DialogContent sx={{ pt: 1 }}>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13.5, color: "#333", mb: 2 }}>
+            Are you sure you want to permanently delete student <strong>{userToDelete?.name}</strong> (<code>@{userToDelete?.username}</code>)?
+          </Typography>
+          <Box sx={{ p: 2, background: "#fff8f8", borderRadius: "12px", border: "1px solid #ffcdd2", mb: 1 }}>
+            <Typography sx={{ fontSize: 11.5, color: "#c62828", fontWeight: 700, mb: 0.8 }}>
+              ⚡ The following will be permanently erased across MongoDB:
+            </Typography>
+            <Typography sx={{ fontSize: 11, color: "#666", lineHeight: 1.6 }}>
+              • User record from <code>users</code> collection<br />
+              • All batch purchases from <code>purchases</code> collection<br />
+              • All doubts and questions from <code>doubts</code> collection<br />
+              • Payment logs, failed transactions, and recovery offers<br />
+              • Chapter notes & personalized bookmarks
+            </Typography>
+          </Box>
+          <Typography sx={{ fontSize: 11, color: "#888", fontStyle: "italic", mt: 1.5 }}>
+            All platform data analyses and AI/ML model benchmarks will automatically recalculate on genuine remaining students.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, pt: 0 }}>
+          <Button
+            onClick={() => setDeleteDialogOpen(false)}
+            disabled={deleteLoading}
+            sx={{ textTransform: "none", color: "#666", fontFamily: "'DM Sans', sans-serif", fontWeight: 700 }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={executeDeleteUser}
+            disabled={deleteLoading}
+            sx={{
+              textTransform: "none",
+              borderRadius: "10px",
+              fontFamily: "'DM Sans', sans-serif",
+              fontWeight: 700,
+              boxShadow: "none",
+            }}
+          >
+            {deleteLoading ? "Purging…" : "Permanently Delete"}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* ── DOUBTS MODAL ── */}
-      <Dialog open={openDoubts} onClose={() => setOpenDoubts(false)} maxWidth="md" fullWidth PaperProps={{ sx: { borderRadius: "20px", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 32px 80px rgba(0,0,0,0.15)" } }}>
+      <Dialog
+        open={openDoubts}
+        onClose={() => setOpenDoubts(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: "20px", fontFamily: "'DM Sans', sans-serif", boxShadow: "0 32px 80px rgba(0,0,0,0.15)" } }}
+      >
         <DialogTitle sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 20, color: "#1a1a2e", pb: 1, borderBottom: "1px solid #f0f0f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
             User Doubts
@@ -486,11 +840,40 @@ const AdminDashboard = () => {
                   </Box>
                 ) : (
                   <>
-                    <TextField fullWidth multiline rows={2} placeholder="Write your reply…" value={replyText[d._id] || ""} onChange={(e) => setReplyText({ ...replyText, [d._id]: e.target.value })}
-                      sx={{ mb: 1.5, "& .MuiOutlinedInput-root": { borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontSize: 13, "& fieldset": { borderColor: "#e8e8e8" }, "&:hover fieldset": { borderColor: "#c0c0c0" }, "&.Mui-focused fieldset": { borderColor: "#1a1a2e" } } }}
+                    <TextField
+                      fullWidth
+                      multiline
+                      rows={2}
+                      placeholder="Write your reply…"
+                      value={replyText[d._id] || ""}
+                      onChange={(e) => setReplyText({ ...replyText, [d._id]: e.target.value })}
+                      sx={{
+                        mb: 1.5,
+                        "& .MuiOutlinedInput-root": {
+                          borderRadius: "12px",
+                          fontFamily: "'DM Sans', sans-serif",
+                          fontSize: 13,
+                          "& fieldset": { borderColor: "#e8e8e8" },
+                          "&.Mui-focused fieldset": { borderColor: "#1a1a2e" },
+                        },
+                      }}
                     />
-                    <Button variant="contained" onClick={() => sendReply(d._id)}
-                      sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1, px: 3, textTransform: "none", boxShadow: "none", "&:hover": { background: "#2d2d4e", boxShadow: "0 6px 18px rgba(26,26,46,0.22)" }, transition: "all 0.2s ease" }}>
+                    <Button
+                      variant="contained"
+                      onClick={() => sendReply(d._id)}
+                      sx={{
+                        background: "#1a1a2e",
+                        borderRadius: "12px",
+                        fontFamily: "'DM Sans', sans-serif",
+                        fontWeight: 700,
+                        fontSize: 13,
+                        py: 1,
+                        px: 3,
+                        textTransform: "none",
+                        boxShadow: "none",
+                        "&:hover": { background: "#2d2d4e", boxShadow: "0 6px 18px rgba(26,26,46,0.22)" },
+                      }}
+                    >
                       Send Reply
                     </Button>
                   </>
@@ -508,7 +891,9 @@ const AdminDashboard = () => {
       {renderListModal({ open: openTasks, onClose: () => setOpenTasks(false), title: "Today's Tasks", icon: <AssignmentIcon sx={{ color: "#fff", fontSize: 18 }} />, items: tasks, newVal: newTask, setNewVal: setNewTask, onAdd: addTask, onToggle: toggleTask, onDelete: deleteTask, placeholder: "Add your today's task…" })}
 
       <Snackbar open={snackbarOpen} autoHideDuration={4000} onClose={() => setSnackbarOpen(false)}>
-        <Alert severity="success" sx={{ fontFamily: "'DM Sans', sans-serif", borderRadius: "12px" }}>Message sent successfully!</Alert>
+        <Alert severity={snackbarSeverity} sx={{ fontFamily: "'DM Sans', sans-serif", borderRadius: "12px" }}>
+          {snackbarMsg}
+        </Alert>
       </Snackbar>
     </>
   );

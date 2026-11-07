@@ -205,6 +205,80 @@ const DataAnalysisStudio = () => {
       {activeTab === 0 && (
         <Fade in timeout={300}>
           <Box>
+            {/* ── 3 CORE ANALYTIC GUIDES: Z-SCORES, REAL STUDY HOURS, 7 CHURN FACTORS ── */}
+            <Grid container spacing={2.5} sx={{ mb: 3 }}>
+              {/* Guide 1: Z-Score Everywhere */}
+              <Grid item xs={12} md={4}>
+                <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", height: "100%" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 16, color: "#1a1a2e", mb: 0.8 }}>
+                      📐 What Z-Scores (Z-Values) Mean Everywhere
+                    </Typography>
+                    <Typography sx={{ fontSize: 11.5, color: "#666", mb: 1.5 }}>
+                      Formula: <code>Z = (X - μ) / σ</code>
+                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.8, fontSize: 11 }}>
+                      <Box sx={{ p: 0.8, background: "#e8f5e9", borderRadius: "8px", color: "#1b5e20" }}>
+                        <strong>+Z (> 0):</strong> Above average. +1.5σ means student is in the top 7% for study hours or test scores.
+                      </Box>
+                      <Box sx={{ p: 0.8, background: "#f4f4f6", borderRadius: "8px", color: "#333" }}>
+                        <strong>Z = 0:</strong> Exactly at the platform mean across all 66 students.
+                      </Box>
+                      <Box sx={{ p: 0.8, background: "#ffebee", borderRadius: "8px", color: "#b71c1c" }}>
+                        <strong>-Z (< 0):</strong> Below average. Negative Z indicates learning deficits or rapid platform activity.
+                      </Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Guide 2: Real Study Hours Formula */}
+              <Grid item xs={12} md={4}>
+                <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", height: "100%" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 16, color: "#1a1a2e", mb: 0.8 }}>
+                      ⏱️ Real Study Hours Calculation
+                    </Typography>
+                    <Typography sx={{ fontSize: 11.5, color: "#2e7d32", fontWeight: 700, mb: 1 }}>
+                      100% Real Data (No Seeded / Artificial Modulo)
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: "#666", lineHeight: 1.5, mb: 1.2 }}>
+                      Calculated directly from original Atlas database records:
+                    </Typography>
+                    <Box sx={{ p: 1, background: "#fafafa", borderRadius: "8px", border: "1px solid #eee", fontFamily: "monospace", fontSize: 10.5, color: "#1565c0" }}>
+                      Study Hours = (Batches × 12.0h) + (Notes × 3.5h) + (Doubts × 1.5h) + 0.5h
+                    </Box>
+                    <Typography sx={{ fontSize: 10, color: "#888", mt: 1 }}>
+                      • Example Student 1234: 24 batches × 12h + 8 doubts × 1.5h + 0.5h = 300.5 hrs.
+                    </Typography>
+                  </CardContent>
+                </Card>
+              </Grid>
+
+              {/* Guide 3: The 7 Churn Factors */}
+              <Grid item xs={12} md={4}>
+                <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", height: "100%" }}>
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 16, color: "#1a1a2e", mb: 0.8 }}>
+                      🎯 The 7 Churn Decision Drivers
+                    </Typography>
+                    <Typography sx={{ fontSize: 11, color: "#666", mb: 1 }}>
+                      Ground-truth risk evaluated across:
+                    </Typography>
+                    <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, fontSize: 10.5 }}>
+                      <Box><strong>1. Days Inactive (35%):</strong> Inactivity ≥ 14 days = critical drop-off.</Box>
+                      <Box><strong>2. Study Hours (20%):</strong> Low cumulative engagement (< 10h).</Box>
+                      <Box><strong>3. Quiz Mastery (15%):</strong> Score < 45% causes frustration.</Box>
+                      <Box><strong>4. Enrolled Batches (10%):</strong> Financial sunk-cost commitment.</Box>
+                      <Box><strong>5. Chapter Progress (10%):</strong> Syllabus completion speed.</Box>
+                      <Box><strong>6. Doubts (5%):</strong> Help-seeking persistence.</Box>
+                      <Box><strong>7. Payment Failures (5%):</strong> Unrecovered billing errors.</Box>
+                    </Box>
+                  </CardContent>
+                </Card>
+              </Grid>
+            </Grid>
+
             {/* Descriptive Statistics Table */}
             <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", mb: 3 }}>
               <CardContent sx={{ p: 3 }}>
@@ -284,7 +358,17 @@ const DataAnalysisStudio = () => {
                           responsive: true,
                           maintainAspectRatio: false,
                           plugins: { legend: { display: false } },
-                          scales: { y: { beginAtZero: true, grid: { color: "#f0f0f0" } }, x: { grid: { display: false } } },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              grid: { color: "#f0f0f0" },
+                              title: { display: true, text: "Y-Axis: Number of Students (Learners)", font: { weight: "bold", size: 11 } }
+                            },
+                            x: {
+                              grid: { display: false },
+                              title: { display: true, text: "X-Axis: Cumulative Study Time (Hours Range)", font: { weight: "bold", size: 11 } }
+                            }
+                          },
                         }}
                       />
                     </Box>
@@ -319,7 +403,17 @@ const DataAnalysisStudio = () => {
                           responsive: true,
                           maintainAspectRatio: false,
                           plugins: { legend: { display: false } },
-                          scales: { y: { beginAtZero: true, grid: { color: "#f0f0f0" } }, x: { grid: { display: false } } },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              grid: { color: "#f0f0f0" },
+                              title: { display: true, text: "Y-Axis: Student Count (Density)", font: { weight: "bold", size: 11 } }
+                            },
+                            x: {
+                              grid: { display: false },
+                              title: { display: true, text: "X-Axis: Knowledge Assessment Score (Bucket %)", font: { weight: "bold", size: 11 } }
+                            }
+                          },
                         }}
                       />
                     </Box>
