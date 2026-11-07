@@ -153,13 +153,14 @@ router.get("/student/profile", auth, async (req, res) => {
     const nNotes = chapterNotes.length;
     const nTests = testAttempts.length;
 
-    // Real Study Hours Formula:
-    // (Batches * 12.0h) + (Notes * 3.5h) + (Doubts * 1.5h) + (Tests * 1.0h) + (Logged Time in hrs) + 0.5h baseline
+    // Real Live Study Hours: Derived 100% from platform session timer in MongoDB
     const loggedTimeHours = +(Number(user?.totalTimeSpentSeconds || 0) / 3600).toFixed(2);
-    const studyHours = +((nPurchases * 12.0) + (nNotes * 3.5) + (nDoubts * 1.5) + (nTests * 1.0) + loggedTimeHours + 0.5).toFixed(1);
+    const studyHours = loggedTimeHours;
 
     // Calculate Inactivity Days from genuine timestamps
     const activityDates = [
+      user?.lastActiveAt ? new Date(user.lastActiveAt) : null,
+      user?.lastLoginAt ? new Date(user.lastLoginAt) : null,
       user?.createdAt ? new Date(user.createdAt) : null,
       ...purchases.map(p => p.createdAt ? new Date(p.createdAt) : null),
       ...doubts.map(d => d.createdAt ? new Date(d.createdAt) : null),
@@ -172,15 +173,11 @@ router.get("/student/profile", auth, async (req, res) => {
 
     const daysInactive = Math.max(0, Math.floor((Date.now() - latestActivity.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Calculate Quiz Score
-    let quizScore = 45;
+    // Calculate Quiz Score: 100% Real test attempts accuracy from MongoDB
+    let quizScore = 0;
     if (testAttempts.length > 0) {
       const avgTestScore = testAttempts.reduce((sum, t) => sum + (Number(t.accuracy) || Number(t.score) || 0), 0) / testAttempts.length;
-      quizScore = Math.min(98, Math.max(25, Math.round(avgTestScore)));
-    } else {
-      quizScore = Math.min(98, Math.max(25, Math.round(
-        45 + (nPurchases * 4.0) + (nNotes * 3.0) + (nDoubts * 1.5) - Math.min(25, daysInactive * 0.75)
-      )));
+      quizScore = Math.round(avgTestScore);
     }
 
     const doubtsResolved = doubts.filter(d => Boolean(d.reply || d.replied)).length;

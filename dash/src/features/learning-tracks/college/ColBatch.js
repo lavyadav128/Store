@@ -34,6 +34,7 @@ import { makeAuthenticatedRequest } from '../../../shared/guards/makeauth';
 // imported from a config file so we don't hardcode the URL everywhere
 import server from '../../../shared/environment';
 import { reportCheckoutFailure } from '../../../shared/recoveryClient';
+import RazorpayCheckoutModal from '../../../shared/components/RazorpayCheckoutModal';
 
 
 // ═════════════════════════════════════════════════════════════
@@ -194,7 +195,8 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
   // ── JSX: THE CARD UI ──
   return (
-    // Card is the white rounded container
+    <>
+    {/* Card is the white rounded container */}
     // sx is MUI's way of writing inline CSS using the theme system
     <Card
       sx={{

@@ -598,7 +598,7 @@ const DataAuditStudio = () => {
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0, px: 3, pb: 3 }}>
                 <Typography sx={{ fontSize: 13, color: "#555", mb: 2 }}>
-                  Calculated across all 67 student records in the Notenova Atlas database:
+                  Calculated dynamically across all {auditData?.summary?.totalStudents || 1} student record(s) in the Notenova Atlas database:
                 </Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} md={6}>
@@ -613,7 +613,7 @@ const DataAuditStudio = () => {
                         σ² = [1 / (N - 1)] * Σ (xᵢ - μ)² &nbsp;→&nbsp; σ = √(σ²)
                       </Typography>
                       <Typography sx={{ fontSize: 11.5, color: "#666", mt: 1 }}>
-                        <strong>Proof for Study Hours:</strong> Total hours Σx = 2,568.8 hrs across N = 67 students → <strong>μ = 38.34 hrs</strong>, <strong>σ = 66.31 hrs</strong>.
+                        <strong>Proof for Study Hours:</strong> Total hours Σx = {((auditData?.students || []).reduce((s, st) => s + (st.studyHours || 0), 0)).toFixed(2)} hrs across N = {auditData?.summary?.totalStudents || 1} student(s) → <strong>μ = {(((auditData?.students || []).reduce((s, st) => s + (st.studyHours || 0), 0)) / (auditData?.summary?.totalStudents || 1)).toFixed(2)} hrs</strong>.
                       </Typography>
                     </Box>
                   </Grid>
@@ -630,7 +630,7 @@ const DataAuditStudio = () => {
                         Skewness g₁ = [N / ((N-1)(N-2))] * Σ [(xᵢ - μ) / σ]³
                       </Typography>
                       <Typography sx={{ fontSize: 11.5, color: "#666", mt: 1 }}>
-                        <strong>Proof for Study Hours:</strong> Q1 = 11.4h, Median Q2 = 19.3h, Q3 = 36.95h → <strong>IQR = 25.55h</strong>. Positive skewness g₁ = +4.069 confirms power-law distribution.
+                        <strong>Empirical Distribution:</strong> Measured directly from sorted student session vectors in MongoDB Atlas.
                       </Typography>
                     </Box>
                   </Grid>
@@ -797,77 +797,96 @@ const DataAuditStudio = () => {
                 </Box>
               </AccordionSummary>
               <AccordionDetails sx={{ pt: 0, px: 3, pb: 3 }}>
-                <Typography sx={{ fontSize: 13, color: "#555", mb: 2 }}>
-                  Verification of how accuracy, precision, recall, and F1-score are calculated on our 67-student Notenova dataset:
-                </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ background: "#fafafa", p: 2.5, borderRadius: "14px", border: "1px solid #f0f0f0" }}>
-                      <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#1a1a2e", mb: 1.5 }}>
-                        Platform Confusion Matrix (N = 67 Students)
-                      </Typography>
-                      <Table size="small" sx={{ background: "#fff", borderRadius: "8px", overflow: "hidden", border: "1px solid #eee" }}>
-                        <TableHead sx={{ background: "#f5f5f7" }}>
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Ground Truth \ Predicted</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700, fontSize: 11 }}>Predicted Churned</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 700, fontSize: 11 }}>Predicted Active</TableCell>
-                          </TableRow>
-                        </TableHead>
-                        <TableBody>
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Actual Churned (34)</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 800, color: "#2e7d32", fontSize: 13, background: "#e8f5e9" }}>
-                              TP = 34
-                            </TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 800, color: "#d32f2f", fontSize: 13 }}>
-                              FN = 0
-                            </TableCell>
-                          </TableRow>
-                          <TableRow>
-                            <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Actual Active (33)</TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 800, color: "#d32f2f", fontSize: 13 }}>
-                              FP = 0
-                            </TableCell>
-                            <TableCell align="center" sx={{ fontWeight: 800, color: "#2e7d32", fontSize: 13, background: "#e8f5e9" }}>
-                              TN = 33
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
-                    </Box>
-                  </Grid>
+                {(() => {
+                  const sList = auditData?.students || [];
+                  const tp = sList.filter(s => s.churned === 1 && (s.prediction?.consensusProbability >= 0.5)).length;
+                  const fn = sList.filter(s => s.churned === 1 && (s.prediction?.consensusProbability < 0.5)).length;
+                  const fp = sList.filter(s => s.churned === 0 && (s.prediction?.consensusProbability >= 0.5)).length;
+                  const tn = sList.filter(s => s.churned === 0 && (s.prediction?.consensusProbability < 0.5)).length;
+                  const totalN = sList.length || 1;
+                  const actChurned = auditData?.summary?.actualChurned ?? (tp + fn);
+                  const actActive = auditData?.summary?.actualActive ?? (tn + fp);
+                  const acc = (((tp + tn) / totalN) * 100).toFixed(1);
+                  const prec = (tp + fp) > 0 ? ((tp / (tp + fp)) * 100).toFixed(1) : "100.0";
+                  const rec = (tp + fn) > 0 ? ((tp / (tp + fn)) * 100).toFixed(1) : "100.0";
+                  const f1 = (Number(prec) + Number(rec)) > 0 ? ((2 * Number(prec) * Number(rec)) / (Number(prec) + Number(rec))).toFixed(1) : "100.0";
 
-                  <Grid item xs={12} md={6}>
-                    <Box sx={{ background: "#fafafa", p: 2.5, borderRadius: "14px", border: "1px solid #f0f0f0" }}>
-                      <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#1a1a2e", mb: 1.5 }}>
-                        Step-by-Step Metric Equations
+                  return (
+                    <>
+                      <Typography sx={{ fontSize: 13, color: "#555", mb: 2 }}>
+                        Verification of how accuracy, precision, recall, and F1-score are calculated on our {totalN}-student Notenova dataset:
                       </Typography>
-                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
-                        <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
-                          <Typography sx={{ fontSize: 11.5, color: "#333" }}>
-                            <strong>Accuracy:</strong> (TP + TN) / (TP + TN + FP + FN) = (34 + 33) / 67 = <strong>100.0%</strong>
-                          </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
-                          <Typography sx={{ fontSize: 11.5, color: "#333" }}>
-                            <strong>Precision:</strong> TP / (TP + FP) = 34 / (34 + 0) = <strong>100.0%</strong>
-                          </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
-                          <Typography sx={{ fontSize: 11.5, color: "#333" }}>
-                            <strong>Recall (Sensitivity):</strong> TP / (TP + FN) = 34 / (34 + 0) = <strong>100.0%</strong>
-                          </Typography>
-                        </Box>
-                        <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
-                          <Typography sx={{ fontSize: 11.5, color: "#333" }}>
-                            <strong>F1-Score:</strong> 2 * (Prec * Rec) / (Prec + Rec) = 2 * (1 * 1) / (1 + 1) = <strong>1.000</strong>
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Grid>
-                </Grid>
+                      <Grid container spacing={2}>
+                        <Grid item xs={12} md={6}>
+                          <Box sx={{ background: "#fafafa", p: 2.5, borderRadius: "14px", border: "1px solid #f0f0f0" }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#1a1a2e", mb: 1.5 }}>
+                              Platform Confusion Matrix (N = {totalN} Student{totalN > 1 ? "s" : ""})
+                            </Typography>
+                            <Table size="small" sx={{ background: "#fff", borderRadius: "8px", overflow: "hidden", border: "1px solid #eee" }}>
+                              <TableHead sx={{ background: "#f5f5f7" }}>
+                                <TableRow>
+                                  <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Ground Truth \ Predicted</TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: 11 }}>Predicted Churned</TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 700, fontSize: 11 }}>Predicted Active</TableCell>
+                                </TableRow>
+                              </TableHead>
+                              <TableBody>
+                                <TableRow>
+                                  <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Actual Churned ({actChurned})</TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 800, color: "#2e7d32", fontSize: 13, background: "#e8f5e9" }}>
+                                    TP = {tp}
+                                  </TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 800, color: "#d32f2f", fontSize: 13 }}>
+                                    FN = {fn}
+                                  </TableCell>
+                                </TableRow>
+                                <TableRow>
+                                  <TableCell sx={{ fontWeight: 700, fontSize: 11 }}>Actual Active ({actActive})</TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 800, color: "#d32f2f", fontSize: 13 }}>
+                                    FP = {fp}
+                                  </TableCell>
+                                  <TableCell align="center" sx={{ fontWeight: 800, color: "#2e7d32", fontSize: 13, background: "#e8f5e9" }}>
+                                    TN = {tn}
+                                  </TableCell>
+                                </TableRow>
+                              </TableBody>
+                            </Table>
+                          </Box>
+                        </Grid>
+
+                        <Grid item xs={12} md={6}>
+                          <Box sx={{ background: "#fafafa", p: 2.5, borderRadius: "14px", border: "1px solid #f0f0f0" }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#1a1a2e", mb: 1.5 }}>
+                              Step-by-Step Metric Equations
+                            </Typography>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
+                              <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
+                                <Typography sx={{ fontSize: 11.5, color: "#333" }}>
+                                  <strong>Accuracy:</strong> (TP + TN) / (TP + TN + FP + FN) = ({tp} + {tn}) / {totalN} = <strong>{acc}%</strong>
+                                </Typography>
+                              </Box>
+                              <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
+                                <Typography sx={{ fontSize: 11.5, color: "#333" }}>
+                                  <strong>Precision:</strong> TP / (TP + FP) = {tp} / ({tp} + {fp}) = <strong>{prec}%</strong>
+                                </Typography>
+                              </Box>
+                              <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
+                                <Typography sx={{ fontSize: 11.5, color: "#333" }}>
+                                  <strong>Recall (Sensitivity):</strong> TP / (TP + FN) = {tp} / ({tp} + {fn}) = <strong>{rec}%</strong>
+                                </Typography>
+                              </Box>
+                              <Box sx={{ p: 1, background: "#fff", borderRadius: "8px", border: "1px solid #eee" }}>
+                                <Typography sx={{ fontSize: 11.5, color: "#333" }}>
+                                  <strong>F1-Score:</strong> 2 * (Prec * Rec) / (Prec + Rec) = <strong>{f1}%</strong>
+                                </Typography>
+                              </Box>
+                            </Box>
+                          </Box>
+                        </Grid>
+                      </Grid>
+                    </>
+                  );
+                })()}
               </AccordionDetails>
             </Accordion>
 

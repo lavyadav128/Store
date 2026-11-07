@@ -319,7 +319,7 @@ const SingleStudentDossier = ({
               Comparative Behavioral Metrics & Z-Score Statistical Traces
             </Typography>
             <Typography sx={{ fontSize: 12.5, color: "#777", mb: 2 }}>
-              Every signal is benchmarked against the platform population of all 67 students with plain explanations and exact arithmetic substitutions.
+              Every signal is benchmarked against the platform population of registered students with plain explanations and exact arithmetic substitutions.
             </Typography>
 
             <Grid container spacing={2.5}>
@@ -514,8 +514,8 @@ const SingleStudentDossier = ({
                           prob: profile.prediction?.modelVotes?.["Support Vector Machine"] ?? 0,
                         },
                         {
-                          name: "K-Nearest Neighbors (KNN, k=5)",
-                          logic: "Locates the 5 students with the most identical study hours & inactivity.",
+                          name: "K-Nearest Neighbors (KNN)",
+                          logic: "Locates the nearest neighbor students with the most identical study hours & inactivity.",
                           prob: profile.prediction?.modelVotes?.["K-Nearest Neighbors"] ?? 0,
                         },
                         {

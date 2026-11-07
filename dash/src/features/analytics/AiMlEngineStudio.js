@@ -72,7 +72,7 @@ const MODEL_DETAILS = {
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches" },
       zScores: { daysInactive: "+1.85σ", studyHours: "+3.42σ", quizScore: "+1.95σ" },
       calculationTrace: [
-        "1. Base log-odds across 66 students: F_0 = ln(34/32) = +0.0607.",
+        "1. Base log-odds across student cohort: F_0 = ln(p_churn / (1 - p_churn)).",
         "2. Stage 1 Tree: Inactive = 164 days → Residual gradient +0.85 → F_1 = 0.0607 + 0.1 × (+0.85) = +0.1457.",
         "3. Stage 2 Tree: Purchases = 24 → Residual correction -0.40 → F_2 = 0.1457 + 0.1 × (-0.40) = +0.1057.",
         "4. Stage 3 to 10: Prolonged inactivity continues to dominate residuals → Final Log-odds F_10 = +1.34.",
@@ -138,7 +138,7 @@ const MODEL_DETAILS = {
   },
   "K-Nearest Neighbors": {
     family: "Instance-Based Non-Parametric Learning (k = 5)",
-    shortDesc: "Calculates the multi-dimensional Euclidean distance to all 66 students in MongoDB Atlas. Locates the 5 students with the most identical study hours, inactivity, and doubt records, and takes their majority vote.",
+    shortDesc: "Calculates the multi-dimensional Euclidean distance across student feature vectors in MongoDB Atlas. Locates the nearest neighbor students with the most identical study hours, inactivity, and doubt records, and takes their majority vote.",
     formula: "d(u, v) = \sqrt{\sum_{j=1}^{7} (Z_{u,j} - Z_{v,j})^2}, \quad P(y=1) = \frac{1}{k}\sum_{i \in N_k(x)} y_i",
     mathExplanation: "Calculates normalized Euclidean distance between the target student and all other students in MongoDB Atlas. Selects the 5 nearest neighbors N_k(x). The churn probability is simply the fraction of those 5 neighbors who actually dropped out.",
     factorsRole: [
@@ -150,7 +150,7 @@ const MODEL_DETAILS = {
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches" },
       calculationTrace: [
         "1. Standardize student vector into Z-scores: Z = [+1.85, +3.42, +1.95, +1.20, +3.88, 0, +2.1].",
-        "2. Compute Euclidean distance d to all 66 Atlas students.",
+        "2. Compute Euclidean distance d to peer Atlas student vectors.",
         "3. Top 5 Nearest Neighbors identified in Atlas database:",
         "   • Peer 1 (Student 123): d = 1.42 → Actual Status: Churned (1)",
         "   • Peer 2 (Student Shivika): d = 1.85 → Actual Status: Churned (1)",
@@ -688,7 +688,7 @@ const AiMlEngineStudio = () => {
                               <strong>+Z (&gt; 0):</strong> Above average. +2.0σ means top 2.5% of students in study hours or spend.
                             </Box>
                             <Box sx={{ p: 1, background: "#f4f4f6", borderRadius: "8px", color: "#333" }}>
-                              <strong>Z = 0:</strong> Exactly at the platform average across all 66 students.
+                              <strong>Z = 0:</strong> Exactly at the platform average across registered students.
                             </Box>
                             <Box sx={{ p: 1, background: "#ffebee", borderRadius: "8px", color: "#b71c1c" }}>
                               <strong>-Z (&lt; 0):</strong> Below average. -1.5σ means lagging in test scores or study time.
@@ -706,18 +706,17 @@ const AiMlEngineStudio = () => {
                             ⏱️ Real Study Hours Calculation
                           </Typography>
                           <Typography sx={{ fontSize: 12, color: "#2e7d32", fontWeight: 700, mb: 1 }}>
-                            100% Real Data (No Seeded / Modulo Noise)
+                            100% Real Live Session Telemetry (Atlas Database)
                           </Typography>
                           <Typography sx={{ fontSize: 11.5, color: "#666", lineHeight: 1.5, mb: 1.5 }}>
-                            Computed directly from original MongoDB Atlas database collections:
+                            Computed directly from actual student logged-in learning sessions:
                           </Typography>
                           <Box sx={{ p: 1.2, background: "#fafafa", borderRadius: "8px", border: "1px solid #eee", fontFamily: "monospace", fontSize: 11, color: "#1565c0" }}>
-                            Study Hours = (Batches × 12.0h) + (Notes × 3.5h) + (Doubts × 1.5h) + 0.5h
+                            Study Hours = totalTimeSpentSeconds ÷ 3600
                           </Box>
                           <Typography sx={{ fontSize: 10.5, color: "#888", mt: 1 }}>
-                            • Each enrolled batch = 12h curriculum lectures.<br />
-                            • Each chapter note = 3.5h reading.<br />
-                            • Each doubt = 1.5h problem-solving.
+                            • Continuous live heartbeat session tracking inside the portal.<br />
+                            • Real Example: 3,600 sec logged = 1.0 hr | 60 sec logged = 0.02 hr.
                           </Typography>
                         </CardContent>
                       </Card>

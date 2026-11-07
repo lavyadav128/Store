@@ -222,7 +222,7 @@ const DataAnalysisStudio = () => {
                         <strong>+Z (&gt; 0):</strong> Above average. +1.5σ means student is in the top 7% for study hours or test scores.
                       </Box>
                       <Box sx={{ p: 0.8, background: "#f4f4f6", borderRadius: "8px", color: "#333" }}>
-                        <strong>Z = 0:</strong> Exactly at the platform mean across all 66 students.
+                        <strong>Z = 0:</strong> Exactly at the platform mean across all {summary?.totalStudents || 1} registered students.
                       </Box>
                       <Box sx={{ p: 0.8, background: "#ffebee", borderRadius: "8px", color: "#b71c1c" }}>
                         <strong>-Z (&lt; 0):</strong> Below average. Negative Z indicates learning deficits or rapid platform activity.
@@ -240,16 +240,17 @@ const DataAnalysisStudio = () => {
                       ⏱️ Real Study Hours Calculation
                     </Typography>
                     <Typography sx={{ fontSize: 11.5, color: "#2e7d32", fontWeight: 700, mb: 1 }}>
-                      100% Real Data (No Seeded / Artificial Modulo)
+                      100% Real Live Session Telemetry (From MongoDB Atlas)
                     </Typography>
                     <Typography sx={{ fontSize: 11, color: "#666", lineHeight: 1.5, mb: 1.2 }}>
-                      Calculated directly from original Atlas database records:
+                      Calculated directly from student logged-in learning sessions:
                     </Typography>
                     <Box sx={{ p: 1, background: "#fafafa", borderRadius: "8px", border: "1px solid #eee", fontFamily: "monospace", fontSize: 10.5, color: "#1565c0" }}>
-                      Study Hours = (Batches × 12.0h) + (Notes × 3.5h) + (Doubts × 1.5h) + 0.5h
+                      Study Hours = totalTimeSpentSeconds ÷ 3600
                     </Box>
                     <Typography sx={{ fontSize: 10, color: "#888", mt: 1 }}>
-                      • Example Student 1234: 24 batches × 12h + 8 doubts × 1.5h + 0.5h = 300.5 hrs.
+                      • Continuous heartbeat session timer tracking actual time spent in portal.<br />
+                      • Example: 3,600s logged = 1.0 hr | 60s logged = 0.02 hr.
                     </Typography>
                   </CardContent>
                 </Card>
@@ -524,15 +525,15 @@ const DataAnalysisStudio = () => {
                       Study Hours Frequency Distribution (Histogram)
                     </Typography>
                     <Typography sx={{ fontSize: 12, color: "#777", mb: 2 }}>
-                      Bimodal distribution highlighting power learners vs at-risk dropouts.
+                      Empirical frequency distribution of registered learners across active study hour intervals.
                     </Typography>
                     <Box sx={{ height: 240 }}>
                       <Bar
                         data={{
-                          labels: distributions.studyHours?.map(b => b.label) || ["0-10", "10-20", "20-30", "30-40", "40-50", "50+"],
+                          labels: distributions.studyHours?.map(b => b.label) || ["0 - 1 hr", "1 - 5 hrs", "5 - 10 hrs", "10 - 25 hrs", "25 - 50 hrs", "50+ hrs"],
                           datasets: [{
                             label: "Students in Interval",
-                            data: distributions.studyHours?.map(b => b.count) || [18, 22, 28, 16, 10, 6],
+                            data: distributions.studyHours?.map(b => b.count) || [0, 0, 0, 0, 0, 0],
                             backgroundColor: "rgba(26, 26, 46, 0.8)",
                             borderRadius: 6,
                           }],
@@ -571,10 +572,10 @@ const DataAnalysisStudio = () => {
                     <Box sx={{ height: 240 }}>
                       <Line
                         data={{
-                          labels: distributions.quizScores?.map(b => b.label) || ["0-20", "20-40", "40-60", "60-80", "80-100"],
+                          labels: distributions.quizScores?.map(b => b.label) || ["0 - 20%", "20 - 40%", "40 - 60%", "60 - 80%", "80 - 100%"],
                           datasets: [{
                             label: "Score Density",
-                            data: distributions.quizScores?.map(b => b.count) || [8, 16, 36, 28, 12],
+                            data: distributions.quizScores?.map(b => b.count) || [0, 0, 0, 0, 0],
                             borderColor: "#0288d1",
                             backgroundColor: "rgba(2, 136, 209, 0.12)",
                             fill: true,

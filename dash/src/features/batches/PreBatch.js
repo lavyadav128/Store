@@ -195,7 +195,8 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
   // ── JSX: THE CARD UI ──
   return (
-    // Card is the white rounded container
+    <>
+    {/* Card is the white rounded container */}
     // sx is MUI's way of writing inline CSS using the theme system
     <Card
       sx={{

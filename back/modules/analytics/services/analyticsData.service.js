@@ -59,12 +59,15 @@ class AnalyticsDataService {
       const usernames = users.map(u => u.username).filter(Boolean);
 
       // 2. Fetch all real linked documents across Notenova collections
-      const [purchases, doubts, failures, notes, batches] = await Promise.all([
+      const [purchases, doubts, failures, notes, batches, testAttempts] = await Promise.all([
         Purchase.find({ userId: { $in: userIds } }).lean().catch(() => []),
         Doubt.find({ username: { $in: usernames } }).lean().catch(() => []),
         FailedPayment.find({}).lean().catch(() => []),
         mongoose.connection.db.collection('userchapternotes').find({ userId: { $in: userIds } }).toArray().catch(() => []),
         Batch.find({}).lean().catch(() => []),
+        mongoose.connection.db.collection('testattempts').find({
+          $or: [{ username: { $in: usernames } }, { userId: { $in: userIds } }]
+        }).toArray().catch(() => []),
       ]);
 
       // Map purchases by userId
@@ -73,8 +76,8 @@ class AnalyticsDataService {
         const k = String(p.userId);
         if (!purchaseMap[k]) purchaseMap[k] = { count: 0, spend: 0, lastDate: null, titles: [] };
         purchaseMap[k].count += 1;
-        purchaseMap[k].spend += Number(p.price || 499);
-        purchaseMap[k].titles.push(p.title);
+        purchaseMap[k].spend += Number(p.price !== undefined && p.price !== null ? p.price : 0);
+        if (p.title) purchaseMap[k].titles.push(p.title);
         if (p.createdAt && (!purchaseMap[k].lastDate || new Date(p.createdAt) > new Date(purchaseMap[k].lastDate))) {
           purchaseMap[k].lastDate = p.createdAt;
         }
@@ -97,6 +100,14 @@ class AnalyticsDataService {
         noteMap[k] = (noteMap[k] || 0) + 1;
       });
 
+      // Map test attempts by username and userId
+      const testMap = {};
+      testAttempts.forEach(t => {
+        const uKey = t.username || String(t.userId);
+        if (!testMap[uKey]) testMap[uKey] = [];
+        testMap[uKey].push(t);
+      });
+
       // Map failed payments by userId and email
       const failureMap = {};
       failures.forEach(f => {
@@ -107,7 +118,7 @@ class AnalyticsDataService {
       const now = Date.now();
       const DAY_MS = 24 * 60 * 60 * 1000;
 
-      // 3. Assemble real dataset vector for every single student
+      // 3. Assemble 100% REAL LIVE dataset vector for every single student
       const dataset = users.map((u, idx) => {
         const uId = String(u._id);
         const pData = purchaseMap[uId] || { count: 0, spend: 0, lastDate: null, titles: [] };
@@ -115,33 +126,32 @@ class AnalyticsDataService {
         const nNotes = noteMap[uId] || 0;
         const failedCount = (failureMap[uId] || 0) + (failureMap[u.username] || 0);
 
-        // 100% Pure Real Data: Derived directly from original Atlas database records
+        // Real Study Hours: 100% Pure Logged Time from live platform heartbeat ticker
+        const totalSeconds = Number(u.totalTimeSpentSeconds || 0);
+        const studyHours = +(totalSeconds / 3600).toFixed(2);
+
+        // Real Quiz Score: 100% Genuine average accuracy from actual test attempts in MongoDB
+        const myTests = testMap[u.username] || testMap[uId] || [];
+        let quizScore = 0;
+        if (myTests.length > 0) {
+          const totalScore = myTests.reduce((acc, t) => acc + (Number(t.accuracy) || Number(t.score) || 0), 0);
+          quizScore = Math.round(totalScore / myTests.length);
+        }
+
+        // Real Inactivity Window: Calculated from genuine user timestamps
         const timestamps = [
+          u.lastActiveAt ? new Date(u.lastActiveAt).getTime() : 0,
+          u.lastLoginAt ? new Date(u.lastLoginAt).getTime() : 0,
           u.createdAt ? new Date(u.createdAt).getTime() : 0,
           pData.lastDate ? new Date(pData.lastDate).getTime() : 0,
           dData.lastDate ? new Date(dData.lastDate).getTime() : 0,
         ].filter(t => t > 0);
 
-        // If no interactions recorded at all, fallback strictly to account creation or safe default
-        const latestInteraction = timestamps.length > 0 ? Math.max(...timestamps) : (now - 30 * DAY_MS);
-        
-        // Exact real-world days since last platform activity (Zero synthetic modulo or seeded noise)
+        const latestInteraction = timestamps.length > 0 ? Math.max(...timestamps) : (u.createdAt ? new Date(u.createdAt).getTime() : now);
         const daysInactive = Math.max(0, Math.floor((now - latestInteraction) / DAY_MS));
 
-        // Exact Study Hours: Computed from real enrolled batches (12.0h curriculum per batch),
-        // chapter notes read/created (3.5h per note), and doubts asked (1.5h per inquiry) + 0.5h onboarding baseline
-        const baseHours = (pData.count * 12.0) + (nNotes * 3.5) + (dData.count * 1.5) + 0.5;
-        const studyHours = +baseHours.toFixed(1);
-
-        // Academic mastery / quiz score based purely on real activity & recency
-        const quizScore = Math.min(98, Math.max(25, Math.round(
-          45 + (pData.count * 4.0) + (nNotes * 3.0) + (dData.count * 1.5) - Math.min(25, daysInactive * 0.75)
-        )));
-
-        // Chapter completion percentage based on real batches and study hours
-        const chapterCompletionPct = pData.count > 0 
-          ? Math.min(100, Math.max(5, Math.round((studyHours / (pData.count * 14)) * 100)))
-          : Math.min(20, Math.max(2, Math.round(studyHours * 4)));
+        // Chapter completion percentage based on real notes or active platform study
+        const chapterCompletionPct = nNotes > 0 ? Math.min(100, nNotes * 20) : (studyHours > 0 ? Math.min(100, Math.round(studyHours * 10)) : 0);
 
         // Real track selection based on enrolled batch title or preparatory curriculum
         let track = "General Preparatory";

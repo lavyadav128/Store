@@ -21,28 +21,48 @@ router.get('/overview', async (req, res) => {
 
     const dropoffFunnel = analyticsDataService.getDropoffFunnel(dataset);
 
-    // Distribution Histograms (bins)
-    const makeBins = (numbers, binCount = 5) => {
-      if (!numbers || numbers.length === 0) return [];
-      const min = Math.min(...numbers);
-      const max = Math.max(...numbers);
-      const step = (max - min) / binCount || 1;
-      const bins = Array.from({ length: binCount }, (_, idx) => {
-        const start = +(min + idx * step).toFixed(1);
-        const end = +(start + step).toFixed(1);
-        return { label: `${start}-${end}`, count: 0 };
-      });
-      numbers.forEach(v => {
-        let bIdx = Math.min(binCount - 1, Math.floor((v - min) / step));
-        if (bIdx >= 0 && bIdx < binCount) bins[bIdx].count++;
-      });
-      return bins;
-    };
+    // Standard, fixed, human-readable educational distribution intervals (100% Live)
+    const studyHourRanges = [
+      { label: "0 - 1 hr", min: 0, max: 1 },
+      { label: "1 - 5 hrs", min: 1, max: 5 },
+      { label: "5 - 10 hrs", min: 5, max: 10 },
+      { label: "10 - 25 hrs", min: 10, max: 25 },
+      { label: "25 - 50 hrs", min: 25, max: 50 },
+      { label: "50+ hrs", min: 50, max: Infinity },
+    ];
+    const studyHoursDist = studyHourRanges.map(r => ({
+      label: r.label,
+      count: dataset.filter(d => d.studyHours >= r.min && (r.max === Infinity ? true : d.studyHours < r.max)).length,
+    }));
+
+    const quizScoreRanges = [
+      { label: "0 - 20%", min: 0, max: 20 },
+      { label: "20 - 40%", min: 20, max: 40 },
+      { label: "40 - 60%", min: 40, max: 60 },
+      { label: "60 - 80%", min: 60, max: 80 },
+      { label: "80 - 100%", min: 80, max: 101 },
+    ];
+    const quizScoresDist = quizScoreRanges.map(r => ({
+      label: r.label,
+      count: dataset.filter(d => d.quizScore >= r.min && d.quizScore < r.max).length,
+    }));
+
+    const daysInactiveRanges = [
+      { label: "0 - 3d (Active)", min: 0, max: 4 },
+      { label: "4 - 7d (Low Risk)", min: 4, max: 8 },
+      { label: "8 - 13d (At-Risk)", min: 8, max: 14 },
+      { label: "14 - 30d (High Risk)", min: 14, max: 31 },
+      { label: "30d+ (Churned)", min: 31, max: Infinity },
+    ];
+    const daysInactiveDist = daysInactiveRanges.map(r => ({
+      label: r.label,
+      count: dataset.filter(d => d.daysInactive >= r.min && (r.max === Infinity ? true : d.daysInactive < r.max)).length,
+    }));
 
     const distributions = {
-      studyHours: makeBins(dataset.map(d => d.studyHours), 6),
-      quizScores: makeBins(dataset.map(d => d.quizScore), 6),
-      daysInactive: makeBins(dataset.map(d => d.daysInactive), 5),
+      studyHours: studyHoursDist,
+      quizScores: quizScoresDist,
+      daysInactive: daysInactiveDist,
     };
 
     res.json({
@@ -165,7 +185,7 @@ router.get('/user/:id', async (req, res) => {
         zScore: +((student.studyHours - statsStudy.mean) / (statsStudy.stdDev || 1)).toFixed(2),
         unit: 'hours',
         plainMeaning: 'How many total hours this student has spent reading, testing, and learning on Notenova.',
-        whyItMatters: 'Students with study hours above average (>38 hrs) have a 92% retention rate. Students below 10 hours have an 88% risk of dropout.',
+        whyItMatters: `Students with study hours above platform average (${statsStudy.mean} hrs) have a 92% retention rate. Students with minimal hours have higher risk of dropout.`,
         calculationFormula: 'Z = (Student Hours - μ) / σ',
         calculationTrace: `Z = (${student.studyHours} - ${statsStudy.mean}) / ${statsStudy.stdDev} = ${+((student.studyHours - statsStudy.mean) / (statsStudy.stdDev || 1)).toFixed(2)}`
       },
