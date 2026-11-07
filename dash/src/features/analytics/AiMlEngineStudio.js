@@ -685,13 +685,13 @@ const AiMlEngineStudio = () => {
                           </Typography>
                           <Box sx={{ display: "flex", flexDirection: "column", gap: 1, fontSize: 11.5 }}>
                             <Box sx={{ p: 1, background: "#e8f5e9", borderRadius: "8px", color: "#1b5e20" }}>
-                              <strong>+Z (> 0):</strong> Above average. +2.0σ means top 2.5% of students in study hours or spend.
+                              <strong>+Z (&gt; 0):</strong> Above average. +2.0σ means top 2.5% of students in study hours or spend.
                             </Box>
                             <Box sx={{ p: 1, background: "#f4f4f6", borderRadius: "8px", color: "#333" }}>
                               <strong>Z = 0:</strong> Exactly at the platform average across all 66 students.
                             </Box>
                             <Box sx={{ p: 1, background: "#ffebee", borderRadius: "8px", color: "#b71c1c" }}>
-                              <strong>-Z (< 0):</strong> Below average. -1.5σ means lagging in test scores or study time.
+                              <strong>-Z (&lt; 0):</strong> Below average. -1.5σ means lagging in test scores or study time.
                             </Box>
                           </Box>
                         </CardContent>
@@ -735,8 +735,8 @@ const AiMlEngineStudio = () => {
                           </Typography>
                           <Box sx={{ display: "flex", flexDirection: "column", gap: 0.6, fontSize: 11 }}>
                             <Box><strong>1. Days Inactive (35%):</strong> Inactivity ≥ 14 days triggers immediate churn.</Box>
-                            <Box><strong>2. Study Hours (20%):</strong> Low platform hours (< 10h) indicates disengagement.</Box>
-                            <Box><strong>3. Quiz Score (15%):</strong> Scores < 45% cause drop-off from frustration.</Box>
+                            <Box><strong>2. Study Hours (20%):</strong> Low platform hours (&lt; 10h) indicates disengagement.</Box>
+                            <Box><strong>3. Quiz Score (15%):</strong> Scores &lt; 45% cause drop-off from frustration.</Box>
                             <Box><strong>4. Batches (10%):</strong> Paying learners have strong retention commitment.</Box>
                             <Box><strong>5. Chapter % (10%):</strong> Syllabus completion velocity.</Box>
                             <Box><strong>6. Doubts (5%):</strong> Help-seeking behavior.</Box>

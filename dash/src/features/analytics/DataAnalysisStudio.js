@@ -219,13 +219,13 @@ const DataAnalysisStudio = () => {
                     </Typography>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.8, fontSize: 11 }}>
                       <Box sx={{ p: 0.8, background: "#e8f5e9", borderRadius: "8px", color: "#1b5e20" }}>
-                        <strong>+Z (> 0):</strong> Above average. +1.5σ means student is in the top 7% for study hours or test scores.
+                        <strong>+Z (&gt; 0):</strong> Above average. +1.5σ means student is in the top 7% for study hours or test scores.
                       </Box>
                       <Box sx={{ p: 0.8, background: "#f4f4f6", borderRadius: "8px", color: "#333" }}>
                         <strong>Z = 0:</strong> Exactly at the platform mean across all 66 students.
                       </Box>
                       <Box sx={{ p: 0.8, background: "#ffebee", borderRadius: "8px", color: "#b71c1c" }}>
-                        <strong>-Z (< 0):</strong> Below average. Negative Z indicates learning deficits or rapid platform activity.
+                        <strong>-Z (&lt; 0):</strong> Below average. Negative Z indicates learning deficits or rapid platform activity.
                       </Box>
                     </Box>
                   </CardContent>
@@ -267,8 +267,8 @@ const DataAnalysisStudio = () => {
                     </Typography>
                     <Box sx={{ display: "flex", flexDirection: "column", gap: 0.5, fontSize: 10.5 }}>
                       <Box><strong>1. Days Inactive (35%):</strong> Inactivity ≥ 14 days = critical drop-off.</Box>
-                      <Box><strong>2. Study Hours (20%):</strong> Low cumulative engagement (< 10h).</Box>
-                      <Box><strong>3. Quiz Mastery (15%):</strong> Score < 45% causes frustration.</Box>
+                      <Box><strong>2. Study Hours (20%):</strong> Low cumulative engagement (&lt; 10h).</Box>
+                      <Box><strong>3. Quiz Mastery (15%):</strong> Score &lt; 45% causes frustration.</Box>
                       <Box><strong>4. Enrolled Batches (10%):</strong> Financial sunk-cost commitment.</Box>
                       <Box><strong>5. Chapter Progress (10%):</strong> Syllabus completion speed.</Box>
                       <Box><strong>6. Doubts (5%):</strong> Help-seeking persistence.</Box>
