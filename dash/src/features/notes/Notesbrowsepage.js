@@ -12,6 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { makeAuthenticatedRequest } from '../../shared/guards/makeauth';
 import server from '../../shared/environment';
 import { reportCheckoutFailure } from '../../shared/recoveryClient';
+import RazorpayCheckoutModal from '../../shared/components/RazorpayCheckoutModal';
 
 const NotesBrowsePage = () => {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ const NotesBrowsePage = () => {
 
   // Explore dialog state
   const [exploreBatch, setExploreBatch] = useState(null);
+  const [checkoutModalOpen, setCheckoutModalOpen] = useState(false);
+  const [activeOrder, setActiveOrder] = useState(null);
+  const [activeBatch, setActiveBatch] = useState(null);
 
   useEffect(() => {
     const fetchBatches = async () => {
@@ -83,6 +87,36 @@ const NotesBrowsePage = () => {
       });
 
       let paymentDone = false;
+      const handlePaymentSuccess = async (response) => {
+        paymentDone = true;
+        try {
+          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+            ...purchasePayload,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+          setPurchaseInfo((prev) => ({ ...prev, [batch.slug]: { expiryDate: new Date().toISOString() } }));
+          setCheckoutModalOpen(false);
+          navigate(`/notes/${batch.slug}`);
+        } catch (err) {
+          alert(err.message || 'Error saving your purchase.');
+        }
+      };
+
+      const shouldUseModal =
+        orderRes.isMock ||
+        !window.Razorpay ||
+        !orderRes.key ||
+        orderRes.key.includes('placeholder');
+
+      if (shouldUseModal) {
+        setActiveOrder(orderRes);
+        setActiveBatch(batch);
+        setCheckoutModalOpen(true);
+        return;
+      }
+
       const options = {
         key: orderRes.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
         amount: orderRes.amount,
@@ -90,21 +124,7 @@ const NotesBrowsePage = () => {
         name: 'Atom Classes',
         description: `Payment for ${batch.title}`,
         order_id: orderRes.id,
-        handler: async function (response) {
-          paymentDone = true;
-          try {
-            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-              ...purchasePayload,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });
-            setPurchaseInfo((prev) => ({ ...prev, [batch.slug]: { expiryDate: new Date().toISOString() } }));
-            navigate(`/notes/${batch.slug}`);
-          } catch (err) {
-            alert(err.message || 'Error saving your purchase.');
-          }
-        },
+        handler: handlePaymentSuccess,
         prefill: { name: '', email: '', contact: '' },
         notes: { batchId: batch.slug },
         theme: { color: '#1a1a2e' },
@@ -119,9 +139,16 @@ const NotesBrowsePage = () => {
         },
       };
 
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response) => reportCheckoutFailure(orderRes.id, response));
-      rzp.open();
+      try {
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (response) => reportCheckoutFailure(orderRes.id, response));
+        rzp.open();
+      } catch (e) {
+        console.warn('Razorpay open failed, using modal fallback:', e);
+        setActiveOrder(orderRes);
+        setActiveBatch(batch);
+        setCheckoutModalOpen(true);
+      }
     } catch (err) {
       alert('Payment initialization failed. Please try again.');
     }

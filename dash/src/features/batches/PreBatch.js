@@ -34,6 +34,7 @@ import { makeAuthenticatedRequest } from '../../shared/guards/makeauth';
 // imported from a config file so we don't hardcode the URL everywhere
 import server from '../../shared/environment';
 import { reportCheckoutFailure } from '../../shared/recoveryClient';
+import RazorpayCheckoutModal from '../../shared/components/RazorpayCheckoutModal';
 
 
 // ═════════════════════════════════════════════════════════════
@@ -51,6 +52,8 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
 
   // useNavigate gives us the navigate() function to redirect programmatically
   const navigate = useNavigate();
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [checkoutOrder, setCheckoutOrder] = useState(null);
 
   // !! converts any value to a strict boolean
   // if purchaseInfo is an object (truthy) → isPurchased = true
@@ -108,65 +111,59 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
     }
 
     // ── PAID CLASS PATH ──
-
-    // Check if Razorpay's script has been loaded in the browser
-    // Razorpay is loaded via a <script> tag in public/index.html
-    // If it hasn't loaded yet, window.Razorpay won't exist
-    if (!window.Razorpay) {
-      alert('Payment gateway not loaded');
-      return;
-    }
-
     try {
-      // ── STEP 1: Create a Razorpay order on our backend ──
-      // Our backend calls Razorpay's API and returns an order object
-      // The order object contains: order.id, order.amount, order.currency
       const order = await makeAuthenticatedRequest(`${server}/api/create-order`, 'POST', {
-        amount: price,                          // amount in rupees (backend converts to paise)
-        receipt: `receipt_${id}_${Date.now()}`, // unique receipt ID using class id + timestamp
+        amount: price,
+        receipt: `receipt_${id}_${Date.now()}`,
         batchId: id,
         batchTitle: title,
       });
 
-      // ── STEP 2: Configure the Razorpay payment popup ──
-      // "options" is the config object that tells Razorpay how to display the payment form
       let paymentDone = false;
+      const handlePaymentSuccess = async (response) => {
+        paymentDone = true;
+        try {
+          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+            ...purchasePayload,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+          setCheckoutOpen(false);
+          onPurchase(id);
+          navigate(`/class/${id}`);
+        } catch (err) {
+          console.error('Error saving purchase:', err);
+          alert(err.message || 'Error saving your purchase.');
+        }
+      };
+
+      const shouldUseModal =
+        order.isMock ||
+        !window.Razorpay ||
+        !order.key ||
+        order.key.includes('placeholder');
+
+      if (shouldUseModal) {
+        setCheckoutOrder(order);
+        setCheckoutOpen(true);
+        return;
+      }
+
       const options = {
         key: order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
-        amount: order.amount,      // amount in paise (as returned by backend)
-        currency: order.currency,  // "INR"
-        name: 'Atom Classes',      // shown at the top of the payment popup
-        description: `Payment for ${title}`, // shown below the name
-        order_id: order.id,        // the order ID from Razorpay — links payment to this order
-
-        // handler runs automatically AFTER the student successfully pays
-        handler: async function (response) {
-          paymentDone = true;
-          // response contains payment details from Razorpay
-          try {
-            // Save the purchase record in our database now that payment is confirmed
-            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-              ...purchasePayload,
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-            });            // Update the parent component's state to mark this class as purchased
-            onPurchase(id);
-            // Redirect to the class content page
-            navigate(`/class/${id}`);
-          } catch (err) {
-            console.error('Error saving purchase:', err);
-            alert(err.message || 'Error saving your purchase.');
-          }
+        amount: order.amount,
+        currency: order.currency,
+        name: 'Atom Classes',
+        description: `Payment for ${title}`,
+        order_id: order.id,
+        handler: handlePaymentSuccess,
+        prefill: {
+          name: order.customer?.name || '',
+          email: order.customer?.email || '',
+          contact: order.customer?.phone || '',
         },
-
-        // prefill auto-fills the student's details in the payment form
-        prefill: { name: '', email: '', contact: '' },
-
-        // notes are extra metadata attached to the order (visible in Razorpay dashboard)
         notes: { batchId: id },
-
-        // theme.color changes the colour of the Razorpay popup header
         theme: { color: '#1a1a2e' },
         modal: {
           confirm_close: true,
@@ -179,17 +176,19 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         },
       };
 
-      // ── STEP 3: Create a Razorpay instance and open the payment popup ──
-      // new window.Razorpay(options) creates the payment modal with our config
-      const rzp = new window.Razorpay(options);
-      rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
-      // rzp.open() actually shows the payment popup to the student
-      rzp.open();
+      try {
+        const rzp = new window.Razorpay(options);
+        rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
+        rzp.open();
+      } catch (e) {
+        console.warn('Razorpay popup open error, using modal fallback:', e);
+        setCheckoutOrder(order);
+        setCheckoutOpen(true);
+      }
 
     } catch (err) {
-      // If creating the order fails (network issue, server error etc.)
       console.error('Payment error:', err);
-      alert('Failed to initiate payment. Try again.');
+      alert(err.message || 'Failed to initiate payment. Try again.');
     }
   };
 
@@ -304,6 +303,41 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         </Button>
       </CardActions>
     </Card>
+
+    <RazorpayCheckoutModal
+      open={checkoutOpen}
+      onClose={() => {
+        setCheckoutOpen(false);
+        if (checkoutOrder) {
+          reportCheckoutFailure(checkoutOrder.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+        }
+      }}
+      order={checkoutOrder}
+      batchTitle={title}
+      batchPrice={price}
+      onSuccess={async (response) => {
+        try {
+          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+            classId: id,
+            batchTitle: title,
+            price: price,
+            description: description,
+            imageUrl: imageUrl,
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+          setCheckoutOpen(false);
+          onPurchase(id);
+          navigate(`/class/${id}`);
+        } catch (err) {
+          console.error('Error saving purchase:', err);
+          alert(err.message || 'Error saving your purchase.');
+        }
+      }}
+      onFailure={(orderId, resp) => reportCheckoutFailure(orderId, resp)}
+    />
+    </>
   );
 };
 
