@@ -171,10 +171,22 @@ const AdminDashboard = () => {
   const executeDeleteUser = async () => {
     if (!userToDelete) return;
     setDeleteLoading(true);
+    const doomed = { ...userToDelete };
     try {
-      const targetId = encodeURIComponent(userToDelete._id || userToDelete.username);
-      const res = await axios.delete(`${server}/api/admin/users/${targetId}`, authHeader());
-      setSnackbarMsg(res.data?.message || `Student "${userToDelete.name || userToDelete.username}" and all data permanently deleted!`);
+      const targetId = encodeURIComponent(doomed._id || doomed.username);
+      const queryParams = new URLSearchParams();
+      if (doomed.username) queryParams.set("username", doomed.username);
+      if (doomed.email) queryParams.set("email", doomed.email);
+      const queryString = queryParams.toString() ? `?${queryParams.toString()}` : "";
+
+      const res = await axios.delete(`${server}/api/admin/users/${targetId}${queryString}`, authHeader());
+
+      // Optimistically remove user from table immediately
+      setUsers((prev) =>
+        prev.filter((u) => u._id !== doomed._id && u.username !== doomed.username && u.email !== doomed.email)
+      );
+
+      setSnackbarMsg(res.data?.message || `Student "${doomed.name || doomed.username}" and all data permanently purged!`);
       setSnackbarSeverity("success");
       setSnackbarOpen(true);
       setDeleteDialogOpen(false);
@@ -182,16 +194,21 @@ const AdminDashboard = () => {
       fetchUsers();
     } catch (err) {
       console.error("Failed to delete user", err);
-      // If user was already removed from users table in MongoDB, close modal and refresh
-      if (err.response?.status === 404) {
-        setSnackbarMsg(`Student "${userToDelete.name || userToDelete.username}" was already removed from MongoDB.`);
+
+      // If user was already removed or 404/already missing, remove from list and notify
+      if (err.response?.status === 404 || err.response?.data?.error?.includes("not found")) {
+        setUsers((prev) =>
+          prev.filter((u) => u._id !== doomed._id && u.username !== doomed.username && u.email !== doomed.email)
+        );
+        setSnackbarMsg(`Student "${doomed.name || doomed.username}" is already removed from MongoDB.`);
         setSnackbarSeverity("info");
         setSnackbarOpen(true);
         setDeleteDialogOpen(false);
         setUserToDelete(null);
         fetchUsers();
       } else {
-        setSnackbarMsg(err.response?.data?.error || err.response?.data?.message || "Failed to delete user from database.");
+        const errMsg = err.response?.data?.details || err.response?.data?.error || err.response?.data?.message || "Failed to delete user from database.";
+        setSnackbarMsg(errMsg);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
       }

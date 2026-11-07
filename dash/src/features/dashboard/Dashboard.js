@@ -191,6 +191,7 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
   // Live accumulated time and test count state
   const [liveSeconds, setLiveSeconds] = useState(0);
   const [liveTestsCount, setLiveTestsCount] = useState(0);
+  const [liveDaysInactive, setLiveDaysInactive] = useState(0);
 
   useEffect(() => {
     let isMounted = true;
@@ -202,6 +203,7 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
         if (isMounted && res.data?.success) {
           setLiveSeconds(Number(res.data.totalTimeSpentSeconds) || 0);
           setLiveTestsCount(Number(res.data.testsGivenCount) || 0);
+          setLiveDaysInactive(Number(res.data.daysInactive) || 0);
         }
       }).catch(() => {});
     }
@@ -321,84 +323,80 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
         </Box>
       </Box>
 
-      {/* ── LIVE LEARNER STATS PILLS (BETWEEN NAME & SEARCH BAR) ── */}
+      {/* ── LIVE LEARNER TELEMETRY (BLENDED NATURALLY INTO BACKGROUND) ── */}
       <Box sx={{
         display: "flex",
         alignItems: "center",
-        gap: { xs: 1.2, sm: 1.5 },
-        flexWrap: { xs: "wrap", md: "nowrap" },
-        my: { xs: 1.5, sm: 0 },
+        gap: { xs: 1.5, sm: 2 },
+        flexWrap: "wrap",
+        my: { xs: 1, sm: 0 },
         mx: { xs: 0, sm: "auto", md: 2 },
         justifyContent: { xs: "flex-start", sm: "center" },
+        py: 0.5,
       }}>
-        {/* Pill 1: Total Spent Logged Time */}
-        <Box sx={{
-          display: "flex",
-          alignItems: "center",
-          gap: 1.2,
-          px: { xs: 1.5, sm: 2 },
-          py: 0.9,
-          borderRadius: "40px",
-          border: "1.5px solid #ececec",
-          background: "#fff",
-          boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-          transition: "all 0.2s ease",
-          "&:hover": { borderColor: "#2ecc71", boxShadow: "0 4px 14px rgba(46,204,113,0.12)" },
-        }}>
+        {/* Metric 1: Total Logged Time */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
           <Box sx={{
-            width: 8, height: 8, borderRadius: "50%",
+            width: 7, height: 7, borderRadius: "50%",
             background: "#2ecc71", boxShadow: "0 0 6px #2ecc71",
             flexShrink: 0,
           }} />
-          <AccessTimeIcon sx={{ fontSize: 17, color: "#1a1a2e" }} />
-          <Box>
-            <Typography sx={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", lineHeight: 1 }}>
-              Total Logged Time
-            </Typography>
-            <Typography sx={{ fontSize: 13.5, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.2, mt: 0.2 }}>
-              {formatLoggedTime(liveSeconds)}
-            </Typography>
-          </Box>
+          <AccessTimeIcon sx={{ fontSize: 16, color: "#666" }} />
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 12.5, sm: 13.5 }, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap" }}>
+            {formatLoggedTime(liveSeconds)}
+          </Typography>
+          <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#999", display: { xs: "none", md: "inline" } }}>
+            spent
+          </Typography>
         </Box>
 
-        {/* Pill 2: Tests Given */}
+        <Box sx={{ color: "#d8d8e0", fontSize: 12, userSelect: "none" }}>•</Box>
+
+        {/* Metric 2: Tests Given */}
         <Box
           onClick={() => onNavigate("/attempt-test")}
           sx={{
-            display: "flex",
-            alignItems: "center",
-            gap: 1.2,
-            px: { xs: 1.5, sm: 2 },
-            py: 0.9,
-            borderRadius: "40px",
-            border: "1.5px solid #ececec",
-            background: "#fff",
+            display: "flex", alignItems: "center", gap: 0.8,
             cursor: "pointer",
-            boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
-            transition: "all 0.2s ease",
-            "&:hover": { borderColor: "#1a1a2e", boxShadow: "0 4px 14px rgba(26,26,46,0.1)", transform: "translateY(-1px)" },
+            "&:hover .test-count-label": { color: "#1a1a2e", textDecoration: "underline" },
           }}
         >
-          <QuizIcon sx={{ fontSize: 17, color: "#1a1a2e" }} />
-          <Box>
-            <Typography sx={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", lineHeight: 1 }}>
-              Tests Given
-            </Typography>
-            <Typography sx={{ fontSize: 13.5, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.2, mt: 0.2 }}>
-              {liveTestsCount} {liveTestsCount === 1 ? "Test" : "Tests"}
-            </Typography>
-          </Box>
+          <QuizIcon sx={{ fontSize: 16, color: "#666" }} />
+          <Typography className="test-count-label" sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: { xs: 12.5, sm: 13.5 }, fontWeight: 700, color: "#1a1a2e", whiteSpace: "nowrap" }}>
+            {liveTestsCount} {liveTestsCount === 1 ? "Test" : "Tests"}
+          </Typography>
+        </Box>
+
+        <Box sx={{ color: "#d8d8e0", fontSize: 12, userSelect: "none" }}>•</Box>
+
+        {/* Metric 3: Days Inactive */}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 0.8 }}>
+          <Box sx={{
+            width: 7, height: 7, borderRadius: "50%",
+            background: liveDaysInactive === 0 ? "#2ecc71" : liveDaysInactive < 7 ? "#f39c12" : "#e74c3c",
+            flexShrink: 0,
+          }} />
+          <Typography sx={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: { xs: 12.5, sm: 13.5 },
+            fontWeight: 700,
+            color: liveDaysInactive === 0 ? "#2e7d32" : liveDaysInactive < 7 ? "#b78103" : "#c62828",
+            whiteSpace: "nowrap",
+          }}>
+            {liveDaysInactive === 0 ? "Active Today" : `${liveDaysInactive}d Inactive`}
+          </Typography>
         </Box>
       </Box>
 
-      <Box ref={searchRef} sx={{ position: "relative", width: { xs: "100%", sm: 280, md: 620 }, flexShrink: 0 }}>
+      {/* ── COMPACT FIT-TO-WIDTH SEARCH BAR (NO OVERLAY) ── */}
+      <Box ref={searchRef} sx={{ position: "relative", width: { xs: "100%", sm: 180, md: 230, lg: 260 }, flexShrink: 0 }}>
         <Box sx={{
-          display: "flex", alignItems: "center", gap: 1.2,
-          px: 2, height: 50, borderRadius: "16px",
-          border: searchFocused ? "2px solid #444" : "2px solid #cfcfcf",
-          background: searchFocused ? "#fff" : "#f5f5f7",
-          boxShadow: searchFocused ? "0 8px 28px rgba(0,0,0,0.11)" : "0 2px 6px rgba(0,0,0,0.04)",
-          transition: "border 0.2s, box-shadow 0.2s, background 0.2s",
+          display: "flex", alignItems: "center", gap: 1,
+          px: 1.8, height: 44, borderRadius: "14px",
+          border: searchFocused ? "2px solid #333" : "1.5px solid #dcdce0",
+          background: searchFocused ? "#fff" : "#f6f6f8",
+          boxShadow: searchFocused ? "0 6px 20px rgba(0,0,0,0.08)" : "none",
+          transition: "all 0.2s ease",
         }}>
           <SearchIcon sx={{ fontSize: 19, color: searchFocused ? "#1a1a2e" : "#c0c0c0", transition: "color 0.2s", flexShrink: 0 }} />
           <input

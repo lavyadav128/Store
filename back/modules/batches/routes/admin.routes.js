@@ -98,25 +98,42 @@ router.get("/users", adminAuth, async (req, res) => {
 router.delete("/users/:id", adminAuth, async (req, res) => {
   try {
     const rawId = decodeURIComponent(req.params.id || "").trim();
-    if (!rawId) return res.status(400).json({ error: "User ID or username is required" });
+    const queryUsername = (req.query.username || req.body?.username || "").trim();
+    const queryEmail = (req.query.email || req.body?.email || "").trim();
+
+    if (!rawId && !queryUsername && !queryEmail) {
+      return res.status(400).json({ error: "User ID or username is required" });
+    }
 
     // Protect master administrator account
-    if (rawId === "adminbrand@gmail.com") {
+    const protectedAdmins = ["adminbrand@gmail.com", "adminbrand"];
+    if (
+      protectedAdmins.includes(rawId.toLowerCase()) ||
+      protectedAdmins.includes(queryUsername.toLowerCase()) ||
+      protectedAdmins.includes(queryEmail.toLowerCase())
+    ) {
       return res.status(403).json({ error: "Master administrator account cannot be deleted." });
     }
 
-    const isOid = mongoose.Types.ObjectId.isValid(rawId);
-    const targetObjId = isOid ? new mongoose.Types.ObjectId(rawId) : null;
-
-    // Search for user in database
-    let targetUser = null;
-    if (targetObjId) {
-      targetUser = await User.findById(targetObjId).lean();
+    const db = mongoose.connection.db;
+    if (!db) {
+      throw new Error("MongoDB connection is not ready.");
     }
-    if (!targetUser) {
-      targetUser = await User.findOne({
-        $or: [{ username: rawId }, { email: rawId }]
-      }).lean();
+
+    // Strict 24-character hexadecimal check for genuine MongoDB ObjectId
+    const is24Hex = /^[0-9a-fA-F]{24}$/.test(rawId);
+    const targetObjId = is24Hex ? new mongoose.Types.ObjectId(rawId) : null;
+
+    // Search for user in database across all identifiers
+    const userSearchConditions = [];
+    if (targetObjId) userSearchConditions.push({ _id: targetObjId });
+    if (rawId && !is24Hex) userSearchConditions.push({ username: rawId }, { email: rawId });
+    if (queryUsername) userSearchConditions.push({ username: queryUsername });
+    if (queryEmail) userSearchConditions.push({ email: queryEmail });
+
+    let targetUser = null;
+    if (userSearchConditions.length > 0) {
+      targetUser = await db.collection("users").findOne({ $or: userSearchConditions }).catch(() => null);
     }
 
     if (targetUser && targetUser.username === "adminbrand@gmail.com") {
@@ -124,88 +141,101 @@ router.delete("/users/:id", adminAuth, async (req, res) => {
     }
 
     const userId = targetUser ? targetUser._id : targetObjId;
-    const userIdStr = userId ? String(userId) : rawId;
-    const username = targetUser?.username || (isOid ? null : rawId);
-    const email = targetUser?.email;
-    const displayName = targetUser?.name || username || "Student";
+    const userIdStr = userId ? String(userId) : (is24Hex ? rawId : null);
+    const username = targetUser?.username || queryUsername || (!is24Hex ? rawId : null);
+    const email = targetUser?.email || queryEmail || (rawId.includes("@") ? rawId : null);
+    const displayName = targetUser?.name || username || email || "Student";
 
-    const db = mongoose.connection.db;
-    if (!db) {
-      throw new Error("MongoDB connection is not ready.");
-    }
-
-    // Prepare id and string variants for queries
+    // Collect all valid ID variants for cascade matching
     const idVariants = [userId, userIdStr].filter(Boolean);
+    const usernameVariants = [username].filter(Boolean);
+    const emailVariants = [email].filter(Boolean);
 
-    // 1. Delete user from users collection
-    if (userId) {
-      await db.collection("users").deleteOne({ _id: userId }).catch(() => {});
+    // 1. Permanently delete from `users` collection
+    const userDeleteOr = [];
+    if (userId) userDeleteOr.push({ _id: userId });
+    if (userIdStr && is24Hex) {
+      try { userDeleteOr.push({ _id: new mongoose.Types.ObjectId(userIdStr) }); } catch (_) {}
     }
-    if (username) {
-      await db.collection("users").deleteMany({ username }).catch(() => {});
+    if (username) userDeleteOr.push({ username });
+    if (email) userDeleteOr.push({ email });
+    if (userDeleteOr.length > 0) {
+      await db.collection("users").deleteMany({ $or: userDeleteOr }).catch(() => {});
     }
 
-    // 2. Cascade delete purchases safely (native driver never throws CastError)
+    // 2. Cascade delete `purchases`
     const purchaseOr = [];
-    if (userId) purchaseOr.push({ userId: userId });
-    purchaseOr.push({ userId: userIdStr });
-    if (username) purchaseOr.push({ userId: username });
-    await db.collection("purchases").deleteMany({ $or: purchaseOr }).catch(() => {});
+    idVariants.forEach((v) => purchaseOr.push({ userId: v }));
+    usernameVariants.forEach((u) => purchaseOr.push({ userId: u }));
+    if (purchaseOr.length > 0) {
+      await db.collection("purchases").deleteMany({ $or: purchaseOr }).catch(() => {});
+    }
 
-    // 3. Cascade delete doubts
+    // 3. Cascade delete `doubts`
     const doubtOr = [];
-    if (username) doubtOr.push({ username: username });
-    if (userId) doubtOr.push({ userId: userId });
-    doubtOr.push({ userId: userIdStr });
-    await db.collection("doubts").deleteMany({ $or: doubtOr }).catch(() => {});
+    usernameVariants.forEach((u) => doubtOr.push({ username: u }));
+    idVariants.forEach((v) => doubtOr.push({ userId: v }));
+    if (doubtOr.length > 0) {
+      await db.collection("doubts").deleteMany({ $or: doubtOr }).catch(() => {});
+    }
 
-    // 4. Cascade delete payment attempts & failures
+    // 4. Cascade delete payment attempts, failures, and audits
     const paymentOr = [];
-    if (userId) paymentOr.push({ userId: userId });
-    paymentOr.push({ userId: userIdStr });
-    if (username) paymentOr.push({ username: username }, { customerEmail: username });
-    if (email) paymentOr.push({ customerEmail: email });
+    idVariants.forEach((v) => paymentOr.push({ userId: v }));
+    usernameVariants.forEach((u) => paymentOr.push({ username: u }, { customerEmail: u }));
+    emailVariants.forEach((e) => paymentOr.push({ customerEmail: e }, { email: e }));
+
+    const idOnlyOr = idVariants.map((v) => ({ userId: v }));
 
     await Promise.all([
-      db.collection("paymentattempts").deleteMany({ $or: paymentOr }).catch(() => {}),
-      db.collection("failedpayments").deleteMany({ $or: paymentOr }).catch(() => {}),
-      db.collection("recoveryoffers").deleteMany({
-        $or: idVariants.map(v => ({ userId: v }))
-      }).catch(() => {}),
-      db.collection("commerceaudits").deleteMany({
-        $or: idVariants.map(v => ({ userId: v }))
-      }).catch(() => {})
+      paymentOr.length > 0 ? db.collection("paymentattempts").deleteMany({ $or: paymentOr }).catch(() => {}) : Promise.resolve(),
+      paymentOr.length > 0 ? db.collection("failedpayments").deleteMany({ $or: paymentOr }).catch(() => {}) : Promise.resolve(),
+      idOnlyOr.length > 0 ? db.collection("recoveryoffers").deleteMany({ $or: idOnlyOr }).catch(() => {}) : Promise.resolve(),
+      idOnlyOr.length > 0 ? db.collection("commerceaudits").deleteMany({ $or: idOnlyOr }).catch(() => {}) : Promise.resolve(),
+      idOnlyOr.length > 0 ? db.collection("commerceevents").deleteMany({ $or: idOnlyOr }).catch(() => {}) : Promise.resolve(),
+      paymentOr.length > 0 ? db.collection("checkoutattempts").deleteMany({ $or: paymentOr }).catch(() => {}) : Promise.resolve(),
     ]);
 
-    // 5. Cascade delete notifications and direct messages
+    // 5. Cascade delete `testattempts`
+    const testOr = [];
+    usernameVariants.forEach((u) => testOr.push({ username: u }));
+    idVariants.forEach((v) => testOr.push({ userId: v }));
+    if (testOr.length > 0) {
+      await db.collection("testattempts").deleteMany({ $or: testOr }).catch(() => {});
+    }
+
+    // 6. Cascade delete notifications and messages
     const msgOr = [];
-    if (username) msgOr.push({ to: username }, { from: username });
-    if (email) msgOr.push({ to: email }, { from: email });
+    usernameVariants.forEach((u) => msgOr.push({ to: u }, { from: u }));
+    emailVariants.forEach((e) => msgOr.push({ to: e }, { from: e }));
+
+    const notifOr = [];
+    usernameVariants.forEach((u) => notifOr.push({ username: u }));
+    emailVariants.forEach((e) => notifOr.push({ username: e }));
+
     await Promise.all([
-      username ? db.collection("notifications").deleteMany({ username }).catch(() => {}) : Promise.resolve(),
-      msgOr.length > 0 ? db.collection("messages").deleteMany({ $or: msgOr }).catch(() => {}) : Promise.resolve()
+      notifOr.length > 0 ? db.collection("notifications").deleteMany({ $or: notifOr }).catch(() => {}) : Promise.resolve(),
+      msgOr.length > 0 ? db.collection("messages").deleteMany({ $or: msgOr }).catch(() => {}) : Promise.resolve(),
     ]);
 
-    // 6. Cascade delete native notes & userlists
-    await Promise.all([
-      db.collection("userchapternotes").deleteMany({
-        $or: idVariants.map(v => ({ userId: v }))
-      }).catch(() => {}),
-      db.collection("userlists").deleteMany({
-        $or: idVariants.map(v => ({ userId: v }))
-      }).catch(() => {})
-    ]);
+    // 7. Cascade delete native student notes & userlists
+    if (idOnlyOr.length > 0) {
+      await Promise.all([
+        db.collection("userchapternotes").deleteMany({ $or: idOnlyOr }).catch(() => {}),
+        db.collection("userlists").deleteMany({ $or: idOnlyOr }).catch(() => {}),
+      ]);
+    }
 
-    // 7. Clear all server-side analytics & response caches so model retrains on genuine remaining students
-    analyticsDataService.clearCache();
-    mlEngineService.clearCache();
-    await clearCache("*");
+    // 8. Safely clear all server-side analytics & response caches so model retrains on genuine remaining students
+    try { analyticsDataService.clearCache(); } catch (_) {}
+    try { mlEngineService.clearCache(); } catch (_) {}
+    try { await clearCache("*"); } catch (_) {}
 
-    console.log(`[ADMIN] Cascade deleted student "${displayName}" (${userIdStr}) across all MongoDB collections.`);
+    console.log(`[ADMIN] Cascade deleted student "${displayName}" (${userIdStr || username || email}) across all MongoDB collections.`);
 
     return res.status(200).json({
       success: true,
-      message: `Student "${displayName}" (@${username || userIdStr}) and all associated purchases, payments, doubts, and notes have been permanently purged from MongoDB.`,
+      message: `Student "${displayName}" (@${username || email || userIdStr}) and all associated records have been permanently purged from MongoDB.`,
       deletedUser: {
         _id: userId,
         username,
