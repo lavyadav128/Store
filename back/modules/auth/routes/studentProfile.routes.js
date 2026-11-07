@@ -5,6 +5,81 @@ import { User } from "../schema/user.model.js";
 
 const router = express.Router();
 
+/* ── GET /api/student/live-stats ──
+   Lightweight real-time endpoint for the header bar
+*/
+router.get("/student/live-stats", auth, async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const username = req.user?.username;
+
+    let user = null;
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      user = await User.findById(userId).select("totalTimeSpentSeconds testsGivenCount daysSinceLastLogin lastActiveAt lastLoginAt").lean();
+    }
+    if (!user && username) {
+      user = await User.findOne({ username }).select("totalTimeSpentSeconds testsGivenCount daysSinceLastLogin lastActiveAt lastLoginAt").lean();
+    }
+
+    const db = mongoose.connection.db;
+    let testsCount = user?.testsGivenCount || 0;
+    if (db && !testsCount) {
+      testsCount = await db.collection("testattempts").countDocuments({
+        $or: [{ username }, { userId: user?._id }]
+      }).catch(() => 0);
+    }
+
+    const now = Date.now();
+    const lastActive = user?.lastActiveAt ? new Date(user.lastActiveAt).getTime() : now;
+    const daysInactive = Math.max(0, Math.floor((now - lastActive) / (1000 * 60 * 60 * 24)));
+
+    return res.status(200).json({
+      success: true,
+      totalTimeSpentSeconds: Number(user?.totalTimeSpentSeconds || 0),
+      testsGivenCount: testsCount,
+      daysSinceLastLogin: Number(user?.daysSinceLastLogin || 0),
+      daysInactive,
+      lastLoginAt: user?.lastLoginAt || new Date().toISOString(),
+    });
+  } catch (err) {
+    console.error("Error in live-stats:", err);
+    return res.status(500).json({ error: "Failed to fetch live stats" });
+  }
+});
+
+/* ── POST /api/student/heartbeat ──
+   Accumulates logged-in study time permanently into MongoDB Atlas
+*/
+router.post("/student/heartbeat", auth, async (req, res) => {
+  try {
+    const userId = req.user?._id;
+    const username = req.user?.username;
+    const addedSeconds = Math.min(120, Math.max(1, Number(req.body.seconds) || 15));
+
+    const query = userId && mongoose.Types.ObjectId.isValid(userId)
+      ? { _id: userId }
+      : { username };
+
+    const updateRes = await User.findOneAndUpdate(
+      query,
+      {
+        $inc: { totalTimeSpentSeconds: addedSeconds },
+        $set: { lastActiveAt: new Date() }
+      },
+      { new: true }
+    ).select("totalTimeSpentSeconds testsGivenCount");
+
+    return res.status(200).json({
+      success: true,
+      totalTimeSpentSeconds: updateRes?.totalTimeSpentSeconds || 0,
+      testsGivenCount: updateRes?.testsGivenCount || 0,
+    });
+  } catch (err) {
+    console.error("Heartbeat error:", err);
+    return res.status(500).json({ error: "Heartbeat failed" });
+  }
+});
+
 /* ── GET /api/student/profile ──
    Fetches 100% genuine, live student profile and real analytics metrics from MongoDB Atlas
 */
@@ -79,8 +154,9 @@ router.get("/student/profile", auth, async (req, res) => {
     const nTests = testAttempts.length;
 
     // Real Study Hours Formula:
-    // (Batches * 12.0h) + (Notes * 3.5h) + (Doubts * 1.5h) + (Tests * 1.0h) + 0.5h baseline
-    const studyHours = +((nPurchases * 12.0) + (nNotes * 3.5) + (nDoubts * 1.5) + (nTests * 1.0) + 0.5).toFixed(1);
+    // (Batches * 12.0h) + (Notes * 3.5h) + (Doubts * 1.5h) + (Tests * 1.0h) + (Logged Time in hrs) + 0.5h baseline
+    const loggedTimeHours = +(Number(user?.totalTimeSpentSeconds || 0) / 3600).toFixed(2);
+    const studyHours = +((nPurchases * 12.0) + (nNotes * 3.5) + (nDoubts * 1.5) + (nTests * 1.0) + loggedTimeHours + 0.5).toFixed(1);
 
     // Calculate Inactivity Days from genuine timestamps
     const activityDates = [
@@ -96,8 +172,7 @@ router.get("/student/profile", auth, async (req, res) => {
 
     const daysInactive = Math.max(0, Math.floor((Date.now() - latestActivity.getTime()) / (1000 * 60 * 60 * 24)));
 
-    // Calculate Quiz Score:
-    // If student has real test attempts in MongoDB, compute weighted average of real scores
+    // Calculate Quiz Score
     let quizScore = 45;
     if (testAttempts.length > 0) {
       const avgTestScore = testAttempts.reduce((sum, t) => sum + (Number(t.accuracy) || Number(t.score) || 0), 0) / testAttempts.length;
@@ -133,6 +208,9 @@ router.get("/student/profile", auth, async (req, res) => {
         notesReadCount: nNotes,
         testsAttemptedCount: nTests,
         retentionStatus,
+        totalTimeSpentSeconds: user?.totalTimeSpentSeconds || 0,
+        testsGivenCount: user?.testsGivenCount || nTests,
+        daysSinceLastLogin: user?.daysSinceLastLogin || 0,
         lastActive: latestActivity.toISOString(),
       },
       purchases,
@@ -189,6 +267,13 @@ router.post("/tests/submit", auth, async (req, res) => {
     };
 
     const result = await db.collection("testattempts").insertOne(newAttempt);
+
+    // Increment testsGivenCount on user record permanently in MongoDB
+    if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+      await User.updateOne({ _id: userId }, { $inc: { testsGivenCount: 1 }, $set: { lastActiveAt: new Date() } }).catch(() => {});
+    } else if (username) {
+      await User.updateOne({ username }, { $inc: { testsGivenCount: 1 }, $set: { lastActiveAt: new Date() } }).catch(() => {});
+    }
 
     return res.status(201).json({
       success: true,

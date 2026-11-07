@@ -107,7 +107,7 @@ const TestAttemptPage = () => {
           timeSpentSeconds: 3 * 60 * 60 - timeLeft,
         },
         { headers: { Authorization: `Bearer ${token}` } }
-      ).catch((err) => console.error("Could not persist test attempt:", err));
+      ).then(() => { window.dispatchEvent(new CustomEvent("test-submitted")); }).catch((err) => console.error("Could not persist test attempt:", err));
     }
   };
 

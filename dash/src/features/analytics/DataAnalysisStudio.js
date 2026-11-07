@@ -279,6 +279,189 @@ const DataAnalysisStudio = () => {
               </Grid>
             </Grid>
 
+            {/* ── CHURN RISK SENSITIVITY & INACTIVITY THRESHOLD MODEL ── */}
+            <Card sx={{ borderRadius: "20px", border: "1px solid #f0f0f0", boxShadow: "0 4px 20px rgba(0,0,0,0.04)", mb: 3.5, overflow: "hidden" }}>
+              <Box sx={{ p: 2.5, background: "linear-gradient(135deg, #1a1a2e 0%, #222244 100%)", color: "#fff" }}>
+                <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 1 }}>
+                  <Box>
+                    <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 17, sm: 20 }, letterSpacing: "-0.5px" }}>
+                      🚨 Churn Risk Sensitivity & Inactivity Threshold Model
+                    </Typography>
+                    <Typography sx={{ fontSize: 12, color: "rgba(255,255,255,0.7)", mt: 0.3 }}>
+                      Empirical drop-off thresholds deciding student churn based on platform absence, learning hours, quiz scores, and Z-values.
+                    </Typography>
+                  </Box>
+                  <Chip
+                    label="Risk Decision Engine"
+                    size="small"
+                    sx={{ background: "rgba(255,255,255,0.15)", color: "#fff", fontWeight: 700, fontSize: 11 }}
+                  />
+                </Box>
+              </Box>
+
+              <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
+                <Grid container spacing={2.5}>
+                  {/* Factor 1: Days Inactive */}
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid #f0f0f4", background: "#fafbfc", height: "100%" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#1a1a2e" }}>
+                          📅 Absence Window (Days Inactive)
+                        </Typography>
+                        <Chip label="Factor Weight: 35%" size="small" sx={{ background: "#ffebee", color: "#c62828", fontWeight: 700, fontSize: 10.5 }} />
+                      </Box>
+                      <Typography sx={{ fontSize: 11.5, color: "#666", mb: 2 }}>
+                        Consecutive days without logging in. The Ebbinghaus forgetting curve proves knowledge decay accelerates rapidly past day 7.
+                      </Typography>
+
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2, fontSize: 11.5 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>0 – 3 Days:</strong> Active Habit (Daily Learner)</span>
+                          <Chip label="5% Churn Risk" size="small" sx={{ background: "#e8f5e9", color: "#2e7d32", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>4 – 7 Days:</strong> Mild Drift (Early Warning)</span>
+                          <Chip label="22% Churn Risk" size="small" sx={{ background: "#f1f8e9", color: "#558b2f", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>8 – 13 Days:</strong> Critical Cooling Off Window</span>
+                          <Chip label="58% Churn Risk" size="small" sx={{ background: "#fff3e0", color: "#ef6c00", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>≥ 14 Days:</strong> Abandonment Threshold</span>
+                          <Chip label="92% – 100% Churn" size="small" sx={{ background: "#ffebee", color: "#c62828", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Factor 2: Study Hours */}
+                  <Grid item xs={12} md={6}>
+                    <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid #f0f0f4", background: "#fafbfc", height: "100%" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: 14, color: "#1a1a2e" }}>
+                          ⏱️ Platform Study Hours
+                        </Typography>
+                        <Chip label="Factor Weight: 20%" size="small" sx={{ background: "#e3f2fd", color: "#1565c0", fontWeight: 700, fontSize: 10.5 }} />
+                      </Box>
+                      <Typography sx={{ fontSize: 11.5, color: "#666", mb: 2 }}>
+                        Total cumulative time spent reading notes, viewing batches, and taking tests. Low initial time causes high drop-off.
+                      </Typography>
+
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1.2, fontSize: 11.5 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>&lt; 10 Hours:</strong> Low Platform Stickiness</span>
+                          <Chip label="82% Churn Risk" size="small" sx={{ background: "#ffebee", color: "#c62828", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>10 – 25 Hours:</strong> Developing Routine</span>
+                          <Chip label="38% Churn Risk" size="small" sx={{ background: "#fff3e0", color: "#ef6c00", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>26 – 50 Hours:</strong> Strong Engagement</span>
+                          <Chip label="14% Churn Risk" size="small" sx={{ background: "#f1f8e9", color: "#558b2f", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <span><strong>&gt; 50 Hours:</strong> Committed Power Learner</span>
+                          <Chip label="3% Churn Risk" size="small" sx={{ background: "#e8f5e9", color: "#2e7d32", fontWeight: 700, fontSize: 10.5 }} />
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Factor 3: Quiz Score */}
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid #f0f0f4", background: "#fafbfc", height: "100%" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: 13.5, color: "#1a1a2e" }}>
+                          📝 Quiz Mastery Score
+                        </Typography>
+                        <Chip label="15%" size="small" sx={{ background: "#f3e5f5", color: "#7b1fa2", fontWeight: 700, fontSize: 10 }} />
+                      </Box>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, fontSize: 11 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>&lt; 45%:</strong> Academic Struggle</span>
+                          <span style={{ color: "#c62828", fontWeight: 700 }}>78% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>45% – 65%:</strong> Average Grasp</span>
+                          <span style={{ color: "#ef6c00", fontWeight: 700 }}>35% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>66% – 85%:</strong> Solid Retention</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>12% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>&gt; 85%:</strong> Top Competency</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>2% Churn</span>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Factor 4: Z-Scores */}
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid #f0f0f4", background: "#fafbfc", height: "100%" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: 13.5, color: "#1a1a2e" }}>
+                          📐 Z-Score Deficit (Z = (X-μ)/σ)
+                        </Typography>
+                        <Chip label="Benchmarking" size="small" sx={{ background: "#e0f2f1", color: "#00695c", fontWeight: 700, fontSize: 10 }} />
+                      </Box>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, fontSize: 11 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>Z &lt; -1.5σ:</strong> Bottom 7% Lagging</span>
+                          <span style={{ color: "#c62828", fontWeight: 700 }}>88% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>-1.5σ ≤ Z &lt; 0:</strong> Below Mean</span>
+                          <span style={{ color: "#ef6c00", fontWeight: 700 }}>42% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>0 ≤ Z &lt; +1.5σ:</strong> Platform Average</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>14% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>Z ≥ +1.5σ:</strong> Elite Top 7%</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>2% Churn</span>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {/* Factor 5: Batches & Payments */}
+                  <Grid item xs={12} md={4}>
+                    <Box sx={{ p: 2, borderRadius: "14px", border: "1px solid #f0f0f4", background: "#fafbfc", height: "100%" }}>
+                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1.5 }}>
+                        <Typography sx={{ fontWeight: 800, fontSize: 13.5, color: "#1a1a2e" }}>
+                          💳 Batches & Billing
+                        </Typography>
+                        <Chip label="Commitment" size="small" sx={{ background: "#fbe9e7", color: "#d84315", fontWeight: 700, fontSize: 10 }} />
+                      </Box>
+                      <Box sx={{ display: "flex", flexDirection: "column", gap: 1, fontSize: 11 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>0 Enrolled Batches:</strong> Free Tier Only</span>
+                          <span style={{ color: "#c62828", fontWeight: 700 }}>72% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>≥ 1 Paid Batches:</strong> Sunk Cost Bound</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>11% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>≥ 2 Failed Payments:</strong> Involuntary Drop</span>
+                          <span style={{ color: "#c62828", fontWeight: 700 }}>85% Churn</span>
+                        </Box>
+                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+                          <span><strong>Active Doubts Asked:</strong> Persistent Inquiry</span>
+                          <span style={{ color: "#2e7d32", fontWeight: 700 }}>9% Churn</span>
+                        </Box>
+                      </Box>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+
             {/* Descriptive Statistics Table */}
             <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", mb: 3 }}>
               <CardContent sx={{ p: 3 }}>

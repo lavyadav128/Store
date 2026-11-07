@@ -100,6 +100,11 @@ router.post('/login', rateLimiter({ requests: 30, window: '10 m', prefix: 'rl:lo
     //              this is what makes the token secure — only our server knows it
     //   3. options: { expiresIn: "7d" } means the token becomes invalid after 7 days
     //              the user will need to log in again after that
+    const now = new Date();
+    const prevLogin = user.lastLoginAt || user.createdAt || now;
+    const daysSinceLast = Math.max(0, Math.floor((now.getTime() - new Date(prevLogin).getTime()) / (1000 * 60 * 60 * 24)));
+    await User.updateOne({ _id: user._id }, { $set: { previousLoginAt: prevLogin, lastLoginAt: now, lastActiveAt: now, daysSinceLastLogin: daysSinceLast } }).catch(() => {});
+
     const token = jwt.sign(
       { _id: user._id, username: user.username },   // payload (what's inside the token)
       process.env.JWT_SECRET,                        // secret key (kept private in .env)
@@ -113,6 +118,9 @@ router.post('/login', rateLimiter({ requests: 30, window: '10 m', prefix: 'rl:lo
       token,                  // the JWT — frontend saves this and sends it on future requests
       username: user.username, // the user's email/username
       name: user.name,         // the user's display name
+      totalTimeSpentSeconds: user.totalTimeSpentSeconds || 0,
+      testsGivenCount: user.testsGivenCount || 0,
+      daysSinceLastLogin: daysSinceLast,
     });
  
   } catch (e) {

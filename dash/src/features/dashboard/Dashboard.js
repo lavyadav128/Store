@@ -5,6 +5,8 @@ import {
   Snackbar, Alert, Button, Drawer,
 } from "@mui/material";
 import SchoolIcon from "@mui/icons-material/School";
+import AccessTimeIcon from "@mui/icons-material/AccessTime";
+import QuizIcon from "@mui/icons-material/Quiz";
 import AdminFileUpload from "./AdminFileUpload";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import BoltIcon from "@mui/icons-material/Bolt";
@@ -89,11 +91,10 @@ const VIEW_DATA_AUDIT = "data-audit";
 const VIEW_PROFILE = "profile";
 
 const SECTIONS = [
-  { icon: SchoolIcon,        title: "My Batches",              desc: "Track your enrolled classes by Class ID.",                     view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
-  { icon: NotificationsIcon, title: "Notifications",           desc: "Important messages from your instructor.",                     view: VIEW_NOTIFICATIONS, accent: "#0f4c75", tag: "Updates" },
-  { icon: HelpOutlineIcon,   title: "Doubt / Issue",           desc: "Raise and track your academic doubts.",                        view: VIEW_DOUBTS,        accent: "#1b262c", tag: "Support" },
-  { icon: PaymentIcon,       title: "Payments",                desc: "Manage subscriptions and billing.",                            view: VIEW_PAYMENTS,      accent: "#2d132c", tag: "Finance" },
-  { icon: AccountCircleIcon, title: "My Profile & Analytics",  desc: "Live session time, real test attempts & learning score.",      view: VIEW_PROFILE,       accent: "#4a154b", tag: "Live Profile" },
+  { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
+  { icon: NotificationsIcon, title: "Notifications", desc: "Important messages from your instructor.", view: VIEW_NOTIFICATIONS, accent: "#0f4c75", tag: "Updates" },
+  { icon: HelpOutlineIcon,   title: "Doubt / Issue", desc: "Raise and track your academic doubts.",    view: VIEW_DOUBTS,        accent: "#1b262c", tag: "Support" },
+  { icon: PaymentIcon,       title: "Payments",      desc: "Manage subscriptions and billing.",        view: VIEW_PAYMENTS,      accent: "#2d132c", tag: "Finance" },
 ];
 
 const SOCIAL = [
@@ -187,6 +188,59 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
   const searchRef = useRef(null);
   const inputRef  = useRef(null);
 
+  // Live accumulated time and test count state
+  const [liveSeconds, setLiveSeconds] = useState(0);
+  const [liveTestsCount, setLiveTestsCount] = useState(0);
+
+  useEffect(() => {
+    let isMounted = true;
+    const token = localStorage.getItem("token");
+    if (token) {
+      axios.get(`${server}/api/student/live-stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      }).then((res) => {
+        if (isMounted && res.data?.success) {
+          setLiveSeconds(Number(res.data.totalTimeSpentSeconds) || 0);
+          setLiveTestsCount(Number(res.data.testsGivenCount) || 0);
+        }
+      }).catch(() => {});
+    }
+
+    const onTestSubmitted = () => setLiveTestsCount(prev => prev + 1);
+    window.addEventListener("test-submitted", onTestSubmitted);
+
+    const tickInterval = setInterval(() => {
+      setLiveSeconds(prev => prev + 1);
+    }, 1000);
+
+    const beatInterval = setInterval(() => {
+      const curToken = localStorage.getItem("token");
+      if (curToken) {
+        axios.post(`${server}/api/student/heartbeat`, { seconds: 15 }, {
+          headers: { Authorization: `Bearer ${curToken}` }
+        }).catch(() => {});
+      }
+    }, 15000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(tickInterval);
+      clearInterval(beatInterval);
+      window.removeEventListener("test-submitted", onTestSubmitted);
+    };
+  }, []);
+
+  const formatLoggedTime = (totalSec) => {
+    const sec = Math.max(0, Number(totalSec) || 0);
+    if (sec < 60) return `${sec}s`;
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    if (m < 60) return `${m}m ${s}s`;
+    const h = Math.floor(m / 60);
+    const remM = m % 60;
+    return `${h}h ${remM}m`;
+  };
+
   useEffect(() => {
     const handler = (e) => {
       if (searchRef.current && !searchRef.current.contains(e.target)) {
@@ -264,6 +318,76 @@ const CourseSearchBar = ({ onNavigate, displayName, onOpenDrawer }) => {
           <Typography sx={{
             fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#aaa", mt: 0.8, fontWeight: 400,
           }}>Here's what's available for you today.</Typography>
+        </Box>
+      </Box>
+
+      {/* ── LIVE LEARNER STATS PILLS (BETWEEN NAME & SEARCH BAR) ── */}
+      <Box sx={{
+        display: "flex",
+        alignItems: "center",
+        gap: { xs: 1.2, sm: 1.5 },
+        flexWrap: { xs: "wrap", md: "nowrap" },
+        my: { xs: 1.5, sm: 0 },
+        mx: { xs: 0, sm: "auto", md: 2 },
+        justifyContent: { xs: "flex-start", sm: "center" },
+      }}>
+        {/* Pill 1: Total Spent Logged Time */}
+        <Box sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: 1.2,
+          px: { xs: 1.5, sm: 2 },
+          py: 0.9,
+          borderRadius: "40px",
+          border: "1.5px solid #ececec",
+          background: "#fff",
+          boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+          transition: "all 0.2s ease",
+          "&:hover": { borderColor: "#2ecc71", boxShadow: "0 4px 14px rgba(46,204,113,0.12)" },
+        }}>
+          <Box sx={{
+            width: 8, height: 8, borderRadius: "50%",
+            background: "#2ecc71", boxShadow: "0 0 6px #2ecc71",
+            flexShrink: 0,
+          }} />
+          <AccessTimeIcon sx={{ fontSize: 17, color: "#1a1a2e" }} />
+          <Box>
+            <Typography sx={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", lineHeight: 1 }}>
+              Total Logged Time
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.2, mt: 0.2 }}>
+              {formatLoggedTime(liveSeconds)}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Pill 2: Tests Given */}
+        <Box
+          onClick={() => onNavigate("/attempt-test")}
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.2,
+            px: { xs: 1.5, sm: 2 },
+            py: 0.9,
+            borderRadius: "40px",
+            border: "1.5px solid #ececec",
+            background: "#fff",
+            cursor: "pointer",
+            boxShadow: "0 2px 10px rgba(0,0,0,0.03)",
+            transition: "all 0.2s ease",
+            "&:hover": { borderColor: "#1a1a2e", boxShadow: "0 4px 14px rgba(26,26,46,0.1)", transform: "translateY(-1px)" },
+          }}
+        >
+          <QuizIcon sx={{ fontSize: 17, color: "#1a1a2e" }} />
+          <Box>
+            <Typography sx={{ fontSize: 10, fontFamily: "'DM Sans', sans-serif", color: "#888", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", lineHeight: 1 }}>
+              Tests Given
+            </Typography>
+            <Typography sx={{ fontSize: 13.5, fontFamily: "'DM Sans', sans-serif", fontWeight: 800, color: "#1a1a2e", lineHeight: 1.2, mt: 0.2 }}>
+              {liveTestsCount} {liveTestsCount === 1 ? "Test" : "Tests"}
+            </Typography>
+          </Box>
         </Box>
       </Box>
 

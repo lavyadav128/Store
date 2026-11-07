@@ -22,7 +22,15 @@ const userScheme = new Schema(
         chatOnboardingGoal: { type: String, trim: true, maxlength: 500, default: "" },
         // A small, transparent preference memory inferred from the learner's
         // own chat requests (never from other students' activity).
-        chatInterests: { type: [String], default: [] }
+        chatInterests: { type: [String], default: [] },
+
+        // Real-Time Analytics & Platform Interaction Metrics
+        totalTimeSpentSeconds: { type: Number, default: 0 },
+        testsGivenCount: { type: Number, default: 0 },
+        lastLoginAt: { type: Date, default: Date.now },
+        previousLoginAt: { type: Date, default: null },
+        daysSinceLastLogin: { type: Number, default: 0 },
+        lastActiveAt: { type: Date, default: Date.now }
     }
 );
 
