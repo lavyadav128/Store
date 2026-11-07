@@ -172,21 +172,29 @@ const AdminDashboard = () => {
     if (!userToDelete) return;
     setDeleteLoading(true);
     try {
-      const targetId = userToDelete._id || userToDelete.username;
+      const targetId = encodeURIComponent(userToDelete._id || userToDelete.username);
       const res = await axios.delete(`${server}/api/admin/users/${targetId}`, authHeader());
-      if (res.data.success) {
-        setSnackbarMsg(`Student "${userToDelete.name || userToDelete.username}" and all data permanently deleted!`);
-        setSnackbarSeverity("success");
+      setSnackbarMsg(res.data?.message || `Student "${userToDelete.name || userToDelete.username}" and all data permanently deleted!`);
+      setSnackbarSeverity("success");
+      setSnackbarOpen(true);
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      fetchUsers();
+    } catch (err) {
+      console.error("Failed to delete user", err);
+      // If user was already removed from users table in MongoDB, close modal and refresh
+      if (err.response?.status === 404) {
+        setSnackbarMsg(`Student "${userToDelete.name || userToDelete.username}" was already removed from MongoDB.`);
+        setSnackbarSeverity("info");
         setSnackbarOpen(true);
         setDeleteDialogOpen(false);
         setUserToDelete(null);
         fetchUsers();
+      } else {
+        setSnackbarMsg(err.response?.data?.error || err.response?.data?.message || "Failed to delete user from database.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
       }
-    } catch (err) {
-      console.error("Failed to delete user", err);
-      setSnackbarMsg(err.response?.data?.error || "Failed to delete user from database.");
-      setSnackbarSeverity("error");
-      setSnackbarOpen(true);
     } finally {
       setDeleteLoading(false);
     }
