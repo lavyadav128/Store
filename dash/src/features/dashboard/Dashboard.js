@@ -49,6 +49,13 @@ import DoubtPage from "../doubts/doubt";
 import PaymentsPage from "../commerce/payment";
 import RevenueRecoveryDashboard from "../revenue-recovery/RevenueRecoveryDashboard";
 import AdminDashboard from "./AdminDashboard";
+import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
+import AiMlEngineStudio from "../analytics/AiMlEngineStudio";
+import DataAuditStudio from "../analytics/DataAuditStudio";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
+import InsightsIcon from "@mui/icons-material/Insights";
+import PsychologyIcon from "@mui/icons-material/Psychology";
 import Dreams from "./Dreams";
 import Batches from "../batches/Batches";
 import NotesManager from "../notes/Notesmanager";
@@ -74,6 +81,9 @@ const VIEW_FILES         = "files";
 const VIEW_BATCH         = "batches";
 const VIEW_NOTES         = "notes";
 const VIEW_REVENUE_RECOVERY = "revenue-recovery";
+const VIEW_DATA_ANALYSIS = "data-analysis";
+const VIEW_AIML = "ai-ml";
+const VIEW_DATA_AUDIT = "data-audit";
 
 const SECTIONS = [
   { icon: SchoolIcon,        title: "My Batches",    desc: "Track your enrolled classes by Class ID.", view: VIEW_MYBATCHES,     accent: "#1a1a2e", tag: "Study" },
@@ -156,6 +166,9 @@ const ADMIN_NAV = [
   { icon: BatchPredictionIcon,  title: "Batches",       view: VIEW_BATCH },
   { icon: NotesIcon,      title: " Best Notes",       view: VIEW_NOTES },
   { icon: BoltIcon, title: "Revenue Recovery", view: VIEW_REVENUE_RECOVERY },
+  { icon: InsightsIcon, title: "Data Analysis", view: VIEW_DATA_ANALYSIS },
+  { icon: PsychologyIcon, title: "AI / ML Engine", view: VIEW_AIML },
+  { icon: TableChartIcon, title: "Data Hub & Audit", view: VIEW_DATA_AUDIT },
 
 ];
 
@@ -329,7 +342,27 @@ const Dashboard = () => {
 
   const isAdminRoute = location.pathname === "/admin-dashboard";
 
-  const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));  const [purchases,    setPurchases]    = useState([]);
+  const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));
+  const [purchases, setPurchases] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem("notenova_user_purchases");
+      if (!cached) return [];
+      const parsed = JSON.parse(cached);
+      if (!Array.isArray(parsed)) return [];
+      return parsed.map((item) => {
+        const title = item.title?.trim();
+        let route = "/cou";
+        if (title === "Revision")             route = "/rev";
+        else if (title === "DsaAlgo")         route = "/dsac";
+        else if (title === "premium Batches") route = "/pre";
+        else if (title === "CDS")             route = "/cds";
+        else if (title === "Notes")           route = "/batches";
+        return { title, route, price: item.price, expiryDate: item.expiryDate, classId: item.classId };
+      });
+    } catch {
+      return [];
+    }
+  });
   const [showPopup,    setShowPopup]    = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [mobileDrawer, setMobileDrawer] = useState(false);
@@ -368,6 +401,7 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         if (!Array.isArray(res.data)) return;
+        try { sessionStorage.setItem("notenova_user_purchases", JSON.stringify(res.data)); } catch {}
         const mapped = res.data.map((item) => {
           const title = item.title?.trim();
           let route = "/cou";
@@ -1117,6 +1151,15 @@ const Dashboard = () => {
                   {activeView === VIEW_REVENUE_RECOVERY && (
                     <Fade in timeout={400}><Box><RevenueRecoveryDashboard /></Box></Fade>
                   )}
+                  {activeView === VIEW_DATA_ANALYSIS && (
+                    <ErrorBoundary><Fade in timeout={400}><Box><DataAnalysisStudio /></Box></Fade></ErrorBoundary>
+                  )}
+                  {activeView === VIEW_AIML && (
+                    <ErrorBoundary><Fade in timeout={400}><Box><AiMlEngineStudio /></Box></Fade></ErrorBoundary>
+                  )}
+                  {activeView === VIEW_DATA_AUDIT && (
+                    <ErrorBoundary><Fade in timeout={400}><Box><DataAuditStudio /></Box></Fade></ErrorBoundary>
+                  )}
 
                 </>
               )}
@@ -1158,3 +1201,5 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+
+

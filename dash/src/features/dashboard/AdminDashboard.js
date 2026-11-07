@@ -17,6 +17,13 @@ import CloseIcon from "@mui/icons-material/Close";
 import axios from "axios";
 import server from "../../shared/environment";
 import { useLocation } from "react-router-dom";
+import ErrorBoundary from "../../shared/components/ErrorBoundary";
+import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
+import AiMlEngineStudio from "../analytics/AiMlEngineStudio";
+import InsightsIcon from "@mui/icons-material/Insights";
+import PsychologyIcon from "@mui/icons-material/Psychology";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import DataAuditStudio from "../analytics/DataAuditStudio";
 
 const AdminDashboard = () => {
   const [message,      setMessage]      = useState("");
@@ -36,6 +43,7 @@ const AdminDashboard = () => {
 
   // ── Tasks state ──
   const [openTasks, setOpenTasks] = useState(false);
+  const [adminSection, setAdminSection] = useState("overview");
   const [tasks,     setTasks]     = useState([]);
   const [newTask,   setNewTask]   = useState("");
 
@@ -274,12 +282,24 @@ const AdminDashboard = () => {
 
       <Fade in timeout={500}>
         <Box>
-          {/* ── Page header ── */}
-          <Box sx={{ mb: 4 }}>
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontStyle: "normal", fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>Admin Panel</Typography>
-            <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>Dashboard</Typography>
-            <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: "#aaa", mt: 0.8 }}>Manage messages and respond to user doubts.</Typography>
+          {/* ── Page header & Section Navigation ── */}
+          <Box sx={{ mb: 3.5, display: "flex", justifyContent: "space-between", alignItems: { xs: "flex-start", sm: "center" }, flexWrap: "wrap", gap: 2 }}>
+            <Box>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontWeight: 800, fontStyle: "normal", fontSize: 11, color: "#aaa", letterSpacing: "2px", textTransform: "uppercase", mb: 0.5 }}>Admin Panel</Typography>
+              <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: { xs: 26, sm: 32 }, color: "#1a1a2e", lineHeight: 1.1, letterSpacing: "-1px" }}>Dashboard</Typography>
+              <Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#888", mt: 0.5 }}>Overview, Data Analytics & AI/ML Predictive Workbench.</Typography>
+            </Box>
+            <Box sx={{ display: "flex", gap: 1, background: "#fff", p: 0.8, borderRadius: "14px", border: "1px solid #e8e8e8", boxShadow: "0 2px 8px rgba(0,0,0,0.03)" }}>
+              <Button size="small" onClick={() => setAdminSection("overview")} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "overview" ? "#1a1a2e" : "transparent", color: adminSection === "overview" ? "#fff" : "#666", "&:hover": { background: adminSection === "overview" ? "#2d2d4e" : "#f4f4f6" } }}>Overview</Button>
+              <Button size="small" onClick={() => setAdminSection("analytics")} startIcon={<InsightsIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "analytics" ? "#1a1a2e" : "transparent", color: adminSection === "analytics" ? "#fff" : "#666", "&:hover": { background: adminSection === "analytics" ? "#2d2d4e" : "#f4f4f6" } }}>Data Analyses</Button>
+              <Button size="small" onClick={() => setAdminSection("aiml")} startIcon={<PsychologyIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "aiml" ? "#1a1a2e" : "transparent", color: adminSection === "aiml" ? "#fff" : "#666", "&:hover": { background: adminSection === "aiml" ? "#2d2d4e" : "#f4f4f6" } }}>AI / ML Engine</Button>
+              <Button size="small" onClick={() => setAdminSection("audit")} startIcon={<TableChartIcon sx={{ fontSize: 16 }} />} sx={{ borderRadius: "10px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 12, px: 1.8, py: 0.7, textTransform: "none", background: adminSection === "audit" ? "#1a1a2e" : "transparent", color: adminSection === "audit" ? "#fff" : "#666", "&:hover": { background: adminSection === "audit" ? "#2d2d4e" : "#f4f4f6" } }}>Data Hub & Audit</Button>
+            </Box>
           </Box>
+          {adminSection === "analytics" && (<ErrorBoundary><Fade in timeout={300}><Box><DataAnalysisStudio /></Box></Fade></ErrorBoundary>)}
+          {adminSection === "aiml" && (<ErrorBoundary><Fade in timeout={300}><Box><AiMlEngineStudio /></Box></Fade></ErrorBoundary>)}
+          {adminSection === "audit" && (<ErrorBoundary><Fade in timeout={300}><Box><DataAuditStudio /></Box></Fade></ErrorBoundary>)}
+          {adminSection === "overview" && (<Box>
 
           {/* ── Two columns ── */}
           <Box sx={{ display: "flex", gap: 3, flexDirection: { xs: "column", md: "row" }, alignItems: "stretch" }}>
@@ -387,6 +407,24 @@ const AdminDashboard = () => {
               </Button>
             </Box>
           </Box>
+          <Box sx={{ display: "flex", gap: 2, mt: 3, flexWrap: "wrap" }}>
+            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><InsightsIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
+              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Data Analyses</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Descriptive stats, Pearson r, RFM & cohorts</Typography></Box>
+              <Button variant="contained" onClick={() => setAdminSection("analytics")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
+            </Box>
+            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><PsychologyIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
+              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>AI / ML Engine</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>7 Models benchmark, K-Means & live prediction</Typography></Box>
+              <Button variant="contained" onClick={() => setAdminSection("aiml")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
+            </Box>
+            <Box className="admin-card" sx={{ flex: "1 1 280px", background: "#fff", border: "1px solid #f0f0f0", borderRadius: "20px", p: { xs: 2.5, sm: 3 }, boxShadow: "0 2px 8px rgba(0,0,0,0.04)", display: "flex", alignItems: "center", gap: 2 }}>
+              <Box sx={{ width: 48, height: 48, borderRadius: "14px", background: "#f4f4f6", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}><TableChartIcon sx={{ fontSize: 24, color: "#1a1a2e" }} /></Box>
+              <Box sx={{ flex: 1 }}><Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, color: "#1a1a2e", letterSpacing: "-0.3px" }}>Data Hub & Audit</Typography><Typography sx={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: "#aaa" }}>Atlas student dataset, 7 model votes & math proofs</Typography></Box>
+              <Button variant="contained" onClick={() => setAdminSection("audit")} sx={{ background: "#1a1a2e", borderRadius: "12px", fontFamily: "'DM Sans', sans-serif", fontWeight: 700, fontSize: 13, py: 1.1, px: 2.2, textTransform: "none", boxShadow: "none", whiteSpace: "nowrap", "&:hover": { background: "#2d2d4e", boxShadow: "0 8px 24px rgba(26,26,46,0.25)" } }}>Open</Button>
+            </Box>
+          </Box>
+          </Box>)}
         </Box>
       </Fade>
 

@@ -324,14 +324,28 @@ const ClassCardPage = () => {
 
   // classList now lives in state, populated by the API fetch below,
   // instead of being a hardcoded constant outside the component.
-  const [classList, setClassList] = useState([]);
+  const [classList, setClassList] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('notenova_batches_CDS');
+      return cached ? JSON.parse(cached) : [];
+    } catch { return []; }
+  });
 
   // purchasedBatches = an object (dictionary) where:
   // key   = classId (e.g. "10", "11")
   // value = the purchase record from the database (contains expiryDate etc.)
   // e.g. { "10": { classId: "10", expiryDate: "2026-12-31" }, "11": {...} }
   // starts as empty {} — filled in after the API call in useEffect
-  const [purchasedBatches, setPurchasedBatches] = useState({});
+  const [purchasedBatches, setPurchasedBatches] = useState(() => {
+    try {
+      const cached = sessionStorage.getItem('notenova_user_purchases');
+      if (!cached) return {};
+      const list = JSON.parse(cached);
+      const map = {};
+      if (Array.isArray(list)) list.forEach(p => { if (p.classId) map[p.classId] = p; });
+      return map;
+    } catch { return {}; }
+  });
 
   // useTheme gives us access to MUI's theme object (breakpoints, spacing, etc.)
   const theme = useTheme();
@@ -351,13 +365,15 @@ const ClassCardPage = () => {
         const data = await res.json();
 
         // Map MongoDB fields to match ClassCard's existing props exactly
-        setClassList(data.map((b) => ({
+        const mappedClasses = data.map((b) => ({
           id: b.batchId,
           title: b.title,
           description: b.description,
           imageUrl: b.imageUrl,
           price: b.price,
-        })));
+        }));
+        try { sessionStorage.setItem('notenova_batches_CDS', JSON.stringify(mappedClasses)); } catch {}
+        setClassList(mappedClasses);
       } catch (err) {
         console.error('Failed to fetch classes:', err);
       }
@@ -389,6 +405,7 @@ const ClassCardPage = () => {
         // Save the map into state — this triggers a re-render
         // All ClassCard components will now know which classes are purchased
         setPurchasedBatches(purchasesMap);
+        try { sessionStorage.setItem('notenova_user_purchases', JSON.stringify(data)); } catch {}
 
       } catch (err) {
         console.error('Failed to fetch purchases:', err.message);

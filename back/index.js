@@ -76,6 +76,7 @@ import { startInstagramAgentScheduler } from './modules/instagram-agent/services
 import clientAgentRoutes, { clientAgentPublicRouter } from './modules/client-agent/routes/clientAgent.routes.js';
 import { startClientAgentScheduler } from './modules/client-agent/services/clientAgentScheduler.service.js';
 import pochiRoutes from './modules/pochi/routes/pochi.routes.js';
+import analyticsRouter from './modules/analytics/routes/analytics.routes.js';
 
 import http from 'node:http';
 import { initSocket } from './shared/socket/io.js';
@@ -250,6 +251,7 @@ app.use('/api/notes', notesRouter);
 
 app.use('/api/agent/revenue-recovery', revenueRecoveryRoutes);
 app.use('/api/admin/pochi', pochiRoutes);
+app.use('/api/analytics', analyticsRouter);
 
 app.use("/api/recommendations",recommendationRouter);
 app.use("/api/catalog", catalogRouter);
@@ -277,8 +279,8 @@ app.get("/", (req, res) => {
 // key_id and key_secret are provided by Razorpay when you create an account
 // NEVER hardcode these — always use environment variables
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,      // public key (used on frontend too)
-  key_secret: process.env.RAZORPAY_SECRET,   // secret key (backend only, never expose)
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',      // public key (used on frontend too)
+  key_secret: process.env.RAZORPAY_SECRET || 'rzp_test_secret_placeholder',   // secret key (backend only, never expose)
 });
 
 // POST /api/create-order
@@ -451,3 +453,6 @@ async function shutdown(signal) {
 
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
+
+

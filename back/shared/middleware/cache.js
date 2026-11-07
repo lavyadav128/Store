@@ -1,65 +1,79 @@
-// ─────────────────────────────────────────────────────────────
-// CACHE MIDDLEWARE (Upstash REST client version)
-// ─────────────────────────────────────────────────────────────
-// This gives you two tools:
-//   1. cache(seconds)  → drop into any GET route, like `auth` middleware
-//   2. clearCache(pattern) → call inside admin POST/PUT/DELETE/PATCH routes
-//      to invalidate (wipe) stale cached data after a write
-//
-// NOTE: the Upstash REST client auto-serializes/deserializes JSON for you.
-// Do NOT manually JSON.stringify() before set() or JSON.parse() after get().
+// back/shared/middleware/cache.js
+// Ultra-fast In-Memory Cache with optional Upstash Redis tier
 
 import redis from '../../config/redis.js';
 
+// High-speed In-Memory Cache (0ms latency fallback)
+const memoryCache = new Map();
+
 // ── 1. cache(seconds) ──
-// Usage:  router.get('/', cache(60), async (req, res) => { ... })
 export function cache(seconds = 60) {
   return async (req, res, next) => {
     const key = `cache:${req.originalUrl}`;
+    const now = Date.now();
 
-    try {
-      const cached = await redis.get(key);
-
-      if (cached) {
-        // CACHE HIT — data found in Redis, skip MongoDB completely
-        // `cached` is already a real object here, NOT a JSON string
-        console.log(`🟢 Cache HIT: ${key}`);
-        return res.json(cached);
-      }
-
-      console.log(`🔴 Cache MISS: ${key}`);
-
-      // CACHE MISS — hijack res.json so whatever the route sends back
-      // also gets saved to Redis (with expiry) before going to the browser
-      const originalJson = res.json.bind(res);
-      res.json = (body) => {
-        // { ex: seconds } = expire after N seconds (Upstash REST syntax)
-        redis.set(key, body, { ex: seconds }).catch((err) =>
-          console.error('Redis SET failed (non-fatal):', err.message)
-        );
-        return originalJson(body);
-      };
-
-      next();
-    } catch (err) {
-      // If Redis itself fails (network hiccup etc), don't block the request —
-      // just skip caching for this one request. MongoDB still answers normally.
-      console.error('Redis GET failed, skipping cache:', err.message);
-      next();
+    // Check ultrafast in-memory cache first (instant response)
+    const mem = memoryCache.get(key);
+    if (mem && mem.expiresAt > now) {
+      return res.json(mem.data);
     }
+
+    const hasRedis = Boolean(
+      process.env.UPSTASH_REDIS_REST_URL &&
+      process.env.UPSTASH_REDIS_REST_URL.trim() &&
+      process.env.UPSTASH_REDIS_REST_TOKEN &&
+      process.env.UPSTASH_REDIS_REST_TOKEN.trim()
+    );
+
+    if (hasRedis) {
+      try {
+        const cached = await Promise.race([
+          redis.get(key),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Redis timeout')), 250))
+        ]);
+
+        if (cached) {
+          memoryCache.set(key, { data: cached, expiresAt: now + seconds * 1000 });
+          return res.json(cached);
+        }
+      } catch (err) {
+        // Non-fatal, bypass to database
+      }
+    }
+
+    // Intercept res.json to cache response
+    const originalJson = res.json.bind(res);
+    res.json = (body) => {
+      memoryCache.set(key, { data: body, expiresAt: now + seconds * 1000 });
+
+      if (hasRedis) {
+        redis.set(key, body, { ex: seconds }).catch(() => {});
+      }
+      return originalJson(body);
+    };
+
+    next();
   };
 }
 
 // ── 2. clearCache(pattern) ──
-// Usage: await clearCache('cache:/api/batches*');
 export async function clearCache(pattern) {
-  try {
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-      console.log(`🧹 Cleared ${keys.length} cache key(s) matching "${pattern}"`);
+  memoryCache.clear();
+  const hasRedis = Boolean(
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_URL.trim() &&
+    process.env.UPSTASH_REDIS_REST_TOKEN &&
+    process.env.UPSTASH_REDIS_REST_TOKEN.trim()
+  );
+
+  if (hasRedis) {
+    try {
+      const keys = await redis.keys(pattern);
+      if (keys.length > 0) {
+        await redis.del(...keys);
+      }
+    } catch (err) {
+      // Non-fatal
     }
-  } catch (err) {
-    console.error('Redis cache clear failed (non-fatal):', err.message);
   }
 }

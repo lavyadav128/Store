@@ -14,6 +14,9 @@ import FailedPayment from '../../revenue-recovery/schema/FailedPayment.model.js'
 
 const router = express.Router();
 
+// Ultra-fast in-memory cache for user purchases (0ms instant response)
+const userPurchasesCache = new Map();
+
 async function getLiveProduct(classId) {
   const [batch, noteBatch] = await Promise.all([
     Batch.findOne({ batchId: classId, isActive: true }).lean(),
@@ -64,6 +67,9 @@ router.post('/save-purchase', auth, async (req, res) => {
       { upsert: true, new: true }
     );
 
+    // Invalidate purchases cache for this user
+    userPurchasesCache.delete(userId.toString());
+
     if (serverPrice > 0) {
       await PaymentAttempt.findOneAndUpdate({ razorpayOrderId: razorpay_order_id }, { $set: { status: 'paid', razorpayPaymentId: razorpay_payment_id } });
       if (recoveryOffer) {
@@ -85,9 +91,26 @@ router.post('/save-purchase', auth, async (req, res) => {
 
 router.get('/user-purchases', auth, async (req, res) => {
   try {
-    const purchases = await Purchase.find({ userId: req.user._id, expiryDate: { $gt: new Date() } }).select('classId title description imageUrl price expiryDate isPremium -_id');
+    const userId = req.user._id.toString();
+    const now = Date.now();
+    const cached = userPurchasesCache.get(userId);
+    if (cached && cached.expiresAt > now) {
+      res.set('Cache-Control', 'private, max-age=60');
+      return res.json(cached.data);
+    }
+
+    const purchases = await Purchase.find({
+      $or: [{ userId: req.user._id }, { userId: userId }],
+      $or: [{ expiryDate: { $gt: new Date() } }, { expiryDate: { $exists: false } }]
+    }).select('classId title description imageUrl price expiryDate isPremium -_id').lean();
+
+    userPurchasesCache.set(userId, { data: purchases, expiresAt: now + 60000 });
+    res.set('Cache-Control', 'private, max-age=60');
     res.json(purchases);
-  } catch (error) { Sentry.captureException(error); res.status(500).json({ error: 'Unable to fetch purchases' }); }
+  } catch (error) {
+    Sentry.captureException(error);
+    res.status(500).json({ error: 'Unable to fetch purchases' });
+  }
 });
 
 router.post('/purchase-access', auth, async (req, res) => {
@@ -98,7 +121,11 @@ router.post('/purchase-access', auth, async (req, res) => {
       targetClassId = batch?.batchId;
     }
     if (!targetClassId) return res.status(400).json({ error: 'classId or redirectPath is required' });
-    const purchase = await Purchase.findOne({ userId: req.user._id, classId: targetClassId, expiryDate: { $gt: new Date() } });
+    const purchase = await Purchase.findOne({
+      $or: [{ userId: req.user._id }, { userId: req.user._id.toString() }],
+      classId: targetClassId,
+      $or: [{ expiryDate: { $gt: new Date() } }, { expiryDate: { $exists: false } }]
+    });
     res.json({ access: !!purchase });
   } catch (error) { Sentry.captureException(error); res.status(500).json({ error: 'Server error' }); }
 });

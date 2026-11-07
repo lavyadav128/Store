@@ -24,7 +24,8 @@ router.get('/', cache(60), async (req, res) => {
       filter.folder = req.query.folder;
     }
 
-    const batches = await Batch.find(filter).sort({ sortOrder: 1, createdAt: 1 });
+    const batches = await Batch.find(filter).sort({ sortOrder: 1, createdAt: 1 }).lean();
+    res.set('Cache-Control', 'public, max-age=60');
     res.json(batches);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch batches', error: err.message });

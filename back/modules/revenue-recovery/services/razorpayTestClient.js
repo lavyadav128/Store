@@ -8,8 +8,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const razorpayTest = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_SECRET,
+  key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
+  key_secret: process.env.RAZORPAY_SECRET || 'rzp_test_secret_placeholder',
 });
 
 export default razorpayTest;
