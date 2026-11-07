@@ -34,7 +34,6 @@ import { makeAuthenticatedRequest } from '../../shared/guards/makeauth';
 // imported from a config file so we don't hardcode the URL everywhere
 import server from '../../shared/environment';
 import { reportCheckoutFailure } from '../../shared/recoveryClient';
-import RazorpayCheckoutModal from '../../shared/components/RazorpayCheckoutModal';
 
 
 // ═════════════════════════════════════════════════════════════
@@ -49,69 +48,42 @@ import RazorpayCheckoutModal from '../../shared/components/RazorpayCheckoutModal
 // purchaseInfo → object from backend if this class was purchased, otherwise undefined
 // onPurchase   → a function passed from the parent to update purchase state after buying
 const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPurchase }) => {
-
   const navigate = useNavigate();
-  const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [checkoutOrder, setCheckoutOrder] = useState(null);
-
-  // !! converts any value to a strict boolean
-  // if purchaseInfo is an object (truthy) → isPurchased = true
-  // if purchaseInfo is undefined (falsy)  → isPurchased = false
   const isPurchased = !!purchaseInfo;
-
-  // If purchaseInfo exists and has an expiryDate, convert that date string to a Date object
-  // The ?. is "optional chaining" — if purchaseInfo is undefined, don't crash, just return null
   const expiryDate = purchaseInfo?.expiryDate ? new Date(purchaseInfo.expiryDate) : null;
 
-  // ── EXPLORE BUTTON HANDLER ──
-  // When the user clicks "Explore", go to the explore page for this class
-  // e.g. for id='10' → navigates to /class/10/explore
   const handleExploreRedirect = () => {
     navigate(`/class/${id}/explore`);
   };
 
-  // ── BUY / ACCESS BUTTON HANDLER ──
-  // Handles both free access and paid purchases
   const handleBuyRedirect = async () => {
-
-    // Check if the user is logged in by looking for their JWT token
     const token = localStorage.getItem('token');
     if (!token) {
-      // If no token found, user is not logged in — show alert and stop
       alert('Please login first');
       return;
     }
 
-    // Build the payload (data) we'll send to the backend when saving a purchase
-    // This is the same whether the class is free or paid
     const purchasePayload = {
-      classId: id,          // which class was purchased
-      batchTitle: title,    // the class name
-      price: price,         // the price paid (0 for free)
+      classId: id,
+      batchTitle: title,
+      price: price,
       description: description,
       imageUrl: imageUrl,
     };
 
-    // ── FREE CLASS PATH ──
-    // If price is 0, skip payment and directly grant access
     if (price === 0) {
       try {
-        // Call backend to record this free "purchase" in the database
         await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', purchasePayload);
-        // Tell the parent component to update the purchased state for this class
         onPurchase(id);
-        // Redirect the student to the class content page
         navigate(`/class/${id}`);
       } catch (err) {
         console.error('Error saving free access:', err);
         alert(err.message || 'Failed to grant access.');
       }
-      return; // stop here — don't fall through to the paid path below
+      return;
     }
 
-    // ── PAID CLASS PATH ──
     try {
-      // ── STEP 1: Create payment order on our backend ──
       const order = await makeAuthenticatedRequest(`${server}/api/create-order`, 'POST', {
         amount: price,
         receipt: `receipt_${id}_${Date.now()}`,
@@ -119,180 +91,152 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         batchTitle: title,
       });
 
-      let paymentDone = false;
+      const rzpKey = order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY;
+      const hasRealKey = rzpKey && !rzpKey.includes('placeholder');
 
-      const handlePaymentSuccess = async (response) => {
-        paymentDone = true;
-        try {
-          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-            ...purchasePayload,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          });
-          setCheckoutOpen(false);
-          onPurchase(id);
-          navigate(`/class/${id}`);
-        } catch (err) {
-          console.error('Error saving purchase:', err);
-          alert(err.message || 'Error saving your purchase.');
-        }
-      };
-
-      // If simulated order, or placeholder keys, or Razorpay checkout script not available:
-      const shouldUseModal =
-        order.isMock ||
-        !window.Razorpay ||
-        !order.key ||
-        order.key.includes('placeholder');
-
-      if (shouldUseModal) {
-        setCheckoutOrder(order);
-        setCheckoutOpen(true);
-        return;
-      }
-
-      // Live Razorpay popup config
-      const options = {
-        key: order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
-        amount: order.amount,
-        currency: order.currency,
-        name: 'Atom Classes',
-        description: `Payment for ${title}`,
-        order_id: order.id,
-        handler: handlePaymentSuccess,
-        prefill: {
-          name: order.customer?.name || '',
-          email: order.customer?.email || '',
-          contact: order.customer?.phone || '',
-        },
-        notes: { batchId: id },
-        theme: { color: '#1a1a2e' },
-        modal: {
-          confirm_close: true,
-          handleback: true,
-          ondismiss: () => {
-            if (!paymentDone) {
-              reportCheckoutFailure(order.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+      if (hasRealKey && window.Razorpay) {
+        let paymentDone = false;
+        const options = {
+          key: rzpKey,
+          amount: order.amount,
+          currency: order.currency || 'INR',
+          name: 'Atom Classes',
+          description: `Payment for ${title}`,
+          order_id: order.id,
+          handler: async function (response) {
+            paymentDone = true;
+            try {
+              await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+                ...purchasePayload,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+              });
+              onPurchase(id);
+              alert(`🎉 Success! You have enrolled in ${title}.`);
+            } catch (err) {
+              console.error('Error saving purchase:', err);
+              alert(err.message || 'Error saving your purchase.');
             }
           },
-        },
-      };
+          prefill: {
+            name: order.customer?.name || '',
+            email: order.customer?.email || '',
+            contact: order.customer?.phone || '',
+          },
+          notes: { batchId: id },
+          theme: { color: '#1a1a2e' },
+          modal: {
+            confirm_close: true,
+            handleback: true,
+            ondismiss: () => {
+              if (!paymentDone) {
+                reportCheckoutFailure(order.id, { error: { reason: 'checkout_dismissed_before_completion' } });
+              }
+            },
+          },
+        };
 
-      try {
         const rzp = new window.Razorpay(options);
         rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
         rzp.open();
-      } catch (e) {
-        console.warn('Razorpay checkout window failed to open, using embedded modal:', e);
-        setCheckoutOrder(order);
-        setCheckoutOpen(true);
-      }
+      } else {
+        // Razorpay Test Mode Simulator (Success / Failure Options)
+        const simulateSuccess = window.confirm(
+          `[Razorpay Test Gateway]\n\nSimulating payment for "${title}" (₹${price})\n\n• Click [OK] to simulate SUCCESSFUL Payment (Test Approval)\n• Click [Cancel] to simulate FAILED Payment (Test Rejection)`
+        );
 
+        if (simulateSuccess) {
+          const simPaymentId = `pay_test_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+            ...purchasePayload,
+            razorpay_order_id: order.id,
+            razorpay_payment_id: simPaymentId,
+            razorpay_signature: `sig_test_${Date.now()}`,
+          });
+          onPurchase(id);
+          alert(`🎉 Payment Successful! You are now enrolled in ${title}.`);
+        } else {
+          reportCheckoutFailure(order.id, { error: { reason: 'payment_failed_simulated', description: 'User selected test payment failure' } });
+          alert('❌ Payment Failed. Simulated failure logged in recovery records.');
+        }
+      }
     } catch (err) {
       console.error('Payment error:', err);
       alert(err.message || 'Failed to initiate payment. Try again.');
     }
   };
 
-
-  // ── JSX: THE CARD UI ──
   return (
-    <>
     <Card
       sx={{
-        width: 330,                    // fixed width for each card
-        borderRadius: 4,               // rounded corners
-        overflow: 'hidden',            // clip image corners inside the rounded card
-        boxShadow: 6,                  // MUI shadow level (1-24)
+        width: 330,
+        borderRadius: 4,
+        overflow: 'hidden',
+        boxShadow: 6,
         display: 'flex',
-        flexDirection: 'column',       // stack image → content → buttons vertically
+        flexDirection: 'column',
         backgroundColor: '#ffffff',
-        transition: 'transform 0.3s ease, box-shadow 0.3s ease', // smooth hover animation
+        transition: 'transform 0.3s ease, box-shadow 0.3s ease',
         '&:hover': {
-          transform: 'translateY(-5px)', // lift card up by 5px on hover
-          boxShadow: 12,                 // deeper shadow to enhance the "lifted" effect
+          transform: 'translateY(-5px)',
+          boxShadow: 12,
         },
       }}
     >
-      {/* CardMedia renders the course thumbnail image */}
-      {/* component="img" tells MUI to render an <img> tag */}
-      {/* height="220" sets the image height in pixels */}
       <CardMedia
         component="img"
         height="220"
-        image={imageUrl}   // path to the image (e.g. /images/10.png)
-        alt={title}        // accessibility text if image fails to load
+        image={imageUrl}
+        alt={title}
         sx={{ objectFit: 'cover', borderBottom: '1px solid #eee' }}
-        // objectFit: 'cover' = fill the box while keeping the image's aspect ratio
-        // borderBottom adds a thin separator line between image and content
       />
 
-      {/* CardContent holds the text info below the image */}
       <CardContent sx={{ px: 3, pt: 0 }}>
-        {/* Course title in bold */}
         <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
           {title}
         </Typography>
 
-        {/* Course description — lighter grey text */}
-        {/* minHeight: 48 keeps all cards the same height even if description length differs */}
         <Typography variant="body2" color="text.secondary" sx={{ minHeight: 48 }}>
           {description}
         </Typography>
 
-        {/* Row with price chip on left and "Purchased" chip on right */}
-        {/* Stack direction="row" = place children side by side */}
-        {/* justifyContent="space-between" = push them to opposite ends */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mt: 2 }}>
-          {/* Price badge — green if free, orange/yellow if paid */}
           <Chip
-            label={price === 0 ? 'FREE' : `₹${price}`} // shows "FREE" or "₹499" etc.
-            color={price === 0 ? 'success' : 'warning'} // green for free, amber for paid
+            label={price === 0 ? 'FREE' : `₹${price}`}
+            color={price === 0 ? 'success' : 'warning'}
             sx={{ fontWeight: 'bold', px: 1.5 }}
           />
-          {/* Only show "Purchased" badge if this class was already bought */}
           {isPurchased && <Chip label="Purchased" color="primary" size="small" />}
         </Stack>
 
-        {/* Box reserves space for the expiry date text */}
-        {/* minHeight: 24 prevents layout shift when no date is shown */}
         <Box sx={{ minHeight: 24, mt: 1, display: 'flex', alignItems: 'center' }}>
-          {/* Only show expiry date if the class is purchased AND has an expiry date */}
           {isPurchased && expiryDate && (
             <Typography variant="caption" sx={{ color: 'gray', fontWeight: 600 }}>
-              {/* toLocaleDateString() converts Date object to human-readable format */}
-              {/* e.g. "6/16/2026" */}
               Expires on: {expiryDate.toLocaleDateString()}
             </Typography>
           )}
         </Box>
       </CardContent>
 
-      {/* CardActions holds the two buttons at the bottom of the card */}
       <CardActions sx={{ px: 3, pb: 3, pt: 0, justifyContent: 'space-between' }}>
-
-        {/* EXPLORE BUTTON — always visible, takes user to a preview page */}
         <Button
-          variant="outlined"           // outlined style = border only, no fill
+          variant="outlined"
           onClick={handleExploreRedirect}
           sx={{
-            width: '48%',             // takes up almost half the card width
+            width: '48%',
             fontWeight: 600,
             borderRadius: 2,
-            textTransform: 'none',    // prevents MUI from auto-uppercasing button text
-            '&:hover': { backgroundColor: '#e3f2fd' }, // light blue tint on hover
+            textTransform: 'none',
+            '&:hover': { backgroundColor: '#e3f2fd' },
           }}
         >
           Explore
         </Button>
 
-        {/* BUY / STUDY BUTTON — label and action change based on purchase status */}
         <Button
-          variant="contained"          // filled/solid button style
+          variant="contained"
           onClick={() => (isPurchased ? navigate(`/class/${id}`) : handleBuyRedirect())}
-          // if already purchased → go directly to the class page
-          // if not purchased     → trigger the buy/payment flow
           sx={{
             width: '48%',
             fontWeight: 600,
@@ -300,59 +244,12 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
             textTransform: 'none',
           }}
         >
-          {/* Label changes: "Study" if owned, "Buy Now" if not */}
           {isPurchased ? 'Study' : 'Buy Now'}
         </Button>
       </CardActions>
     </Card>
-
-    <RazorpayCheckoutModal
-      open={checkoutOpen}
-      onClose={() => {
-        setCheckoutOpen(false);
-        if (checkoutOrder) {
-          reportCheckoutFailure(checkoutOrder.id, { error: { reason: 'checkout_dismissed_before_completion' } });
-        }
-      }}
-      order={checkoutOrder}
-      batchTitle={title}
-      batchPrice={price}
-      onSuccess={async (response) => {
-        try {
-          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-            classId: id,
-            batchTitle: title,
-            price: price,
-            description: description,
-            imageUrl: imageUrl,
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-          });
-          setCheckoutOpen(false);
-          onPurchase(id);
-          navigate(`/class/${id}`);
-        } catch (err) {
-          console.error('Error saving purchase:', err);
-          alert(err.message || 'Error saving your purchase.');
-        }
-      }}
-      onFailure={(orderId, resp) => reportCheckoutFailure(orderId, resp)}
-    />
-    </>
   );
 };
-
-
-// ═════════════════════════════════════════════════════════════
-//  ClassCardPage COMPONENT
-//  The parent/page component — renders the heading and all class cards
-//  Manages which classes the user has purchased
-//
-//  ── ONLY CHANGE: classList now comes from the API (folder="Jee Mains")
-//     instead of being a hardcoded array. Everything else — layout,
-//     purchase handling, card rendering — is untouched. ──
-// ═════════════════════════════════════════════════════════════
 
 const ClassCardPage = () => {
 
@@ -460,14 +357,15 @@ const ClassCardPage = () => {
   // Called by ClassCard after a successful purchase
   // Updates the purchasedBatches state without re-fetching from the backend
   const handlePurchaseUpdate = (classId) => {
-    // (prev) is the current value of purchasedBatches before the update
-    // We spread all existing entries (...prev) and add/update the newly purchased class
-    setPurchasedBatches((prev) => ({
-      ...prev, // keep all previously purchased classes
-      // If this classId already exists in prev, keep it
-      // If not (new purchase), create a minimal entry with today's date as expiry
-      [classId]: prev[classId] || { expiryDate: new Date().toISOString() },
-    }));
+    const updatedRecord = { classId, expiryDate: new Date(Date.now() + 10 * 30 * 24 * 60 * 60 * 1000).toISOString() };
+    setPurchasedBatches((prev) => {
+      const next = { ...prev, [classId]: updatedRecord };
+      try {
+        const list = Object.values(next);
+        sessionStorage.setItem('notenova_user_purchases', JSON.stringify(list));
+      } catch {}
+      return next;
+    });
   };
 
   // ── JSX: THE PAGE LAYOUT ──
