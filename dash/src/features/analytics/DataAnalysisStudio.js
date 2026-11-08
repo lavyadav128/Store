@@ -157,9 +157,24 @@ const DataAnalysisStudio = () => {
           { label: "Total Students", value: summary.totalStudents, tag: "Learner Base", color: "#1a1a2e" },
           { label: "Active Retention", value: `${(100 - summary.churnRate).toFixed(1)}%`, tag: `${summary.activeCount} Active`, color: "#2e7d32" },
           { label: "Churn Vulnerability", value: `${summary.churnRate}%`, tag: `${summary.churnedCount} At-Risk`, color: "#d32f2f" },
-          { label: "Mean Study Hours", value: `${stats.studyHours?.mean || 24.5} hrs`, tag: `σ = ${stats.studyHours?.stdDev || 14.2}`, color: "#0288d1" },
-          { label: "Median Quiz Score", value: `${stats.quizScores?.median || 64}%`, tag: `IQR = ${stats.quizScores?.iqr || 28}`, color: "#ed6c02" },
-          { label: "Gross Monetization", value: `₹${summary.grossRevenue?.toLocaleString()}`, tag: `${summary.recoveredCount} Recovered`, color: "#6a1b9a" },
+          {
+            label: "Mean Study Hours",
+            value: `${((stats.studyHours?.mean ?? 0)).toFixed(2)} hrs`,
+            tag: `σ = ${((stats.studyHours?.stdDev ?? 0)).toFixed(2)}`,
+            color: "#0288d1",
+          },
+          {
+            label: "Median Quiz Score",
+            value: (stats.quizScores?.count && stats.quizScores.count > 0) ? `${stats.quizScores.median}%` : "0%",
+            tag: (stats.quizScores?.count && stats.quizScores.count > 0) ? `IQR = ${stats.quizScores.iqr ?? 0}` : "0 Tests Taken",
+            color: "#ed6c02",
+          },
+          {
+            label: "Gross Monetization",
+            value: `₹${(summary.grossRevenue ?? 0).toLocaleString()}`,
+            tag: `${summary.recoveredCount || 0} Recovered`,
+            color: "#6a1b9a",
+          },
         ].map((kpi, idx) => (
           <Grid item xs={6} sm={4} md={2} key={idx}>
             <Box sx={{ background: "#fff", border: "1px solid #f0f0f0", borderRadius: "16px", p: { xs: 1.5, sm: 2 }, boxShadow: "0 2px 8px rgba(0,0,0,0.03)", height: "100%" }}>
@@ -491,25 +506,38 @@ const DataAnalysisStudio = () => {
                     <TableBody>
                       {[
                         { name: "Study Hours (Platform Time)", data: stats.studyHours },
-                        { name: "Quiz Scores (Knowledge Assessment)", data: stats.quizScores },
+                        { name: "Quiz Scores (Knowledge Assessment)", data: stats.quizScores, isQuiz: true },
                         { name: "Inactivity Window (Days Idle)", data: stats.daysInactive },
                         { name: "Student Monetary Spend (₹)", data: stats.totalSpend },
-                      ].map((row, idx) => (
-                        <TableRow key={idx} sx={{ "&:hover": { background: "#fafbfc" } }}>
-                          <TableCell sx={{ fontWeight: 600, fontSize: 12 }}>{row.name}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12, fontWeight: 700 }}>{row.data?.mean ?? "—"}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.median ?? "—"}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.mode ?? "—"}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.stdDev ?? "—"}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.min} - {row.data?.max}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.q1} / {row.data?.q3}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.iqr ?? "—"}</TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12, color: (row.data?.skewness > 0.5) ? "#ed6c02" : "#2e7d32" }}>
-                            {row.data?.skewness ?? "—"}
-                          </TableCell>
-                          <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.kurtosis ?? "—"}</TableCell>
-                        </TableRow>
-                      ))}
+                      ].map((row, idx) => {
+                        const hasAttempts = !row.isQuiz || (row.data?.count && row.data.count > 0);
+                        return (
+                          <TableRow key={idx} sx={{ "&:hover": { background: "#fafbfc" } }}>
+                            <TableCell sx={{ fontWeight: 600, fontSize: 12 }}>{row.name}</TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12, fontWeight: 700 }}>
+                              {hasAttempts ? (row.data?.mean ?? 0) : "0% (0 attempts)"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>
+                              {hasAttempts ? (row.data?.median ?? 0) : "0%"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>
+                              {hasAttempts ? (row.data?.mode ?? 0) : "0%"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.stdDev ?? 0}</TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>
+                              {hasAttempts ? `${row.data?.min ?? 0} - ${row.data?.max ?? 0}` : "0 - 0"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>
+                              {hasAttempts ? `${row.data?.q1 ?? 0} / ${row.data?.q3 ?? 0}` : "0 / 0"}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.iqr ?? 0}</TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12, color: (row.data?.skewness > 0.5) ? "#ed6c02" : "#2e7d32" }}>
+                              {row.data?.skewness ?? 0}
+                            </TableCell>
+                            <TableCell align="right" sx={{ fontSize: 12 }}>{row.data?.kurtosis ?? 0}</TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </TableContainer>
@@ -563,44 +591,76 @@ const DataAnalysisStudio = () => {
               <Grid item xs={12} md={6}>
                 <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)" }}>
                   <CardContent sx={{ p: 3 }}>
-                    <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16, mb: 1 }}>
-                      Quiz Score Assessment Density
-                    </Typography>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 1, flexWrap: "wrap", gap: 1 }}>
+                      <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 16 }}>
+                        Quiz Score Assessment Density
+                      </Typography>
+                      {(!stats.quizScores?.count || stats.quizScores.count === 0) && (
+                        <Chip
+                          label="0 Attempts Recorded"
+                          size="small"
+                          sx={{ background: "#fff3e0", color: "#e65100", fontWeight: 700, fontSize: 11 }}
+                        />
+                      )}
+                    </Box>
                     <Typography sx={{ fontSize: 12, color: "#777", mb: 2 }}>
                       Gaussian assessment distribution across test series and chapter mocks.
                     </Typography>
-                    <Box sx={{ height: 240 }}>
-                      <Line
-                        data={{
-                          labels: distributions.quizScores?.map(b => b.label) || ["0 - 20%", "20 - 40%", "40 - 60%", "60 - 80%", "80 - 100%"],
-                          datasets: [{
-                            label: "Score Density",
-                            data: distributions.quizScores?.map(b => b.count) || [0, 0, 0, 0, 0],
-                            borderColor: "#0288d1",
-                            backgroundColor: "rgba(2, 136, 209, 0.12)",
-                            fill: true,
-                            tension: 0.4,
-                            pointRadius: 4,
-                          }],
-                        }}
-                        options={{
-                          responsive: true,
-                          maintainAspectRatio: false,
-                          plugins: { legend: { display: false } },
-                          scales: {
-                            y: {
-                              beginAtZero: true,
-                              grid: { color: "#f0f0f0" },
-                              title: { display: true, text: "Y-Axis: Student Count (Density)", font: { weight: "bold", size: 11 } }
+                    {(!stats.quizScores?.count || stats.quizScores.count === 0) ? (
+                      <Box sx={{
+                        height: 240,
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        background: "#fafbfc",
+                        borderRadius: "14px",
+                        border: "1px dashed #cfd8dc",
+                        p: 3,
+                        textAlign: "center"
+                      }}>
+                        <AssessmentIcon sx={{ fontSize: 38, color: "#90a4ae", mb: 1 }} />
+                        <Typography sx={{ fontWeight: 700, fontSize: 14, color: "#37474f" }}>
+                          0 Test Series Attempts Recorded Yet
+                        </Typography>
+                        <Typography sx={{ fontSize: 12, color: "#78909c", mt: 0.5, maxWidth: 380, lineHeight: 1.5 }}>
+                          Live telemetry reports 0 mock tests attempted by registered students. Once students attempt topic mocks or quizzes, real Gaussian density curves will plot here dynamically.
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <Box sx={{ height: 240 }}>
+                        <Line
+                          data={{
+                            labels: distributions.quizScores?.map(b => b.label) || ["0 - 20%", "20 - 40%", "40 - 60%", "60 - 80%", "80 - 100%"],
+                            datasets: [{
+                              label: "Score Density",
+                              data: distributions.quizScores?.map(b => b.count) || [0, 0, 0, 0, 0],
+                              borderColor: "#0288d1",
+                              backgroundColor: "rgba(2, 136, 209, 0.12)",
+                              fill: true,
+                              tension: 0.4,
+                              pointRadius: 4,
+                            }],
+                          }}
+                          options={{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { legend: { display: false } },
+                            scales: {
+                              y: {
+                                beginAtZero: true,
+                                grid: { color: "#f0f0f0" },
+                                title: { display: true, text: "Y-Axis: Student Count (Density)", font: { weight: "bold", size: 11 } }
+                              },
+                              x: {
+                                grid: { display: false },
+                                title: { display: true, text: "X-Axis: Knowledge Assessment Score (Bucket %)", font: { weight: "bold", size: 11 } }
+                              }
                             },
-                            x: {
-                              grid: { display: false },
-                              title: { display: true, text: "X-Axis: Knowledge Assessment Score (Bucket %)", font: { weight: "bold", size: 11 } }
-                            }
-                          },
-                        }}
-                      />
-                    </Box>
+                          }}
+                        />
+                      </Box>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>

@@ -15,7 +15,10 @@ router.get('/overview', async (req, res) => {
     const churnRate = totalStudents > 0 ? +((churnedCount / totalStudents) * 100).toFixed(1) : 0;
 
     const studyHoursStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.studyHours));
-    const quizScoreStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.quizScore));
+    const testAttemptedLearners = dataset.filter(d => (d.testsGivenCount && d.testsGivenCount > 0) || (d.quizScore && d.quizScore > 0));
+    const quizScoreStats = testAttemptedLearners.length > 0
+      ? analyticsDataService.calculateDescriptiveStats(testAttemptedLearners.map(d => d.quizScore))
+      : { count: 0, mean: 0, median: 0, mode: 0, variance: 0, stdDev: 0, min: 0, max: 0, q1: 0, q3: 0, iqr: 0, skewness: 0, kurtosis: 0 };
     const daysInactiveStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.daysInactive));
     const totalSpendStats = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.totalSpend));
 
@@ -44,7 +47,7 @@ router.get('/overview', async (req, res) => {
     ];
     const quizScoresDist = quizScoreRanges.map(r => ({
       label: r.label,
-      count: dataset.filter(d => d.quizScore >= r.min && d.quizScore < r.max).length,
+      count: testAttemptedLearners.filter(d => d.quizScore >= r.min && d.quizScore < r.max).length,
     }));
 
     const daysInactiveRanges = [
@@ -172,7 +175,8 @@ router.get('/user/:id', async (req, res) => {
 
     // 5. Detailed Comparative Analytics vs Platform
     const statsStudy = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.studyHours));
-    const statsQuiz = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.quizScore));
+    const testAttemptedLearners = dataset.filter(d => (d.testsGivenCount && d.testsGivenCount > 0) || (d.quizScore && d.quizScore > 0));
+    const statsQuiz = testAttemptedLearners.length > 0 ? analyticsDataService.calculateDescriptiveStats(testAttemptedLearners.map(d => d.quizScore)) : { count: 0, mean: 0, median: 0, mode: 0, variance: 0, stdDev: 0, min: 0, max: 0, q1: 0, q3: 0, iqr: 0, skewness: 0, kurtosis: 0 };
     const statsInactive = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.daysInactive));
     const statsSpend = analyticsDataService.calculateDescriptiveStats(dataset.map(d => d.totalSpend));
 

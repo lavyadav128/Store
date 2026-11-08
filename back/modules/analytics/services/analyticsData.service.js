@@ -174,6 +174,7 @@ class AnalyticsDataService {
           track,
           studyHours,
           quizScore,
+          testsGivenCount: myTests.length,
           doubtsAsked: dData.count,
           purchases: pData.count,
           totalSpend: pData.spend,

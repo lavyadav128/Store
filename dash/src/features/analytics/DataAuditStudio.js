@@ -707,7 +707,7 @@ const DataAuditStudio = () => {
                         CLV = (Gross Spend / Max(1, Purchases)) * Frequency_Score * (R_Score / 2.5)
                       </Typography>
                       <Typography sx={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
-                        For student <strong>1234</strong>: (₹11,976 / 24) * 5 * (5 / 2.5) = <strong>₹20,210 CLV</strong> (Top Platform Champion).
+                        Calculates monetary lifetime value dynamically based on actual purchase spend and recency-frequency scores from MongoDB Atlas.
                       </Typography>
                     </Box>
                   </Grid>
@@ -949,132 +949,101 @@ const DataAuditStudio = () => {
                 Real Notenova Student Case Studies (Step-by-Step Math Traces)
               </Typography>
               <Typography sx={{ fontSize: 13, color: "#777" }}>
-                Walk-through of how raw data from MongoDB Atlas is normalized, evaluated by all 7 models, and mapped to prescriptive actions.
+                Walk-through of how raw telemetry from MongoDB Atlas is evaluated by all 7 models and mapped to prescriptive actions.
               </Typography>
             </Box>
 
-            <Grid container spacing={3}>
-              {[
-                {
-                  title: "Case Study A: Power Learner / Champion",
-                  student: "Student: 1234 (username: 1234)",
-                  status: "Actual: Active (0% Churn)",
-                  tier: "Minimal Risk",
-                  tierColor: "#2e7d32",
-                  features: {
-                    studyHours: "389.5 hrs (Z = +5.29)",
-                    quizScore: "85% (Z = +1.20)",
-                    daysInactive: "0 days (Z = -1.50)",
-                    purchases: "24 batches (Z = +11.4)",
-                    totalSpend: "₹11,976 (Z = +5.86)",
-                    doubtsAsked: "8 doubts (Z = +4.10)",
-                  },
-                  modelConsensus: "Consensus Churn Probability: 0.2%",
-                  modelsVotes: "Random Forest: 0% | Gradient Boost: 0% | LogReg: 0.007% | SVM: 1.7% | KNN: 0% | Decision Tree: 0% | Naive Bayes: 0%",
-                  rfm: "RFM: R=5, F=5, M=5 → 'Champions' | CLV = ₹20,210",
-                  cluster: "K-Means: Cluster 0 ('High-Achiever Power Learners')",
-                  actions: [
-                    "Provide early preview access to advanced GATE/IIT test series.",
-                    "Invite to student peer-mentorship program.",
-                    "Recommend flagship advanced DSA batch with 0% churn risk.",
-                  ],
-                },
-                {
-                  title: "Case Study B: At-Risk Inactive Dropout",
-                  student: "Student: Shivika (username: Shivika)",
-                  status: "Actual: Churned (100% Churn)",
-                  tier: "Critical Churn Risk",
-                  tierColor: "#d32f2f",
-                  features: {
-                    studyHours: "2.5 hrs (Z = -0.54)",
-                    quizScore: "35% (Z = -1.13)",
-                    daysInactive: "32 days (Z = +1.36)",
-                    purchases: "0 batches (Z = -0.45)",
-                    totalSpend: "₹0 (Z = -0.47)",
-                    doubtsAsked: "0 doubts (Z = -0.32)",
-                  },
-                  modelConsensus: "Consensus Churn Probability: 98.4%",
-                  modelsVotes: "Random Forest: 98% | Gradient Boost: 100% | LogReg: 94.2% | SVM: 96.8% | KNN: 100% | Decision Tree: 100% | Naive Bayes: 100%",
-                  rfm: "RFM: R=1, F=1, M=1 → 'Hibernating' | CLV = ₹0",
-                  cluster: "K-Means: Cluster 1 ('At-Risk Dormant Dropouts')",
-                  actions: [
-                    "Immediate automated WhatsApp re-engagement nudge.",
-                    "SMS dispatch of 15% recovery retry coupon via Razorpay.",
-                    "Assign academic advisor to schedule 10-minute diagnostic call.",
-                  ],
-                },
-                {
-                  title: "Case Study C: Moderate Paid Learner",
-                  student: "Student: swati (username: swati003)",
-                  status: "Actual: Active (Retained)",
-                  tier: "Moderate / Retained",
-                  tierColor: "#0288d1",
-                  features: {
-                    studyHours: "18.2 hrs (Z = -0.30)",
-                    quizScore: "68% (Z = +0.41)",
-                    daysInactive: "8 days (Z = -0.79)",
-                    purchases: "1 batch (Z = +0.05)",
-                    totalSpend: "₹499 (Z = -0.21)",
-                    doubtsAsked: "0 doubts (Z = -0.32)",
-                  },
-                  modelConsensus: "Consensus Churn Probability: 14.8%",
-                  modelsVotes: "Random Forest: 12% | Gradient Boost: 5% | LogReg: 21.4% | SVM: 18.2% | KNN: 20% | Decision Tree: 0% | Naive Bayes: 27%",
-                  rfm: "RFM: R=4, F=2, M=2 → 'Potential Loyalists' | CLV = ₹998",
-                  cluster: "K-Means: Cluster 2 ('Consistent Moderate Learners')",
-                  actions: [
-                    "Encourage chapter completion with automated streak reminder.",
-                    "Recommend participating in live doubt sessions.",
-                    "Cross-sell complimentary practice problem series.",
-                  ],
-                },
-              ].map((cs, idx) => (
-                <Grid item xs={12} md={4} key={idx}>
-                  <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", height: "100%" }}>
-                    <CardContent sx={{ p: 3 }}>
-                      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1 }}>
-                        <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#aaa", textTransform: "uppercase" }}>{cs.title}</Typography>
-                        <Chip label={cs.tier} size="small" sx={{ background: cs.tierColor, color: "#fff", fontWeight: 700, fontSize: 10 }} />
-                      </Box>
-                      <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 17, color: "#1a1a2e", mb: 0.5 }}>
-                        {cs.student}
-                      </Typography>
-                      <Typography sx={{ fontSize: 11.5, color: "#666", mb: 2 }}>{cs.status}</Typography>
+            {(!auditData?.students || auditData.students.length === 0) ? (
+              <Box sx={{ p: 4, textAlign: "center", background: "#fafbfc", borderRadius: "16px", border: "1px dashed #cfd8dc" }}>
+                <Typography sx={{ fontWeight: 700, fontSize: 16, color: "#37474f", mb: 1 }}>
+                  No Student Audit Records Found in MongoDB Atlas
+                </Typography>
+                <Typography sx={{ fontSize: 13, color: "#78909c" }}>
+                  Register or login learners to dynamically generate real mathematical case studies and 7-model consensus audits.
+                </Typography>
+              </Box>
+            ) : (
+              <Grid container spacing={3}>
+                {auditData.students.map((s, idx) => {
+                  const riskTier = s.prediction?.riskTier || (s.churned === 1 ? "Critical Churn Risk" : "Minimal Risk");
+                  const riskColor = s.prediction?.riskColor || (s.churned === 1 ? "#d32f2f" : "#2e7d32");
+                  const consensusProb = ((s.prediction?.consensusProbability ?? (s.churned === 1 ? 0.95 : 0.05)) * 100).toFixed(1);
+                  const votes = s.prediction?.modelVotes || {};
+                  const votesText = `RF: ${((votes['Random Forest'] ?? 0) * 100).toFixed(0)}% | GB: ${((votes['Gradient Boosting'] ?? 0) * 100).toFixed(0)}% | LogReg: ${((votes['Logistic Regression'] ?? 0) * 100).toFixed(1)}% | SVM: ${((votes['Support Vector Machine'] ?? 0) * 100).toFixed(1)}% | KNN: ${((votes['K-Nearest Neighbors'] ?? 0) * 100).toFixed(0)}% | Tree: ${((votes['Decision Tree'] ?? 0) * 100).toFixed(0)}% | NB: ${((votes['Naive Bayes'] ?? 0) * 100).toFixed(1)}%`;
+                  const rfmText = `RFM: R=${s.rfmScore?.r || 1}, F=${s.rfmScore?.f || 1}, M=${s.rfmScore?.m || 1} → '${s.rfmSegment || "Learner"}' | CLV = ₹${(s.clv || 0).toLocaleString()}`;
+                  const clusterText = `K-Means: Cluster ${s.clusterId ?? 0} ('${s.clusterLabel || "General Cohort"}')`;
+                  const actions = (s.prediction?.recommendations && s.prediction.recommendations.length > 0)
+                    ? s.prediction.recommendations
+                    : [
+                        "Monitor continuous student activity and learning momentum.",
+                        "Track live session hours and syllabus completion progress."
+                      ];
 
-                      <Box sx={{ background: "#fafafa", p: 1.5, borderRadius: "10px", border: "1px solid #f0f0f0", mb: 2 }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 11.5, color: "#1a1a2e", mb: 1 }}>Standardized Z-Score Inputs:</Typography>
-                        {Object.entries(cs.features).map(([k, v], fIdx) => (
-                          <Box key={fIdx} sx={{ display: "flex", justifyContent: "space-between", fontSize: 11, py: 0.2 }}>
-                            <span style={{ color: "#777" }}>{k}:</span>
-                            <span style={{ fontWeight: 600 }}>{v}</span>
+                  return (
+                    <Grid item xs={12} md={auditData.students.length === 1 ? 12 : 6} lg={4} key={s._id || s.id || idx}>
+                      <Card sx={{ borderRadius: "18px", border: "1px solid #f0f0f0", boxShadow: "0 2px 10px rgba(0,0,0,0.03)", height: "100%" }}>
+                        <CardContent sx={{ p: 3 }}>
+                          <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 1, gap: 1 }}>
+                            <Typography sx={{ fontSize: 11, fontWeight: 700, color: "#888", textTransform: "uppercase" }}>
+                              Live Atlas Student Case #{idx + 1}
+                            </Typography>
+                            <Chip label={riskTier} size="small" sx={{ background: riskColor, color: "#fff", fontWeight: 700, fontSize: 10 }} />
                           </Box>
-                        ))}
-                      </Box>
-
-                      <Box sx={{ p: 1.5, background: "#f8f9fa", borderRadius: "10px", mb: 2 }}>
-                        <Typography sx={{ fontWeight: 800, fontSize: 12.5, color: cs.tierColor }}>
-                          {cs.modelConsensus}
-                        </Typography>
-                        <Typography sx={{ fontSize: 10.5, color: "#666", mt: 0.5 }}>
-                          {cs.modelsVotes}
-                        </Typography>
-                        <Typography sx={{ fontSize: 11, color: "#444", fontWeight: 600, mt: 1 }}>
-                          {cs.rfm}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ p: 1.5, background: "#f9fdf9", borderRadius: "10px", border: "1px solid #d4edda" }}>
-                        <Typography sx={{ fontWeight: 700, fontSize: 11.5, color: "#2e7d32", mb: 0.5 }}>Intervention Plan:</Typography>
-                        {cs.actions.map((act, aIdx) => (
-                          <Typography key={aIdx} sx={{ fontSize: 11, color: "#2e7d32", mb: 0.3 }}>
-                            • {act}
+                          <Typography sx={{ fontFamily: "'Playfair Display', serif", fontWeight: 800, fontSize: 18, color: "#1a1a2e", mb: 0.5 }}>
+                            {s.name || s.username || "Registered Learner"}
                           </Typography>
-                        ))}
-                      </Box>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
+                          <Typography sx={{ fontSize: 11.5, color: "#666", mb: 2 }}>
+                            @{s.username || s.email} • Actual Status: <strong style={{ color: s.churned === 1 ? "#d32f2f" : "#2e7d32" }}>{s.churned === 1 ? "Churned / At-Risk" : "Active Learner"}</strong>
+                          </Typography>
+
+                          <Box sx={{ background: "#fafafa", p: 1.5, borderRadius: "10px", border: "1px solid #f0f0f0", mb: 2 }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 11.5, color: "#1a1a2e", mb: 1 }}>Pure Live Database Metrics:</Typography>
+                            {[
+                              { label: "Study Hours (Platform Time)", val: `${s.studyHours} hrs` },
+                              { label: "Quiz Score (Tests Completed)", val: `${s.quizScore}% (${s.testsGivenCount || 0} tests)` },
+                              { label: "Inactivity Window", val: `${s.daysInactive} days idle` },
+                              { label: "Course / Batch Purchases", val: `${s.purchases} batches` },
+                              { label: "Monetary Spend", val: `₹${(s.totalSpend || 0).toLocaleString()}` },
+                              { label: "Doubts Asked to Mentors", val: `${s.doubtsAsked} doubts` },
+                              { label: "Payment Gateway Failures", val: `${s.failedPayments || 0} failures` },
+                            ].map((f, fIdx) => (
+                              <Box key={fIdx} sx={{ display: "flex", justifyContent: "space-between", fontSize: 11, py: 0.25 }}>
+                                <span style={{ color: "#777" }}>{f.label}:</span>
+                                <span style={{ fontWeight: 600, color: "#1a1a2e" }}>{f.val}</span>
+                              </Box>
+                            ))}
+                          </Box>
+
+                          <Box sx={{ p: 1.5, background: "#f8f9fa", borderRadius: "10px", mb: 2, border: "1px solid #eee" }}>
+                            <Typography sx={{ fontWeight: 800, fontSize: 13, color: riskColor }}>
+                              Consensus Churn Probability: {consensusProb}%
+                            </Typography>
+                            <Typography sx={{ fontSize: 10.5, color: "#555", mt: 0.5, lineHeight: 1.4 }}>
+                              {votesText}
+                            </Typography>
+                            <Typography sx={{ fontSize: 11, color: "#333", fontWeight: 600, mt: 1 }}>
+                              {rfmText}
+                            </Typography>
+                            <Typography sx={{ fontSize: 10.5, color: "#666", mt: 0.3 }}>
+                              {clusterText}
+                            </Typography>
+                          </Box>
+
+                          <Box sx={{ p: 1.5, background: "#f9fdf9", borderRadius: "10px", border: "1px solid #d4edda" }}>
+                            <Typography sx={{ fontWeight: 700, fontSize: 11.5, color: "#2e7d32", mb: 0.5 }}>Intervention Action Plan:</Typography>
+                            {actions.map((act, aIdx) => (
+                              <Typography key={aIdx} sx={{ fontSize: 11, color: "#2e7d32", mb: 0.3 }}>
+                                • {act}
+                              </Typography>
+                            ))}
+                          </Box>
+                        </CardContent>
+                      </Card>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+            )}
           </Box>
         </Fade>
       )}

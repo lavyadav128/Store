@@ -43,7 +43,7 @@ const MODEL_DETAILS = {
       { factor: "Batch Purchases (12% Importance)", role: "Sunk-cost financial commitment barrier separating casual from committed learners." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches", doubts: "8 doubts" },
       zScores: { daysInactive: "+1.85σ (Severe Inactivity)", studyHours: "+3.42σ (Top 0.1%)", quizScore: "+1.95σ (Top 2%)" },
       calculationTrace: [
@@ -68,7 +68,7 @@ const MODEL_DETAILS = {
       { factor: "Study Hours & Notes", role: "Exerts negative gradient downward pressure, keeping active learners below the churn threshold." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches" },
       zScores: { daysInactive: "+1.85σ", studyHours: "+3.42σ", quizScore: "+1.95σ" },
       calculationTrace: [
@@ -95,7 +95,7 @@ const MODEL_DETAILS = {
       { factor: "w_failed = +0.55", role: "Positive weight: Payment errors increase churn risk." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches" },
       zScores: { daysInactive: "+1.85σ", studyHours: "+3.42σ", quizScore: "+1.95σ", purchases: "+3.88σ" },
       calculationTrace: [
@@ -122,7 +122,7 @@ const MODEL_DETAILS = {
       { factor: "Slack Variables (ξ)", role: "Allows soft-margin tolerance for students who study heavily but paused attendance." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%" },
       zScores: { daysInactive: "+1.85σ", studyHours: "+3.42σ" },
       calculationTrace: [
@@ -146,17 +146,17 @@ const MODEL_DETAILS = {
       { factor: "Peer Matching", role: "Finds actual real students in Atlas who took similar courses and exhibited similar study patterns." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%", purchases: "24 batches" },
       calculationTrace: [
         "1. Standardize student vector into Z-scores: Z = [+1.85, +3.42, +1.95, +1.20, +3.88, 0, +2.1].",
         "2. Compute Euclidean distance d to peer Atlas student vectors.",
         "3. Top 5 Nearest Neighbors identified in Atlas database:",
-        "   • Peer 1 (Student 123): d = 1.42 → Actual Status: Churned (1)",
-        "   • Peer 2 (Student Shivika): d = 1.85 → Actual Status: Churned (1)",
-        "   • Peer 3 (Student swati): d = 2.10 → Actual Status: Active (0)",
-        "   • Peer 4 (Student learner5): d = 2.35 → Actual Status: Churned (1)",
-        "   • Peer 5 (Student learner9): d = 2.48 → Actual Status: Churned (1)",
+        "   • Peer 1 (Candidate A): d = 1.42 → Actual Status: Churned (1)",
+        "   • Peer 2 (Candidate B): d = 1.85 → Actual Status: Churned (1)",
+        "   • Peer 3 (Candidate C): d = 2.10 → Actual Status: Active (0)",
+        "   • Peer 4 (Candidate D): d = 2.35 → Actual Status: Churned (1)",
+        "   • Peer 5 (Candidate E): d = 2.48 → Actual Status: Churned (1)",
         "4. Majority Vote: 4 Churned, 1 Active → P(churn) = 4 / 5 = 80.0%.",
         "5. Binary Decision: 80.0% ≥ 50.0% → CHURN (1).",
       ],
@@ -175,7 +175,7 @@ const MODEL_DETAILS = {
       { factor: "Right Sub-tree", role: "Inactive branch: Evaluates whether purchases exist to attempt recovery offer." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%" },
       calculationTrace: [
         "1. Node 0 (Root): Is Days Inactive < 14? (Student has 164) → NO (Branch Right).",
@@ -192,13 +192,13 @@ const MODEL_DETAILS = {
     family: "Probabilistic Generative Classifier (Gaussian Bayes)",
     shortDesc: "Calculates the probability of churn using Bayes theorem, evaluating where each student's numbers fall on the bell curve (Gaussian normal distribution) of active vs churned learners.",
     formula: "P(Y = 1 \mid X) = \frac{P(Y = 1) \prod_{j=1}^{7} \mathcal{N}(x_j; \mu_{1,j}, \sigma_{1,j}^2)}{P(X)}",
-    mathExplanation: "Calculates class prior P(Churn=1) = 34/66 and P(Active=0) = 32/66. For each feature j, fits Gaussian mean μ and variance σ² separately for active vs churned groups. Multiplies likelihoods using log-probabilities to avoid arithmetic underflow.",
+    mathExplanation: "Calculates class priors for active vs churned cohorts dynamically. For each feature j, fits Gaussian mean μ and variance σ² separately for active vs churned groups. Multiplies likelihoods using log-probabilities to avoid arithmetic underflow.",
     factorsRole: [
       { factor: "Gaussian Curves", role: "Active students have Inactivity μ=3.2 days, σ=2.8. Churned students have Inactivity μ=26.4 days, σ=11.2." },
       { factor: "Posterior Odds", role: "When student inactivity hits 164, the churn Gaussian likelihood is 100,000x higher than the active curve." },
     ],
     example: {
-      studentName: "Student 1234 (Atlas Document 684be8f529a2c613f3b56a99)",
+      studentName: "Illustrative Feature Vector (Mathematical Calculation Trace)",
       inputs: { daysInactive: "164 days", studyHours: "300.5 hrs", quizScore: "98%" },
       calculationTrace: [
         "1. Prior: P(Churn) = 0.515, P(Active) = 0.485.",
