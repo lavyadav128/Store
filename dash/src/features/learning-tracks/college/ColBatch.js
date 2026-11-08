@@ -56,7 +56,7 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
     navigate(`/class/${id}/explore`);
   };
 
-  const handleBuyRedirect = async () => {
+const handleBuyRedirect = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       alert('Please login first');
@@ -83,7 +83,14 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
       return;
     }
 
+    // Check if Razorpay's script has been loaded in the browser
+    if (!window.Razorpay) {
+      alert('Payment gateway not loaded');
+      return;
+    }
+
     try {
+      // ── STEP 1: Create a Razorpay order on our backend ──
       const order = await makeAuthenticatedRequest(`${server}/api/create-order`, 'POST', {
         amount: price,
         receipt: `receipt_${id}_${Date.now()}`,
@@ -91,83 +98,64 @@ const ClassCard = ({ id, title, description, imageUrl, price, purchaseInfo, onPu
         batchTitle: title,
       });
 
-      const rzpKey = order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY;
-      const hasRealKey = rzpKey && !rzpKey.includes('placeholder');
+      // ── STEP 2: Configure the Razorpay payment popup ──
+      let paymentDone = false;
+      const options = {
+        key: order.key || process.env.REACT_APP_RAZORPAY_LIVE_KEY,
+        amount: order.amount,
+        currency: order.currency || 'INR',
+        name: 'Atom Classes',
+        description: `Payment for ${title}`,
+        order_id: order.id,
 
-      if (hasRealKey && window.Razorpay) {
-        let paymentDone = false;
-        const options = {
-          key: rzpKey,
-          amount: order.amount,
-          currency: order.currency || 'INR',
-          name: 'Atom Classes',
-          description: `Payment for ${title}`,
-          order_id: order.id,
-          handler: async function (response) {
-            paymentDone = true;
-            try {
-              await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-                ...purchasePayload,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-              });
-              onPurchase(id);
-              alert(`🎉 Success! You have enrolled in ${title}.`);
-            } catch (err) {
-              console.error('Error saving purchase:', err);
-              alert(err.message || 'Error saving your purchase.');
+        // handler runs automatically AFTER the student successfully pays
+        handler: async function (response) {
+          paymentDone = true;
+          try {
+            await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
+              ...purchasePayload,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+            });
+            onPurchase(id);
+            navigate(`/class/${id}`);
+          } catch (err) {
+            console.error('Error saving purchase:', err);
+            alert(err.message || 'Error saving your purchase.');
+          }
+        },
+
+        prefill: {
+          name: order.customer?.name || '',
+          email: order.customer?.email || '',
+          contact: order.customer?.phone || '',
+        },
+        notes: { batchId: id },
+        theme: { color: '#1a1a2e' },
+        modal: {
+          confirm_close: true,
+          handleback: true,
+          ondismiss: () => {
+            if (!paymentDone) {
+              reportCheckoutFailure(order.id, { error: { reason: 'checkout_dismissed_before_completion' } });
             }
           },
-          prefill: {
-            name: order.customer?.name || '',
-            email: order.customer?.email || '',
-            contact: order.customer?.phone || '',
-          },
-          notes: { batchId: id },
-          theme: { color: '#1a1a2e' },
-          modal: {
-            confirm_close: true,
-            handleback: true,
-            ondismiss: () => {
-              if (!paymentDone) {
-                reportCheckoutFailure(order.id, { error: { reason: 'checkout_dismissed_before_completion' } });
-              }
-            },
-          },
-        };
+        },
+      };
 
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
-        rzp.open();
-      } else {
-        // Razorpay Test Mode Simulator (Success / Failure Options)
-        const simulateSuccess = window.confirm(
-          `[Razorpay Test Gateway]\n\nSimulating payment for "${title}" (₹${price})\n\n• Click [OK] to simulate SUCCESSFUL Payment (Test Approval)\n• Click [Cancel] to simulate FAILED Payment (Test Rejection)`
-        );
+      // ── STEP 3: Create a Razorpay instance and open the payment popup ──
+      const rzp = new window.Razorpay(options);
+      rzp.on('payment.failed', (response) => reportCheckoutFailure(order.id, response));
+      rzp.open();
 
-        if (simulateSuccess) {
-          const simPaymentId = `pay_test_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
-          await makeAuthenticatedRequest(`${server}/api/save-purchase`, 'POST', {
-            ...purchasePayload,
-            razorpay_order_id: order.id,
-            razorpay_payment_id: simPaymentId,
-            razorpay_signature: `sig_test_${Date.now()}`,
-          });
-          onPurchase(id);
-          alert(`🎉 Payment Successful! You are now enrolled in ${title}.`);
-        } else {
-          reportCheckoutFailure(order.id, { error: { reason: 'payment_failed_simulated', description: 'User selected test payment failure' } });
-          alert('❌ Payment Failed. Simulated failure logged in recovery records.');
-        }
-      }
     } catch (err) {
       console.error('Payment error:', err);
-      alert(err.message || 'Failed to initiate payment. Try again.');
+      alert('Failed to initiate payment. Try again.');
     }
   };
 
-  return (
+    return (
     <Card
       sx={{
         width: 330,
@@ -356,8 +344,10 @@ const ClassCardPage = () => {
   // ── HANDLE PURCHASE UPDATE ──
   // Called by ClassCard after a successful purchase
   // Updates the purchasedBatches state without re-fetching from the backend
-  const handlePurchaseUpdate = (classId) => {
-    const updatedRecord = { classId, expiryDate: new Date(Date.now() + 10 * 30 * 24 * 60 * 60 * 1000).toISOString() };
+const handlePurchaseUpdate = (classId) => {
+    const expiry = new Date();
+    expiry.setFullYear(expiry.getFullYear() + 1); // 12-month subscription
+    const updatedRecord = { classId, expiryDate: expiry.toISOString() };
     setPurchasedBatches((prev) => {
       const next = { ...prev, [classId]: updatedRecord };
       try {

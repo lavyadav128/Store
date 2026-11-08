@@ -71,7 +71,7 @@ router.post('/save-purchase', auth, async (req, res) => {
     }
 
     const expiryDate = new Date();
-    expiryDate.setMonth(expiryDate.getMonth() + 10);
+    expiryDate.setFullYear(expiryDate.getFullYear() + 1); // 12-month subscription
     await Purchase.findOneAndUpdate(
       { userId, classId },
       { $set: { userId, classId, title: product.title, price: serverPrice, description: product.description || '', imageUrl: product.imageUrl || '', expiryDate, isPremium: serverPrice > 0, ...(serverPrice > 0 && { razorpayPaymentId: razorpay_payment_id }) } },
