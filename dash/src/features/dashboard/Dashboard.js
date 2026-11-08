@@ -55,7 +55,7 @@ import RevenueRecoveryDashboard from "../revenue-recovery/RevenueRecoveryDashboa
 import AdminDashboard from "./AdminDashboard";
 import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
 import AiMlEngineStudio from "../analytics/AiMlEngineStudio";
-import DataAuditStudio from "../analytics/DataAuditStudio";
+import DataAiAcademyStudio from "../analytics/DataAiAcademyStudio";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import ErrorBoundary from "../../shared/components/ErrorBoundary";
 import InsightsIcon from "@mui/icons-material/Insights";
@@ -173,7 +173,7 @@ const ADMIN_NAV = [
   { icon: BoltIcon, title: "Revenue Recovery", view: VIEW_REVENUE_RECOVERY },
   { icon: InsightsIcon, title: "Data Analysis", view: VIEW_DATA_ANALYSIS },
   { icon: PsychologyIcon, title: "AI / ML Engine", view: VIEW_AIML },
-  { icon: TableChartIcon, title: "Data Hub & Audit", view: VIEW_DATA_AUDIT },
+  { icon: SchoolIcon, title: "Data & AI/ML Academy", view: VIEW_DATA_AUDIT },
 
 ];
 
@@ -1270,7 +1270,7 @@ const Dashboard = () => {
                     <ErrorBoundary><Fade in timeout={400}><Box><AiMlEngineStudio /></Box></Fade></ErrorBoundary>
                   )}
                   {activeView === VIEW_DATA_AUDIT && (
-                    <ErrorBoundary><Fade in timeout={400}><Box><DataAuditStudio /></Box></Fade></ErrorBoundary>
+                    <ErrorBoundary><Fade in timeout={400}><Box><DataAiAcademyStudio /></Box></Fade></ErrorBoundary>
                   )}
 
                 </>
