@@ -469,26 +469,7 @@ const Dashboard = () => {
   const isAdminRoute = location.pathname === "/admin-dashboard";
 
   const [activeView, setActiveView] = useState(() => new URLSearchParams(location.search).get('view') === 'notifications' ? VIEW_NOTIFICATIONS : (isAdminRoute ? VIEW_DREAMS : VIEW_HOME));
-  const [purchases, setPurchases] = useState(() => {
-    try {
-      const cached = sessionStorage.getItem("notenova_user_purchases");
-      if (!cached) return [];
-      const parsed = JSON.parse(cached);
-      if (!Array.isArray(parsed)) return [];
-      return parsed.map((item) => {
-        const title = item.title?.trim();
-        let route = "/cou";
-        if (title === "Revision")             route = "/rev";
-        else if (title === "DsaAlgo")         route = "/dsac";
-        else if (title === "premium Batches") route = "/pre";
-        else if (title === "CDS")             route = "/cds";
-        else if (title === "Notes")           route = "/batches";
-        return { title, route, price: item.price, expiryDate: item.expiryDate, classId: item.classId };
-      });
-    } catch {
-      return [];
-    }
-  });
+  const [purchases, setPurchases] = useState([]);
   const [showPopup,    setShowPopup]    = useState(false);
   const [popupMessage, setPopupMessage] = useState("");
   const [mobileDrawer, setMobileDrawer] = useState(false);
@@ -527,7 +508,7 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         if (!Array.isArray(res.data)) return;
-        try { sessionStorage.setItem("notenova_user_purchases", JSON.stringify(res.data)); } catch {}
+
         const mapped = res.data.map((item) => {
           const title = item.title?.trim();
           let route = "/cou";
