@@ -99,7 +99,7 @@ router.get('/correlations', async (req, res) => {
     const dataset = await analyticsDataService.getDataset();
     const correlationMatrix = analyticsDataService.calculateCorrelationMatrix(dataset, ML_FEATURES);
     const rfm = analyticsDataService.calculateRFM(dataset);
-    const cohorts = analyticsDataService.generateCohortRetention();
+    const cohorts = analyticsDataService.generateCohortRetention(dataset);
 
     res.json({
       success: true,

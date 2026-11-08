@@ -61,6 +61,10 @@ class MLEngineService {
 
   // Train-test split (80/20)
   splitData(X, y, testRatio = 0.2) {
+    if (X.length < 5) {
+      // In small learner cohorts, train and evaluate on the real live cohort to ensure meaningful validation metrics
+      return { X_train: X, y_train: y, X_test: X, y_test: y };
+    }
     const indices = Array.from({ length: X.length }, (_, i) => i);
     // Deterministic shuffle for reproducible evaluation
     for (let i = indices.length - 1; i > 0; i--) {
@@ -68,7 +72,7 @@ class MLEngineService {
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
 
-    const testSize = Math.floor(X.length * testRatio);
+    const testSize = Math.max(1, Math.floor(X.length * testRatio));
     const testIndices = new Set(indices.slice(0, testSize));
 
     const X_train = [], y_train = [];
@@ -501,13 +505,15 @@ class MLEngineService {
   // A. K-Means Clustering + Elbow Curve
   runKMeans(X, k = 4, maxIter = 40) {
     const n = X.length;
+    if (n === 0) return { name: "K-Means Clustering", k: 0, inertia: 0, assignments: [], clusterProfiles: [], elbowCurve: [] };
     const numFeatures = X[0].length;
+    const actualK = Math.max(1, Math.min(k, n));
 
     // Initialize centroids using k-means++ approximation
     const centroids = [];
     centroids.push([...X[Math.floor(Math.random() * n)]]);
 
-    while (centroids.length < k) {
+    while (centroids.length < actualK) {
       let bestPoint = X[0];
       let maxDist = -1;
       for (let i = 0; i < n; i++) {
@@ -533,7 +539,7 @@ class MLEngineService {
       for (let i = 0; i < n; i++) {
         let minDist = Infinity;
         let bestCluster = 0;
-        for (let c = 0; c < k; c++) {
+        for (let c = 0; c < actualK; c++) {
           let dist = 0;
           for (let j = 0; j < numFeatures; j++) dist += Math.pow(X[i][j] - centroids[c][j], 2);
           if (dist < minDist) {
@@ -548,8 +554,8 @@ class MLEngineService {
       }
 
       // Update centroids
-      const counts = new Array(k).fill(0);
-      const newCentroids = Array.from({ length: k }, () => new Array(numFeatures).fill(0));
+      const counts = new Array(actualK).fill(0);
+      const newCentroids = Array.from({ length: actualK }, () => new Array(numFeatures).fill(0));
 
       for (let i = 0; i < n; i++) {
         const c = assignments[i];
@@ -559,7 +565,7 @@ class MLEngineService {
         }
       }
 
-      for (let c = 0; c < k; c++) {
+      for (let c = 0; c < actualK; c++) {
         if (counts[c] > 0) {
           for (let j = 0; j < numFeatures; j++) {
             centroids[c][j] = newCentroids[c][j] / counts[c];

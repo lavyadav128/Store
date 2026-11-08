@@ -321,7 +321,7 @@ const AiMlEngineStudio = () => {
 
   const leaderboard = benchmarkData?.supervisedLeaderboard || [];
   const selectedModel = leaderboard[selectedModelIdx] || leaderboard[0] || {};
-  const cm = selectedModel.confusionMatrix || { tp: 12, fp: 2, tn: 20, fn: 3 };
+  const cm = selectedModel.confusionMatrix || { tp: 0, fp: 0, tn: 0, fn: 0 };
   const unsupervised = benchmarkData?.unsupervised || {};
   const kmeans = unsupervised.kmeans || { clusterProfiles: [], elbowCurve: [] };
   const pca = unsupervised.pca || { explainedVariance: [54.2, 27.6], sampleProjections: [] };

@@ -138,16 +138,23 @@ class AnalyticsDataService {
           quizScore = Math.round(totalScore / myTests.length);
         }
 
+        // Real creation timestamp from MongoDB ObjectId or createdAt
+        const realCreationDate = u.createdAt
+          ? new Date(u.createdAt)
+          : (typeof u._id?.getTimestamp === 'function'
+              ? u._id.getTimestamp()
+              : new Date(parseInt(String(u._id).substring(0, 8), 16) * 1000));
+
         // Real Inactivity Window: Calculated from genuine user timestamps
         const timestamps = [
           u.lastActiveAt ? new Date(u.lastActiveAt).getTime() : 0,
           u.lastLoginAt ? new Date(u.lastLoginAt).getTime() : 0,
-          u.createdAt ? new Date(u.createdAt).getTime() : 0,
+          realCreationDate.getTime(),
           pData.lastDate ? new Date(pData.lastDate).getTime() : 0,
           dData.lastDate ? new Date(dData.lastDate).getTime() : 0,
         ].filter(t => t > 0);
 
-        const latestInteraction = timestamps.length > 0 ? Math.max(...timestamps) : (u.createdAt ? new Date(u.createdAt).getTime() : now);
+        const latestInteraction = timestamps.length > 0 ? Math.max(...timestamps) : realCreationDate.getTime();
         const daysInactive = Math.max(0, Math.floor((now - latestInteraction) / DAY_MS));
 
         // Chapter completion percentage based on real notes or active platform study
@@ -182,7 +189,7 @@ class AnalyticsDataService {
           daysInactive,
           chapterCompletionPct,
           churned,
-          enrollmentDate: u.createdAt || new Date(now - (50 + idx) * DAY_MS).toISOString(),
+          enrollmentDate: realCreationDate.toISOString(),
           lastActiveDate: new Date(now - daysInactive * DAY_MS).toISOString(),
         };
       });
@@ -371,40 +378,97 @@ class AnalyticsDataService {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // 4. COHORT RETENTION
+  // 4. COHORT RETENTION (100% Real Live Cohort Dynamic Bucketing)
   // ─────────────────────────────────────────────────────────────
-  generateCohortRetention() {
-    return [
-      { cohort: "Week -8", size: 12, retention: [100, 83, 75, 67, 58, 50, 42, 42] },
-      { cohort: "Week -7", size: 10, retention: [100, 80, 70, 70, 60, 50, 50, 0] },
-      { cohort: "Week -6", size: 14, retention: [100, 86, 79, 71, 64, 57, 0, 0] },
-      { cohort: "Week -5", size: 11, retention: [100, 91, 82, 73, 64, 0, 0, 0] },
-      { cohort: "Week -4", size: 13, retention: [100, 85, 77, 69, 0, 0, 0, 0] },
-      { cohort: "Week -3", size: 9,  retention: [100, 89, 78, 0, 0, 0, 0, 0] },
-      { cohort: "Week -2", size: 15, retention: [100, 87, 0, 0, 0, 0, 0, 0] },
-      { cohort: "Week -1", size: 8,  retention: [100, 0, 0, 0, 0, 0, 0, 0] },
-    ];
+  generateCohortRetention(data = []) {
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    // Group the real dataset into 8 weekly cohorts (Week -8 down to Week -1)
+    const cohorts = [];
+    for (let i = 8; i >= 1; i--) {
+      const windowStart = now - i * WEEK_MS;
+      const windowEnd = now - (i - 1) * WEEK_MS;
+      const cohortName = `Week -${i}`;
+
+      // Filter real students whose enrollmentDate falls into this window
+      // For Week -1 (most recent), capture all enrollments up to current moment
+      // For Week -8 (oldest), capture any enrollments older than 7 weeks as well
+      const cohortStudents = data.filter(d => {
+        const enrollTime = new Date(d.enrollmentDate).getTime();
+        if (i === 1) {
+          return enrollTime >= windowStart && enrollTime <= now;
+        } else if (i === 8) {
+          return enrollTime < windowEnd;
+        } else {
+          return enrollTime >= windowStart && enrollTime < windowEnd;
+        }
+      });
+
+      const size = cohortStudents.length;
+      const retention = [];
+
+      for (let w = 1; w <= 8; w++) {
+        // Week w is only valid if w <= i (i weeks have elapsed since this cohort enrolled)
+        if (w > i || size === 0) {
+          retention.push(0);
+        } else if (w === 1) {
+          // All enrolled students were active in week 1
+          retention.push(100);
+        } else {
+          // Real retention: students still active (churned === 0 or active interactions)
+          const activeStudents = cohortStudents.filter(d => d.churned === 0 || d.daysInactive < (i - w + 1) * 7);
+          const pct = Math.round((activeStudents.length / size) * 100);
+          retention.push(pct);
+        }
+      }
+
+      cohorts.push({
+        cohort: cohortName,
+        size,
+        retention,
+      });
+    }
+
+    return cohorts;
   }
 
   // ─────────────────────────────────────────────────────────────
-  // 5. DROP-OFF FUNNEL
+  // 5. DROP-OFF FUNNEL (100% Real Live Learner Progression)
   // ─────────────────────────────────────────────────────────────
-  getDropoffFunnel(data) {
-    const total = data.length * 6;
-    const registered = data.length;
-    const exploredBatch = Math.round(registered * 0.91);
-    const studiedNotes = Math.round(registered * 0.78);
-    const attemptedQuiz = data.filter(d => d.quizScore > 0).length;
+  getDropoffFunnel(data = []) {
+    const total = data.length;
+    if (total === 0) {
+      return [
+        { stage: "Account Registered", count: 0, pct: 0 },
+        { stage: "Batch Catalog View", count: 0, pct: 0 },
+        { stage: "Study Notes Read", count: 0, pct: 0 },
+        { stage: "Quiz / Practice Taken", count: 0, pct: 0 },
+        { stage: "Checkout Initiated", count: 0, pct: 0 },
+        { stage: "Enrolled & Paid", count: 0, pct: 0 },
+        { stage: "Active Learner (Retained)", count: 0, pct: 0 },
+      ];
+    }
+
+    const registered = total;
+    // Real catalog / platform interaction: students active on the portal
+    const catalogActive = data.filter(d => d.studyHours > 0 || d.purchases > 0 || d.daysInactive <= 7).length;
+    // Real students who completed notes / chapters or studied
+    const studiedNotes = data.filter(d => d.chapterCompletionPct > 0 || d.studyHours > 0).length;
+    // Real students who took at least one quiz / mock test
+    const attemptedQuiz = data.filter(d => (d.testsGivenCount && d.testsGivenCount > 0) || (d.quizScore && d.quizScore > 0)).length;
+    // Real students who initiated checkout (purchases or failed payment attempts)
     const checkoutInitiated = data.filter(d => d.purchases > 0 || d.failedPayments > 0).length;
+    // Real paying students (purchases > 0)
     const convertedPaying = data.filter(d => d.purchases > 0).length;
+    // Real retained students (churned === 0)
     const retainedActive = data.filter(d => d.churned === 0).length;
 
-    const calcPct = (cnt) => total > 0 ? Math.round((cnt / total) * 100) : 0;
+    const calcPct = (cnt) => Math.round((cnt / total) * 100);
 
     return [
-      { stage: "Landing & Course Discovery", count: total, pct: total > 0 ? 100 : 0 },
-      { stage: "Account Registered", count: registered, pct: calcPct(registered) },
-      { stage: "Batch Catalog View", count: exploredBatch, pct: calcPct(exploredBatch) },
+      { stage: "Account Registered", count: registered, pct: 100 },
+      { stage: "Batch Catalog View", count: catalogActive, pct: calcPct(catalogActive) },
       { stage: "Study Notes Read", count: studiedNotes, pct: calcPct(studiedNotes) },
       { stage: "Quiz / Practice Taken", count: attemptedQuiz, pct: calcPct(attemptedQuiz) },
       { stage: "Checkout Initiated", count: checkoutInitiated, pct: calcPct(checkoutInitiated) },

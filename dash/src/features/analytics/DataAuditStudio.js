@@ -107,20 +107,20 @@ const DataAuditStudio = () => {
       <Box sx={{ p: 5, textAlign: "center", minHeight: 400 }}>
         <CircularProgress sx={{ color: "#1a1a2e" }} />
         <Typography sx={{ mt: 2, fontFamily: "'DM Sans', sans-serif", color: "#666" }}>
-          Aggregating all 67 Notenova Atlas student records with 7 ML models & mathematical derivations...
+          Aggregating live Notenova Atlas student records with 7 ML models & mathematical derivations...
         </Typography>
       </Box>
     );
   }
 
   const summary = auditData?.summary || {
-    totalStudents: 67,
-    actualChurned: 34,
-    actualActive: 33,
-    churnRate: 50.7,
-    correctCount: 67,
-    consensusAccuracy: 100.0,
-    totalMonetization: 59918,
+    totalStudents: 0,
+    actualChurned: 0,
+    actualActive: 0,
+    churnRate: 0,
+    correctCount: 0,
+    consensusAccuracy: 0,
+    totalMonetization: 0,
   };
 
   return (

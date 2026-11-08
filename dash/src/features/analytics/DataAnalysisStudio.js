@@ -99,12 +99,12 @@ const DataAnalysisStudio = () => {
   }
 
   const summary = overviewData?.summary || {
-    totalStudents: 100,
-    churnedCount: 32,
-    activeCount: 68,
-    churnRate: 32.0,
-    grossRevenue: 98400,
-    recoveredCount: 18,
+    totalStudents: 0,
+    churnedCount: 0,
+    activeCount: 0,
+    churnRate: 0,
+    grossRevenue: 0,
+    recoveredCount: 0,
   };
 
   const stats = overviewData?.stats || {};
