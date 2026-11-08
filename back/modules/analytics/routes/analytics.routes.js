@@ -298,6 +298,7 @@ router.get('/master-audit', async (req, res) => {
         track: s.track || 'Engineering / Aptitude',
         studyHours: s.studyHours,
         quizScore: s.quizScore,
+        testsGivenCount: s.testsGivenCount || 0,
         daysInactive: s.daysInactive,
         doubtsAsked: s.doubtsAsked,
         purchases: s.purchases,
