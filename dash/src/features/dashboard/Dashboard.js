@@ -56,6 +56,7 @@ import AdminDashboard from "./AdminDashboard";
 import DataAnalysisStudio from "../analytics/DataAnalysisStudio";
 import AiMlEngineStudio from "../analytics/AiMlEngineStudio";
 import DataAiAcademyStudio from "../analytics/DataAiAcademyStudio";
+import TelcoCustomerAiSystemStudio from "../analytics/TelcoCustomerAiSystemStudio";
 import TableChartIcon from "@mui/icons-material/TableChart";
 import ErrorBoundary from "../../shared/components/ErrorBoundary";
 import InsightsIcon from "@mui/icons-material/Insights";
@@ -88,6 +89,7 @@ const VIEW_REVENUE_RECOVERY = "revenue-recovery";
 const VIEW_DATA_ANALYSIS = "data-analysis";
 const VIEW_AIML = "ai-ml";
 const VIEW_DATA_AUDIT = "data-audit";
+const VIEW_TELCO_GUIDE = "telco-ai-system";
 const VIEW_PROFILE = "profile";
 
 const SECTIONS = [
@@ -174,6 +176,7 @@ const ADMIN_NAV = [
   { icon: InsightsIcon, title: "Data Analysis", view: VIEW_DATA_ANALYSIS },
   { icon: PsychologyIcon, title: "AI / ML Engine", view: VIEW_AIML },
   { icon: SchoolIcon, title: "Data & AI/ML Academy", view: VIEW_DATA_AUDIT },
+  { icon: LayersIcon, title: "Telco AI System (A-Z)", view: VIEW_TELCO_GUIDE },
 
 ];
 
@@ -1271,6 +1274,9 @@ const Dashboard = () => {
                   )}
                   {activeView === VIEW_DATA_AUDIT && (
                     <ErrorBoundary><Fade in timeout={400}><Box><DataAiAcademyStudio /></Box></Fade></ErrorBoundary>
+                  )}
+                  {activeView === VIEW_TELCO_GUIDE && (
+                    <ErrorBoundary><Fade in timeout={400}><Box><TelcoCustomerAiSystemStudio /></Box></Fade></ErrorBoundary>
                   )}
 
                 </>
