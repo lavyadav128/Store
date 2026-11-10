@@ -3,6 +3,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import analyticsDataService from '../services/analyticsData.service.js';
 import mlEngineService, { ML_FEATURES } from '../services/mlEngine.service.js';
+import { askTelcoProjectMentor } from '../services/telcoMentor.service.js';
 
 const router = express.Router();
 
@@ -355,6 +356,21 @@ router.get('/master-audit', async (req, res) => {
     });
   } catch (error) {
     console.error('Error generating master audit:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ── POST /api/analytics/telco-mentor ──
+router.post('/telco-mentor', async (req, res) => {
+  try {
+    const { message, currentStep, history } = req.body || {};
+    if (!message || !String(message).trim()) {
+      return res.status(400).json({ success: false, error: 'Message is required' });
+    }
+    const result = await askTelcoProjectMentor({ message, currentStep, history });
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error in Telco Project Mentor AI:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });

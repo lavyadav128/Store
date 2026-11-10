@@ -28,6 +28,8 @@ import CodeIcon from "@mui/icons-material/Code";
 import WarningAmberIcon from "@mui/icons-material/WarningAmber";
 import LightbulbIcon from "@mui/icons-material/Lightbulb";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
+import SmartToyIcon from "@mui/icons-material/SmartToy";
+import TelcoMentorChatWidget from "./TelcoMentorChatWidget";
 
 import { Chart as ChartJS, registerables } from "chart.js";
 import { Bar, Line, Doughnut } from "react-chartjs-2";
@@ -137,6 +139,7 @@ const FlowDiagram = ({ steps = [] }) => (
 const TelcoCustomerAiSystemStudio = () => {
   const [activeStep, setActiveStep] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [mentorOpen, setMentorOpen] = useState(false);
 
   // Interactive Quiz State
   const [quizAnswers, setQuizAnswers] = useState({});
@@ -225,6 +228,24 @@ const TelcoCustomerAiSystemStudio = () => {
                 },
               }}
             />
+            <Button
+              fullWidth
+              variant="contained"
+              startIcon={<SmartToyIcon />}
+              onClick={() => setMentorOpen(true)}
+              sx={{
+                mt: 1.2,
+                textTransform: "none",
+                fontWeight: 800,
+                fontSize: 12,
+                borderRadius: "10px",
+                background: "linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)",
+                color: "#0f172a",
+                "&:hover": { background: "#7dd3fc" },
+              }}
+            >
+              Ask AI Project Mentor (Knows Step {activeStep})
+            </Button>
           </Box>
         </Box>
 
@@ -1563,6 +1584,14 @@ aligned = combined.reindex(columns=self.feature_names_in, fill_value=0.0)`}
           {activeStep < TABS.length - 1 ? `Next: ${TABS[activeStep + 1].label}` : "Masterclass Completed!"}
         </Button>
       </Box>
+
+      {/* Dedicated Step-Aware Telco Project AI Assistant */}
+      <TelcoMentorChatWidget
+        activeStep={activeStep}
+        stepLabel={TABS[activeStep]?.label || "Stage 0"}
+        open={mentorOpen}
+        setOpen={setMentorOpen}
+      />
     </Box>
   );
 };
